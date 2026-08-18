@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Add Your Venue</title>
+<style>
+  :root{
+    --ink:#241F33;
+    --ink-soft:#8A80AD;
+    --ink-mute:#6B6285;
+    --purple:#7C5CD9;
+    --purple-dark:#6D4DC7;
+    --purple-pastel:#F1ECFB;
+    --purple-pastel-2:#F3EEFC;
+    --border:#EFECF9;
+    --border-2:#E9E4F7;
+    --border-hover:#C9BBEF;
+    --bg:#FAF9FD;
+    --white:#FFFFFF;
+    --placeholder:#B3ABCB;
+    --disabled:#DED4F5;
+    --green:#1E8A4C;
+    --green-bg:#E6F6EC;
+    --red:#C13B3B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:100%;
+  }
+  button{
+    font-family:inherit;cursor:pointer;touch-action:manipulation;
+    -webkit-appearance:none;appearance:none;
+    -webkit-tap-highlight-color:transparent;
+    outline:none;margin:0;background:none;border:none;padding:0;
+  }
+  input,textarea{font-family:inherit;}
+  .no-scrollbar{scrollbar-width:none;-ms-overflow-style:none;}
+  .no-scrollbar::-webkit-scrollbar{display:none;}
+
+  .shell{width:100%;max-width:460px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
+  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;}
+
+  @media (min-width:1024px){
+    body{background:linear-gradient(135deg,#F1ECFB 0%,#FAF9FD 60%);min-height:100vh;}
+    #root{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 0;}
+    .shell{
+      max-width:640px;height:auto;min-height:600px;max-height:calc(100dvh - 80px);
+      border-radius:28px;box-shadow:0 24px 70px rgba(36,31,51,.14);
+    }
+  }
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px 20px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  .backbtn{
+    width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    color:var(--ink);transition:background .15s;flex-shrink:0;
+  }
+  .backbtn:hover{background:var(--purple-pastel-2);}
+  .backbtn:disabled{opacity:0;pointer-events:none;}
+  .stepdots{display:flex;align-items:center;gap:6px;}
+  .dot{height:6px;border-radius:999px;transition:all .3s;background:var(--border);}
+  .dot.done{width:6px;background:var(--border-hover);}
+  .dot.current{width:24px;background:var(--purple);}
+  .dot.upcoming{width:6px;background:var(--border);}
+
+  .step-title{font-size:22px;font-weight:800;color:var(--ink);margin:4px 0 4px;letter-spacing:-.3px;}
+  .step-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 22px;line-height:1.5;}
+
+  .field{margin-bottom:16px;}
+  .field label{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:6px;}
+  .field .hint{font-size:11.5px;color:var(--ink-soft);margin:6px 2px 0;line-height:1.4;}
+  .field input, .field textarea{
+    width:100%;border:1.5px solid var(--border-2);border-radius:12px;padding:12px 13px;
+    font-size:14px;color:var(--ink);background:var(--white);transition:border-color .15s;
+  }
+  .field input:focus, .field textarea:focus{border-color:var(--purple);outline:none;}
+  .field input::placeholder, .field textarea::placeholder{color:var(--placeholder);}
+  .field input.error, .field textarea.error{border-color:var(--red);}
+  .field textarea{resize:none;min-height:80px;}
+
+  .select-wrap{position:relative;}
+  .select-wrap select{
+    width:100%;appearance:none;-webkit-appearance:none;border:1.5px solid var(--border-2);border-radius:12px;
+    padding:12px 34px 12px 13px;font-size:14px;color:var(--ink);background:var(--white);font-weight:600;
+  }
+  .select-wrap select:focus{border-color:var(--purple);outline:none;}
+  .select-chevron{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--ink-soft);pointer-events:none;display:flex;}
+
+  .chip{
+    padding:9px 15px;border-radius:999px;border:1.5px solid var(--border-2);background:var(--white);
+    font-size:13px;font-weight:700;color:var(--ink);transition:all .15s;
+  }
+  .chip:hover{border-color:var(--border-hover);}
+  .chip.active{border-color:var(--purple);background:var(--purple);color:#fff;}
+
+  .icon{display:inline-flex;align-items:center;justify-content:center;}
+
+  .primary-btn{
+    width:100%;padding:14px 0;border-radius:999px;background:var(--purple);color:#fff;
+    font-size:14.5px;font-weight:700;transition:background .15s;text-align:center;
+  }
+  .primary-btn:hover{background:var(--purple-dark);}
+  .primary-btn:disabled{background:var(--disabled);color:#fff;cursor:not-allowed;}
+
+  .secondary-btn{
+    width:100%;padding:13px 0;border-radius:999px;background:var(--white);color:var(--ink);
+    font-size:14px;font-weight:700;border:1.5px solid var(--border-2);transition:all .15s;text-align:center;
+  }
+  .secondary-btn:hover{border-color:var(--border-hover);}
+
+  .add-btn{
+    width:100%;padding:12px 0;border-radius:12px;border:1.5px dashed var(--border-hover);background:var(--purple-pastel-2);
+    color:var(--purple);font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;
+    transition:background .15s;
+  }
+  .add-btn:hover{background:var(--purple-pastel);}
+
+  .manage-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;}
+  .manage-card-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .manage-card-name{font-size:14.5px;font-weight:700;color:var(--ink);margin:0;}
+  .manage-card-meta{font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;}
+  .icon-btn{
+    width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);transition:all .15s;flex-shrink:0;
+  }
+  .icon-btn:hover{background:var(--purple-pastel-2);color:var(--purple);}
+  .icon-btn.danger:hover{background:#FBEAEA;color:var(--red);}
+
+  .day-row{
+    display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);
+  }
+  .day-row:last-child{border-bottom:none;}
+  .day-name{font-size:13.5px;font-weight:700;color:var(--ink);width:44px;flex-shrink:0;}
+  .day-toggle{
+    width:40px;height:24px;border-radius:999px;background:var(--border-2);position:relative;transition:background .15s;flex-shrink:0;
+  }
+  .day-toggle.on{background:var(--purple);}
+  .day-toggle .knob{
+    position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;
+    transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.15);
+  }
+  .day-toggle.on .knob{transform:translateX(16px);}
+  .day-times{display:flex;align-items:center;gap:6px;flex:1;min-width:0;}
+  .day-times select{
+    flex:1;min-width:0;appearance:none;-webkit-appearance:none;border:1.5px solid var(--border-2);border-radius:9px;
+    padding:8px 24px 8px 10px;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--white);
+  }
+  .day-times-closed{flex:1;font-size:12.5px;color:var(--placeholder);font-style:italic;padding:8px 10px;border:1.5px solid transparent;box-sizing:border-box;}
+  .day-select-wrap{position:relative;flex:1;min-width:0;}
+  .day-select-wrap .select-chevron{right:8px;}
+  .day-select-wrap .select-chevron svg{width:12px;height:12px;}
+
+  .avatar-circle{
+    width:40px;height:40px;border-radius:50%;background:var(--purple-pastel-2);color:var(--purple);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;
+  }
+
+  .progress-steps{display:flex;align-items:center;gap:6px;padding:0 20px 14px;flex-shrink:0;background:var(--white);}
+  .progress-step{flex:1;height:4px;border-radius:2px;background:var(--border-2);}
+  .progress-step.done{background:var(--purple);}
+  .progress-step.current{background:var(--purple);}
+
+  .summary-section{margin-bottom:22px;}
+  .summary-section-header{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+  }
+  .summary-section-title{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ink-soft);text-transform:uppercase;margin:0;}
+  .edit-link{font-size:12.5px;font-weight:700;color:var(--purple);}
+  .edit-link:hover{color:var(--purple-dark);}
+  .summary-row{display:flex;justify-content:space-between;gap:16px;padding:7px 0;font-size:13.5px;}
+  .summary-row .label{color:var(--ink-soft);flex-shrink:0;}
+  .summary-row .value{font-weight:600;color:var(--ink);text-align:right;}
+
+  .empty-hint{
+    text-align:center;padding:24px 16px;color:var(--ink-soft);font-size:13px;line-height:1.5;
+    background:var(--purple-pastel-2);border-radius:14px;border:1px dashed var(--border-hover);
+  }
+
+  .launch-screen{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;text-align:center;
+  }
+  .launch-check{
+    width:68px;height:68px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;
+    justify-content:center;margin-bottom:22px;color:var(--purple);
+  }
+
+  .modal-overlay{
+    position:absolute;inset:0;background:rgba(36,31,51,.45);display:flex;align-items:flex-end;justify-content:center;
+    z-index:50;
+  }
+  .modal-sheet{
+    width:100%;max-width:460px;background:var(--white);border-radius:22px 22px 0 0;padding:22px 20px 26px;
+    max-height:82vh;overflow-y:auto;
+  }
+  .modal-sheet-title{font-size:17px;font-weight:800;color:var(--ink);margin:0 0 18px;}
+  .sheet-actions{display:flex;gap:10px;margin-top:6px;}
+  .sheet-btn-secondary{
+    flex:1;padding:12px 0;border-radius:999px;border:1.5px solid var(--border-2);background:var(--white);
+    color:var(--ink);font-size:13.5px;font-weight:700;
+  }
+  .sheet-btn-primary{
+    flex:1;padding:12px 0;border-radius:999px;border:none;background:var(--purple);color:#fff;
+    font-size:13.5px;font-weight:700;
+  }
+  .sheet-btn-primary:disabled{background:var(--disabled);}
+
+  .check-row{
+    display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;
+    -webkit-user-select:none;user-select:none;touch-action:manipulation;
+  }
+  .checkbox-box{
+    width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-2);display:flex;align-items:center;
+    justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s;background:var(--white);color:#fff;
+  }
+  .checkbox-box.checked{background:var(--purple);border-color:var(--purple);}
+  .checkbox-box.error{border-color:var(--red);}
+  .check-label{font-size:13px;color:var(--ink);line-height:1.5;-webkit-user-select:none;user-select:none;}
+
+  .password-wrap{position:relative;}
+  .password-wrap input{padding-right:44px;}
+  .password-toggle{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;color:var(--ink-soft);
+  }
+  .password-toggle:hover{background:var(--purple-pastel-2);color:var(--purple);}
+
+  .auth-footnote{font-size:12.5px;color:var(--ink-soft);text-align:center;margin:14px 0 0;}
+
+  .page.no-scroll{overflow:hidden;}
+
+  .auth-notice{font-size:12.5px;line-height:1.5;color:var(--ink-mute);background:var(--purple-pastel-2);border:1px solid var(--border-2);border-radius:12px;padding:11px 12px;margin:0 0 16px;}
+  .auth-notice strong{color:var(--ink);}
+  .legal-link{
+    color:var(--purple);font-weight:700;text-decoration:none;
+    -webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;
+    -webkit-user-select:none;user-select:none;touch-action:manipulation;
+  }
+  .legal-link:hover{color:var(--purple-dark);}
+
+  /* iPhone input polish */
+  @media (max-width:639px), (pointer:coarse){.field input,.field textarea,.searchbox input{font-size:16px;}}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:"blooma-venue-auth" }
+});
+let inPasswordRecovery = /type=recovery/.test(location.hash) || new URLSearchParams(location.search).get("type")==="recovery";
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY"){
+    inPasswordRecovery=true;
+    handleRecoverySession(session);
+  }
+});
+async function handleRecoverySession(session){
+  try{
+    const {data:profile}=await supabaseClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle();
+    const acctType=String(profile?.account_type||session.user.user_metadata?.account_type||"").toLowerCase();
+    if(acctType==="customer" && /^https?:$/.test(location.protocol)){
+      const forwardUrl=`${location.origin}/login#access_token=${encodeURIComponent(session.access_token)}&refresh_token=${encodeURIComponent(session.refresh_token)}&type=recovery`;
+      window.location.replace(forwardUrl);
+      return;
+    }
+  }catch(err){ console.warn("Blooma recovery account-type check",err); }
+  state.authView="resetPassword"; state.registered=false; state.awaitingEmailConfirmation=false; state.resetErrors={};
+  if(/^https?:$/.test(location.protocol)) history.replaceState({},"","/business-auth");
+  render();
+}
+function makeTempPassword(){
+  const bytes = new Uint8Array(24); crypto.getRandomValues(bytes);
+  return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("") + "Aa1!";
+}
+function authRedirectUrl(draftId=state?.draftId){
+  if(!/^https?:$/.test(location.protocol)) return undefined;
+  let base=`${location.origin}/business-auth?confirmed=1`;
+  if(draftId) base+=`&draft=${encodeURIComponent(draftId)}`;
+  const staffInviteToken=new URLSearchParams(location.search).get("staff_invite");
+  if(staffInviteToken) base+=`&staff_invite=${encodeURIComponent(staffInviteToken)}`;
+  return base;
+}
+function adminDestination(){ return location.protocol === "file:" ? "salon-admin-v3-24-supabase.html" : "/venue/admin"; }
+async function tryAcceptStaffInviteFromUrl(){
+  const token=new URLSearchParams(location.search).get("staff_invite");
+  if(!token) return null;
+  try{
+    const {data,error}=await supabaseClient.rpc("accept_staff_invite",{p_token:token});
+    if(error) throw error;
+    if(/^https?:$/.test(location.protocol)) history.replaceState({},"",location.pathname);
+    return data?.salon_id||null;
+  }catch(err){
+    console.warn("Blooma staff invite acceptance failed",err);
+    if(/^https?:$/.test(location.protocol)) history.replaceState({},"",location.pathname);
+    return null;
+  }
+}
+function customerDestination(){ return location.protocol === "file:" ? "index.html" : "/"; }
+async function bloomaAccountEmailExists(email){
+  const {data,error}=await supabaseClient.rpc("venue_email_exists",{p_email:String(email||"").trim()});
+  if(error) throw error;
+  return data===true;
+}
+
+/* ---------------------------------------------------
+   ICONS
+--------------------------------------------------- */
+const ICONS = {
+  chevronLeft: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`,
+  chevronDown: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
+  plus: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`,
+  edit: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>`,
+  trash: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>`,
+  check: `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+  checkSmall: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+  eye: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`,
+  eyeOff: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><path d="M6.61 6.61C3.86 8.36 2 12 2 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`,
+};
+function icon(name, color){ return `<span class="icon" style="color:${color||'currentColor'}">${ICONS[name]||''}</span>`; }
+
+/* ---------------------------------------------------
+   CONSTANTS
+--------------------------------------------------- */
+const CATEGORY_OPTIONS = ["Hair","Color","Nails","Massage","Skincare","Barber","Spa","Brows & Lashes","Makeup"];
+const DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+function buildTimeOptions(){
+  const opts = [];
+  for (let h=6; h<=23; h++){
+    for (let m=0; m<60; m+=30){
+      const period = h>=12 ? "PM" : "AM";
+      let h12 = h % 12; if (h12===0) h12 = 12;
+      opts.push(`${h12}:${String(m).padStart(2,"0")} ${period}`);
+    }
+  }
+  return opts;
+}
+const TIME_OPTIONS = buildTimeOptions();
+
+function defaultHours(){
+  const hours = {};
+  DAY_NAMES.forEach(d=>{
+    const isWeekend = d==="Sat" || d==="Sun";
+    hours[d] = { open: !isWeekend, start: "8:30 AM", end: "5:00 PM" };
+  });
+  return hours;
+}
+
+/* ---------------------------------------------------
+   STATE
+--------------------------------------------------- */
+const INITIAL_AUTH_VIEW = new URLSearchParams(location.search).get("view") === "login" ? "login" : "register";
+
+let state = {
+  registered: false,
+  authView: INITIAL_AUTH_VIEW, // "register" or "login"
+  authStep: 0, // 0 email, 1 details
+  email: "",
+  firstName: "",
+  lastName: "",
+  regPhone: "",
+  password: "",
+  showPassword: false,
+  acceptedTerms: false,
+  regErrors: {},
+  authBusy: false,
+  emailConfirmationSent: false,
+  emailConfirmed: false,
+  awaitingEmailConfirmation: false,
+
+  loginEmail: "",
+  loginPassword: "",
+  showLoginPassword: false,
+  loginErrors: {},
+
+  forgotEmail: "",
+  forgotErrors: {},
+  forgotBusy: false,
+  forgotSent: false,
+
+  newPassword: "",
+  showNewPassword: false,
+  resetErrors: {},
+  resetBusy: false,
+
+  step: 0, // 0 business, 1 hours, 2 review
+  launched: false,
+
+  name: "",
+  categories: [],
+  address: "",
+  city: "",
+  region: "",
+  phone: "",
+  description: "",
+  errors: {},
+
+  hours: defaultHours(),
+
+  services: [],
+  addingService: false,
+  editingServiceId: null,
+  svcName: "", svcDuration: "45", svcPrice: "",
+
+  team: [],
+  addingStylist: false,
+  editingStylistId: null,
+  stylistName: "", stylistSpecialty: "",
+
+  confirmDialog: null,
+  salonId: null,
+  draftId: "",
+  draftReady: false,
+  draftStatus: "draft",
+};
+let serviceCounter = 1;
+let stylistCounter = 1;
+
+const STEP_META = [
+  { title: "Tell us about your venue", sub: "This is what customers will see first when they find you." },
+  { title: "Set your hours", sub: "You can always fine-tune these later in Settings." },
+  { title: "Review & finish", sub: "Check your venue details before creating your dashboard." },
+];
+
+const AUTH_STEP_META = [
+  { title: "What's your email?", sub: "We'll use this to create your account and keep it secure." },
+  { title: "Create your account", sub: "Just a few more details and you're in." },
+];
+
+/* ---------------------------------------------------
+   HELPERS
+--------------------------------------------------- */
+function escapeHtml(str){
+  return String(str==null?"":str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+const REGISTRATION_DRAFT_KEY="blooma-business-registration-draft-v1";
+function registrationDraftPayload(){
+  return {
+    authView:state.authView, authStep:state.authStep, email:state.email,
+    firstName:state.firstName, lastName:state.lastName, regPhone:state.regPhone,
+    password:state.password, acceptedTerms:state.acceptedTerms
+  };
+}
+function persistRegistrationDraft(){
+  if(state.registered || state.awaitingEmailConfirmation || state.authView!=="register") return;
+  try{ sessionStorage.setItem(REGISTRATION_DRAFT_KEY,JSON.stringify(registrationDraftPayload())); }catch(e){}
+}
+function restoreRegistrationDraft(){
+  try{
+    const raw=sessionStorage.getItem(REGISTRATION_DRAFT_KEY); if(!raw) return false;
+    const d=JSON.parse(raw); if(!d||typeof d!=="object") return false;
+    if(d.authView==="register") state.authView="register";
+    if(Number.isInteger(d.authStep)) state.authStep=Math.max(0,Math.min(1,d.authStep));
+    ["email","firstName","lastName","regPhone","password"].forEach(k=>{ if(typeof d[k]==="string") state[k]=d[k]; });
+    if(typeof d.acceptedTerms==="boolean") state.acceptedTerms=d.acceptedTerms;
+    return true;
+  }catch(e){ return false; }
+}
+function clearRegistrationDraft(){ try{ sessionStorage.removeItem(REGISTRATION_DRAFT_KEY); }catch(e){} }
+
+const VENUE_DRAFT_PREFIX="blooma-venue-setup-draft:";
+const PENDING_VENUE_DRAFT_KEY="blooma-pending-venue-draft-v2";
+function venueDraftKey(email=state.email){ return VENUE_DRAFT_PREFIX+String(email||"pending").trim().toLowerCase(); }
+function venueDraftPayload(){
+  return {
+    step:state.step,
+    name:state.name,
+    categories:state.categories,
+    address:state.address,
+    city:state.city,
+    region:state.region,
+    phone:state.phone,
+    description:state.description,
+    hours:state.hours,
+    services:state.services,
+    team:state.team
+  };
+}
+function rememberPendingVenueDraft(){
+  if(!state.draftId || !state.email) return;
+  try{ localStorage.setItem(PENDING_VENUE_DRAFT_KEY,JSON.stringify({draftId:state.draftId,email:state.email,updatedAt:Date.now()})); }catch(e){}
+}
+function getPendingVenueDraft(){
+  try{
+    const raw=localStorage.getItem(PENDING_VENUE_DRAFT_KEY); if(!raw) return null;
+    const d=JSON.parse(raw); if(!d||typeof d!=="object"||!d.draftId) return null;
+    return d;
+  }catch(e){ return null; }
+}
+function clearPendingVenueDraft(){ try{ localStorage.removeItem(PENDING_VENUE_DRAFT_KEY); }catch(e){} }
+function newVenueDraftId(){
+  if(crypto.randomUUID) return crypto.randomUUID();
+  const b=new Uint8Array(16); crypto.getRandomValues(b); b[6]=(b[6]&15)|64; b[8]=(b[8]&63)|128;
+  const h=Array.from(b,x=>x.toString(16).padStart(2,"0"));
+  return `${h.slice(0,4).join("")}-${h.slice(4,6).join("")}-${h.slice(6,8).join("")}-${h.slice(8,10).join("")}-${h.slice(10).join("")}`;
+}
+function ensureVenueDraftId(){
+  if(!state.draftId) state.draftId=newVenueDraftId();
+  rememberPendingVenueDraft();
+  return state.draftId;
+}
+function persistVenueDraft(){
+  if(!state.registered || state.launched) return;
+  try{ localStorage.setItem(venueDraftKey(),JSON.stringify(venueDraftPayload())); }catch(e){}
+  rememberPendingVenueDraft();
+}
+function restoreVenueDraft(email){
+  try{
+    const raw=localStorage.getItem(venueDraftKey(email)); if(!raw) return false;
+    const d=JSON.parse(raw); if(!d||typeof d!=="object") return false;
+    applyVenueDraftPayload(d);
+    return true;
+  }catch(e){ return false; }
+}
+function applyVenueDraftPayload(d){
+  if(!d||typeof d!=="object") return false;
+  if(Number.isInteger(d.step)) state.step=Math.max(0,Math.min(STEP_META.length-1,d.step));
+  ["name","address","city","region","phone","description"].forEach(k=>{ if(typeof d[k]==="string") state[k]=d[k]; });
+  if(Array.isArray(d.categories)) state.categories=d.categories;
+  if(d.hours&&typeof d.hours==="object") state.hours=d.hours;
+  if(Array.isArray(d.services)) state.services=d.services;
+  if(Array.isArray(d.team)) state.team=d.team;
+  serviceCounter=Math.max(0,...state.services.map(x=>Number(x.id)||0))+1;
+  stylistCounter=Math.max(0,...state.team.map(x=>Number(x.id)||0))+1;
+  return true;
+}
+function applyRemoteVenueDraft(d){
+  if(!d||typeof d!=="object") return false;
+  if(d.draft_id) state.draftId=String(d.draft_id);
+  if(d.email) state.email=String(d.email);
+  state.draftReady=!!d.ready_to_finalize;
+  state.draftStatus=String(d.status||"draft");
+  if(d.salon_id) state.salonId=d.salon_id;
+  applyVenueDraftPayload(d.payload||{});
+  rememberPendingVenueDraft();
+  return true;
+}
+function clearVenueDraft(){
+  try{ localStorage.removeItem(venueDraftKey()); }catch(e){}
+  clearPendingVenueDraft();
+}
+let venueDraftSyncTimer=null;
+async function saveVenueDraftRemote(ready=state.draftReady){
+  if(!state.email || state.launched) return null;
+  ensureVenueDraftId();
+  const {data,error}=await supabaseClient.rpc("save_venue_onboarding_draft",{
+    p_draft_id:state.draftId,
+    p_email:state.email.trim(),
+    p_payload:venueDraftPayload(),
+    p_ready_to_finalize:!!ready
+  });
+  if(error) throw error;
+  state.draftReady=!!ready;
+  if(data?.status) state.draftStatus=data.status;
+  rememberPendingVenueDraft();
+  return data;
+}
+function queueVenueDraftSync(delay=450){
+  if(!state.registered || !state.email || state.launched) return;
+  persistVenueDraft();
+  clearTimeout(venueDraftSyncTimer);
+  venueDraftSyncTimer=setTimeout(()=>{ saveVenueDraftRemote(state.draftReady).catch(err=>console.warn("Blooma draft autosave",err)); },delay);
+}
+async function loadVenueDraftRemote(draftId){
+  if(!draftId) return null;
+  const {data,error}=await supabaseClient.rpc("get_venue_onboarding_draft",{p_draft_id:draftId});
+  if(error) throw error;
+  return data||null;
+}
+async function loadMyVenueDraftRemote(){
+  const {data,error}=await supabaseClient.rpc("get_my_venue_onboarding_draft");
+  if(error) throw error;
+  return data||null;
+}
+async function finalizeVenueDraftRemote(){
+  if(!state.draftId) throw new Error("Venue draft not found. Please reopen Blooma for Business and try again.");
+  const {data,error}=await supabaseClient.rpc("finalize_venue_onboarding_draft",{p_draft_id:state.draftId});
+  if(error) throw error;
+  state.salonId=data?.salon_id||state.salonId;
+  state.draftStatus="completed";
+  state.draftReady=true;
+  return data;
+}
+function setState(patch){ Object.assign(state, patch); persistVenueDraft(); queueVenueDraftSync(); render(); }
+function bindEnterKeyAdvance(fieldIds, onSubmit){
+  fieldIds.forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("keydown", e=>{
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const nextId = fieldIds[i+1];
+      const nextEl = nextId ? document.getElementById(nextId) : null;
+      if (nextEl) nextEl.focus();
+      else if (typeof onSubmit === "function") onSubmit();
+    });
+  });
+}
+function resetScroll(root){
+  requestAnimationFrame(()=>{
+    window.scrollTo(0, 0);
+    const page = root.querySelector(".page");
+    if (page) page.scrollTop = 0;
+    const scrollable = root.querySelector("[style*='overflow-y:auto']");
+    if (scrollable) scrollable.scrollTop = 0;
+  });
+}
+function initialsOf(name){
+  return (name||"").trim().split(/\s+/).map(w=>w[0]).filter(Boolean).slice(0,2).join("").toUpperCase() || "?";
+}
+
+function validateLoginStep(){
+  const errors = {};
+  const email = state.loginEmail.trim();
+  if (!email) errors.loginEmail = "Enter your email";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.loginEmail = "Enter a valid email";
+  if (!state.loginPassword) errors.loginPassword = "Enter your password";
+  return errors;
+}
+
+function validateEmailStep(){
+  const errors = {};
+  const email = state.email.trim();
+  if (!email) errors.email = "Enter your email";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email";
+  return errors;
+}
+
+function validateDetailsStep(){
+  const errors = {};
+  if (!state.firstName.trim()) errors.firstName = "Enter your first name";
+  if (!state.lastName.trim()) errors.lastName = "Enter your last name";
+  if (!state.regPhone.trim()) errors.regPhone = "Enter your phone number";
+  if (!state.password) errors.password = "Create a password";
+  else if (state.password.length < 6) errors.password = "Use at least 6 characters";
+  if (!state.acceptedTerms) errors.acceptedTerms = "You need to accept the terms to continue";
+  return errors;
+}
+
+function validateBusinessStep(){
+  const errors = {};
+  if (!state.name.trim()) errors.name = "Enter your venue name";
+  if (state.categories.length===0) errors.categories = "Pick at least one category";
+  if (!state.address.trim()) errors.address = "Enter your address";
+  if (!state.city.trim()) errors.city = "Enter your city";
+  if (!state.region.trim()) errors.region = "Enter your region";
+  if (!state.phone.trim()) errors.phone = "Enter a contact number";
+  return errors;
+}
+
+async function createVenueAccount(){
+  const email = state.email.trim();
+  ensureVenueDraftId();
+  const options = { data:{
+    account_type:"venue",
+    first_name:state.firstName.trim(),
+    last_name:state.lastName.trim(),
+    phone:state.regPhone.trim()
+  } };
+  const redirectTo = authRedirectUrl(state.draftId);
+  if (redirectTo) options.emailRedirectTo = redirectTo;
+  const { data, error } = await supabaseClient.auth.signUp({ email, password:state.password, options });
+  if (error) throw error;
+  await saveVenueDraftRemote(false);
+  if (data?.user?.identities && data.user.identities.length===0){
+    const resendOptions={}; if(redirectTo) resendOptions.emailRedirectTo=redirectTo;
+    const {error:resendError}=await supabaseClient.auth.resend({type:"signup",email,options:resendOptions});
+    if(!resendError) throw new Error("A confirmation email has already been sent to this address. Your venue setup can still be saved while you confirm it.");
+    throw new Error("An account already exists with this email. Venue and customer accounts are separate, so use the matching login or a different email.");
+  }
+  return data;
+}
+async function resendVenueConfirmationEmail(){
+  const email=state.email.trim();
+  if(!email) throw new Error("Enter your email first.");
+  ensureVenueDraftId();
+  await saveVenueDraftRemote(state.draftReady);
+  const options={};
+  const redirectTo=authRedirectUrl(state.draftId);
+  if(redirectTo) options.emailRedirectTo=redirectTo;
+  const {error}=await supabaseClient.auth.resend({type:"signup",email,options});
+  if(error) throw error;
+}
+
+async function finishLegacyConfirmedVenueAccount(){
+  const { data:{session} } = await supabaseClient.auth.getSession();
+  if (!session) throw new Error("We couldn't verify your signed-in session. Please use the confirmation link again.");
+  const {data:existingProfile,error:profileReadError}=await supabaseClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle();
+  if(profileReadError) throw profileReadError;
+  const existingType=String(existingProfile?.account_type||session.user.user_metadata?.account_type||"venue").toLowerCase();
+  if(existingType!=="venue") throw new Error("This is a customer account. Venue and customer accounts are separate.");
+  const { error:updateError } = await supabaseClient.auth.updateUser({
+    password: state.password,
+    data: { account_type:"venue", first_name:state.firstName.trim(), last_name:state.lastName.trim(), phone:state.regPhone.trim() }
+  });
+  if (updateError) throw updateError;
+  const uid = session.user.id;
+  const { error:profileError } = await supabaseClient.from("user_profiles").upsert({
+    user_id:uid, account_type:"venue", first_name:state.firstName.trim(), last_name:state.lastName.trim(), phone:state.regPhone.trim(), updated_at:new Date().toISOString()
+  }, { onConflict:"user_id" });
+  if (profileError) throw profileError;
+}
+
+async function createVenueRecord(){
+  const { data, error } = await supabaseClient.rpc("create_venue_for_current_user_v2", {
+    p_name: state.name.trim(),
+    p_categories: state.categories,
+    p_address: state.address.trim(),
+    p_city: state.city.trim(),
+    p_region: state.region.trim(),
+    p_phone: state.phone.trim(),
+    p_description: state.description.trim(),
+    p_hours: state.hours,
+  });
+  if (error) throw error;
+  state.salonId = data;
+  return data;
+}
+
+/* ---------------------------------------------------
+   RENDER: LOGIN
+--------------------------------------------------- */
+function renderLoginStep(){
+  const e = state.loginErrors;
+  return `
+    <div class="field">
+      <label>Email address</label>
+      <input id="loginEmailInput" class="${e.loginEmail?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.loginEmail)}" placeholder="you@example.com" />
+      ${e.loginEmail?`<p class="hint" style="color:var(--red);">${e.loginEmail}</p>`:""}
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Password</label>
+      <div class="password-wrap">
+        <input id="loginPasswordInput" class="${e.loginPassword?'error':''}" type="${state.showLoginPassword?'text':'password'}" autocomplete="current-password" enterkeyhint="go" value="${escapeAttr(state.loginPassword)}" placeholder="Enter your password" />
+        <button type="button" class="password-toggle" id="toggleLoginPasswordBtn" aria-label="${state.showLoginPassword?'Hide password':'Show password'}">${icon(state.showLoginPassword?'eyeOff':'eye')}</button>
+      </div>
+      ${e.loginPassword?`<p class="hint" style="color:var(--red);">${e.loginPassword}</p>`:""}
+    </div>
+    <button type="button" id="forgotPasswordLink" style="margin-top:12px;border:0;background:transparent;padding:2px;color:var(--purple);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">Forgot password?</button>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: AUTH STEP 0 — EMAIL
+--------------------------------------------------- */
+function renderEmailStep(){
+  const e = state.regErrors;
+  return `
+    <div class="field" style="margin-bottom:0;">
+      <label>Email address</label>
+      <input id="emailInput" class="${e.email?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.email)}" placeholder="you@example.com" />
+      ${e.email?`<p class="hint" style="color:var(--red);">${e.email}</p>`:""}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: AUTH STEP 1 — ACCOUNT DETAILS
+--------------------------------------------------- */
+function renderDetailsStep(){
+  const e = state.regErrors;
+  return `
+    ${state.emailConfirmed ? `<div class="auth-notice">Email confirmed for <strong>${escapeHtml(state.email)}</strong>. Complete your details below.</div>` : ``}
+    ${e.confirmation?`<p class="hint" style="color:var(--red);margin:-6px 2px 14px;">${escapeHtml(e.confirmation)}</p>`:""}
+    <div class="field">
+      <label>First name</label>
+      <input id="firstNameInput" class="${e.firstName?'error':''}" autocomplete="given-name" enterkeyhint="next" value="${escapeAttr(state.firstName)}" placeholder="e.g. Priya" />
+      ${e.firstName?`<p class="hint" style="color:var(--red);">${e.firstName}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Last name</label>
+      <input id="lastNameInput" class="${e.lastName?'error':''}" autocomplete="family-name" enterkeyhint="next" value="${escapeAttr(state.lastName)}" placeholder="e.g. Nair" />
+      ${e.lastName?`<p class="hint" style="color:var(--red);">${e.lastName}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Phone</label>
+      <input id="regPhoneInput" class="${e.regPhone?'error':''}" autocomplete="tel" inputmode="tel" enterkeyhint="next" value="${escapeAttr(state.regPhone)}" placeholder="e.g. 07 839 4210" />
+      ${e.regPhone?`<p class="hint" style="color:var(--red);">${e.regPhone}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <div class="password-wrap">
+        <input id="passwordInput" class="${e.password?'error':''}" type="${state.showPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.password)}" placeholder="At least 6 characters" />
+        <button type="button" class="password-toggle" id="togglePasswordBtn" aria-label="${state.showPassword?'Hide password':'Show password'}">${icon(state.showPassword?'eyeOff':'eye')}</button>
+      </div>
+      ${e.password?`<p class="hint" style="color:var(--red);">${e.password}</p>`:""}
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <div class="check-row" id="termsRow">
+        <span class="checkbox-box ${state.acceptedTerms?'checked':''} ${e.acceptedTerms?'error':''}" id="termsCheckboxBox">${state.acceptedTerms?icon('checkSmall'):''}</span>
+        <span class="check-label">I agree to the <a class="legal-link" href="/terms?from=business-register" data-legal-link>Terms &amp; Conditions</a> and <a class="legal-link" href="/privacy?from=business-register" data-legal-link>Privacy Policy</a>.</span>
+      </div>
+      ${e.acceptedTerms?`<p class="hint" data-terms-error style="color:var(--red);">${e.acceptedTerms}</p>`:""}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: STEP 0 — BUSINESS BASICS
+--------------------------------------------------- */
+function renderBusinessStep(){
+  const e = state.errors;
+  return `
+    <div class="field">
+      <label>Venue name</label>
+      <input id="nameInput" class="${e.name?'error':''}" value="${escapeAttr(state.name)}" placeholder="e.g. Willow & Co." />
+      ${e.name?`<p class="hint" style="color:var(--red);">${e.name}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Categories</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${CATEGORY_OPTIONS.map(c=>`<button class="chip ${state.categories.includes(c)?'active':''}" data-togglecat="${escapeAttr(c)}">${c}</button>`).join("")}
+      </div>
+      ${e.categories?`<p class="hint" style="color:var(--red);">${e.categories}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Address</label>
+      <input id="addressInput" class="${e.address?'error':''}" value="${escapeAttr(state.address)}" placeholder="e.g. 14 Victoria St, Hamilton Central" />
+      ${e.address?`<p class="hint" style="color:var(--red);">${e.address}</p>`:""}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="field">
+        <label>City</label>
+        <input id="cityInput" class="${e.city?'error':''}" value="${escapeAttr(state.city)}" placeholder="e.g. Hamilton" />
+        ${e.city?`<p class="hint" style="color:var(--red);">${e.city}</p>`:""}
+      </div>
+      <div class="field">
+        <label>Region</label>
+        <input id="regionInput" class="${e.region?'error':''}" value="${escapeAttr(state.region)}" placeholder="e.g. Waikato" />
+        ${e.region?`<p class="hint" style="color:var(--red);">${e.region}</p>`:""}
+      </div>
+    </div>
+    <div class="field">
+      <label>Contact phone</label>
+      <input id="phoneInput" class="${e.phone?'error':''}" value="${escapeAttr(state.phone)}" placeholder="e.g. 07 839 4210" inputmode="tel" />
+      ${e.phone?`<p class="hint" style="color:var(--red);">${e.phone}</p>`:""}
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Description <span style="font-weight:400;color:var(--ink-soft);">(optional)</span></label>
+      <textarea id="descInput" placeholder="A short description customers will see on your venue page">${escapeHtml(state.description)}</textarea>
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: STEP 1 — HOURS
+--------------------------------------------------- */
+function renderHoursStep(){
+  return `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:4px 16px;">
+      ${DAY_NAMES.map(d=>{
+        const h = state.hours[d];
+        return `
+        <div class="day-row">
+          <span class="day-name">${d}</span>
+          <button class="day-toggle ${h.open?'on':''}" data-toggleday="${d}" aria-label="Toggle ${d}"><span class="knob"></span></button>
+          ${h.open ? `
+          <div class="day-times">
+            <div class="day-select-wrap">
+              <select data-daystart="${d}">${TIME_OPTIONS.map(t=>`<option value="${t}" ${t===h.start?'selected':''}>${t}</option>`).join("")}</select>
+              <span class="select-chevron">${icon('chevronDown')}</span>
+            </div>
+            <span style="color:var(--ink-soft);font-size:12px;">–</span>
+            <div class="day-select-wrap">
+              <select data-dayend="${d}">${TIME_OPTIONS.map(t=>`<option value="${t}" ${t===h.end?'selected':''}>${t}</option>`).join("")}</select>
+              <span class="select-chevron">${icon('chevronDown')}</span>
+            </div>
+          </div>
+          ` : `<span class="day-times-closed">Closed</span>`}
+        </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: STEP 2 — SERVICES
+--------------------------------------------------- */
+function renderServicesStep(){
+  return `
+    ${state.services.length===0 ? `<div class="empty-hint">No services yet. Add your first one below.</div>` : ""}
+    ${state.services.map(s=>`
+      <div class="manage-card">
+        <div class="manage-card-row">
+          <div style="min-width:0;">
+            <p class="manage-card-name">${escapeHtml(s.name)}</p>
+            <p class="manage-card-meta">${s.duration} min · $${s.price}</p>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0;">
+            <button class="icon-btn" data-editservice="${s.id}" aria-label="Edit">${icon('edit')}</button>
+            <button class="icon-btn danger" data-deleteservice="${s.id}" aria-label="Delete">${icon('trash')}</button>
+          </div>
+        </div>
+      </div>
+    `).join("")}
+    <button class="add-btn" data-addservice style="margin-top:6px;">${icon('plus')} Add a service</button>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: STEP 3 — TEAM
+--------------------------------------------------- */
+function renderTeamStep(){
+  return `
+    ${state.team.length===0 ? `<div class="empty-hint">No team members yet. You can skip this step and add them later, or add one now.</div>` : ""}
+    ${state.team.map(t=>`
+      <div class="manage-card">
+        <div class="manage-card-row">
+          <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+            <div class="avatar-circle">${initialsOf(t.name)}</div>
+            <div style="min-width:0;">
+              <p class="manage-card-name">${escapeHtml(t.name)}</p>
+              ${t.specialty?`<p class="manage-card-meta">${escapeHtml(t.specialty)}</p>`:""}
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0;">
+            <button class="icon-btn" data-editstylist="${t.id}" aria-label="Edit">${icon('edit')}</button>
+            <button class="icon-btn danger" data-deletestylist="${t.id}" aria-label="Delete">${icon('trash')}</button>
+          </div>
+        </div>
+      </div>
+    `).join("")}
+    <button class="add-btn" data-addstylist style="margin-top:6px;">${icon('plus')} Add a team member</button>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: STEP 4 — REVIEW
+--------------------------------------------------- */
+function renderReviewStep(){
+  const openDays = DAY_NAMES.filter(d=>state.hours[d].open);
+  return `
+    ${state.errors.launch?`<p class="hint" style="color:var(--red);margin:0 0 14px;">${escapeHtml(state.errors.launch)}</p>`:""}
+    <div class="summary-section">
+      <div class="summary-section-header">
+        <p class="summary-section-title">Business</p>
+        <button class="edit-link" data-gotostep="0">Edit</button>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;">
+        <div class="summary-row"><span class="label">Name</span><span class="value">${escapeHtml(state.name)}</span></div>
+        <div class="summary-row"><span class="label">Categories</span><span class="value">${state.categories.map(escapeHtml).join(", ")}</span></div>
+        <div class="summary-row"><span class="label">Address</span><span class="value">${escapeHtml(state.address)}</span></div>
+        <div class="summary-row"><span class="label">Location</span><span class="value">${escapeHtml(state.city)}, ${escapeHtml(state.region)}</span></div>
+        <div class="summary-row"><span class="label">Phone</span><span class="value">${escapeHtml(state.phone)}</span></div>
+      </div>
+    </div>
+
+    <div class="summary-section" style="margin-bottom:0;">
+      <div class="summary-section-header">
+        <p class="summary-section-title">Hours</p>
+        <button class="edit-link" data-gotostep="1">Edit</button>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;">
+        ${DAY_NAMES.map(d=>{
+          const h = state.hours[d];
+          return `<div class="summary-row"><span class="label">${d}</span><span class="value">${h.open?`${h.start} – ${h.end}`:'Closed'}</span></div>`;
+        }).join("")}
+        ${openDays.length===0?`<p style="font-size:12.5px;color:var(--red);margin:6px 0 0;">You haven't set any open days yet.</p>`:""}
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: SERVICE MODAL
+--------------------------------------------------- */
+function renderServiceModal(){
+  if (!state.addingService && !state.editingServiceId) return "";
+  const isEdit = !!state.editingServiceId;
+  const canSave = state.svcName.trim().length > 0 && Number(state.svcDuration) >= 15 && Number(state.svcDuration) <= 480 && state.svcPrice.trim().length > 0 && !isNaN(Number(state.svcPrice));
+  return `
+  <div class="modal-overlay" data-dismissservicemodal>
+    <div class="modal-sheet" data-modalsheet>
+      <p class="modal-sheet-title">${isEdit?'Edit service':'Add a service'}</p>
+      <div class="field">
+        <label>Service name</label>
+        <input id="svcNameInput" value="${escapeAttr(state.svcName)}" placeholder="e.g. Signature Cut" />
+      </div>
+      <div style="display:flex;gap:10px;">
+        <div class="field" style="flex:1;">
+          <label>Duration (min)</label>
+          <input id="svcDurationInput" type="number" min="15" max="480" step="5" value="${escapeAttr(state.svcDuration)}" inputmode="numeric" placeholder="45" />
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Price ($)</label>
+          <input id="svcPriceInput" value="${escapeAttr(state.svcPrice)}" inputmode="decimal" placeholder="65" />
+        </div>
+      </div>
+      <div class="sheet-actions">
+        <button class="sheet-btn-secondary" data-dismissservicemodal>Cancel</button>
+        <button class="sheet-btn-primary" id="saveServiceBtn" ${canSave?'':'disabled'}>${isEdit?'Save changes':'Add service'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------------------------------------------
+   RENDER: STYLIST MODAL
+--------------------------------------------------- */
+function renderStylistModal(){
+  if (!state.addingStylist && !state.editingStylistId) return "";
+  const isEdit = !!state.editingStylistId;
+  const canSave = state.stylistName.trim().length > 0;
+  return `
+  <div class="modal-overlay" data-dismissstylistmodal>
+    <div class="modal-sheet" data-modalsheet>
+      <p class="modal-sheet-title">${isEdit?'Edit team member':'Add a team member'}</p>
+      <div class="field">
+        <label>Name</label>
+        <input id="stylistNameInput" value="${escapeAttr(state.stylistName)}" placeholder="e.g. Priya N" />
+      </div>
+      <div class="field" style="margin-bottom:6px;">
+        <label>Specialty <span style="font-weight:400;color:var(--ink-soft);">(optional)</span></label>
+        <input id="stylistSpecialtyInput" value="${escapeAttr(state.stylistSpecialty)}" placeholder="e.g. Colour specialist" />
+      </div>
+      <div class="sheet-actions">
+        <button class="sheet-btn-secondary" data-dismissstylistmodal>Cancel</button>
+        <button class="sheet-btn-primary" id="saveStylistBtn" ${canSave?'':'disabled'}>${isEdit?'Save changes':'Add member'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------------------------------------------
+   RENDER: CONFIRM MODAL
+--------------------------------------------------- */
+function renderConfirmModal(){
+  if (!state.confirmDialog) return "";
+  const { title, message, confirmLabel } = state.confirmDialog;
+  return `
+  <div class="modal-overlay" data-dismissconfirm>
+    <div class="modal-sheet" data-modalsheet>
+      <p class="modal-sheet-title">${escapeHtml(title)}</p>
+      <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin:0 0 20px;">${escapeHtml(message)}</p>
+      <div class="sheet-actions">
+        <button class="sheet-btn-secondary" data-dismissconfirm>Cancel</button>
+        <button class="sheet-btn-primary" style="background:var(--red);" data-confirmaction>${escapeHtml(confirmLabel)}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------------------------------------------
+   RENDER: LAUNCHED SCREEN
+--------------------------------------------------- */
+function renderLaunched(){
+  return `
+    <div class="page no-scroll">
+      <div class="launch-screen">
+        <div class="launch-check">${icon('check')}</div>
+        <h1 class="step-title" style="margin-bottom:8px;">Setup complete</h1>
+        <p class="step-sub" style="max-width:300px;margin:0 auto 4px;">
+          ${escapeHtml(state.name)} has been created. Add a main image, services and staff from your dashboard, then switch on <strong>Show venue on Blooma</strong> when you are ready for customers.
+        </p>
+        <div style="width:100%;max-width:300px;margin-top:24px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:left;">
+          <div class="summary-row"><span class="label">Venue</span><span class="value">${escapeHtml(state.name)}</span></div>
+          <div class="summary-row"><span class="label">Status</span><span class="value">Hidden until you publish</span></div>
+        </div>
+      </div>
+      <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="goToDashboardBtn">Go to dashboard</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: REGISTRATION FLOW
+--------------------------------------------------- */
+function renderAwaitingEmailConfirmation(){
+  if(state.draftReady){
+    return `
+      <div class="page no-scroll">
+        <div class="launch-screen">
+          <div class="launch-check">${icon('check')}</div>
+          <h1 class="step-title" style="margin-bottom:8px;">Venue setup saved</h1>
+          <p class="step-sub" style="max-width:330px;margin:0 auto;">
+            Everything for <strong>${escapeHtml(state.name||"your venue")}</strong> is saved securely. Confirm the email sent to <strong>${escapeHtml(state.email)}</strong> and Blooma will finish creating your venue automatically. You won't need to enter anything again.
+          </p>
+          <button type="button" id="pendingResendBtn" style="margin-top:14px;border:0;background:transparent;padding:6px;color:var(--purple);font:inherit;font-size:13px;font-weight:750;cursor:pointer;">Resend confirmation email</button>
+          <p class="hint" id="pendingConfirmationStatus" style="max-width:320px;margin:10px auto 0;"></p>
+        </div>
+        <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+          <button class="secondary-btn" id="pendingContinueVenueBtn">Edit venue setup</button>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="page no-scroll">
+      <div class="launch-screen">
+        <div class="launch-check">${icon('check')}</div>
+        <h1 class="step-title" style="margin-bottom:8px;">Venue account created</h1>
+        <p class="step-sub" style="max-width:330px;margin:0 auto;">
+          We’ve sent a confirmation email to <strong>${escapeHtml(state.email)}</strong>. You can keep setting up your venue now. Your progress will be saved as you go.
+        </p>
+        <button type="button" id="pendingResendBtn" style="margin-top:14px;border:0;background:transparent;padding:6px;color:var(--purple);font:inherit;font-size:13px;font-weight:750;cursor:pointer;">Resend confirmation email</button>
+        <p class="hint" id="pendingConfirmationStatus" style="max-width:320px;margin:10px auto 0;"></p>
+      </div>
+      <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="pendingContinueVenueBtn">Continue venue setup</button>
+      </div>
+    </div>
+  `;
+}
+
+function bindAwaitingEmailConfirmation(){
+  const continueBtn=document.getElementById("pendingContinueVenueBtn");
+  if(continueBtn) continueBtn.addEventListener("click",()=>setState({awaitingEmailConfirmation:false,registered:true}));
+  const resend=document.getElementById("pendingResendBtn");
+  if(resend) resend.addEventListener("click",async()=>{
+    resend.disabled=true; resend.textContent="Sending…";
+    try{ await resendVenueConfirmationEmail(); resend.textContent="Sent — check your email"; }
+    catch(err){ resend.disabled=false; resend.textContent="Try resending confirmation email"; const el=document.getElementById("pendingConfirmationStatus"); if(el) el.textContent=err.message||"We couldn't resend the email."; }
+  });
+}
+
+function renderAuthFlow(root){
+  const meta = AUTH_STEP_META[state.authStep];
+  const isEmailStep = state.authStep === 0;
+  const body = isEmailStep ? renderEmailStep() : renderDetailsStep();
+  const isLast = state.authStep === AUTH_STEP_META.length - 1;
+  const nextLabel = isLast ? "Create account" : "Continue";
+  const dots = AUTH_STEP_META.map((_, i)=>{
+    const cls = i===state.authStep ? 'current' : (i<state.authStep ? 'done' : 'upcoming');
+    return `<div class="dot ${cls}"></div>`;
+  }).join("");
+
+  const html = `
+    <div class="page ${isEmailStep?'no-scroll':''}">
+      <div class="topbar">
+        <button class="backbtn" id="authBackBtn" ${state.authStep===0?'disabled':''} aria-label="Go back">${icon('chevronLeft')}</button>
+        <div class="stepdots">${dots}</div>
+      </div>
+      <div style="flex:1;overflow-y:${isEmailStep?'hidden':'auto'};padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">${meta.title}</h1>
+        <p class="step-sub">${meta.sub}</p>
+        ${body}
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="authNextBtn">${nextLabel}</button>
+        ${isEmailStep?`<p class="auth-footnote" id="gotoLoginLink" style="cursor:pointer;">Already have an account? <span style="color:var(--purple);font-weight:700;">Log in</span></p>`:""}
+      </div>
+    </div>
+  `;
+
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  bindAuthEvents();
+}
+
+/* ---------------------------------------------------
+   RENDER: LOGIN FLOW
+--------------------------------------------------- */
+function renderLoginFlow(root){
+  const html = `
+    <div class="page no-scroll">
+      <div class="topbar">
+        <button class="backbtn" id="loginBackBtn" disabled aria-label="Go back">${icon('chevronLeft')}</button>
+        <div class="stepdots"></div>
+      </div>
+      <div style="flex:1;overflow-y:hidden;padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">Welcome back</h1>
+        <p class="step-sub">Log in to continue managing your venue.</p>
+        ${renderLoginStep()}
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="loginNextBtn">Log in</button>
+        <p class="auth-footnote" id="gotoRegisterLink" style="cursor:pointer;">Don't have an account? <span style="color:var(--purple);font-weight:700;">Sign up</span></p>
+      </div>
+    </div>
+  `;
+
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  bindLoginEvents();
+}
+
+/* ---------------------------------------------------
+   RENDER: FORGOT PASSWORD
+--------------------------------------------------- */
+function renderForgotPassword(root){
+  const e = state.forgotErrors;
+  const html = state.forgotSent ? `
+    <div class="page no-scroll">
+      <div class="welcome-screen">
+        <div class="welcome-check">${icon('check')}</div>
+        <h1 class="step-title" style="margin-bottom:8px;">Check your email</h1>
+        <p class="step-sub" style="max-width:330px;margin:0 auto;">If there's a Blooma for Business account for <strong>${escapeHtml(state.forgotEmail)}</strong>, we've sent a link to reset your password.</p>
+      </div>
+      <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="backToLoginBtn">Back to log in</button>
+      </div>
+    </div>
+  ` : `
+    <div class="page no-scroll">
+      <div class="topbar">
+        <button class="backbtn" id="forgotBackBtn" aria-label="Go back">${icon('chevronLeft')}</button>
+      </div>
+      <div style="flex:1;overflow-y:hidden;padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">Reset your password</h1>
+        <p class="step-sub">Enter your email and we'll send you a link to reset it.</p>
+        <div class="field" style="margin-bottom:0;">
+          <label>Email address</label>
+          <input id="forgotEmailInput" class="${e.forgotEmail?'error':''}" type="email" autocomplete="email" inputmode="email" enterkeyhint="go" value="${escapeAttr(state.forgotEmail)}" placeholder="you@example.com" />
+          ${e.forgotEmail?`<p class="hint" style="color:var(--red);">${e.forgotEmail}</p>`:""}
+        </div>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="sendResetBtn">Send reset link</button>
+      </div>
+    </div>
+  `;
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  const backBtn = document.getElementById("forgotBackBtn");
+  if (backBtn) backBtn.addEventListener("click", ()=>{ setState({ authView:"login", forgotErrors:{} }); });
+  const backToLoginBtn = document.getElementById("backToLoginBtn");
+  if (backToLoginBtn) backToLoginBtn.addEventListener("click", ()=>{ setState({ authView:"login", forgotSent:false, forgotEmail:"", forgotErrors:{} }); });
+  const sendBtn = document.getElementById("sendResetBtn");
+  const emailInput = document.getElementById("forgotEmailInput");
+  const doSend = async ()=>{
+    if (state.forgotBusy) return;
+    const email = (emailInput?.value||"").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setState({ forgotErrors:{forgotEmail:"Enter a valid email address."} }); return; }
+    state.forgotBusy = true; state.forgotEmail = email;
+    if (sendBtn){ sendBtn.disabled=true; sendBtn.textContent="Sending…"; }
+    try{
+      await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/business-auth` });
+      state.forgotBusy = false;
+      setState({ forgotSent:true, forgotErrors:{} });
+    }catch(err){
+      state.forgotBusy = false;
+      setState({ forgotErrors:{forgotEmail: err?.message || "We couldn't send that email. Please try again."} });
+    }
+  };
+  if (sendBtn) sendBtn.addEventListener("click", doSend);
+  if (emailInput) bindEnterKeyAdvance(["forgotEmailInput"], doSend);
+}
+
+/* ---------------------------------------------------
+   RENDER: RESET PASSWORD
+--------------------------------------------------- */
+function renderResetPassword(root){
+  const e = state.resetErrors;
+  const html = `
+    <div class="page no-scroll">
+      <div class="topbar"></div>
+      <div style="flex:1;overflow-y:hidden;padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">Set a new password</h1>
+        <p class="step-sub">Choose a new password for your Blooma for Business account.</p>
+        <div class="field" style="margin-bottom:0;">
+          <label>New password</label>
+          <div class="password-wrap">
+            <input id="newPasswordInput" class="${e.newPassword?'error':''}" type="${state.showNewPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.newPassword)}" placeholder="At least 8 characters" />
+            <button type="button" class="password-toggle" id="toggleNewPasswordBtn" aria-label="${state.showNewPassword?'Hide password':'Show password'}">${icon(state.showNewPassword?'eyeOff':'eye')}</button>
+          </div>
+          ${e.newPassword?`<p class="hint" style="color:var(--red);">${e.newPassword}</p>`:""}
+        </div>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="submitNewPasswordBtn">Update password</button>
+      </div>
+    </div>
+  `;
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  const toggleBtn = document.getElementById("toggleNewPasswordBtn");
+  if (toggleBtn) toggleBtn.addEventListener("click", ()=> setState({ showNewPassword: !state.showNewPassword }));
+  const submitBtn = document.getElementById("submitNewPasswordBtn");
+  const pwInput = document.getElementById("newPasswordInput");
+  const doSubmit = async ()=>{
+    if (state.resetBusy) return;
+    const pw = pwInput?.value||"";
+    if (pw.length < 8){ setState({ resetErrors:{newPassword:"Password must be at least 8 characters."} }); return; }
+    state.resetBusy = true;
+    if (submitBtn){ submitBtn.disabled=true; submitBtn.textContent="Updating…"; }
+    try{
+      const {error} = await supabaseClient.auth.updateUser({ password: pw });
+      if (error) throw error;
+      try{ await supabaseClient.auth.signOut(); }catch(err){}
+      clearVenueDraft();
+      state.resetBusy = false;
+      setState({ authView:"login", loginErrors:{}, newPassword:"" });
+    }catch(err){
+      state.resetBusy = false;
+      setState({ resetErrors:{newPassword: err?.message || "We couldn't update your password. Please request a new reset link."} });
+    }
+  };
+  if (submitBtn) submitBtn.addEventListener("click", doSubmit);
+  if (pwInput) bindEnterKeyAdvance(["newPasswordInput"], doSubmit);
+}
+
+/* ---------------------------------------------------
+   MAIN RENDER
+--------------------------------------------------- */
+function render(){
+  const root = document.getElementById("root");
+
+  if (!state.registered){
+    if(state.awaitingEmailConfirmation){
+      root.innerHTML = `<div class="shell">${renderAwaitingEmailConfirmation()}</div>`;
+      resetScroll(root);
+      bindAwaitingEmailConfirmation();
+    }else if (state.authView === "login") renderLoginFlow(root);
+    else if (state.authView === "forgotPassword") renderForgotPassword(root);
+    else if (state.authView === "resetPassword") renderResetPassword(root);
+    else renderAuthFlow(root);
+    return;
+  }
+
+  if (state.launched){
+    root.innerHTML = `<div class="shell">${renderLaunched()}</div>`;
+    resetScroll(root);
+    const dashboardBtn=document.getElementById("goToDashboardBtn");
+    if(dashboardBtn) dashboardBtn.addEventListener("click",()=>{ window.location.href=adminDestination(); });
+    return;
+  }
+
+  const meta = STEP_META[state.step];
+  let body = "";
+  if (state.step===0) body = renderBusinessStep();
+  else if (state.step===1) body = renderHoursStep();
+  else if (state.step===2) body = renderReviewStep();
+
+  const isLast = state.step === STEP_META.length - 1;
+  const nextLabel = isLast ? "Finish setup" : "Continue";
+  const dots = STEP_META.map((_, i)=>{
+    const cls = i===state.step ? 'current' : (i<state.step ? 'done' : 'upcoming');
+    return `<div class="dot ${cls}"></div>`;
+  }).join("");
+
+  const html = `
+    <div class="page">
+      <div class="topbar">
+        <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft')}</button>
+        <div class="stepdots">${dots}</div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">${meta.title}</h1>
+        <p class="step-sub">${meta.sub}</p>
+        ${body}
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="nextBtn">${nextLabel}</button>
+      </div>
+    </div>
+  `;
+
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  bindEvents();
+}
+
+/* ---------------------------------------------------
+   EVENT BINDING: REGISTRATION
+--------------------------------------------------- */
+function bindAuthEvents(){
+  const authBackBtn = document.getElementById("authBackBtn");
+  if (authBackBtn) authBackBtn.addEventListener("click", ()=>{
+    if (state.authStep>0) setState({ authStep: state.authStep-1 });
+  });
+
+  const authNextBtn = document.getElementById("authNextBtn");
+  if (authNextBtn) authNextBtn.addEventListener("click", async ()=>{
+    if (state.authBusy) return;
+    if (state.authStep===0){
+      const errors = validateEmailStep();
+      if (Object.keys(errors).length){ setState({ regErrors: errors }); return; }
+      state.authBusy = true; authNextBtn.disabled = true; authNextBtn.textContent = "Checking…";
+      try{
+        const email=state.email.trim();
+        if(await bloomaAccountEmailExists(email)){
+          state.authBusy=false;
+          setState({authView:"login",loginEmail:email,loginPassword:"",loginErrors:{},regErrors:{}});
+          return;
+        }
+        setState({ authStep: 1, regErrors: {}, emailConfirmationSent:false, emailConfirmed:false, authBusy:false });
+      }catch(err){
+        state.authBusy = false;
+        setState({ regErrors:{ email: err.message || "We couldn't check that email. Try again." } });
+      }
+      return;
+    }
+    const errors = validateDetailsStep();
+    if (Object.keys(errors).length){ setState({ regErrors: errors }); return; }
+    state.authBusy = true; authNextBtn.disabled = true; authNextBtn.textContent = "Creating…";
+    try{
+      let result;
+      if(state.emailConfirmed){
+        await finishLegacyConfirmedVenueAccount();
+        result={session:(await supabaseClient.auth.getSession()).data.session};
+      }else{
+        result=await createVenueAccount();
+      }
+      clearRegistrationDraft();
+      if(result?.session){ setState({ registered:true, regErrors:{}, authBusy:false, emailConfirmed:true }); }
+      else setState({ awaitingEmailConfirmation:true, emailConfirmationSent:true, regErrors:{}, authBusy:false });
+    }catch(err){
+      state.authBusy = false;
+      const msg=err.message || "We couldn't finish creating your account.";
+      if(/confirmation email has already been sent/i.test(msg)) setState({awaitingEmailConfirmation:true,emailConfirmationSent:true,regErrors:{},authBusy:false});
+      else setState({ regErrors:{ confirmation: msg } });
+    }
+  });
+
+  const emailInput = document.getElementById("emailInput");
+  if (emailInput) emailInput.addEventListener("input", e=>{ state.email = e.target.value; persistRegistrationDraft(); });
+  const firstNameInput = document.getElementById("firstNameInput");
+  if (firstNameInput) firstNameInput.addEventListener("input", e=>{ state.firstName = e.target.value; persistRegistrationDraft(); });
+  const lastNameInput = document.getElementById("lastNameInput");
+  if (lastNameInput) lastNameInput.addEventListener("input", e=>{ state.lastName = e.target.value; persistRegistrationDraft(); });
+  const regPhoneInput = document.getElementById("regPhoneInput");
+  if (regPhoneInput) regPhoneInput.addEventListener("input", e=>{ state.regPhone = e.target.value; persistRegistrationDraft(); });
+  const passwordInput = document.getElementById("passwordInput");
+  if (passwordInput) passwordInput.addEventListener("input", e=>{ state.password = e.target.value; persistRegistrationDraft(); });
+  const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+  if (togglePasswordBtn) togglePasswordBtn.addEventListener("click", ()=> setState({ showPassword: !state.showPassword }));
+  const termsRow = document.getElementById("termsRow");
+  if (termsRow) termsRow.addEventListener("click", e=>{
+    if (e.target.closest("[data-legal-link]")) return;
+    state.acceptedTerms=!state.acceptedTerms;
+    const box=document.getElementById("termsCheckboxBox");
+    if(box){ box.classList.toggle("checked",state.acceptedTerms); box.classList.remove("error"); box.innerHTML=state.acceptedTerms?icon("checkSmall"):""; }
+    const termsError=document.querySelector("[data-terms-error]"); if(termsError) termsError.remove();
+    persistRegistrationDraft();
+  });
+  document.querySelectorAll("[data-legal-link]").forEach(a=>a.addEventListener("click", e=>{
+    e.stopPropagation();
+    persistRegistrationDraft();
+  }));
+
+  const gotoLoginLink = document.getElementById("gotoLoginLink");
+  if (gotoLoginLink) gotoLoginLink.addEventListener("click", ()=> setState({ authView: "login", loginErrors: {} }));
+
+  if (authNextBtn){
+    const fieldIds = state.authStep===0 ? ["emailInput"] : ["firstNameInput","lastNameInput","regPhoneInput","passwordInput"];
+    bindEnterKeyAdvance(fieldIds, ()=>authNextBtn.click());
+  }
+}
+
+/* ---------------------------------------------------
+   EVENT BINDING: LOGIN
+--------------------------------------------------- */
+function bindLoginEvents(){
+  const loginNextBtn = document.getElementById("loginNextBtn");
+  if (loginNextBtn) loginNextBtn.addEventListener("click", async ()=>{
+    const errors = validateLoginStep();
+    if (Object.keys(errors).length){ setState({ loginErrors: errors }); return; }
+    loginNextBtn.disabled = true; loginNextBtn.textContent = "Logging in…";
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email:state.loginEmail.trim(), password:state.loginPassword });
+    if (error){ setState({ loginErrors:{ loginPassword:error.message || "Unable to log in" } }); return; }
+    const [{data:profile},{data:owner}]=await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name,phone").eq("user_id",data.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id").eq("user_id",data.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||data.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      setState({ loginErrors:{ loginPassword:"That login belongs to a Blooma customer account. Venue and customer accounts are separate." } });
+      return;
+    }
+    let ownerSalonId=owner?.salon_id||null;
+    if(!ownerSalonId && new URLSearchParams(location.search).get("staff_invite")){
+      ownerSalonId=await tryAcceptStaffInviteFromUrl();
+    }
+    if (ownerSalonId){ clearVenueDraft(); window.location.href = adminDestination(); return; }
+    const signedEmail=data.user.email||state.loginEmail.trim();
+    state.email=signedEmail;
+    try{
+      const remoteDraft=await loadMyVenueDraftRemote();
+      if(remoteDraft) applyRemoteVenueDraft(remoteDraft);
+      else restoreVenueDraft(signedEmail);
+    }catch(err){
+      console.warn("Blooma venue draft resume",err);
+      restoreVenueDraft(signedEmail);
+    }
+    setState({
+      registered:true, awaitingEmailConfirmation:false, loginErrors:{}, email:signedEmail, emailConfirmed:!!data.user.email_confirmed_at,
+      firstName:profile?.first_name||"", lastName:profile?.last_name||"", regPhone:profile?.phone||"",
+      phone:state.phone||profile?.phone||""
+    });
+  });
+
+  const loginEmailInput = document.getElementById("loginEmailInput");
+  if (loginEmailInput) loginEmailInput.addEventListener("input", e=>{ state.loginEmail = e.target.value; });
+  const loginPasswordInput = document.getElementById("loginPasswordInput");
+  if (loginPasswordInput) loginPasswordInput.addEventListener("input", e=>{ state.loginPassword = e.target.value; });
+  const toggleLoginPasswordBtn = document.getElementById("toggleLoginPasswordBtn");
+  if (toggleLoginPasswordBtn) toggleLoginPasswordBtn.addEventListener("click", ()=> setState({ showLoginPassword: !state.showLoginPassword }));
+
+  const gotoRegisterLink = document.getElementById("gotoRegisterLink");
+  if (gotoRegisterLink) gotoRegisterLink.addEventListener("click", ()=> setState({ authView: "register", authStep: 0, regErrors: {} }));
+
+  const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+  if (forgotPasswordLink) forgotPasswordLink.addEventListener("click", ()=>{ setState({ authView:"forgotPassword", forgotEmail: state.loginEmail.trim(), forgotSent:false, forgotErrors:{} }); });
+
+  if (loginNextBtn){
+    bindEnterKeyAdvance(["loginEmailInput","loginPasswordInput"], ()=>loginNextBtn.click());
+  }
+}
+
+/* ---------------------------------------------------
+   EVENT BINDING
+--------------------------------------------------- */
+function bindEvents(){
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.addEventListener("click", ()=>{
+    if (state.step>0) setState({ step: state.step-1 });
+    else if (state.authView === "login") setState({ registered: false });
+    else setState({ registered: false, authStep: 1 });
+  });
+
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.addEventListener("click", async ()=>{
+    if (state.step===0){
+      const errors = validateBusinessStep();
+      if (Object.keys(errors).length){ setState({ errors }); return; }
+      setState({ step: 1, errors: {} });
+      return;
+    }
+    if (state.step < STEP_META.length - 1){
+      setState({ step: state.step + 1 });
+      return;
+    }
+    // final step — save the complete draft first. Email confirmation finishes the hidden venue automatically.
+    if (DAY_NAMES.every(d=>!state.hours[d].open)){
+      return;
+    }
+    nextBtn.disabled = true; nextBtn.textContent = "Saving setup…";
+    try{
+      state.draftReady=true;
+      persistVenueDraft();
+      await saveVenueDraftRemote(true);
+      const {data:{session}}=await supabaseClient.auth.getSession();
+      const emailConfirmed=!!session?.user?.email_confirmed_at;
+      if(!session || !emailConfirmed){
+        state.registered=false;
+        state.awaitingEmailConfirmation=true;
+        state.emailConfirmationSent=true;
+        render();
+        return;
+      }
+      nextBtn.textContent = "Creating venue…";
+      await finalizeVenueDraftRemote();
+      clearVenueDraft();
+      state.launched=true;
+      state.awaitingEmailConfirmation=false;
+      state.errors={};
+      render();
+    }catch(err){
+      state.draftReady=false;
+      setState({ errors:{...state.errors, launch:err.message || "We couldn't save your venue setup. Try again."} });
+    }
+  });
+
+  // step 0 — business
+  const nameInput = document.getElementById("nameInput");
+  if (nameInput) nameInput.addEventListener("input", e=>{ state.name = e.target.value; });
+  const addressInput = document.getElementById("addressInput");
+  if (addressInput) addressInput.addEventListener("input", e=>{ state.address = e.target.value; });
+  const cityInput = document.getElementById("cityInput");
+  if (cityInput) cityInput.addEventListener("input", e=>{ state.city = e.target.value; });
+  const regionInput = document.getElementById("regionInput");
+  if (regionInput) regionInput.addEventListener("input", e=>{ state.region = e.target.value; });
+  const phoneInput = document.getElementById("phoneInput");
+  if (phoneInput) phoneInput.addEventListener("input", e=>{ state.phone = e.target.value; });
+  const descInput = document.getElementById("descInput");
+  if (descInput) descInput.addEventListener("input", e=>{ state.description = e.target.value; });
+  document.querySelectorAll("[data-togglecat]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const cat = btn.getAttribute("data-togglecat");
+      const set = new Set(state.categories);
+      if (set.has(cat)) set.delete(cat); else set.add(cat);
+      setState({ categories: Array.from(set) });
+    });
+  });
+
+  // step 1 — hours
+  document.querySelectorAll("[data-toggleday]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const d = btn.getAttribute("data-toggleday");
+      state.hours[d].open = !state.hours[d].open;
+      setState({});
+    });
+  });
+  document.querySelectorAll("[data-daystart]").forEach(sel=>{
+    sel.addEventListener("change", e=>{ state.hours[sel.getAttribute("data-daystart")].start = e.target.value; });
+  });
+  document.querySelectorAll("[data-dayend]").forEach(sel=>{
+    sel.addEventListener("change", e=>{ state.hours[sel.getAttribute("data-dayend")].end = e.target.value; });
+  });
+
+  // step 2 — services
+  const addServiceBtn = document.querySelector("[data-addservice]");
+  if (addServiceBtn) addServiceBtn.addEventListener("click", ()=> setState({ addingService:true, svcName:"", svcDuration:"45", svcPrice:"" }));
+  document.querySelectorAll("[data-editservice]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const s = state.services.find(x=>x.id===parseInt(btn.getAttribute("data-editservice"),10));
+      if (s) setState({ editingServiceId: s.id, svcName: s.name, svcDuration: String(s.duration), svcPrice: String(s.price) });
+    });
+  });
+  document.querySelectorAll("[data-deleteservice]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = parseInt(btn.getAttribute("data-deleteservice"),10);
+      setState({ confirmDialog: { title:"Remove service?", message:"You can always add it back later.", confirmLabel:"Remove", actionType:"deleteService", actionId:id } });
+    });
+  });
+  document.querySelectorAll("[data-dismissservicemodal]").forEach(el=>{
+    el.addEventListener("click", (ev)=>{ if (ev.target===el || el.hasAttribute("data-dismissservicemodal")) setState({ addingService:false, editingServiceId:null }); });
+  });
+  const modalSheet1 = document.querySelector(".modal-overlay[data-dismissservicemodal] [data-modalsheet]");
+  if (modalSheet1) modalSheet1.addEventListener("click", e=>e.stopPropagation());
+  const svcNameInput = document.getElementById("svcNameInput");
+  if (svcNameInput) svcNameInput.addEventListener("input", e=>{ state.svcName = e.target.value; syncServiceBtn(); });
+  const svcDurationInput = document.getElementById("svcDurationInput");
+  if (svcDurationInput) svcDurationInput.addEventListener("input", e=>{ state.svcDuration = e.target.value; syncServiceBtn(); });
+  const svcPriceInput = document.getElementById("svcPriceInput");
+  if (svcPriceInput) svcPriceInput.addEventListener("input", e=>{ state.svcPrice = e.target.value; syncServiceBtn(); });
+  const saveServiceBtn = document.getElementById("saveServiceBtn");
+  if (saveServiceBtn) saveServiceBtn.addEventListener("click", ()=>{
+    const name = state.svcName.trim();
+    const duration = Math.max(15,Math.min(480,parseInt(state.svcDuration,10)||30));
+    const price = Number(state.svcPrice);
+    if (!name || !duration || isNaN(price)) return;
+    if (state.editingServiceId){
+      const s = state.services.find(x=>x.id===state.editingServiceId);
+      if (s){ s.name=name; s.duration=duration; s.price=price; }
+    } else {
+      state.services.push({ id: serviceCounter++, name, duration, price });
+    }
+    setState({ addingService:false, editingServiceId:null });
+  });
+
+  // step 3 — team
+  const addStylistBtn = document.querySelector("[data-addstylist]");
+  if (addStylistBtn) addStylistBtn.addEventListener("click", ()=> setState({ addingStylist:true, stylistName:"", stylistSpecialty:"" }));
+  document.querySelectorAll("[data-editstylist]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const t = state.team.find(x=>x.id===parseInt(btn.getAttribute("data-editstylist"),10));
+      if (t) setState({ editingStylistId: t.id, stylistName: t.name, stylistSpecialty: t.specialty||"" });
+    });
+  });
+  document.querySelectorAll("[data-deletestylist]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = parseInt(btn.getAttribute("data-deletestylist"),10);
+      setState({ confirmDialog: { title:"Remove team member?", message:"You can always add them back later.", confirmLabel:"Remove", actionType:"deleteStylist", actionId:id } });
+    });
+  });
+  document.querySelectorAll("[data-dismissstylistmodal]").forEach(el=>{
+    el.addEventListener("click", (ev)=>{ if (ev.target===el || el.hasAttribute("data-dismissstylistmodal")) setState({ addingStylist:false, editingStylistId:null }); });
+  });
+  const stylistNameInput = document.getElementById("stylistNameInput");
+  if (stylistNameInput) stylistNameInput.addEventListener("input", e=>{ state.stylistName = e.target.value; syncStylistBtn(); });
+  const stylistSpecialtyInput = document.getElementById("stylistSpecialtyInput");
+  if (stylistSpecialtyInput) stylistSpecialtyInput.addEventListener("input", e=>{ state.stylistSpecialty = e.target.value; });
+  const saveStylistBtn = document.getElementById("saveStylistBtn");
+  if (saveStylistBtn) saveStylistBtn.addEventListener("click", ()=>{
+    const name = state.stylistName.trim();
+    if (!name) return;
+    const specialty = state.stylistSpecialty.trim();
+    if (state.editingStylistId){
+      const t = state.team.find(x=>x.id===state.editingStylistId);
+      if (t){ t.name=name; t.specialty=specialty; }
+    } else {
+      state.team.push({ id: stylistCounter++, name, specialty });
+    }
+    setState({ addingStylist:false, editingStylistId:null });
+  });
+
+  // step 2 — review
+  document.querySelectorAll("[data-gotostep]").forEach(btn=>{
+    btn.addEventListener("click", ()=> setState({ step: parseInt(btn.getAttribute("data-gotostep"),10) }));
+  });
+
+  // confirm modal
+  document.querySelectorAll("[data-dismissconfirm]").forEach(el=>{
+    el.addEventListener("click", (ev)=>{ if (ev.target===el || el.hasAttribute("data-dismissconfirm")) setState({ confirmDialog:null }); });
+  });
+  const confirmActionBtn = document.querySelector("[data-confirmaction]");
+  if (confirmActionBtn) confirmActionBtn.addEventListener("click", ()=>{
+    const cd = state.confirmDialog;
+    if (!cd) return;
+    if (cd.actionType==="deleteService"){
+      const idx = state.services.findIndex(x=>x.id===cd.actionId);
+      if (idx>-1) state.services.splice(idx,1);
+    } else if (cd.actionType==="deleteStylist"){
+      const idx = state.team.findIndex(x=>x.id===cd.actionId);
+      if (idx>-1) state.team.splice(idx,1);
+    }
+    setState({ confirmDialog:null });
+  });
+
+  // autosave any text/select change after the field-specific state handler has run
+  document.querySelectorAll("input,textarea,select").forEach(el=>{
+    el.addEventListener("input",()=>queueVenueDraftSync());
+    el.addEventListener("change",()=>queueVenueDraftSync());
+  });
+
+  // stop modal sheet clicks from closing the overlay
+  document.querySelectorAll("[data-modalsheet]").forEach(el=>{
+    el.addEventListener("click", ev=> ev.stopPropagation());
+  });
+}
+
+function syncServiceBtn(){
+  const canSave = state.svcName.trim().length > 0 && Number(state.svcDuration) >= 15 && Number(state.svcDuration) <= 480 && state.svcPrice.trim().length > 0 && !isNaN(Number(state.svcPrice));
+  const btn = document.getElementById("saveServiceBtn");
+  if (btn) btn.disabled = !canSave;
+}
+function syncStylistBtn(){
+  const btn = document.getElementById("saveStylistBtn");
+  if (btn) btn.disabled = state.stylistName.trim().length === 0;
+}
+
+window.addEventListener("pagehide", ()=>{ persistRegistrationDraft(); persistVenueDraft(); });
+
+async function bootstrapVenuePage(){
+  if(inPasswordRecovery) return;
+  const params=new URLSearchParams(location.search);
+  const confirmedReturn=params.get("confirmed")==="1";
+  const pending=getPendingVenueDraft();
+  const requestedDraftId=params.get("draft") || pending?.draftId || "";
+  let remoteDraft=null;
+  try{
+    if(requestedDraftId){
+      try{
+        remoteDraft=await loadVenueDraftRemote(requestedDraftId);
+        if(remoteDraft) applyRemoteVenueDraft(remoteDraft);
+      }catch(err){ console.warn("Blooma draft link",err); }
+    }
+
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    if(!session){
+      if(remoteDraft){
+        state.emailConfirmationSent=true;
+        if(state.draftStatus==="completed"){
+          state.authView="login";
+          state.loginEmail=state.email;
+          state.registered=false;
+          state.awaitingEmailConfirmation=false;
+        }else if(state.draftReady){
+          state.registered=false;
+          state.awaitingEmailConfirmation=true;
+        }else{
+          state.registered=true;
+          state.awaitingEmailConfirmation=false;
+        }
+      }else{
+        restoreRegistrationDraft();
+      }
+      if(/^https?:$/.test(location.protocol) && params.has("confirmed")) history.replaceState({},"","/business-auth");
+      render();
+      return;
+    }
+
+    const [{data:profile},{data:owner}]=await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name,phone").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      const wrongEmail=session.user.email||"";
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      state.authView="login";
+      state.loginEmail=wrongEmail;
+      state.registered=false;
+      state.awaitingEmailConfirmation=false;
+      state.loginErrors={loginPassword:"This is a Blooma customer account. Venue and customer accounts are separate."};
+      render();
+      return;
+    }
+
+    state.email=session.user.email||state.email;
+    state.firstName=profile?.first_name||state.firstName;
+    state.lastName=profile?.last_name||state.lastName;
+    state.regPhone=profile?.phone||state.regPhone;
+    state.phone=state.phone||profile?.phone||"";
+    state.emailConfirmed=!!session.user.email_confirmed_at;
+    state.emailConfirmationSent=confirmedReturn||state.emailConfirmationSent;
+
+    let ownerSalonId=owner?.salon_id||null;
+    if(!ownerSalonId && new URLSearchParams(location.search).get("staff_invite")){
+      ownerSalonId=await tryAcceptStaffInviteFromUrl();
+    }
+
+    if(!remoteDraft){
+      try{
+        remoteDraft=await loadMyVenueDraftRemote();
+        if(remoteDraft) applyRemoteVenueDraft(remoteDraft);
+      }catch(err){ console.warn("Blooma authenticated draft resume",err); }
+    }
+
+    if(ownerSalonId){
+      if(confirmedReturn && remoteDraft?.status==="completed"){
+        state.salonId=ownerSalonId;
+        state.registered=true;
+        state.launched=true;
+        state.awaitingEmailConfirmation=false;
+        clearVenueDraft();
+        if(/^https?:$/.test(location.protocol)) history.replaceState({},"","/business-auth");
+        render();
+        return;
+      }
+      clearVenueDraft();
+      window.location.replace(adminDestination());
+      return;
+    }
+
+    if(remoteDraft) applyRemoteVenueDraft(remoteDraft);
+    else restoreVenueDraft(state.email);
+    state.registered=true;
+    state.awaitingEmailConfirmation=false;
+
+    if(confirmedReturn && state.emailConfirmed && remoteDraft?.ready_to_finalize){
+      try{
+        await finalizeVenueDraftRemote();
+        clearVenueDraft();
+        state.launched=true;
+        state.registered=true;
+        state.awaitingEmailConfirmation=false;
+      }catch(err){
+        state.errors={...state.errors,launch:err.message||"We couldn't finish creating your venue. Your setup is still saved."};
+      }
+    }
+
+    if(/^https?:$/.test(location.protocol) && (params.has("confirmed")||params.has("draft"))) history.replaceState({},"","/business-auth");
+  }catch(e){
+    console.warn("Blooma venue auth bootstrap",e);
+    if(!state.registered && !state.awaitingEmailConfirmation) restoreRegistrationDraft();
+  }
+  render();
+}
+bootstrapVenuePage();
+</script>
+</body>
+</html>

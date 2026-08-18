@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sign In</title>
+<style>
+  :root{
+    --ink:#241F33;
+    --ink-soft:#8A80AD;
+    --ink-mute:#6B6285;
+    --purple:#7C5CD9;
+    --purple-dark:#6D4DC7;
+    --purple-pastel:#F1ECFB;
+    --purple-pastel-2:#F3EEFC;
+    --border:#EFECF9;
+    --border-2:#E9E4F7;
+    --border-hover:#C9BBEF;
+    --bg:#FAF9FD;
+    --white:#FFFFFF;
+    --placeholder:#B3ABCB;
+    --disabled:#DED4F5;
+    --green:#1E8A4C;
+    --green-bg:#E6F6EC;
+    --red:#C13B3B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:100%;
+  }
+  button{
+    font-family:inherit;cursor:pointer;touch-action:manipulation;
+    -webkit-appearance:none;appearance:none;
+    -webkit-tap-highlight-color:transparent;
+    outline:none;margin:0;background:none;border:none;padding:0;
+  }
+  input{font-family:inherit;}
+
+  .shell{width:100%;max-width:460px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
+  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;}
+  .page.no-scroll{overflow:hidden;}
+
+  @media (min-width:1024px){
+    body{background:linear-gradient(135deg,#F1ECFB 0%,#FAF9FD 60%);min-height:100vh;}
+    #root{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 0;}
+    .shell{
+      max-width:640px;height:auto;min-height:600px;max-height:calc(100dvh - 80px);
+      border-radius:28px;box-shadow:0 24px 70px rgba(36,31,51,.14);
+    }
+  }
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px 20px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  .backbtn{
+    width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    color:var(--ink);transition:background .15s;flex-shrink:0;
+  }
+  .backbtn:hover{background:var(--purple-pastel-2);}
+  .backbtn:disabled{opacity:0;pointer-events:none;}
+  .stepdots{display:flex;align-items:center;gap:6px;}
+  .dot{height:6px;border-radius:999px;transition:all .3s;background:var(--border);}
+  .dot.done{width:6px;background:var(--border-hover);}
+  .dot.current{width:24px;background:var(--purple);}
+  .dot.upcoming{width:6px;background:var(--border);}
+
+  .step-title{font-size:22px;font-weight:800;color:var(--ink);margin:4px 0 4px;letter-spacing:-.3px;}
+  .step-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 22px;line-height:1.5;}
+
+  .field{margin-bottom:16px;}
+  .field label{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:6px;}
+  .field .hint{font-size:11.5px;color:var(--ink-soft);margin:6px 2px 0;line-height:1.4;}
+  .field input{
+    width:100%;border:1.5px solid var(--border-2);border-radius:12px;padding:12px 13px;
+    font-size:14px;color:var(--ink);background:var(--white);transition:border-color .15s;
+  }
+  .field input:focus{border-color:var(--purple);outline:none;}
+  .field input::placeholder{color:var(--placeholder);}
+  .field input.error{border-color:var(--red);}
+
+  .icon{display:inline-flex;align-items:center;justify-content:center;}
+
+  .primary-btn{
+    width:100%;padding:14px 0;border-radius:999px;background:var(--purple);color:#fff;
+    font-size:14.5px;font-weight:700;transition:background .15s;text-align:center;
+  }
+  .primary-btn:hover{background:var(--purple-dark);}
+  .primary-btn:disabled{background:var(--disabled);color:#fff;cursor:not-allowed;}
+
+  .check-row{display:flex;align-items:flex-start;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .checkbox-box{
+    width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-2);display:flex;align-items:center;
+    justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s;background:var(--white);color:#fff;
+  }
+  .checkbox-box.checked{background:var(--purple);border-color:var(--purple);}
+  .checkbox-box.error{border-color:var(--red);}
+  .check-label{font-size:13px;color:var(--ink);line-height:1.5;}
+
+  .password-wrap{position:relative;}
+  .password-wrap input{padding-right:44px;}
+  .password-toggle{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;color:var(--ink-soft);
+  }
+  .password-toggle:hover{background:var(--purple-pastel-2);color:var(--purple);}
+
+  .auth-footnote{font-size:12.5px;color:var(--ink-soft);text-align:center;margin:14px 0 0;-webkit-tap-highlight-color:transparent;}
+
+  .welcome-screen{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;text-align:center;
+  }
+  .welcome-check{
+    width:68px;height:68px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;
+    justify-content:center;margin-bottom:22px;color:var(--purple);
+  }
+
+  .auth-notice{font-size:12.5px;line-height:1.5;color:var(--ink-mute);background:var(--purple-pastel-2);border:1px solid var(--border-2);border-radius:12px;padding:11px 12px;margin:0 0 16px;}
+  .auth-notice strong{color:var(--ink);}
+  .legal-link{color:var(--purple);font-weight:700;text-decoration:none;}
+
+  /* iPhone input polish */
+  @media (max-width:639px), (pointer:coarse){.field input,.field textarea,.searchbox input{font-size:16px;}}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:"blooma-customer-auth"} });
+const verifierClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:"blooma-email-verification-auth"} });
+const CUSTOMER_AUTH_FUNCTION = `${SUPABASE_URL}/functions/v1/customer-auth`;
+function customerVerificationRedirectUrl(customerUserId){
+  if(!/^https?:$/.test(location.protocol) || !customerUserId) return undefined;
+  return `${location.origin}/signup?verify_customer=1&customer=${encodeURIComponent(customerUserId)}`;
+}
+function customerAppDestination(){ return location.protocol === "file:" ? "index.html" : "/"; }
+function signedInCustomerDestination(){ return customerAppDestination(); }
+function setAuthPath(path){ if(/^https?:$/.test(location.protocol) && location.pathname!==path) history.replaceState({},"",path); }
+async function customerAuthRequest(action,payload){
+  const res=await fetch(CUSTOMER_AUTH_FUNCTION,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY},
+    body:JSON.stringify({action,...payload})
+  });
+  let body={}; try{ body=await res.json(); }catch(e){}
+  if(!res.ok) throw new Error(body?.error||"We couldn't complete that request. Try again.");
+  return body;
+}
+async function applyCustomerSession(session){
+  if(!session?.access_token||!session?.refresh_token) throw new Error("We couldn't start your customer session.");
+  const {data,error}=await supabaseClient.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token});
+  if(error) throw error;
+  try{ await supabaseClient.rpc("merge_guest_bookings"); }catch(err){ console.warn("Blooma guest booking merge",err); }
+  return data.session||null;
+}
+async function consumeCustomerVerificationReturn(){
+  if(!/^https?:$/.test(location.protocol)) return null;
+  const url=new URL(location.href);
+  if(url.searchParams.get("verify_customer")!=="1") return null;
+  const customerUserId=url.searchParams.get("customer");
+  if(!customerUserId) throw new Error("Customer verification reference is missing.");
+  let session=null;
+  const hashParams=new URLSearchParams((location.hash||"").replace(/^#/,""));
+  const accessToken=hashParams.get("access_token"), refreshToken=hashParams.get("refresh_token");
+  if(accessToken&&refreshToken){
+    const {data,error}=await verifierClient.auth.setSession({access_token:accessToken,refresh_token:refreshToken});
+    if(error) throw error; session=data.session||null;
+  }
+  if(!session){
+    const tokenHash=url.searchParams.get("token_hash"), type=url.searchParams.get("type");
+    if(tokenHash&&type){ const {data,error}=await verifierClient.auth.verifyOtp({token_hash:tokenHash,type}); if(error) throw error; session=data.session||null; }
+  }
+  if(!session){
+    const code=url.searchParams.get("code");
+    if(code){ const {data,error}=await verifierClient.auth.exchangeCodeForSession(code); if(error) throw error; session=data.session||null; }
+  }
+  if(!session) session=(await verifierClient.auth.getSession()).data.session||null;
+  if(!session) throw new Error("We couldn't verify that email link. Please request a new one.");
+  const {data,error}=await verifierClient.rpc("verify_customer_email",{p_customer_user_id:customerUserId});
+  if(error) throw error;
+  try{ await verifierClient.auth.signOut(); }catch(e){}
+  history.replaceState({},"","/signup?verified=1");
+  return data||null;
+}
+
+/* ---------------------------------------------------
+   ICONS
+--------------------------------------------------- */
+const ICONS = {
+  chevronLeft: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`,
+  check: `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+  checkSmall: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+  eye: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`,
+  eyeOff: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><path d="M6.61 6.61C3.86 8.36 2 12 2 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`,
+};
+function icon(name, color){ return `<span class="icon" style="color:${color||'currentColor'}">${ICONS[name]||''}</span>`; }
+
+/* ---------------------------------------------------
+   STATE
+--------------------------------------------------- */
+const AUTH_ROUTE = location.pathname.replace(/\/+$/, "") || "/";
+const AUTH_VIEW_PARAM = new URLSearchParams(location.search).get("view");
+const DEFAULT_AUTH_VIEW = AUTH_VIEW_PARAM==="signup" ? "register" : (AUTH_ROUTE === "/login" ? "login" : "register");
+let state = {
+  registered: false,
+  authView: DEFAULT_AUTH_VIEW, // /login opens login; /signup opens registration
+  authStep: 0, // 0 email, 1 account details
+
+  email: "",
+  firstName: "",
+  lastName: "",
+  regPhone: "",
+  password: "",
+  showPassword: false,
+  acceptedTerms: false,
+  regErrors: {},
+  authBusy:false,
+  emailConfirmed:false,
+  customerUserId:"",
+  verificationSent:false,
+
+  loginStep: 0, // 0 email lookup, 1 password
+  loginEmail: "",
+  loginPassword: "",
+  showLoginPassword: false,
+  loginErrors: {},
+  loginBusy: false,
+
+  forgotEmail: "",
+  forgotErrors: {},
+  forgotBusy: false,
+  forgotSent: false,
+
+  newPassword: "",
+  showNewPassword: false,
+  resetErrors: {},
+  resetBusy: false,
+};
+
+const AUTH_STEP_META = [
+  { title: "What's your email?", sub: "We'll use this to create your account and keep it secure." },
+  { title: "Create your account", sub: "Just a few more details and you’re in." },
+];
+
+/* ---------------------------------------------------
+   HELPERS
+--------------------------------------------------- */
+function escapeHtml(str){
+  return String(str==null?"":str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+function setState(patch){ Object.assign(state, patch); render(); }
+function bindEnterKeyAdvance(fieldIds, onSubmit){
+  fieldIds.forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("keydown", e=>{
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const nextId = fieldIds[i+1];
+      const nextEl = nextId ? document.getElementById(nextId) : null;
+      if (nextEl) nextEl.focus();
+      else if (typeof onSubmit === "function") onSubmit();
+    });
+  });
+}
+function resetScroll(root){
+  requestAnimationFrame(()=>{
+    window.scrollTo(0, 0);
+    const page = root.querySelector(".page");
+    if (page) page.scrollTop = 0;
+    const scrollable = root.querySelector("[style*='overflow-y:auto']");
+    if (scrollable) scrollable.scrollTop = 0;
+  });
+}
+
+function validateEmailStep(){
+  const errors = {};
+  const email = state.email.trim();
+  if (!email) errors.email = "Enter your email";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email";
+  return errors;
+}
+
+function validatePasswordStep(){
+  const errors = {};
+  if (!state.firstName.trim()) errors.firstName = "Enter your first name";
+  if (!state.lastName.trim()) errors.lastName = "Enter your last name";
+  if (!state.regPhone.trim()) errors.regPhone = "Enter your mobile number";
+  if (!state.password) errors.password = "Create a password";
+  else if (state.password.length < 6) errors.password = "Use at least 6 characters";
+  if (!state.acceptedTerms) errors.acceptedTerms = "You need to accept the terms to continue";
+  return errors;
+}
+
+function validateLoginEmailStep(){
+  const errors = {};
+  const email = state.loginEmail.trim();
+  if (!email) errors.loginEmail = "Enter your email";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.loginEmail = "Enter a valid email";
+  return errors;
+}
+function validateLoginPasswordStep(){
+  const errors = {};
+  if (!state.loginPassword) errors.loginPassword = "Enter your password";
+  return errors;
+}
+async function customerEmailExists(email){
+  const {data,error}=await supabaseClient.rpc("customer_email_exists",{p_email:email.trim()});
+  if(error) throw error;
+  return data === true;
+}
+
+async function resendCustomerConfirmationEmail(customerUserId=state.customerUserId){
+  const email=state.email.trim();
+  if(!email) throw new Error("Enter your email first.");
+  if(!customerUserId){
+    const session=(await supabaseClient.auth.getSession()).data.session;
+    customerUserId=session?.user?.id||"";
+  }
+  if(!customerUserId) throw new Error("Customer account reference not found.");
+  try{ await verifierClient.auth.signOut(); }catch(e){}
+  const options={shouldCreateUser:true,data:{account_type:"verification"}};
+  const redirectTo=customerVerificationRedirectUrl(customerUserId);
+  if(redirectTo) options.emailRedirectTo=redirectTo;
+  const {error}=await verifierClient.auth.signInWithOtp({email,options});
+  if(error) throw error;
+  state.verificationSent=true;
+}
+async function finishCustomerRegistration(){
+  const email=state.email.trim();
+  const result=await customerAuthRequest("signup",{
+    email, password:state.password,
+    first_name:state.firstName.trim(),
+    last_name:state.lastName.trim(),
+    phone:state.regPhone.trim()
+  });
+  await applyCustomerSession(result.session);
+  state.customerUserId=result.user_id||"";
+  try{ await resendCustomerConfirmationEmail(state.customerUserId); }catch(err){ console.warn("Blooma customer verification email",err); }
+  try{
+    await supabaseClient.functions.invoke("send-email",{body:{type:"welcome",to:email,data:{firstName:state.firstName.trim(),appUrl:`${location.origin}${customerAppDestination()}`}}});
+  }catch(err){ console.warn("Blooma welcome email",err); }
+  return result;
+}
+
+/* ---------------------------------------------------
+   RENDER: REGISTER STEP 0 — EMAIL
+--------------------------------------------------- */
+function renderEmailStep(){
+  const e = state.regErrors;
+  return `
+    <div class="field" style="margin-bottom:0;">
+      <label>Email address</label>
+      <input id="emailInput" class="${e.email?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.email)}" placeholder="you@example.com" />
+      ${e.email?`<p class="hint" style="color:var(--red);">${e.email}</p>`:""}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: REGISTER STEP 1 — PASSWORD
+--------------------------------------------------- */
+function renderPasswordStep(){
+  const e = state.regErrors;
+  return `
+    ${state.emailConfirmed ? `<div class="auth-notice">Email confirmed for <strong>${escapeHtml(state.email)}</strong>.</div>` : ``}
+    ${e.confirmation?`<p class="hint" style="color:var(--red);margin:-6px 2px 14px;">${escapeHtml(e.confirmation)}</p>`:""}
+    <div class="field">
+      <label>First name</label>
+      <input id="firstNameInput" class="${e.firstName?'error':''}" autocomplete="given-name" enterkeyhint="next" value="${escapeAttr(state.firstName)}" placeholder="e.g. Priya" />
+      ${e.firstName?`<p class="hint" style="color:var(--red);">${e.firstName}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Last name</label>
+      <input id="lastNameInput" class="${e.lastName?'error':''}" autocomplete="family-name" enterkeyhint="next" value="${escapeAttr(state.lastName)}" placeholder="e.g. Nair" />
+      ${e.lastName?`<p class="hint" style="color:var(--red);">${e.lastName}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Mobile number</label>
+      <input id="regPhoneInput" class="${e.regPhone?'error':''}" autocomplete="tel" inputmode="tel" enterkeyhint="next" value="${escapeAttr(state.regPhone)}" placeholder="e.g. 021 234 5678" />
+      ${e.regPhone?`<p class="hint" style="color:var(--red);">${e.regPhone}</p>`:""}
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <div class="password-wrap">
+        <input id="passwordInput" class="${e.password?'error':''}" type="${state.showPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.password)}" placeholder="At least 6 characters" />
+        <button type="button" class="password-toggle" id="togglePasswordBtn" aria-label="${state.showPassword?'Hide password':'Show password'}">${icon(state.showPassword?'eyeOff':'eye')}</button>
+      </div>
+      ${e.password?`<p class="hint" style="color:var(--red);">${e.password}</p>`:""}
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <div class="check-row" id="termsRow">
+        <span class="checkbox-box ${state.acceptedTerms?'checked':''} ${e.acceptedTerms?'error':''}" id="termsCheckboxBox">${state.acceptedTerms?icon('checkSmall'):''}</span>
+        <span class="check-label">I agree to the <a class="legal-link" href="/terms?return=signup" data-legal-link>Terms &amp; Conditions</a> and <a class="legal-link" href="/privacy?return=signup" data-legal-link>Privacy Policy</a>.</span>
+      </div>
+      ${e.acceptedTerms?`<p class="hint" data-terms-error style="color:var(--red);">${e.acceptedTerms}</p>`:""}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: LOGIN
+--------------------------------------------------- */
+function renderLoginEmailStep(){
+  const e = state.loginErrors;
+  return `
+    <div class="field" style="margin-bottom:0;">
+      <label>Email address</label>
+      <input id="loginEmailInput" class="${e.loginEmail?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.loginEmail)}" placeholder="you@example.com" />
+      ${e.loginEmail?`<p class="hint" style="color:var(--red);">${e.loginEmail}</p>`:""}
+    </div>
+  `;
+}
+
+function renderLoginPasswordStep(){
+  const e = state.loginErrors;
+  return `
+    <div class="auth-notice">Signing in as <strong>${escapeHtml(state.loginEmail)}</strong>.</div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Password</label>
+      <div class="password-wrap">
+        <input id="loginPasswordInput" class="${e.loginPassword?'error':''}" type="${state.showLoginPassword?'text':'password'}" autocomplete="current-password" enterkeyhint="go" value="${escapeAttr(state.loginPassword)}" placeholder="Enter your password" />
+        <button type="button" class="password-toggle" id="toggleLoginPasswordBtn" aria-label="${state.showLoginPassword?'Hide password':'Show password'}">${icon(state.showLoginPassword?'eyeOff':'eye')}</button>
+      </div>
+      ${e.loginPassword?`<p class="hint" style="color:var(--red);">${e.loginPassword}</p>`:""}
+    </div>
+    <button type="button" id="forgotPasswordLink" style="margin-top:12px;border:0;background:transparent;padding:2px;color:var(--purple);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">Forgot password?</button>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: WELCOME SCREEN
+--------------------------------------------------- */
+function renderWelcome(){
+  return `
+    <div class="page no-scroll">
+      <div class="welcome-screen">
+        <div class="welcome-check">${icon('check')}</div>
+        <h1 class="step-title" style="margin-bottom:8px;">You're all set!</h1>
+        <p class="step-sub" style="max-width:330px;margin:0 auto;">
+          We’ve sent a confirmation email to <strong>${escapeHtml(state.email)}</strong>. Your customer login is separate from any Blooma for Business login using the same email. You can continue now and confirm your email when convenient. If you can’t find it, check your spam or junk folder.
+        </p>
+        <button type="button" id="welcomeResendConfirmationBtn" style="margin-top:14px;border:0;background:transparent;padding:6px;color:var(--purple);font:inherit;font-size:13px;font-weight:750;cursor:pointer;">Resend confirmation email</button>
+      </div>
+      <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="customerContinueBtn">Continue to Blooma</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------
+   RENDER: REGISTER FLOW
+--------------------------------------------------- */
+function renderAuthFlow(root){
+  const meta = AUTH_STEP_META[state.authStep];
+  const isEmailStep = state.authStep === 0;
+  const body = isEmailStep ? renderEmailStep() : renderPasswordStep();
+  const isLast = state.authStep === AUTH_STEP_META.length - 1;
+  const nextLabel = isLast ? "Create account" : "Continue";
+  const dots = AUTH_STEP_META.map((_, i)=>{
+    const cls = i===state.authStep ? 'current' : (i<state.authStep ? 'done' : 'upcoming');
+    return `<div class="dot ${cls}"></div>`;
+  }).join("");
+
+  const html = `
+    <div class="page ${isEmailStep?'no-scroll':''}">
+      <div class="topbar">
+        <button class="backbtn" id="authBackBtn" ${state.authStep===0?'disabled':''} aria-label="Go back">${icon('chevronLeft')}</button>
+        <div class="stepdots">${dots}</div>
+      </div>
+      <div style="flex:1;overflow-y:${isEmailStep?'hidden':'auto'};padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">${meta.title}</h1>
+        <p class="step-sub">${meta.sub}</p>
+        ${body}
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="authNextBtn">${nextLabel}</button>
+        ${isEmailStep?`<p class="auth-footnote" id="gotoLoginLink">Already have an account? <span style="color:var(--purple);font-weight:700;">Log in</span></p>`:""}
+      </div>
+    </div>
+  `;
+
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  bindAuthEvents();
+}
+
+/* ---------------------------------------------------
+   RENDER: LOGIN FLOW
+--------------------------------------------------- */
+function renderLoginFlow(root){
+  const isEmailStep = state.loginStep === 0;
+  const body = isEmailStep ? renderLoginEmailStep() : renderLoginPasswordStep();
+  const dots = [0,1].map(i=>{
+    const cls = i===state.loginStep ? 'current' : (i<state.loginStep ? 'done' : 'upcoming');
+    return `<div class="dot ${cls}"></div>`;
+  }).join("");
+  const html = `
+    <div class="page no-scroll">
+      <div class="topbar">
+        <button class="backbtn" id="loginBackBtn" ${state.loginStep===0?'disabled':''} aria-label="Go back">${icon('chevronLeft')}</button>
+        <div class="stepdots">${dots}</div>
+      </div>
+      <div style="flex:1;overflow-y:hidden;padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">${isEmailStep ? 'Welcome back' : 'Enter your password'}</h1>
+        <p class="step-sub">${isEmailStep ? 'Enter your email to continue.' : 'Use the password for your Blooma account.'}</p>
+        ${body}
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="loginNextBtn">${isEmailStep ? 'Continue' : 'Log in'}</button>
+        ${isEmailStep ? `<p class="auth-footnote" id="gotoRegisterLink">Don't have an account? <span style="color:var(--purple);font-weight:700;">Sign up</span></p>` : ''}
+      </div>
+    </div>
+  `;
+
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  bindLoginEvents();
+}
+
+/* ---------------------------------------------------
+   RENDER: FORGOT PASSWORD
+--------------------------------------------------- */
+function renderForgotPassword(root){
+  const e = state.forgotErrors;
+  const html = state.forgotSent ? `
+    <div class="page no-scroll">
+      <div class="welcome-screen">
+        <div class="welcome-check">${icon('check')}</div>
+        <h1 class="step-title" style="margin-bottom:8px;">Check your email</h1>
+        <p class="step-sub" style="max-width:330px;margin:0 auto;">If there's a Blooma account for <strong>${escapeHtml(state.forgotEmail)}</strong>, we've sent a link to reset your password.</p>
+      </div>
+      <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="backToLoginBtn">Back to log in</button>
+      </div>
+    </div>
+  ` : `
+    <div class="page no-scroll">
+      <div class="topbar">
+        <button class="backbtn" id="forgotBackBtn" aria-label="Go back">${icon('chevronLeft')}</button>
+      </div>
+      <div style="flex:1;overflow-y:hidden;padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">Reset your password</h1>
+        <p class="step-sub">Enter your email and we'll send you a link to reset it.</p>
+        <div class="field" style="margin-bottom:0;">
+          <label>Email address</label>
+          <input id="forgotEmailInput" class="${e.forgotEmail?'error':''}" type="email" autocomplete="email" inputmode="email" enterkeyhint="go" value="${escapeAttr(state.forgotEmail)}" placeholder="you@example.com" />
+          ${e.forgotEmail?`<p class="hint" style="color:var(--red);">${e.forgotEmail}</p>`:""}
+        </div>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="sendResetBtn">Send reset link</button>
+      </div>
+    </div>
+  `;
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  bindForgotPasswordEvents();
+}
+function bindForgotPasswordEvents(){
+  const backBtn = document.getElementById("forgotBackBtn");
+  if (backBtn) backBtn.addEventListener("click", ()=>{ setAuthPath("/login"); setState({ authView:"login", loginStep:0, forgotErrors:{} }); });
+  const backToLoginBtn = document.getElementById("backToLoginBtn");
+  if (backToLoginBtn) backToLoginBtn.addEventListener("click", ()=>{ setAuthPath("/login"); setState({ authView:"login", loginStep:0, forgotSent:false, forgotEmail:"", forgotErrors:{} }); });
+  const sendBtn = document.getElementById("sendResetBtn");
+  const emailInput = document.getElementById("forgotEmailInput");
+  const doSend = async ()=>{
+    if (state.forgotBusy) return;
+    const email = (emailInput?.value||"").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setState({ forgotErrors:{forgotEmail:"Enter a valid email address."} }); return; }
+    state.forgotBusy = true; state.forgotEmail = email;
+    if (sendBtn){ sendBtn.disabled=true; sendBtn.textContent="Sending…"; }
+    try{
+      await customerAuthRequest("forgot_password", { email, redirectTo: `${location.origin}/login` });
+      state.forgotBusy = false;
+      setState({ forgotSent:true, forgotErrors:{} });
+    }catch(err){
+      state.forgotBusy = false;
+      setState({ forgotErrors:{forgotEmail: err?.message || "We couldn't send that email. Please try again."} });
+    }
+  };
+  if (sendBtn) sendBtn.addEventListener("click", doSend);
+  if (emailInput) bindEnterKeyAdvance(["forgotEmailInput"], doSend);
+}
+
+/* ---------------------------------------------------
+   RENDER: RESET PASSWORD
+--------------------------------------------------- */
+function renderResetPassword(root){
+  const e = state.resetErrors;
+  const html = `
+    <div class="page no-scroll">
+      <div class="topbar"></div>
+      <div style="flex:1;overflow-y:hidden;padding:20px 20px 24px;min-height:0;">
+        <h1 class="step-title">Set a new password</h1>
+        <p class="step-sub">Choose a new password for your Blooma account.</p>
+        <div class="field" style="margin-bottom:0;">
+          <label>New password</label>
+          <div class="password-wrap">
+            <input id="newPasswordInput" class="${e.newPassword?'error':''}" type="${state.showNewPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.newPassword)}" placeholder="At least 8 characters" />
+            <button type="button" class="password-toggle" id="toggleNewPasswordBtn" aria-label="${state.showNewPassword?'Hide password':'Show password'}">${icon(state.showNewPassword?'eyeOff':'eye')}</button>
+          </div>
+          ${e.newPassword?`<p class="hint" style="color:var(--red);">${e.newPassword}</p>`:""}
+        </div>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+        <button class="primary-btn" id="submitNewPasswordBtn">Update password</button>
+      </div>
+    </div>
+  `;
+  root.innerHTML = `<div class="shell">${html}</div>`;
+  resetScroll(root);
+  const toggleBtn = document.getElementById("toggleNewPasswordBtn");
+  if (toggleBtn) toggleBtn.addEventListener("click", ()=> setState({ showNewPassword: !state.showNewPassword }));
+  const submitBtn = document.getElementById("submitNewPasswordBtn");
+  const pwInput = document.getElementById("newPasswordInput");
+  const doSubmit = async ()=>{
+    if (state.resetBusy) return;
+    const pw = pwInput?.value||"";
+    if (pw.length < 8){ setState({ resetErrors:{newPassword:"Password must be at least 8 characters."} }); return; }
+    state.resetBusy = true;
+    if (submitBtn){ submitBtn.disabled=true; submitBtn.textContent="Updating…"; }
+    try{
+      const {error} = await verifierClient.auth.updateUser({ password: pw });
+      if (error) throw error;
+      try{ await verifierClient.auth.signOut(); }catch(err){}
+      state.resetBusy = false;
+      setAuthPath("/login");
+      setState({ authView:"login", loginStep:0, loginErrors:{}, newPassword:"", resetPasswordDone:true });
+    }catch(err){
+      state.resetBusy = false;
+      setState({ resetErrors:{newPassword: err?.message || "We couldn't update your password. Please request a new reset link."} });
+    }
+  };
+  if (submitBtn) submitBtn.addEventListener("click", doSubmit);
+  if (pwInput) bindEnterKeyAdvance(["newPasswordInput"], doSubmit);
+}
+
+/* ---------------------------------------------------
+   MAIN RENDER
+--------------------------------------------------- */
+function render(){
+  const root = document.getElementById("root");
+
+  if (state.registered){
+    root.innerHTML = `<div class="shell">${renderWelcome()}</div>`;
+    resetScroll(root);
+    const continueBtn=document.getElementById("customerContinueBtn");
+    if(continueBtn) continueBtn.addEventListener("click",()=>{ window.location.href=customerAppDestination(); });
+    const resendBtn=document.getElementById("welcomeResendConfirmationBtn");
+    if(resendBtn) resendBtn.addEventListener("click",async ()=>{
+      resendBtn.disabled=true; resendBtn.textContent="Sending…";
+      try{ await resendCustomerConfirmationEmail(); resendBtn.textContent="Sent — check your email"; }
+      catch(err){ resendBtn.disabled=false; resendBtn.textContent="Try resending confirmation email"; }
+    });
+    return;
+  }
+
+  if (state.authView === "login") renderLoginFlow(root);
+  else if (state.authView === "forgotPassword") renderForgotPassword(root);
+  else if (state.authView === "resetPassword") renderResetPassword(root);
+  else renderAuthFlow(root);
+}
+
+/* ---------------------------------------------------
+   EVENT BINDING: REGISTER
+--------------------------------------------------- */
+function bindAuthEvents(){
+  const authBackBtn = document.getElementById("authBackBtn");
+  if (authBackBtn) authBackBtn.addEventListener("click", ()=>{
+    if (state.authStep>0) setState({ authStep: state.authStep-1 });
+  });
+
+  const authNextBtn = document.getElementById("authNextBtn");
+  if (authNextBtn) authNextBtn.addEventListener("click", async ()=>{
+    if(state.authBusy) return;
+    if (state.authStep===0){
+      const errors=validateEmailStep(); if(Object.keys(errors).length){setState({regErrors:errors});return;}
+      state.authBusy=true; authNextBtn.disabled=true; authNextBtn.textContent="Checking…";
+      try{
+        const email=state.email.trim();
+        const exists=await customerEmailExists(email);
+        if(exists){
+                  state.authBusy=false;
+          setAuthPath("/login");
+          setState({authView:"login",loginStep:1,loginEmail:email,loginPassword:"",loginErrors:{},regErrors:{}});
+          return;
+        }
+        setState({authStep:1,emailConfirmed:false,regErrors:{},authBusy:false});
+      }
+      catch(err){ state.authBusy=false; setState({regErrors:{email:err.message||"We couldn't send the confirmation email."}}); }
+      return;
+    }
+    const errors=validatePasswordStep(); if(Object.keys(errors).length){setState({regErrors:errors});return;}
+    state.authBusy=true; authNextBtn.disabled=true; authNextBtn.textContent="Creating…";
+    try{ await finishCustomerRegistration(); setState({registered:true,regErrors:{},authBusy:false}); }
+    catch(err){ state.authBusy=false; setState({regErrors:{confirmation:err.message||"We couldn't finish creating your account."}}); }
+  });
+
+  const emailInput = document.getElementById("emailInput");
+  if (emailInput) emailInput.addEventListener("input", e=>{ state.email = e.target.value; });
+  const firstNameInput = document.getElementById("firstNameInput");
+  if (firstNameInput) firstNameInput.addEventListener("input", e=>{ state.firstName = e.target.value; });
+  const lastNameInput = document.getElementById("lastNameInput");
+  if (lastNameInput) lastNameInput.addEventListener("input", e=>{ state.lastName = e.target.value; });
+  const regPhoneInput = document.getElementById("regPhoneInput");
+  if (regPhoneInput) regPhoneInput.addEventListener("input", e=>{ state.regPhone = e.target.value; });
+  const passwordInput = document.getElementById("passwordInput");
+  if (passwordInput) passwordInput.addEventListener("input", e=>{ state.password = e.target.value; });
+  const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+  if (togglePasswordBtn) togglePasswordBtn.addEventListener("click", ()=> setState({ showPassword: !state.showPassword }));
+  const termsRow = document.getElementById("termsRow");
+  if (termsRow) termsRow.addEventListener("click", e=>{
+    if(e.target.closest("[data-legal-link]")) return;
+    state.acceptedTerms=!state.acceptedTerms;
+    const box=document.getElementById("termsCheckboxBox");
+    if(box){ box.classList.toggle("checked",state.acceptedTerms); box.classList.remove("error"); box.innerHTML=state.acceptedTerms?icon("checkSmall"):""; }
+    const termsError=document.querySelector("[data-terms-error]"); if(termsError) termsError.remove();
+  });
+  document.querySelectorAll("[data-legal-link]").forEach(a=>a.addEventListener("click",e=>e.stopPropagation()));
+
+  const gotoLoginLink = document.getElementById("gotoLoginLink");
+  if (gotoLoginLink) gotoLoginLink.addEventListener("click", ()=>{ setAuthPath("/login"); setState({ authView: "login", loginStep: 0, loginErrors: {} }); });
+
+  if (authNextBtn){
+    const fieldIds = state.authStep===0 ? ["emailInput"] : ["firstNameInput","lastNameInput","regPhoneInput","passwordInput"];
+    bindEnterKeyAdvance(fieldIds, ()=>authNextBtn.click());
+  }
+}
+
+/* ---------------------------------------------------
+   EVENT BINDING: LOGIN
+--------------------------------------------------- */
+function bindLoginEvents(){
+  const loginBackBtn = document.getElementById("loginBackBtn");
+  if (loginBackBtn) loginBackBtn.addEventListener("click", ()=>{
+    if(state.loginStep>0){ setState({loginStep:0,loginPassword:"",loginErrors:{}}); return; }
+  });
+
+  const loginNextBtn = document.getElementById("loginNextBtn");
+  if (loginNextBtn) loginNextBtn.addEventListener("click", async ()=>{
+    if(state.loginBusy) return;
+    if(state.loginStep===0){
+      const errors=validateLoginEmailStep(); if(Object.keys(errors).length){setState({loginErrors:errors});return;}
+      state.loginBusy=true; loginNextBtn.disabled=true; loginNextBtn.textContent="Checking…";
+      try{
+        const email=state.loginEmail.trim();
+        const exists=await customerEmailExists(email);
+        state.loginBusy=false;
+        if(exists){ setState({loginStep:1,loginErrors:{}}); return; }
+        state.email=email; state.firstName=""; state.lastName=""; state.regPhone=""; state.password=""; state.acceptedTerms=false;
+        setAuthPath("/signup");
+        setState({authView:"register",authStep:1,emailConfirmed:false,regErrors:{},loginErrors:{},loginBusy:false});
+      }catch(err){
+        state.loginBusy=false;
+        setState({loginErrors:{loginEmail:err.message||"We couldn't check that email. Please try again."}});
+      }
+      return;
+    }
+
+    const errors=validateLoginPasswordStep(); if(Object.keys(errors).length){setState({loginErrors:errors});return;}
+    state.loginBusy=true; loginNextBtn.disabled=true; loginNextBtn.textContent="Logging in…";
+    try{
+      const result=await customerAuthRequest("login",{email:state.loginEmail.trim(),password:state.loginPassword});
+      await applyCustomerSession(result.session);
+      state.loginBusy=false;
+      state.registered=false;
+      window.location.replace(signedInCustomerDestination());
+    }catch(err){
+      state.loginBusy=false;
+      setState({loginErrors:{loginPassword:err.message||"Incorrect password. Try again."}});
+    }
+  });
+
+  const loginEmailInput = document.getElementById("loginEmailInput");
+  if (loginEmailInput) loginEmailInput.addEventListener("input", e=>{ state.loginEmail = e.target.value; });
+  const loginPasswordInput = document.getElementById("loginPasswordInput");
+  if (loginPasswordInput) loginPasswordInput.addEventListener("input", e=>{ state.loginPassword = e.target.value; });
+  const toggleLoginPasswordBtn = document.getElementById("toggleLoginPasswordBtn");
+  if (toggleLoginPasswordBtn) toggleLoginPasswordBtn.addEventListener("click", ()=> setState({ showLoginPassword: !state.showLoginPassword }));
+
+  const gotoRegisterLink = document.getElementById("gotoRegisterLink");
+  if (gotoRegisterLink) gotoRegisterLink.addEventListener("click", ()=>{ setAuthPath("/signup"); setState({ authView: "register", authStep: 0, email:state.loginEmail.trim(), regErrors: {} }); });
+
+  const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+  if (forgotPasswordLink) forgotPasswordLink.addEventListener("click", ()=>{ setState({ authView:"forgotPassword", forgotEmail: state.loginEmail.trim(), forgotSent:false, forgotErrors:{} }); });
+
+  if (loginNextBtn){
+    const fieldIds = state.loginStep===0 ? ["loginEmailInput"] : ["loginPasswordInput"];
+    bindEnterKeyAdvance(fieldIds, ()=>loginNextBtn.click());
+  }
+}
+
+async function consumeCustomerPasswordRecovery(){
+  if(!/^https?:$/.test(location.protocol)) return false;
+  const url=new URL(location.href);
+  const hashParams=new URLSearchParams((location.hash||"").replace(/^#/,""));
+  const type=hashParams.get("type")||url.searchParams.get("type");
+  if(type!=="recovery") return false;
+  let session=null;
+  const accessToken=hashParams.get("access_token"), refreshToken=hashParams.get("refresh_token");
+  if(accessToken&&refreshToken){
+    const {data,error}=await verifierClient.auth.setSession({access_token:accessToken,refresh_token:refreshToken});
+    if(error) throw error; session=data.session||null;
+  }
+  if(!session){
+    const tokenHash=url.searchParams.get("token_hash");
+    if(tokenHash){ const {data,error}=await verifierClient.auth.verifyOtp({token_hash:tokenHash,type:"recovery"}); if(error) throw error; session=data.session||null; }
+  }
+  if(!session){
+    const code=url.searchParams.get("code");
+    if(code){ const {data,error}=await verifierClient.auth.exchangeCodeForSession(code); if(error) throw error; session=data.session||null; }
+  }
+  if(!session) session=(await verifierClient.auth.getSession()).data.session||null;
+  if(!session) throw new Error("This password reset link has expired. Please request a new one.");
+
+  try{
+    const {data:profile}=await verifierClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle();
+    const acctType=String(profile?.account_type||session.user.user_metadata?.account_type||"").toLowerCase();
+    if(acctType==="venue"){
+      const forwardUrl=`${location.origin}/business-auth#access_token=${encodeURIComponent(session.access_token)}&refresh_token=${encodeURIComponent(session.refresh_token)}&type=recovery`;
+      try{ await verifierClient.auth.signOut(); }catch(e){}
+      window.location.replace(forwardUrl);
+      return "redirecting";
+    }
+  }catch(err){ console.warn("Blooma recovery account-type check",err); }
+
+  history.replaceState({},"","/login");
+  return true;
+}
+
+async function bootstrapAuthPage(){
+  try{
+    const recovering=await consumeCustomerPasswordRecovery();
+    if(recovering==="redirecting") return;
+    if(recovering){
+      state.authView="resetPassword"; state.resetErrors={};
+      render();
+      return;
+    }
+
+    const verified=await consumeCustomerVerificationReturn();
+    if(verified){
+      state.emailConfirmed=true;
+      state.email=verified.email||state.email;
+      const mainSession=(await supabaseClient.auth.getSession()).data.session;
+      if(mainSession?.user?.id && String(mainSession.user.id)===String(verified.customer_user_id||"")){
+        window.location.replace(customerAppDestination());
+        return;
+      }
+      state.authView="login"; state.loginStep=0; state.loginEmail=verified.email||"";
+      setAuthPath("/login");
+      render();
+      return;
+    }
+
+    const session=(await supabaseClient.auth.getSession()).data.session;
+    if(session?.user){
+      const {data:profile}=await supabaseClient.from("user_profiles").select("account_type,first_name,last_name,phone").eq("user_id",session.user.id).maybeSingle();
+      const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||"").toLowerCase();
+      if(accountType!=="customer"){
+        try{ await supabaseClient.auth.signOut(); }catch(e){}
+        render();
+        return;
+      }
+      const actualEmail=String(session.user.user_metadata?.actual_email||state.email||"");
+      if(state.authView==="login"){ window.location.replace(customerAppDestination()); return; }
+      if(state.registered){ render(); return; }
+      if(actualEmail) state.email=actualEmail;
+    }
+  }catch(e){
+    console.warn("Blooma customer auth bootstrap",e);
+    const hashType=new URLSearchParams((location.hash||"").replace(/^#/,"")).get("type");
+    const queryType=new URLSearchParams(location.search).get("type");
+    if(new URLSearchParams(location.search).get("verify_customer")==="1"){
+      state.authView="login"; state.loginStep=0; state.loginErrors={loginEmail:e.message||"We couldn't verify that email link."};
+    } else if(hashType==="recovery"||queryType==="recovery"){
+      history.replaceState({},"","/login");
+      state.authView="login"; state.loginStep=0; state.loginErrors={loginEmail:e.message||"This password reset link has expired. Please request a new one."};
+    }
+  }
+  render();
+}
+bootstrapAuthPage();
+</script>
+</body>
+</html>

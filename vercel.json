@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/business-auth",
+      "destination": "/salon-onboarding-supabase"
+    },
+    {
+      "source": "/login",
+      "destination": "/customer-login-register-supabase"
+    },
+    {
+      "source": "/signup",
+      "destination": "/customer-login-register-supabase"
+    },
+    {
+      "source": "/venue/admin",
+      "destination": "/salon-admin-v3-24-supabase"
+    },
+    {
+      "source": "/venue",
+      "destination": "/"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy-policy"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms-conditions"
+    },
+    {
+      "source": "/venue/:slug",
+      "destination": "/?venue=:slug"
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Privacy Policy — Blooma</title>
+<style>
+  :root{
+    --ink:#241F33;
+    --ink-soft:#8A80AD;
+    --ink-mute:#6B6285;
+    --purple:#7C5CD9;
+    --purple-dark:#6D4DC7;
+    --purple-pastel:#F1ECFB;
+    --purple-pastel-2:#F3EEFC;
+    --border:#EFECF9;
+    --border-2:#E9E4F7;
+    --bg:#FAF9FD;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{
+    font-family:inherit;cursor:pointer;
+    -webkit-appearance:none;appearance:none;
+    -webkit-tap-highlight-color:transparent;
+    outline:none;margin:0;background:none;border:none;padding:0;
+  }
+
+  .shell{width:100%;max-width:460px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
+  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;}
+
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 20px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;
+    position:sticky;top:0;z-index:5;
+  }
+  .backbtn{
+    width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    color:var(--ink);transition:background .15s;flex-shrink:0;
+  }
+  .backbtn:hover{background:var(--purple-pastel-2);}
+  .topbar-title{font-size:15px;font-weight:700;color:var(--ink);}
+
+  .icon{display:inline-flex;align-items:center;justify-content:center;}
+
+  .legal-content{flex:1;padding:24px 20px 48px;}
+  .legal-content h1{font-size:22px;font-weight:800;color:var(--ink);margin:0 0 6px;letter-spacing:-.3px;}
+  .legal-content .updated{font-size:12.5px;color:var(--ink-soft);margin:0 0 24px;}
+  .legal-content .intro{font-size:13.5px;color:var(--ink-mute);line-height:1.6;margin:0 0 28px;}
+  .legal-content h2{font-size:15.5px;font-weight:700;color:var(--ink);margin:26px 0 10px;letter-spacing:-.2px;}
+  .legal-content h2:first-of-type{margin-top:0;}
+  .legal-content p{font-size:13.5px;color:var(--ink-mute);line-height:1.65;margin:0 0 12px;}
+  .legal-content ul{margin:0 0 12px;padding-left:20px;}
+  .legal-content li{font-size:13.5px;color:var(--ink-mute);line-height:1.65;margin-bottom:6px;}
+  .legal-content a{color:var(--purple);font-weight:600;text-decoration:none;}
+  .legal-content strong{color:var(--ink);font-weight:700;}
+  .contact-card{
+    background:var(--purple-pastel-2);border:1px solid var(--border-2);border-radius:14px;
+    padding:16px 18px;margin-top:24px;
+  }
+  .contact-card p{margin:0;color:var(--ink);}
+  .contact-card a{color:var(--purple);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const ICONS = {
+  chevronLeft: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`,
+};
+function icon(name){ return `<span class="icon">${ICONS[name]||''}</span>`; }
+
+const LAST_UPDATED = "7 August 2026";
+
+const html = `
+  <div class="shell">
+    <div class="page">
+      <div class="topbar">
+        <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft')}</button>
+        <span class="topbar-title">Privacy Policy</span>
+      </div>
+      <div class="legal-content">
+        <h1>Privacy Policy</h1>
+        <p class="updated">Last updated: ${LAST_UPDATED}</p>
+        <p class="intro">
+          This Privacy Policy explains how Blooma ("we", "us", "our") collects, uses, stores, and
+          protects your personal information when you use our website and app at
+          <a href="https://blooma.co.nz">blooma.co.nz</a>. We handle your information in line with the
+          Privacy Act 2020 (New Zealand).
+        </p>
+
+        <h2>1. Information we collect</h2>
+        <p>Depending on how you use Blooma, we may collect:</p>
+        <ul>
+          <li><strong>Account details</strong> — name, email address, phone number, and password;</li>
+          <li><strong>Booking information</strong> — appointments, services booked, and booking history;</li>
+          <li><strong>Venue details</strong> — business name, address, opening hours, and services, if you register a Venue;</li>
+          <li><strong>Payment information</strong> — handled securely by our payment providers; we don't store full card details ourselves;</li>
+          <li><strong>Device &amp; usage data</strong> — IP address, browser type, and how you interact with the app, to help us improve it.</li>
+        </ul>
+
+        <h2>2. How we use your information</h2>
+        <p>We use your information to:</p>
+        <ul>
+          <li>Create and manage your account;</li>
+          <li>Process and confirm bookings between you and a Venue;</li>
+          <li>Send booking confirmations, reminders, and important account updates;</li>
+          <li>Respond to support requests;</li>
+          <li>Improve and secure the Blooma platform;</li>
+          <li>Meet our legal and regulatory obligations.</li>
+        </ul>
+
+        <h2>3. Sharing your information</h2>
+        <p>
+          When you make a booking, we share the details needed to fulfil it (such as your name, contact
+          details, and appointment time) with the relevant Venue. We may also share information with:
+        </p>
+        <ul>
+          <li>Service providers who help us run Blooma (such as hosting, email, and payment processors);</li>
+          <li>Law enforcement or regulators, where required by law;</li>
+          <li>A new owner, if Blooma is ever involved in a merger, acquisition, or sale of assets.</li>
+        </ul>
+        <p>We don't sell your personal information to third parties.</p>
+
+        <h2>4. Cookies &amp; similar technologies</h2>
+        <p>
+          We use cookies and similar technologies to keep you signed in, remember your preferences, and
+          understand how the platform is used. You can control cookies through your browser settings,
+          though some features may not work properly if you disable them.
+        </p>
+
+        <h2>5. Data storage &amp; security</h2>
+        <p>
+          We take reasonable technical and organisational measures to protect your information from
+          loss, misuse, or unauthorised access. Your data may be stored or processed on servers located
+          outside New Zealand; where this happens, we take steps to ensure it's protected to a standard
+          consistent with the Privacy Act 2020.
+        </p>
+
+        <h2>6. How long we keep your information</h2>
+        <p>
+          We keep your personal information for as long as your account is active, or as needed to
+          provide our services, resolve disputes, and meet our legal obligations. You can ask us to
+          delete your account and associated data at any time, subject to any information we're required
+          to retain by law.
+        </p>
+
+        <h2>7. Your rights</h2>
+        <p>Under the Privacy Act 2020, you have the right to:</p>
+        <ul>
+          <li>Ask what personal information we hold about you;</li>
+          <li>Request a copy of your information;</li>
+          <li>Ask us to correct information that's wrong or out of date;</li>
+          <li>Ask us to delete your account and personal information.</li>
+        </ul>
+        <p>
+          To exercise any of these rights, contact us at
+          <a href="mailto:hello@blooma.co.nz">hello@blooma.co.nz</a>. If you're not happy with how we've
+          handled your information, you can also complain to the
+          <a href="https://www.privacy.org.nz" target="_blank" rel="noopener">Office of the Privacy Commissioner</a>.
+        </p>
+
+        <h2>8. Children's privacy</h2>
+        <p>
+          Blooma isn't intended for children under 16, and we don't knowingly collect personal
+          information from them. If you believe a child has created an account, please contact us so we
+          can remove it.
+        </p>
+
+        <h2>9. Changes to this policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time. If we make material changes, we'll let
+          you know via the app or by email before they take effect.
+        </p>
+
+        <div class="contact-card">
+          <p>
+            Questions about your privacy or this policy? Reach us at
+            <a href="mailto:hello@blooma.co.nz">hello@blooma.co.nz</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+document.getElementById("root").innerHTML = html;
+document.getElementById("backBtn").addEventListener("click", ()=>{
+  const fromBusiness = new URLSearchParams(window.location.search).get("from") === "business-register";
+  if (window.history.length > 1) window.history.back();
+  else window.location.href = fromBusiness ? "/business-auth?view=register&resume=1" : "/";
+});
+</script>
+</body>
+</html>

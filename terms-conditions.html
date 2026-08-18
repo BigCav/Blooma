@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Terms &amp; Conditions — Blooma</title>
+<style>
+  :root{
+    --ink:#241F33;
+    --ink-soft:#8A80AD;
+    --ink-mute:#6B6285;
+    --purple:#7C5CD9;
+    --purple-dark:#6D4DC7;
+    --purple-pastel:#F1ECFB;
+    --purple-pastel-2:#F3EEFC;
+    --border:#EFECF9;
+    --border-2:#E9E4F7;
+    --bg:#FAF9FD;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{
+    font-family:inherit;cursor:pointer;
+    -webkit-appearance:none;appearance:none;
+    -webkit-tap-highlight-color:transparent;
+    outline:none;margin:0;background:none;border:none;padding:0;
+  }
+
+  .shell{width:100%;max-width:460px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
+  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;}
+
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 20px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;
+    position:sticky;top:0;z-index:5;
+  }
+  .backbtn{
+    width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    color:var(--ink);transition:background .15s;flex-shrink:0;
+  }
+  .backbtn:hover{background:var(--purple-pastel-2);}
+  .topbar-title{font-size:15px;font-weight:700;color:var(--ink);}
+
+  .icon{display:inline-flex;align-items:center;justify-content:center;}
+
+  .legal-content{flex:1;padding:24px 20px 48px;}
+  .legal-content h1{font-size:22px;font-weight:800;color:var(--ink);margin:0 0 6px;letter-spacing:-.3px;}
+  .legal-content .updated{font-size:12.5px;color:var(--ink-soft);margin:0 0 24px;}
+  .legal-content .intro{font-size:13.5px;color:var(--ink-mute);line-height:1.6;margin:0 0 28px;}
+  .legal-content h2{font-size:15.5px;font-weight:700;color:var(--ink);margin:26px 0 10px;letter-spacing:-.2px;}
+  .legal-content h2:first-of-type{margin-top:0;}
+  .legal-content p{font-size:13.5px;color:var(--ink-mute);line-height:1.65;margin:0 0 12px;}
+  .legal-content ul{margin:0 0 12px;padding-left:20px;}
+  .legal-content li{font-size:13.5px;color:var(--ink-mute);line-height:1.65;margin-bottom:6px;}
+  .legal-content a{color:var(--purple);font-weight:600;text-decoration:none;}
+  .legal-content strong{color:var(--ink);font-weight:700;}
+  .contact-card{
+    background:var(--purple-pastel-2);border:1px solid var(--border-2);border-radius:14px;
+    padding:16px 18px;margin-top:24px;
+  }
+  .contact-card p{margin:0;color:var(--ink);}
+  .contact-card a{color:var(--purple);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const ICONS = {
+  chevronLeft: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`,
+};
+function icon(name){ return `<span class="icon">${ICONS[name]||''}</span>`; }
+
+const LAST_UPDATED = "7 August 2026";
+
+const html = `
+  <div class="shell">
+    <div class="page">
+      <div class="topbar">
+        <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft')}</button>
+        <span class="topbar-title">Terms &amp; Conditions</span>
+      </div>
+      <div class="legal-content">
+        <h1>Terms &amp; Conditions</h1>
+        <p class="updated">Last updated: ${LAST_UPDATED}</p>
+        <p class="intro">
+          These Terms &amp; Conditions ("Terms") govern your access to and use of Blooma, a booking
+          platform that connects customers with salons, barbers, and other beauty and wellness venues
+          ("Venues"). By creating an account or using Blooma, you agree to these Terms. If you don't
+          agree, please don't use the platform.
+        </p>
+
+        <h2>1. Who we are</h2>
+        <p>
+          Blooma ("we", "us", "our") operates the website and app at
+          <a href="https://blooma.co.nz">blooma.co.nz</a>, which allows customers to discover and book
+          appointments with Venues, and allows Venue owners to manage their bookings, schedules, and
+          customers.
+        </p>
+
+        <h2>2. Accounts</h2>
+        <p>
+          To book an appointment or manage a Venue, you'll need to create an account. You agree to:
+        </p>
+        <ul>
+          <li>Provide accurate, current, and complete information when registering;</li>
+          <li>Keep your login details confidential and secure;</li>
+          <li>Notify us promptly if you suspect unauthorised use of your account;</li>
+          <li>Be responsible for all activity that happens under your account.</li>
+        </ul>
+        <p>
+          You must be at least 16 years old to create a Blooma account. If you're creating a Venue
+          account, you confirm you're authorised to act on behalf of that business.
+        </p>
+
+        <h2>3. Bookings</h2>
+        <p>
+          Blooma is a platform that facilitates bookings between customers and Venues — the actual
+          service (haircut, treatment, appointment, etc.) is provided by the Venue, not by Blooma.
+          Prices, availability, cancellation windows, and any deposit or no-show fees are set by each
+          Venue and shown to you before you confirm a booking.
+        </p>
+        <p>
+          When you make a booking, you're entering into an agreement directly with the Venue. Blooma
+          isn't a party to that agreement and isn't responsible for the quality, timing, or outcome of
+          any service provided.
+        </p>
+
+        <h2>4. Cancellations, no-shows &amp; refunds</h2>
+        <p>
+          Each Venue sets its own cancellation and refund policy, which will be shown at the time of
+          booking. If you need to cancel or reschedule, please do so within the timeframe set by the
+          Venue to avoid any cancellation or no-show fees. Refunds, where applicable, are issued by the
+          Venue in line with its own policy.
+        </p>
+
+        <h2>5. Venue obligations</h2>
+        <p>If you operate a Venue on Blooma, you agree to:</p>
+        <ul>
+          <li>Keep your services, pricing, and availability accurate and up to date;</li>
+          <li>Honour bookings made through the platform;</li>
+          <li>Hold any licences, qualifications, or insurance required to provide your services;</li>
+          <li>Treat customers fairly and in line with applicable consumer law.</li>
+        </ul>
+
+        <h2>6. Acceptable use</h2>
+        <p>You agree not to:</p>
+        <ul>
+          <li>Use Blooma for any unlawful purpose or to harass, abuse, or harm another person;</li>
+          <li>Attempt to interfere with, disrupt, or gain unauthorised access to the platform;</li>
+          <li>Post false, misleading, or fraudulent bookings, reviews, or listings;</li>
+          <li>Copy, resell, or scrape any part of the platform without our permission.</li>
+        </ul>
+
+        <h2>7. Intellectual property</h2>
+        <p>
+          The Blooma name, logo, app, and website (excluding content submitted by Venues and customers)
+          are owned by us or our licensors. You may not use our branding without written permission.
+        </p>
+
+        <h2>8. Liability</h2>
+        <p>
+          To the maximum extent permitted by law, Blooma is not liable for any indirect, incidental, or
+          consequential loss arising from your use of the platform, or from any service, act, or
+          omission of a Venue. Nothing in these Terms limits any rights you have under the Consumer
+          Guarantees Act 1993 or the Fair Trading Act 1986 that cannot be excluded by law.
+        </p>
+
+        <h2>9. Suspending or closing accounts</h2>
+        <p>
+          We may suspend or close an account if these Terms are breached, if we suspect fraudulent or
+          harmful activity, or where we're required to by law. You can close your account at any time by
+          contacting us.
+        </p>
+
+        <h2>10. Changes to these Terms</h2>
+        <p>
+          We may update these Terms from time to time. If we make material changes, we'll let you know
+          via the app or by email before they take effect. Continuing to use Blooma after changes take
+          effect means you accept the updated Terms.
+        </p>
+
+        <h2>11. Governing law</h2>
+        <p>
+          These Terms are governed by the laws of New Zealand, and any disputes will be subject to the
+          exclusive jurisdiction of the New Zealand courts.
+        </p>
+
+        <div class="contact-card">
+          <p>
+            Questions about these Terms? Get in touch at
+            <a href="mailto:hello@blooma.co.nz">hello@blooma.co.nz</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+document.getElementById("root").innerHTML = html;
+document.getElementById("backBtn").addEventListener("click", ()=>{
+  const fromBusiness = new URLSearchParams(window.location.search).get("from") === "business-register";
+  if (window.history.length > 1) window.history.back();
+  else window.location.href = fromBusiness ? "/business-auth?view=register&resume=1" : "/";
+});
+</script>
+</body>
+</html>
