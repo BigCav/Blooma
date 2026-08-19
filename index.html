@@ -105,7 +105,8 @@
   .searchbox input{width:100%;background:transparent;border:none;outline:none;font-size:14px;color:var(--ink);}
   .searchbox input::placeholder{color:var(--placeholder);}
 
-  .home-topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;flex-shrink:0;}
+  .home-topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;flex-shrink:0;border-bottom:1px solid var(--border);}
+  .greeting-desktop{display:none;}
   .brand-logo{display:flex;align-items:center;gap:7px;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;-webkit-tap-highlight-color:transparent;}
   .brand-mark{width:26px;height:26px;border-radius:9px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .brand-mark .icon svg{width:15px;height:15px;}
@@ -134,6 +135,10 @@
   @keyframes homeMenuSheetDown{from{transform:translateY(0);}to{transform:translateY(100%);}}
   @keyframes homeMenuOverlayIn{from{opacity:0;}to{opacity:1;}}
   @keyframes homeMenuOverlayOut{from{opacity:1;}to{opacity:0;}}
+  .city-picker-sheet{animation:homeMenuSheetUp .22s ease;will-change:transform;}
+  .city-picker-sheet.closing{animation:homeMenuSheetDown .22s ease forwards;pointer-events:none;}
+  #cityPickerOverlay{animation:homeMenuOverlayIn .22s ease;}
+  #cityPickerOverlay.closing{animation:homeMenuOverlayOut .22s ease forwards;pointer-events:none;}
   .home-menu-sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
   .home-menu-sheet-title{font-size:26px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.5px;}
   .home-menu-sheet-close{width:32px;height:32px;border-radius:50%;background:var(--purple-pastel-2);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);flex-shrink:0;-webkit-tap-highlight-color:transparent;}
@@ -192,6 +197,44 @@
     display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--purple);
   }
   .tag-pill{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--purple-pastel);color:#5C4B99;font-weight:600;}
+
+  .featured-salon-card{display:flex;flex-direction:column;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;text-align:left;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:0;width:100%;overflow:hidden;box-shadow:0 1px 2px rgba(36,31,51,.04);transition:border-color .15s;}
+  .featured-salon-card:hover{border-color:var(--border-hover);}
+  .featured-salon-image{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--purple-pastel-2);flex-shrink:0;}
+  .featured-salon-image img{width:100%;height:100%;object-fit:cover;display:block;}
+  .featured-salon-body{padding:12px 14px 16px;min-width:0;}
+  .featured-salon-name{font-weight:700;color:var(--ink);font-size:15px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .featured-salon-rating{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:13px;font-weight:600;color:var(--ink);}
+  .featured-salon-rating .star-row{display:flex;align-items:center;gap:1px;}
+  .featured-salon-rating .star-row .icon svg{width:13px;height:13px;}
+  .featured-salon-rating-count{color:var(--ink-soft);font-weight:500;}
+  .featured-salon-location,.featured-salon-status{font-size:12.5px;color:var(--ink-soft);margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .featured-salon-status.is-open{color:#1E8A4C;font-weight:600;}
+  .checkout-summary-strip-time{font-size:12px;color:var(--purple);font-weight:600;margin:4px 0 0;}
+  .checkout-day-row{gap:8px;}
+  .gallery-group{display:flex;flex-direction:column;gap:16px;}
+  .venue-carousel-section{display:none;}
+  .checkout-summary-desktop{display:none;}
+  .checkout-summary-mobile{display:flex;}
+  .checkout-sidebar-venue-row{display:flex;gap:12px;align-items:flex-start;}
+  .checkout-sidebar-venue-img{width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--purple-pastel-2);}
+  .checkout-sidebar-venue-img img{width:100%;height:100%;object-fit:cover;display:block;}
+  .checkout-sidebar-venue-img-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+  .checkout-sidebar-venue-name{font-size:15px;font-weight:700;color:var(--ink);margin:0;}
+  .checkout-sidebar-venue-rating{display:flex;align-items:center;gap:5px;margin:4px 0 0;font-size:13px;font-weight:600;color:var(--ink);}
+  .checkout-sidebar-venue-rating .star-row{display:flex;align-items:center;gap:1px;}
+  .checkout-sidebar-venue-rating .star-row .icon svg{width:12px;height:12px;}
+  .checkout-sidebar-venue-rating-count{color:var(--ink-soft);font-weight:500;}
+  .checkout-sidebar-venue-address{font-size:12.5px;color:var(--ink-soft);margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .checkout-sidebar-divider{height:1px;background:var(--border);margin:16px 0;}
+  .checkout-sidebar-datetime{display:flex;flex-direction:column;gap:8px;}
+  .checkout-sidebar-datetime-row{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);font-weight:600;}
+  .checkout-sidebar-datetime-row .icon svg{width:15px;height:15px;}
+  .checkout-sidebar-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .checkout-sidebar-item-name{font-size:13.5px;font-weight:700;color:var(--ink);}
+  .checkout-sidebar-item-price{font-size:13.5px;font-weight:700;color:var(--ink);flex-shrink:0;}
+  .checkout-sidebar-item-sub{font-size:12px;color:var(--ink-soft);margin:3px 0 0;}
+  .checkout-sidebar-total-row{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700;color:var(--ink);}
 
   .service-card{
     background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px;
@@ -586,7 +629,7 @@
     border-radius:999px;padding:2px 8px;text-transform:uppercase;
   }
 
-  .salon-hero{position:relative;height:240px;flex-shrink:0;overflow:hidden;background:var(--purple-pastel-2);border-radius:20px;margin:0 20px;}
+  .salon-hero{position:relative;height:300px;flex-shrink:0;overflow:hidden;background:var(--purple-pastel-2);border-radius:20px;margin:0 20px;}
   .salon-drawer{
     position:relative;background:var(--white);border:1px solid var(--border);border-radius:20px;
     padding:16px 18px;margin:-30px 20px 0;box-shadow:0 8px 20px rgba(36,31,51,.06);
@@ -695,10 +738,21 @@
   /* Desktop overrides — placed last on purpose so they win the cascade
      regardless of where other same-specificity rules appear above. */
   @media (min-width:1024px){
-    #app{padding:32px 0;}
-    .shell{max-width:1180px;height:calc(100dvh - 64px);}
-    .salon-list{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 32px 40px;}
-    .salon-card[style*="padding:0"]{display:flex;flex-direction:column;height:100%;}
+    #app{padding:0;max-width:1400px;margin:0 auto;}
+    .shell{max-width:none;height:100dvh;border-radius:0;box-shadow:none;}
+    .salon-list{display:none;}
+    .salon-count-label{display:none;}
+    .venue-carousel-section{display:block;margin-bottom:32px;}
+    .venue-carousel-header{display:flex;align-items:center;justify-content:space-between;padding:0 32px;margin-bottom:16px;}
+    .venue-carousel-header h2{font-size:18px;font-weight:700;color:var(--ink);margin:0;}
+    .venue-carousel-arrows{display:flex;gap:8px;}
+    .carousel-arrow-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border-2);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;}
+    .carousel-arrow-btn:hover{background:var(--purple-pastel-2);}
+    .venue-carousel-row{display:flex;gap:20px;overflow-x:auto;scroll-behavior:smooth;padding:0 0 8px 32px;}
+    .venue-carousel-row .featured-salon-card,.venue-carousel-row .salon-card{flex:0 0 calc(25% - 15px);width:calc(25% - 15px);}
+    .featured-salon-card{height:100%;}
+    .greeting-mobile{display:none;}
+    .greeting-desktop{display:inline;}
     .venue-body-grid{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start;padding:0 20px;}
     .venue-main-col{min-width:0;margin-top:0;}
     .venue-side-col{display:block;position:sticky;top:20px;margin-top:24px;}
@@ -706,7 +760,27 @@
     .venue-main-col > div:first-child{padding-top:18px !important;}
     .venue-book-bar{display:none;}
     .page[style*="padding-bottom:86px"]{padding-bottom:32px;}
-    .checkout-shell{max-width:640px;margin:32px auto;border:1px solid var(--border);border-radius:24px;box-shadow:0 20px 60px rgba(36,31,51,.08);flex:0 1 auto;max-height:calc(100dvh - 128px);}
+    .checkout-shell{width:100%;max-width:640px;margin:32px auto;border:1px solid var(--border);border-radius:24px;box-shadow:0 20px 60px rgba(36,31,51,.08);flex:0 1 auto;max-height:calc(100dvh - 128px);}
+    .checkout-shell.service-select-shell,.checkout-shell.booking-checkout-shell{max-width:1040px;display:grid;column-gap:28px;row-gap:0;}
+    .service-select-shell{grid-template-columns:1fr 340px;grid-template-rows:auto auto 1fr;grid-template-areas:"topbar topbar" "chips salonInfo" "list footer";}
+    .service-select-shell > .topbar{grid-area:topbar;}
+    .service-select-shell > .chip-row{grid-area:chips;padding-left:0;padding-right:0;}
+    .service-select-shell > .service-select-salon-strip{grid-area:salonInfo;border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;margin:24px 0 0;}
+    .service-select-shell > .service-select-list{grid-area:list;padding-left:0;padding-right:20px;}
+    .service-select-shell > .service-select-footer{grid-area:footer;border:1px solid var(--border);border-radius:0 0 16px 16px;align-self:start;margin:0;}
+    .booking-checkout-shell{grid-template-columns:1fr 340px;grid-template-rows:auto auto 1fr;grid-template-areas:"topbar topbar" "body summary" "body footer";}
+    .booking-checkout-shell > .topbar{grid-area:topbar;}
+    .booking-checkout-shell > .checkout-summary-strip{grid-area:summary;border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;margin:24px 0 0;}
+    .booking-checkout-shell > #checkoutBody{grid-area:body;padding-right:28px;}
+    .booking-checkout-shell > .checkout-footer{grid-area:footer;border:1px solid var(--border);border-radius:0 0 16px 16px;align-self:start;margin:0;}
+    .service-select-shell .checkout-summary-mobile,.booking-checkout-shell .checkout-summary-mobile{display:none;}
+    .service-select-shell .checkout-summary-desktop,.booking-checkout-shell .checkout-summary-desktop{display:block;}
+    .booking-checkout-shell .checkout-footer .confirm-total-drawer{display:none;}
+    .booking-checkout-shell .checkout-day-row{gap:10px;}
+    .booking-checkout-shell .day-pill{min-width:82px;padding:16px 6px;border-radius:16px;gap:4px;}
+    .booking-checkout-shell .day-pill .dname{font-size:12.5px;}
+    .booking-checkout-shell .day-pill .dnum{font-size:19px;margin-top:4px;}
+    .checkout-shell.confirm-done-shell{max-width:760px;}
     .salon-hero{height:480px;}
     .hero-carousel{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:8px;overflow:visible;}
     .hero-slide{border-radius:14px;}
@@ -719,22 +793,19 @@
     .salon-hero{background:var(--white);}
     .hero-overlay-bar{background:none !important;justify-content:flex-end !important;padding:0 16px 16px 0 !important;}
     .salon-drawer{margin:20px 20px 0;}
+    .page:not(.checkout-shell) > .topbar{
+      border-bottom:none !important;background:transparent !important;
+      padding:24px 32px !important;position:static;
+    }
+    .page:not(.checkout-shell) > .topbar .toptitle{font-size:20px;}
+    .page:not(.checkout-shell) > .topbar .backbtn{width:40px;height:40px;}
     .gallery-grid{
-      display:grid !important;grid-template-columns:2fr 1fr !important;grid-auto-rows:260px !important;
-      gap:10px !important;max-width:1140px;margin:0 auto;overflow:visible !important;
+      gap:10px !important;max-width:1300px;margin:0 auto;padding-left:32px !important;padding-right:32px !important;
       -ms-overflow-style:none;scrollbar-width:none;
     }
     .gallery-grid::-webkit-scrollbar{display:none;}
+    .gallery-group{display:grid !important;grid-template-columns:var(--gallery-group-cols);grid-template-rows:var(--gallery-group-rows);gap:10px !important;}
     .gallery-tile{height:100% !important;}
-    .gallery-tile:nth-child(6n+1){grid-column:1;grid-row:span 2;}
-    .gallery-tile:nth-child(6n+2){grid-column:2;grid-row:span 1;}
-    .gallery-tile:nth-child(6n+3){grid-column:2;grid-row:span 1;}
-    .gallery-tile:nth-child(6n+4){grid-column:1;grid-row:span 1;}
-    .gallery-tile:nth-child(6n+5){grid-column:1;grid-row:span 1;}
-    .gallery-tile:nth-child(6n){grid-column:2;grid-row:span 2;}
-    .gallery-tile:nth-child(6n+4):last-child{grid-column:1/3;grid-row:span 1;}
-    .gallery-tile:nth-child(6n+5):last-child{grid-column:2;grid-row:span 1;}
-    .gallery-tile:nth-child(6n+1):last-child{grid-column:1/3;grid-row:span 1;}
     .salon-title{font-size:30px !important;}
     .venue-rating-row-mobile{display:none !important;}
     .venue-rating-row-desktop{display:flex !important;}
@@ -806,6 +877,7 @@ const ICONS = {
   userPlus: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>`,
   briefcase: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`,
   logOut: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`,
+  share: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>`,
 };
 function icon(name, color){ return `<span class="icon${name==='star'?' icon-star':''}" style="color:${color||'currentColor'}">${ICONS[name]}</span>`; }
 function hamburgerMenuMarkup(){
@@ -858,6 +930,13 @@ function greetingLabel(){
   }
   return period;
 }
+function desktopGreetingLabel(){
+  if (isLoggedInCustomer()){
+    const firstName = (state.profile.name||"").trim().split(/\s+/)[0];
+    if (firstName) return `Find your next appointment, ${firstName}`;
+  }
+  return "Find your next appointment";
+}
 function topbarMarkup(opts){
   opts = opts || {};
   return `
@@ -865,6 +944,7 @@ function topbarMarkup(opts){
       ${opts.backBtn ? `<button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>` : `<span class="brand-logo">Blooma</span>`}
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
         ${opts.locationBtn ? `<button id="locationBtn" class="location-pill">${icon('mapPin')}<span class="loc-name">${escapeHtml(opts.locationBtn.cityName)}</span>${icon('chevronDown')}</button>` : ""}
+        ${opts.shareBtn ? `<button class="menu-btn" id="shareVenueBtn" data-sharetitle="${escapeAttr(opts.shareBtn.title)}" data-shareurl="${escapeAttr(opts.shareBtn.url)}" aria-label="Share">${icon('share')}</button>` : ""}
         ${opts.favBtn ? `<button class="menu-btn ${opts.favBtn.active?'active-fav':''}" data-fav="${opts.favBtn.salonId}" aria-label="Save salon">${icon(opts.favBtn.active?'heartFill':'heart')}</button>` : ""}
         <button class="menu-btn ${isLoggedInCustomer()?'has-badge':''}" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">${icon('menu')}${isLoggedInCustomer()?'<span class="menu-badge"></span>':''}</button>
       </div>
@@ -891,6 +971,21 @@ function closeHomeMenuSheet(afterClose, animated=true){
   sheet.classList.add("closing");
   overlay?.classList.add("closing");
   homeMenuCloseTimer=setTimeout(()=>finishHomeMenuClose(afterClose),230);
+}
+let cityPickerCloseTimer=null;
+function closeCityPickerSheet(patch, afterClose){
+  const sheet=document.getElementById("cityPickerSheet");
+  const overlay=document.getElementById("cityPickerOverlay");
+  const finish=()=>{
+    clearTimeout(cityPickerCloseTimer);
+    setState(Object.assign({ showCityPicker:false, cityQuery:"" }, patch||{}));
+    if(typeof afterClose==="function") afterClose();
+  };
+  if(!sheet){ finish(); return; }
+  if(sheet.classList.contains("closing")) return;
+  sheet.classList.add("closing");
+  overlay?.classList.add("closing");
+  cityPickerCloseTimer=setTimeout(finish,230);
 }
 function bindHomeMenuSheetControls(){
   const overlay=document.getElementById("homeMenuOverlay");
@@ -1490,7 +1585,7 @@ async function loadMarketplaceVenues(applyRouteAfterLoad=false){
 
 
 const QUICK_NOTES = ["First time here","Sensitive skin","Please call before arrival","No small talk please"];
-const DAYS = Array.from({length:7},(_,i)=>dateFromNzKey(addDaysToDateKey(nzTodayKey(),i)));
+const DAYS = Array.from({length:21},(_,i)=>dateFromNzKey(addDaysToDateKey(nzTodayKey(),i)));
 function dayShort(d){ return d.toLocaleDateString(undefined,{weekday:"short",timeZone:NZ_TIME_ZONE}); }
 function dayLabel(d){ return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",timeZone:NZ_TIME_ZONE}); }
 function bookingStatusLabel(status){ return status==="completed"?"Completed":status==="cancelled"?"Cancelled":status==="no_show"?"No-show":"Upcoming"; }
@@ -1657,6 +1752,18 @@ function starRowMarkup(rating){
     out+=`<span class="icon" style="color:${i<filled?'var(--gold)':'var(--border-2)'};">${svg}</span>`;
   }
   return out;
+}
+function checkoutVenueCardMarkup(salon){
+  const coverImage = (salon.photos && salon.photos.length) ? salon.photos[0] : (salon.homeImage||"");
+  return `
+    <div class="checkout-sidebar-venue-row">
+      <div class="checkout-sidebar-venue-img">${coverImage?`<img src="${escapeAttr(coverImage)}" alt="${escapeAttr(salon.name)}" loading="lazy" decoding="async">`:`<div class="checkout-sidebar-venue-img-fallback">${icon(salon.icon||'store','var(--purple)')}</div>`}</div>
+      <div style="min-width:0;">
+        <p class="checkout-sidebar-venue-name">${escapeHtml(salon.name)}</p>
+        <p class="checkout-sidebar-venue-rating">${salon.rating!=="New"?`<span>${salon.rating}</span><span class="star-row">${starRowMarkup(salon.rating)}</span><span class="checkout-sidebar-venue-rating-count">(${salon.reviews})</span>`:`${icon('star','var(--gold)')}<span>New</span>`}</p>
+        <p class="checkout-sidebar-venue-address">${escapeHtml(salon.address||salon.distance||"")}</p>
+      </div>
+    </div>`;
 }
 
 /* ---------------------------------------------------
@@ -1931,8 +2038,68 @@ async function submitReview(id){
 /* ---------------------------------------------------
    RENDER: HOME
 --------------------------------------------------- */
+function featuredSalonCardMarkup(s){
+  const coverImage = s.homeImage || (s.photos && s.photos.length ? s.photos[0] : "");
+  const openStatus = getSalonOpenStatus(s);
+  if (!coverImage){
+    return `
+      <div class="salon-card" data-salon="${s.id}">
+        <button class="fav-btn ${state.favorites.includes(s.id)?'active':''}" data-fav="${s.id}" aria-label="Save salon">${icon(state.favorites.includes(s.id)?'heartFill':'heart')}</button>
+        <div class="salon-icon">${icon(s.icon,'var(--purple)')}</div>
+        <div style="min-width:0;flex:1;padding-right:38px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <h3 style="font-weight:700;color:var(--ink);font-size:15px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(s.name)}</h3>
+            <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+              ${icon('star','var(--gold)')}
+              <span style="font-size:13px;font-weight:600;color:var(--ink);">${s.rating}${s.rating!=="New" && Number(s.reviews)>0 ? ` (${s.reviews})` : ""}</span>
+            </div>
+          </div>
+          ${s.blurb?`<p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;">${escapeHtml(s.blurb)}</p>`:""}
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+            <span class="tag-pill">${escapeHtml(s.tag)}</span>
+            <span style="display:flex;align-items:center;gap:3px;font-size:12px;color:var(--ink-soft);">${icon('mapPin')} ${escapeHtml(s.distance)}</span>
+          </div>
+          ${s.address?`<p style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-soft);margin:6px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${icon('mapPin')} ${escapeHtml(s.address)}</p>`:""}
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="featured-salon-card" data-salon="${s.id}">
+      <div class="featured-salon-image">
+        <img src="${escapeAttr(coverImage)}" alt="${escapeAttr(s.name)}" loading="lazy" decoding="async">
+        <button class="fav-btn ${state.favorites.includes(s.id)?'active':''}" data-fav="${s.id}" aria-label="Save salon">${icon(state.favorites.includes(s.id)?'heartFill':'heart')}</button>
+      </div>
+      <div class="featured-salon-body">
+        <h3 class="featured-salon-name">${escapeHtml(s.name)}</h3>
+        <div class="featured-salon-rating">
+          ${s.rating==="New" ? `${icon('star','var(--gold)')}<span>New</span>` : `<span>${s.rating}</span><span class="star-row">${starRowMarkup(s.rating)}</span>${Number(s.reviews)>0?`<span class="featured-salon-rating-count">(${s.reviews})</span>`:""}`}
+        </div>
+        <p class="featured-salon-location">${escapeHtml(s.distance)}</p>
+        <p class="featured-salon-status ${openStatus.isOpenNow?'is-open':''}">${venueStatusLine(s,openStatus)}</p>
+      </div>
+    </div>
+  `;
+}
+function venueCarouselSectionMarkup(rowId,title,salons){
+  if (!salons.length) return "";
+  return `
+    <div class="venue-carousel-section">
+      <div class="venue-carousel-header">
+        <h2>${escapeHtml(title)}</h2>
+        <div class="venue-carousel-arrows">
+          <button class="carousel-arrow-btn" data-scrollcarousel="${rowId}" data-dir="-1" aria-label="Scroll left">${icon('chevronLeft')}</button>
+          <button class="carousel-arrow-btn" data-scrollcarousel="${rowId}" data-dir="1" aria-label="Scroll right">${icon('chevronRight')}</button>
+        </div>
+      </div>
+      <div class="venue-carousel-row no-scrollbar" id="${rowId}" data-scrollkey="${rowId}">
+        ${salons.map(s=>featuredSalonCardMarkup(s)).join("")}
+      </div>
+    </div>
+  `;
+}
 function renderHome(){
-  const preferredCategories = ["Hair","Nails","Facials · Skin","Barber","Lashes · Brows","Massage · Spa"];
+  const preferredCategories = ["Hair & styling","Nails","Hair removal","Eyebrows & eyelashes","Facials & skincare","Massage","Makeup","Barbering","Spa & wellness","Body & skin"];
   const discoveredCategories = Array.from(new Set(SALONS.flatMap(s=>{
     const tag=String(s.tag||"").trim();
     return tag ? [tag,...tag.split("·").map(x=>x.trim()).filter(Boolean)] : [];
@@ -1952,12 +2119,17 @@ function renderHome(){
     .map(id=>SALONS.find(s=>s.id===id))
     .filter(Boolean);
 
+  const newSalons = SALONS.filter(s=>{
+    const matchesCity = !state.city?.name || String(s.city||"").toLowerCase()===String(state.city.name).toLowerCase();
+    return matchesCity && String(s.rating)==="New";
+  });
+
   return `
     <div class="page" style="position:relative;">
       ${topbarMarkup({locationBtn:{cityName:state.city.name}})}
 
       <div style="padding:16px 20px 16px;">
-        <h1 style="font-size:26px;line-height:1.2;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(greetingLabel())}</h1>
+        <h1 style="font-size:26px;line-height:1.2;font-weight:700;color:var(--ink);margin:0;"><span class="greeting-mobile">${escapeHtml(greetingLabel())}</span><span class="greeting-desktop">${escapeHtml(desktopGreetingLabel())}</span></h1>
       </div>
 
       <div style="padding:0 20px 16px;">
@@ -1991,66 +2163,24 @@ function renderHome(){
         </div>
       </div>
 
-      <div style="padding:4px 20px 18px;">
+      <div class="salon-count-label" style="padding:4px 20px 18px;">
         <span style="font-size:14px;font-weight:600;color:var(--ink);">${state.marketplaceError?"Venues unavailable":`${filtered.length} ${filtered.length===1?'salon':'salons'} in ${escapeHtml(state.city.name)}`}</span>
       </div>
 
       <div class="salon-list">
         ${!state.marketplaceError && filtered.length===0 && state.homeFilter==="Saved" ? `<div style="text-align:center;padding:56px 24px;grid-column:1/-1;"><div style="width:56px;height:56px;border-radius:50%;background:var(--purple-pastel-2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--purple);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></div><p style="color:var(--ink);font-size:14.5px;font-weight:700;margin:0 0 6px;">No saved salons yet</p><p style="color:var(--ink-soft);font-size:13px;line-height:1.5;margin:0;">Tap the heart on a salon to save it here for quick access later.</p></div>` : ""}
-        ${filtered.map(s=> {
-          const coverImage = s.homeImage || (s.photos && s.photos.length ? s.photos[0] : "");
-          return coverImage ? `
-          <div class="salon-card" data-salon="${s.id}" style="display:block;padding:0;overflow:hidden;">
-            <div style="height:178px;width:100%;position:relative;background:var(--purple-pastel-2);">
-              <img src="${escapeAttr(coverImage)}" alt="${escapeAttr(s.name)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">
-              <button class="fav-btn ${state.favorites.includes(s.id)?'active':''}" data-fav="${s.id}" aria-label="Save salon" style="top:12px;right:12px;">${icon(state.favorites.includes(s.id)?'heartFill':'heart')}</button>
-            </div>
-            <div style="padding:16px;min-width:0;">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                <h3 style="font-weight:700;color:var(--ink);font-size:15px;margin:0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(s.name)}</h3>
-                <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-                  ${icon('star','var(--gold)')}
-                  <span style="font-size:13px;font-weight:600;color:var(--ink);">${s.rating}${s.rating!=="New" && Number(s.reviews)>0 ? ` (${s.reviews})` : ""}</span>
-                </div>
-              </div>
-              ${s.blurb?`<p style="font-size:13px;color:var(--ink-soft);margin:5px 0 0;line-height:1.45;">${escapeHtml(s.blurb)}</p>`:""}
-              <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
-                <span class="tag-pill">${escapeHtml(s.tag)}</span>
-                <span style="display:flex;align-items:center;gap:3px;font-size:12px;color:var(--ink-soft);">${icon('mapPin')} ${escapeHtml(s.distance)}</span>
-              </div>
-              ${s.address?`<p style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-soft);margin:6px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${icon('mapPin')} ${escapeHtml(s.address)}</p>`:""}
-            </div>
-          </div>
-        ` : `
-          <div class="salon-card" data-salon="${s.id}">
-            <button class="fav-btn ${state.favorites.includes(s.id)?'active':''}" data-fav="${s.id}" aria-label="Save salon">${icon(state.favorites.includes(s.id)?'heartFill':'heart')}</button>
-            <div class="salon-icon">${icon(s.icon,'var(--purple)')}</div>
-            <div style="min-width:0;flex:1;padding-right:38px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                <h3 style="font-weight:700;color:var(--ink);font-size:15px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(s.name)}</h3>
-                <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-                  ${icon('star','var(--gold)')}
-                  <span style="font-size:13px;font-weight:600;color:var(--ink);">${s.rating}${s.rating!=="New" && Number(s.reviews)>0 ? ` (${s.reviews})` : ""}</span>
-                </div>
-              </div>
-              ${s.blurb?`<p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;">${escapeHtml(s.blurb)}</p>`:""}
-              <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-                <span class="tag-pill">${escapeHtml(s.tag)}</span>
-                <span style="display:flex;align-items:center;gap:3px;font-size:12px;color:var(--ink-soft);">${icon('mapPin')} ${escapeHtml(s.distance)}</span>
-              </div>
-              ${s.address?`<p style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-soft);margin:6px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${icon('mapPin')} ${escapeHtml(s.address)}</p>`:""}
-            </div>
-          </div>
-        `;
-        }).join("")}
+        ${filtered.map(s=>featuredSalonCardMarkup(s)).join("")}
         ${state.marketplaceError ? `<div style="text-align:center;padding:54px 20px;grid-column:1/-1;"><p style="color:var(--ink);font-size:14.5px;font-weight:700;margin:0 0 6px;">We couldn't load venues</p><p style="color:var(--ink-soft);font-size:13px;line-height:1.5;margin:0 0 16px;">Check your connection and try again. Blooma won't show cached or demo venue data instead.</p><button id="retryMarketplaceBtn" class="primary-btn" style="width:auto;padding:10px 18px;">Retry</button></div>` : ""}
         ${!state.marketplaceError && filtered.length===0 && state.homeFilter!=="Saved" ?`<div style="text-align:center;padding:64px 0;grid-column:1/-1;"><p style="color:var(--ink-soft);font-size:14px;">${state.homeQuery.trim()?`No salons match "${escapeHtml(state.homeQuery)}". Try another search.`:`No venues are currently listed in ${escapeHtml(state.city.name)}.`}</p></div>`:""}
       </div>
+
+      ${!state.marketplaceError && filtered.length ? venueCarouselSectionMarkup('homeCarouselMain',`${filtered.length} ${filtered.length===1?'salon':'salons'} in ${state.city.name}`,filtered) : ""}
+      ${!state.marketplaceError ? venueCarouselSectionMarkup('homeCarouselNew','New to Blooma',newSalons) : ""}
     </div>
     ${hamburgerMenuMarkup()}
     ${state.showCityPicker ? `
     <div id="cityPickerOverlay" style="position:absolute;inset:0;background:rgba(20,10,40,.4);z-index:50;display:flex;align-items:flex-end;">
-      <div style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:78%;display:flex;flex-direction:column;padding:20px 20px 20px;">
+      <div id="cityPickerSheet" class="city-picker-sheet" style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:78%;display:flex;flex-direction:column;padding:20px 20px 20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-shrink:0;">
           <h2 style="font-size:16px;font-weight:800;color:var(--ink);margin:0;">Choose your city</h2>
           <button id="closeCityPicker" style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel-2);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);">${icon('x')}</button>
@@ -2206,7 +2336,7 @@ function renderSalon(){
 
   return `
     <div class="page" style="padding-bottom:86px;position:relative;">
-      ${topbarMarkup({backBtn:true, favBtn:{active:isFav, salonId:salon.id}})}
+      ${topbarMarkup({backBtn:true, shareBtn:{title:salon.name, url:`${location.origin}${venuePublicPath(salon)}`}, favBtn:{active:isFav, salonId:salon.id}})}
       ${closingSoon ? `
       <div class="closing-soon-banner">
         ${icon('clock')}
@@ -2385,21 +2515,37 @@ function renderServiceSelect(){
   if (!salon) return renderHome();
   const categories = ["All", ...Array.from(new Set(salon.services.map(s=>s.category)))];
   const services = state.salonCategory==="All" ? salon.services : salon.services.filter(s=>s.category===state.salonCategory);
+  const pickedService = services.find(s=>s.id===state.selectedServiceId) || salon.services.find(s=>s.id===state.selectedServiceId);
   return `
-    <div class="page checkout-shell">
+    <div class="page checkout-shell service-select-shell">
       <div class="topbar"><div style="display:flex;align-items:center;gap:12px;min-width:0;"><button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Choose a service</h1></div></div>
-      <div style="padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
-        <div style="min-width:0;">
-          <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(salon.name)}</p>
-          <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">Select the service you would like to book</p>
+      <div class="service-select-salon-strip">
+        <div class="checkout-summary-mobile" style="padding:16px 20px;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);">
+          <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
+          <div style="min-width:0;">
+            <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(salon.name)}</p>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">${pickedService?`${escapeHtml(pickedService.name)} · ${pickedService.duration} min · $${pickedService.price}`:"Select the service you would like to book"}</p>
+          </div>
+        </div>
+        <div class="checkout-summary-desktop" style="padding:16px;">
+          ${checkoutVenueCardMarkup(salon)}
+          ${pickedService?`
+          <div class="checkout-sidebar-divider"></div>
+          <div class="checkout-sidebar-item-row">
+            <span class="checkout-sidebar-item-name">${escapeHtml(pickedService.name)}</span>
+            <span class="checkout-sidebar-item-price">$${pickedService.price}</span>
+          </div>
+          <p class="checkout-sidebar-item-sub">${pickedService.duration} min</p>
+          <div class="checkout-sidebar-divider"></div>
+          <div class="checkout-sidebar-total-row"><span>Total</span><span>$${pickedService.price}</span></div>
+          `:""}
         </div>
       </div>
       <div class="no-scrollbar chip-row" data-scrollkey="service-select-filter" style="padding:6px 20px 10px;flex-shrink:0;">${categories.map(c=>`<button class="chip ${state.salonCategory===c?'active':''}" data-servicecat="${escapeAttr(c)}">${c}</button>`).join("")}</div>
-      <div style="flex:1;overflow-y:auto;padding:2px 20px 20px;display:flex;flex-direction:column;gap:8px;min-height:0;">
+      <div class="service-select-list" style="flex:1;overflow-y:auto;padding:2px 20px 20px;display:flex;flex-direction:column;gap:8px;min-height:0;">
         ${services.map(service=>`<button class="service-select-card ${state.selectedServiceId===service.id?'active':''}" data-pickservice="${service.id}"><span style="min-width:0;"><span style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);">${escapeHtml(service.name)}${service.isNew?`<span class="new-badge">New</span>`:""}</span><span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${service.duration} min${service.addons&&service.addons.length?' · add-ons available':''}</span></span><strong style="font-size:14px;color:var(--ink);flex-shrink:0;">$${service.price}</strong></button>`).join("")}
       </div>
-      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+      <div class="service-select-footer" style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
         <button class="primary-btn" id="serviceContinueBtn" ${!state.selectedServiceId?'disabled':''}>Continue</button>
       </div>
     </div>`;
@@ -2413,7 +2559,7 @@ function renderCheckout(){
 
   if (state.done){
     return `
-      <div class="page checkout-shell">
+      <div class="page checkout-shell confirm-done-shell">
         <div style="flex:1;overflow-y:auto;padding:28px 20px 28px;">
           <div style="width:52px;height:52px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--purple);">${icon('check')}</div>
           <h1 class="confirm-page-title" style="margin-bottom:6px;">You're all set</h1>
@@ -2503,7 +2649,7 @@ function renderCheckout(){
   } else if (stepKey==="time"){
     body = `
       <p class="checkout-step-label">Select a day</p>
-      <div class="no-scrollbar" data-scrollkey="checkout-day" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:24px;">
+      <div class="no-scrollbar checkout-day-row" data-scrollkey="checkout-day" style="display:flex;overflow-x:auto;padding-bottom:4px;margin-bottom:24px;">
         ${DAYS.map((d,i)=>{
           const isOpen = !!customerDayHours(salon,nzDayIndex(d));
           return `
@@ -2677,7 +2823,7 @@ function renderCheckout(){
   const stepBtnLabels = { addons:'Continue', stylist:'Continue', time:'Continue', details:'Review booking', confirm: state.bookingSaving?'Confirming…':'Confirm booking' };
 
   return `
-    <div class="page checkout-shell">
+    <div class="page checkout-shell booking-checkout-shell">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
           <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
@@ -2686,17 +2832,42 @@ function renderCheckout(){
         <div class="stepdots">${dots}</div>
       </div>
 
-      <div style="padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
-        <div style="min-width:0;">
-          <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(service.name)}</p>
-          <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;" >${escapeHtml(salon.name)} · ${service.duration} min · ${(state.appliedPromo||state.appliedLoyaltyReward)?`<span style="text-decoration:line-through;color:var(--placeholder);">$${baseTotal()}</span> $${finalTotal()}`:`$${baseTotal()}`}</p>
+      <div class="checkout-summary-strip">
+        <div class="checkout-summary-mobile" style="padding:16px 20px;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);">
+          <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
+          <div style="min-width:0;">
+            <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(service.name)}</p>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;" >${escapeHtml(salon.name)} · ${service.duration} min · ${(state.appliedPromo||state.appliedLoyaltyReward)?`<span style="text-decoration:line-through;color:var(--placeholder);">$${baseTotal()}</span> $${finalTotal()}`:`$${baseTotal()}`}</p>
+            ${state.selectedTime?`<p class="checkout-summary-strip-time">${dayLabel(DAYS[state.selectedDay])} · ${escapeHtml(state.selectedTime)}</p>`:""}
+          </div>
+        </div>
+        <div class="checkout-summary-desktop" style="padding:16px;">
+          ${checkoutVenueCardMarkup(salon)}
+          ${state.selectedTime?`
+          <div class="checkout-sidebar-divider"></div>
+          <div class="checkout-sidebar-datetime">
+            <div class="checkout-sidebar-datetime-row">${icon('calendar')}<span>${dayLabel(DAYS[state.selectedDay])}</span></div>
+            <div class="checkout-sidebar-datetime-row">${icon('clock')}<span>${escapeHtml(state.selectedTime)} – ${formatTimeMins(parseTimeMins(state.selectedTime)+service.duration)} (${service.duration} min)</span></div>
+          </div>`:""}
+          <div class="checkout-sidebar-divider"></div>
+          <div class="checkout-sidebar-item-row">
+            <span class="checkout-sidebar-item-name">${escapeHtml(service.name)}</span>
+            <span class="checkout-sidebar-item-price">$${service.price}</span>
+          </div>
+          <p class="checkout-sidebar-item-sub">${service.duration} min${state.selectedStylist?` with ${escapeHtml(stylistPreferenceLabel(state.selectedStylist))}`:""}</p>
+          ${selectedAddonsList().map(a=>`
+          <div class="checkout-sidebar-item-row" style="margin-top:8px;">
+            <span class="checkout-sidebar-item-name" style="font-weight:600;">${escapeHtml(a.name)}</span>
+            <span class="checkout-sidebar-item-price">+$${a.price}</span>
+          </div>`).join("")}
+          <div class="checkout-sidebar-divider"></div>
+          <div class="checkout-sidebar-total-row"><span>Total</span><span>$${finalTotal()}</span></div>
         </div>
       </div>
 
       <div id="checkoutBody" style="flex:1;overflow-y:auto;padding:20px;min-height:0;">${body}</div>
 
-      <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
+      <div class="checkout-footer" style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
         ${stepKey==="confirm" ? `
         <div class="confirm-total-drawer">
           ${state.appliedPromo ? `<div class="row"><span class="label">Promo (${escapeHtml(state.appliedPromo.code)})</span><span class="value" style="color:#1E8A4C;">−$${promoDiscount()}</span></div>` : ""}
@@ -2723,6 +2894,33 @@ function renderCheckout(){
 /* ---------------------------------------------------
    RENDER: GALLERY
 --------------------------------------------------- */
+function galleryTileArea(posInGroup,groupSize,mirrored){
+  if (groupSize===1) return {col:'1', row:'1'};
+  if (groupSize===2) return {col:String(posInGroup+1), row:'1'};
+  if (!mirrored){
+    if (posInGroup===0) return {col:'1', row:'1 / span 2'};
+    if (posInGroup===1) return {col:'2', row:'1'};
+    return {col:'2', row:'2'};
+  }
+  if (posInGroup===0) return {col:'1', row:'1'};
+  if (posInGroup===1) return {col:'1', row:'2'};
+  return {col:'2', row:'1 / span 2'};
+}
+function galleryGroupMarkup(groupTiles,groupStartIndex,mirrored,photos,salon){
+  const cols = groupTiles.length===3 ? (mirrored?'1fr 2fr':'2fr 1fr') : groupTiles.length===2 ? '1fr 1fr' : '1fr';
+  const rows = groupTiles.length===3 ? '260px 260px' : '260px';
+  return `
+  <div class="gallery-group" style="--gallery-group-cols:${cols};--gallery-group-rows:${rows};">
+    ${groupTiles.map((tile,pos)=>{
+      const globalIndex = groupStartIndex+pos;
+      const area = galleryTileArea(pos,groupTiles.length,mirrored);
+      return `
+      <div class="gallery-tile" style="height:220px;flex-shrink:0;border-radius:18px;position:relative;overflow:hidden;background:${photos ? 'var(--purple-pastel-2)' : `linear-gradient(135deg, ${tile[0]}, ${tile[1]})`};grid-column:${area.col};grid-row:${area.row};">
+        ${photos ? `<img src="${escapeAttr(tile)}" alt="${escapeAttr(salon.name)} photo ${globalIndex+1}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);">${bigIcon(salon.icon,96)}</div>`}
+      </div>`;
+    }).join("")}
+  </div>`;
+}
 function renderGallery(){
   const salon = state.gallerySalon;
   if (!salon){
@@ -2746,11 +2944,11 @@ function renderGallery(){
         </div>
       </div>
       <div class="gallery-grid" style="flex:1;overflow-y:auto;min-height:0;padding:16px 20px 32px;display:flex;flex-direction:column;gap:16px;">
-        ${tiles.map((tile,i)=>`
-          <div class="gallery-tile" style="height:220px;flex-shrink:0;border-radius:18px;position:relative;overflow:hidden;background:${photos ? 'var(--purple-pastel-2)' : `linear-gradient(135deg, ${tile[0]}, ${tile[1]})`};">
-            ${photos ? `<img src="${escapeAttr(tile)}" alt="${escapeAttr(salon.name)} photo ${i+1}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);">${bigIcon(salon.icon,96)}</div>`}
-          </div>
-        `).join("")}
+        ${(() => {
+          const groups = [];
+          for (let i=0;i<tiles.length;i+=3) groups.push(tiles.slice(i,i+3));
+          return groups.map((grp,gi)=>galleryGroupMarkup(grp,gi*3,gi%2===1,photos,salon)).join("");
+        })()}
       </div>
     </div>
   `;
@@ -2854,7 +3052,7 @@ function renderStylistProfile(){
         <div style="padding:14px 20px 24px;">
           <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 10px;">Available this week</p>
           <div style="display:flex;gap:6px;">
-            ${DAYS.map(d=>{
+            ${DAYS.slice(0,7).map(d=>{
               const isAvail = stylist.availableDays.includes(nzDayIndex(d)) && salon.openDays.includes(nzDayIndex(d));
               return `
               <div class="day-chip ${isAvail?'':'unavailable'}">
@@ -3332,6 +3530,27 @@ function render(opts){
 }
 
 function bindEvents(){
+  const shareVenueBtn = document.getElementById("shareVenueBtn");
+  if (shareVenueBtn) shareVenueBtn.addEventListener("click", async ()=>{
+    const title = shareVenueBtn.getAttribute("data-sharetitle")||"";
+    const url = shareVenueBtn.getAttribute("data-shareurl")||"";
+    if (navigator.share){
+      try{ await navigator.share({ title, url }); }catch(e){ /* user cancelled the native share sheet */ }
+      return;
+    }
+    try{
+      await navigator.clipboard.writeText(url);
+      alert(`Link copied — share ${title} with: ${url}`);
+    }catch(e){ /* clipboard unavailable — nothing more we can do */ }
+  });
+  document.querySelectorAll("[data-scrollcarousel]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const row = document.getElementById(btn.getAttribute("data-scrollcarousel"));
+      if (!row) return;
+      const dir = Number(btn.getAttribute("data-dir"))||1;
+      row.scrollBy({left: dir*row.clientWidth*0.9, behavior:"smooth"});
+    });
+  });
   // confirm modal — replaces native window.confirm across the app
   document.querySelectorAll("[data-dismissconfirm]").forEach(el=>{
     el.addEventListener("click", ()=> setState({ confirmDialog: null }, { samePage:true }));
@@ -3389,12 +3608,12 @@ function bindEvents(){
     const locBtn = document.getElementById("locationBtn");
     if (locBtn) locBtn.addEventListener("click", ()=> setState({ showCityPicker:true, cityQuery:"" }));
     const overlay = document.getElementById("cityPickerOverlay");
-    if (overlay) overlay.addEventListener("click", (e)=>{ if (e.target===overlay) setState({ showCityPicker:false, cityQuery:"" }); });
+    if (overlay) overlay.addEventListener("click", (e)=>{ if (e.target===overlay) closeCityPickerSheet(); });
     const closeBtn = document.getElementById("closeCityPicker");
-    if (closeBtn) closeBtn.addEventListener("click", ()=> setState({ showCityPicker:false, cityQuery:"" }));
+    if (closeBtn) closeBtn.addEventListener("click", ()=> closeCityPickerSheet());
     document.querySelectorAll("[data-city]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
-        setState({ city: { name: btn.getAttribute("data-city"), region: btn.getAttribute("data-region") }, showCityPicker:false, cityQuery:"" }); queueCustomerPrefsSave();
+        closeCityPickerSheet({ city: { name: btn.getAttribute("data-city"), region: btn.getAttribute("data-region") } }, queueCustomerPrefsSave);
       });
     });
     const citySearchInput = document.getElementById("citySearchInput");

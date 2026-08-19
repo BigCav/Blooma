@@ -124,6 +124,10 @@
   }
   .field input:focus, .field textarea:focus{border-color:var(--purple);}
   .field input::placeholder, .field textarea::placeholder{color:var(--placeholder);}
+  .field input.error, .field textarea.error{border-color:#C13B3B;}
+  .required-mark{color:#C13B3B;font-weight:700;}
+  .address-section-card{background:var(--purple-pastel-2);border-radius:18px;padding:16px;margin-bottom:14px;}
+  .verify-address-btn{display:inline-flex;align-items:center;gap:8px;}
   .field textarea{-ms-overflow-style:none;scrollbar-width:none;resize:none;}
   .field textarea::-webkit-scrollbar{display:none;}
   .field-btn{
@@ -495,6 +499,12 @@
 
   @media (max-width:639px), (pointer:coarse){.field input,.field textarea,.search-field input{font-size:16px;}}
   @media (hover:none) and (pointer:coarse){.hist-action-btn:hover{border-color:var(--border-2);}.hist-action-btn.cancel:hover{border-color:var(--border-2);background:var(--white);}}
+
+  /* Desktop overrides placed last so they win the cascade over earlier same-specificity rules. */
+  @media (min-width:1024px){
+    .manage-grid-desktop{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;align-items:start;}
+    .manage-grid-desktop > .empty-state{grid-column:1/-1;}
+  }
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -657,7 +667,7 @@ let state = {
   scheduleFilter: "upcoming",
   scheduleSearch: "",
   scheduleView: "list", // list | week
-  collapsedBookingIds: [],
+  expandedBookingIds: [],
   editingServiceId: null,
   editingStylistId: null,
   addingService: false,
@@ -910,9 +920,11 @@ function renderDashboard(){
 
 function bookingRow(b, showActions){
   const hasDetail = !!(b.phone || b.notes || (b.addons && b.addons.length));
-  const expanded = hasDetail ? !state.collapsedBookingIds.includes(b.id) : true;
+  const hasActions = showActions && b.status==="upcoming";
+  const canExpand = hasDetail || hasActions;
+  const expanded = canExpand && state.expandedBookingIds.includes(b.id);
   return `
-  <div class="booking-card ${hasDetail?'expandable':''}" ${hasDetail?`data-bookingcard="${b.id}"`:""}>
+  <div class="booking-card ${canExpand?'expandable':''}" ${canExpand?`data-bookingcard="${b.id}"`:""}>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <span style="font-size:13px;font-weight:700;color:var(--purple);">${dayOffsetLabel(b.dayOffset)} · ${b.time}</span>
       <span class="status-badge ${b.status}">${b.status==="no_show"?"No-show":b.status}</span>
@@ -922,15 +934,15 @@ function bookingRow(b, showActions){
         <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(b.customerName)}</p>
         <p style="font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;">${escapeHtml(b.serviceName)} · ${escapeHtml(b.stylistName)} · $${b.price}</p>
       </div>
-      ${hasDetail ? `<span class="icon booking-chevron ${expanded?'open':''}" style="color:var(--ink-soft);margin-top:2px;">${ICONS.chevronDown}</span>` : ""}
+      ${canExpand ? `<span class="icon booking-chevron ${expanded?'open':''}" style="color:var(--ink-soft);margin-top:2px;">${ICONS.chevronDown}</span>` : ""}
     </div>
-    ${expanded ? `
+    ${expanded && hasDetail ? `
     <div class="booking-detail">
       ${b.phone ? `<div class="booking-detail-row">${icon('phone')}<span>${escapeHtml(b.phone)}</span></div>` : ""}
       ${b.addons && b.addons.length ? `<div class="booking-detail-row">${icon('tag')}<span>${b.addons.map(a=>`${escapeHtml(a.name)} ($${a.price})`).join(", ")}</span></div>` : ""}
       ${b.notes ? `<div class="booking-detail-row">${icon('fileText')}<span>${escapeHtml(b.notes)}</span></div>` : ""}
     </div>` : ""}
-    ${showActions && b.status==="upcoming" && expanded ? `
+    ${hasActions && expanded ? `
     <div style="display:flex;gap:8px;margin-top:12px;">
       <button class="booking-action-btn complete" data-complete="${b.id}">${icon('check')}Mark completed</button>
       <button class="booking-action-btn noshow" data-noshow="${b.id}">${icon('userX')}No-show</button>
@@ -2026,6 +2038,7 @@ function renderAddonDetail(a){
 let addressVerifyBusy = false;
 let addressVerifyError = "";
 let addressCandidates = [];
+let addressMissingFields = [];
 function labelAddressCandidate(r){
   const a = r.address||{};
   const streetLine = [a.house_number, a.road].filter(Boolean).join(" ") || r.display_name.split(",")[0];
@@ -2041,7 +2054,14 @@ async function saveVerifiedAddress(){
 async function verifyAddressWithGeocoder(){
   const input = document.getElementById("addressInput");
   const query = (input?input.value:salon.address||"").trim();
-  if(!query){ addressVerifyError="Enter an address first."; addressCandidates=[]; render(); return; }
+  addressMissingFields = [];
+  if(!query) addressMissingFields.push("address");
+  if(!String(salon.suburb||"").trim()) addressMissingFields.push("suburb");
+  if(!String(salon.postcode||"").trim()) addressMissingFields.push("postcode");
+  if(addressMissingFields.length){
+    addressVerifyError = "Fill in the address, suburb and postcode before verifying.";
+    addressCandidates=[]; render(); return;
+  }
   addressVerifyBusy = true; addressVerifyError = ""; addressCandidates = []; render();
   try{
     const parts = [query, salon.suburb, salon.city, salon.postcode, "New Zealand"].filter(Boolean).join(", ");
@@ -2116,14 +2136,26 @@ function renderSettings(){
       </div>
     </div>
     <div class="field"><label>Phone</label><input type="text" id="phoneInput" value="${escapeAttr(salon.phone)}" /></div>
-    <div class="field">
-      <label>Address</label>
-      <input type="text" id="addressInput" value="${escapeAttr(salon.address)}" />
-      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-        <button type="button" class="text-action" id="verifyAddressBtn" style="padding:6px 0;">${addressVerifyBusy?"Checking…":"Verify address on map"}</button>
-        ${salon.addressVerified && salon.lat!=null ? `<span style="font-size:12px;color:#1E8A4C;font-weight:600;">${icon('check')} Verified location</span>` : ""}
+    <div class="address-section-card">
+      <div class="field">
+        <label>Address <span class="required-mark">*</span></label>
+        <input type="text" id="addressInput" required class="${addressMissingFields.includes('address')?'error':''}" value="${escapeAttr(salon.address)}" />
       </div>
-      ${addressVerifyError ? `<p style="font-size:12px;color:#C13B3B;margin:6px 0 0;">${escapeHtml(addressVerifyError)}</p>` : ""}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field"><label>Suburb <span class="required-mark">*</span></label><input type="text" id="suburbInput" required placeholder="e.g. Fairfield" class="${addressMissingFields.includes('suburb')?'error':''}" value="${escapeAttr(salon.suburb||"")}" /></div>
+        <div class="field"><label>Postcode <span class="required-mark">*</span></label><input type="text" id="postcodeInput" required placeholder="e.g. 3204" class="${addressMissingFields.includes('postcode')?'error':''}" value="${escapeAttr(salon.postcode||"")}" /></div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>City <span class="required-mark">*</span></label>
+        <button type="button" class="field-btn" id="cityPickerBtn">
+          <span class="${salon.city?"":"placeholder"}">${salon.city?escapeHtml(salon.city):"Select your city"}</span>
+          ${icon('chevronDown')}
+        </button>
+      </div>
+      <p style="font-size:12px;color:var(--ink-mute);margin:10px 0 14px;">Filling these in helps "Verify address" find the exact building, especially on common street names.</p>
+      <button type="button" class="primary-btn-sm verify-address-btn" id="verifyAddressBtn">${icon('mapPin')}${addressVerifyBusy?"Checking…":"Verify address on map"}</button>
+      ${salon.addressVerified && salon.lat!=null ? `<div style="margin-top:10px;font-size:12px;color:#1E8A4C;font-weight:600;display:flex;align-items:center;gap:5px;">${icon('check')} Verified location</div>` : ""}
+      ${addressVerifyError ? `<p style="font-size:12px;color:#C13B3B;margin:10px 0 0;">${escapeHtml(addressVerifyError)}</p>` : ""}
       ${addressCandidates.length ? `
       <div style="margin-top:10px;background:var(--white);border:1px solid var(--border-2);border-radius:14px;overflow:hidden;">
         <p style="font-size:12px;font-weight:600;color:var(--ink-soft);margin:0;padding:10px 14px 4px;">Multiple matches — which one is it?</p>
@@ -2137,18 +2169,6 @@ function renderSettings(){
           </button>
         `).join("")}
       </div>` : ""}
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div class="field"><label>Suburb</label><input type="text" id="suburbInput" placeholder="e.g. Fairfield" value="${escapeAttr(salon.suburb||"")}" /></div>
-      <div class="field"><label>Postcode</label><input type="text" id="postcodeInput" placeholder="e.g. 3204" value="${escapeAttr(salon.postcode||"")}" /></div>
-    </div>
-    <p style="font-size:12px;color:var(--ink-soft);margin:-8px 0 4px;">Filling these in helps "Verify address" find the exact building, especially on common street names.</p>
-    <div class="field">
-      <label>City</label>
-      <button type="button" class="field-btn" id="cityPickerBtn">
-        <span class="${salon.city?"":"placeholder"}">${salon.city?escapeHtml(salon.city):"Select your city"}</span>
-        ${icon('chevronDown')}
-      </button>
     </div>
     <div class="field"><label>About</label><textarea id="aboutInput" rows="4" placeholder="Describe your salon…">${escapeHtml(salon.about)}</textarea></div>
     <div class="field"><label>Cancellation policy</label><textarea id="policyInput" rows="3">${escapeHtml(salon.cancellationPolicy)}</textarea></div>
@@ -2708,9 +2728,9 @@ function bindEvents(){
     card.addEventListener("click", (e)=>{
       if (e.target.closest("button")) return;
       const id = parseInt(card.getAttribute("data-bookingcard"),10);
-      const isCollapsed = state.collapsedBookingIds.includes(id);
-      const next = isCollapsed ? state.collapsedBookingIds.filter(x=>x!==id) : [...state.collapsedBookingIds, id];
-      setState({ collapsedBookingIds: next });
+      const isExpanded = state.expandedBookingIds.includes(id);
+      const next = isExpanded ? state.expandedBookingIds.filter(x=>x!==id) : [...state.expandedBookingIds, id];
+      setState({ expandedBookingIds: next });
     });
   });
 
@@ -3394,9 +3414,9 @@ function bindEvents(){
     });
     document.getElementById("phoneInput").addEventListener("input", e=>{ salon.phone = e.target.value; });
     document.getElementById("bufferTimeInput").addEventListener("change", e=>{ salon.bufferTime = Number(e.target.value); });
-    document.getElementById("addressInput").addEventListener("input", e=>{ salon.address = e.target.value; salon.addressVerified=false; salon.lat=null; salon.lng=null; addressCandidates=[]; });
-    document.getElementById("suburbInput").addEventListener("input", e=>{ salon.suburb = e.target.value; });
-    document.getElementById("postcodeInput").addEventListener("input", e=>{ salon.postcode = e.target.value; });
+    document.getElementById("addressInput").addEventListener("input", e=>{ salon.address = e.target.value; salon.addressVerified=false; salon.lat=null; salon.lng=null; addressCandidates=[]; addressMissingFields=addressMissingFields.filter(f=>f!=="address"); });
+    document.getElementById("suburbInput").addEventListener("input", e=>{ salon.suburb = e.target.value; addressMissingFields=addressMissingFields.filter(f=>f!=="suburb"); });
+    document.getElementById("postcodeInput").addEventListener("input", e=>{ salon.postcode = e.target.value; addressMissingFields=addressMissingFields.filter(f=>f!=="postcode"); });
     const verifyBtn = document.getElementById("verifyAddressBtn");
     if (verifyBtn) verifyBtn.addEventListener("click", verifyAddressWithGeocoder);
     document.querySelectorAll("[data-addrcandidate]").forEach(btn=>{
