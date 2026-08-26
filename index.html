@@ -584,7 +584,17 @@
   }
   .location-map{width:100%;height:100%;}
   .venue-map-pin{background:transparent;border:none;}
-  .venue-map-pin-dot{width:18px;height:18px;border-radius:50%;background:#111;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);}
+  .venue-map-pin-wrap{transform:translate(-50%,-100%);}
+  .venue-map-pin-badge{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    min-width:34px;height:26px;padding:0 9px;border-radius:13px;white-space:nowrap;
+    background:#111;color:#fff;font-size:12.5px;font-weight:700;box-shadow:0 3px 8px rgba(0,0,0,.3);
+  }
+  .venue-map-pin-badge::after{
+    content:"";position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);
+    width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111;
+  }
+  .leaflet-control-attribution{font-size:9.5px;padding:0 4px;background:rgba(255,255,255,.75);}
   .location-address{
     display:flex;align-items:center;gap:12px;padding:13px 0;font-size:13px;font-weight:600;
     color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent;
@@ -690,26 +700,18 @@
 
   .review-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px;}
 
-  .venue-services-section{
-    margin:16px 20px 0;background:var(--purple-pastel-2);border:1px solid var(--border-2);border-radius:24px;
-    padding:8px 0 18px;overflow:hidden;flex-shrink:0;
-  }
-  .venue-services-section .chip-row{padding:8px 12px;}
-  .venue-services-section #salonServicesSection{padding:8px 12px 0!important;}
+  .venue-services-section{flex-shrink:0;}
+  .venue-services-section .chip-row{padding:0 0 12px;}
+  .venue-services-section #salonServicesSection{padding:0!important;}
 
-  .venue-reviews-section{
-    background:var(--purple-pastel-2);border:1px solid var(--border-2);border-radius:24px;padding:16px;
-  }
+  .venue-reviews-section{}
   .venue-reviews-section .eyebrow{margin-top:0;}
 
-  .venue-team-section{
-    background:transparent;border:0;border-radius:0;padding:0;
-  }
+  .venue-team-section{}
   .venue-team-section .eyebrow{margin-top:0;}
-  .venue-location-section{
-    background:var(--white);border:1px solid var(--border);border-radius:24px;padding:16px;
-  }
+  .venue-location-section{}
   .venue-location-section .eyebrow{margin-top:0;}
+  .venue-team-wrap,.venue-reviews-wrap,.venue-hours-wrap,.venue-about-wrap,.venue-location-wrap{border-top:1px solid var(--border);}
   .review-summary-card{
     background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;
     display:flex;align-items:center;gap:16px;
@@ -739,13 +741,7 @@
   .venue-book-btn{flex-shrink:0;padding:12px 22px;border-radius:999px;background:var(--purple);color:#fff;font-size:13.5px;font-weight:700;box-shadow:0 5px 14px rgba(124,92,217,.22);}
   .venue-book-btn:hover{background:var(--purple-dark);}
   .venue-side-col{display:none;}
-  .venue-main-col{display:flex;flex-direction:column;}
-  .venue-services-section{order:1;}
-  .venue-team-wrap{order:2;}
-  .venue-reviews-wrap{order:3;}
-  .venue-hours-wrap{order:4;}
-  .venue-about-wrap{order:5;}
-  .venue-location-wrap{order:6;}
+  .venue-main-col{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--border);border-radius:24px;overflow:hidden;margin:16px 20px 20px;}
   .venue-book-panel-desktop{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:22px;}
   .venue-book-panel-desktop .venue-book-title{font-size:16px;margin-bottom:2px;}
   .venue-book-panel-desktop .venue-book-sub{font-size:12.5px;margin-bottom:16px;}
@@ -947,13 +943,7 @@
     .search-wrap{padding:26px 32px 8px;display:flex;justify-content:center;}
     .search-wrap .searchbox{max-width:640px;width:100%;}
     .venue-body-grid{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start;padding:0 20px;order:1;}
-    .venue-main-col{min-width:0;margin-top:0;}
-    .venue-main-col .venue-services-section{padding-top:18px !important;margin-top:24px !important;margin-left:0;margin-right:0;}
-    .venue-main-col .venue-about-wrap,
-    .venue-main-col .venue-team-wrap,
-    .venue-main-col .venue-reviews-wrap,
-    .venue-main-col .venue-hours-wrap,
-    .venue-main-col .venue-location-wrap{padding-left:0 !important;padding-right:0 !important;}
+    .venue-main-col{min-width:0;margin:24px 0 20px;}
     .map-placeholder{height:420px;}
     .venue-side-col{display:block;position:sticky;top:95px;margin-top:24px;}
     .venue-book-panel-desktop{padding:22px;padding-top:18px !important;}
@@ -1316,7 +1306,7 @@ function venueMapSectionMarkup(salon){
   const mapId = `leafletMap${++leafletMapSeq}`;
   return `
     <div class="location-card">
-      ${hasPin ? `<div class="map-placeholder"><div class="location-map" id="${mapId}" data-leaflet-map data-lat="${salon.lat}" data-lng="${salon.lng}"></div></div>` : ""}
+      ${hasPin ? `<div class="map-placeholder"><div class="location-map" id="${mapId}" data-leaflet-map data-lat="${salon.lat}" data-lng="${salon.lng}" data-rating="${escapeAttr(String(salon.rating))}"></div></div>` : ""}
       <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
         <span class="venue-info-icon">${icon('mapPin')}</span>
         <span class="addr-text">${escapeHtml(venueFullAddress(salon))}</span>
@@ -2767,12 +2757,7 @@ function renderSalon(){
 
       <div class="venue-body-grid">
       <div class="venue-main-col">
-      ${salon.blurb?`<div class="venue-about-wrap" style="padding:18px 20px 4px;">
-        <p class="eyebrow" style="margin-bottom:8px;">About</p>
-        <p style="font-size:13.5px;color:var(--ink-mute);margin:0;line-height:1.5;">${escapeHtml(salon.blurb)}</p>
-      </div>`:""}
-
-      <div class="venue-services-section">
+      <div class="venue-services-section" style="padding:16px 20px 20px;">
         <div class="no-scrollbar chip-row" data-scrollkey="salon-category">
           ${categories.map(c=>`<button class="chip ${state.salonCategory===c?'active':''}" data-salcat="${escapeAttr(c)}">${c}</button>`).join("")}
         </div>
@@ -2780,7 +2765,7 @@ function renderSalon(){
       </div>
 
       ${salon.stylists && salon.stylists.filter(s=>s.name!=='Any available').length ? `
-      <div class="venue-team-wrap" style="padding:20px 20px 0;">
+      <div class="venue-team-wrap" style="padding:20px;">
         <div class="venue-team-section">
           <p class="eyebrow" style="margin-bottom:10px;">Meet the team</p>
           <div style="display:flex;flex-direction:column;gap:10px;">
@@ -2799,7 +2784,7 @@ function renderSalon(){
       </div>` : ""}
 
       ${salon.reviewList && salon.reviewList.length ? `
-      <div class="venue-reviews-wrap" style="padding:20px 20px 0;">
+      <div class="venue-reviews-wrap" style="padding:20px;">
         <div class="venue-reviews-section">
         <p class="eyebrow" style="margin-bottom:10px;">What people say</p>
         <button class="review-summary-card" data-reviews="${salon.id}" style="width:100%;text-align:left;justify-content:space-between;border-radius:16px;cursor:pointer;">
@@ -2826,7 +2811,7 @@ function renderSalon(){
         </div>
       </div>` : ""}
 
-      <div class="venue-hours-wrap" style="padding:20px 20px 0;">
+      <div class="venue-hours-wrap" style="padding:20px;">
         <p class="eyebrow" style="margin-bottom:10px;">Opening hours</p>
         <div class="hours-card">
           ${DAY_NAMES.map((dname, idx)=>{
@@ -2843,7 +2828,12 @@ function renderSalon(){
         </div>
       </div>
 
-      <div class="venue-location-wrap" style="padding:20px 20px 20px;">
+      ${salon.blurb?`<div class="venue-about-wrap" style="padding:20px;">
+        <p class="eyebrow" style="margin-bottom:8px;">About</p>
+        <p style="font-size:13.5px;color:var(--ink-mute);margin:0;line-height:1.5;">${escapeHtml(salon.blurb)}</p>
+      </div>`:""}
+
+      <div class="venue-location-wrap" style="padding:20px;">
         <div class="venue-location-section">
           <p class="eyebrow" style="margin-bottom:10px;">Location</p>
           ${venueMapSectionMarkup(salon)}
@@ -3946,12 +3936,15 @@ function restoreScrollPositions(){
 }
 
 let venueMapInstances = [];
-const venueMapPinIcon = (typeof L!=="undefined") ? L.divIcon({
-  className:"venue-map-pin",
-  html:'<div class="venue-map-pin-dot"></div>',
-  iconSize:[26,26],
-  iconAnchor:[13,13],
-}) : null;
+function venueMapPinIcon(rating){
+  const label = (!rating || rating==="New") ? "New" : rating;
+  return L.divIcon({
+    className:"venue-map-pin",
+    html:`<div class="venue-map-pin-wrap"><div class="venue-map-pin-badge">${escapeHtml(String(label))}</div></div>`,
+    iconSize:[0,0],
+    iconAnchor:[0,0],
+  });
+}
 function initVenueMaps(){
   venueMapInstances.forEach(m=>{ try{ m.remove(); }catch(e){} });
   venueMapInstances = [];
@@ -3960,9 +3953,10 @@ function initVenueMaps(){
     const lat=parseFloat(el.getAttribute("data-lat"));
     const lng=parseFloat(el.getAttribute("data-lng"));
     if(!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-    const map=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
-    L.marker([lat,lng],{icon:venueMapPinIcon,interactive:false}).addTo(map);
+    const rating=el.getAttribute("data-rating");
+    const map=L.map(el,{zoomControl:false,attributionControl:true,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'}).addTo(map);
+    L.marker([lat,lng],{icon:venueMapPinIcon(rating),interactive:false}).addTo(map);
     venueMapInstances.push(map);
   });
 }
