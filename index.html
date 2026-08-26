@@ -1762,7 +1762,7 @@ function liveVenueToSalon(v){
     category:sv.category_name||tag.split("·")[0].trim()||"Services", addons:(Array.isArray(sv.addons)?sv.addons:[]).map(a=>({id:String(a.id),name:a.name,price:Number(a.price||0),duration:Number(a.duration_minutes||a.duration||0)}))
   }));
   return {
-    id:String(v.id), _cloud:true, publicSlug:String(v.public_slug||"").trim(), name:v.name||"Venue", tag, rating, reviews:reviews.length, city:String(v.city||"").trim(), region:String(v.region||"").trim(), suburb:String(v.suburb||"").trim(), distance:[String(v.suburb||"").trim(),String(v.city||"").trim()].filter(Boolean).join(", ")||"Location not set", icon:liveVenueIcon(tag),
+    id:String(v.id), _cloud:true, publicSlug:String(v.public_slug||"").trim(), name:v.name||"Venue", tag, rating, reviews:reviews.length, city:String(v.city||"").trim(), region:String(v.region||"").trim(), suburb:String(v.suburb||"").trim(), postcode:String(v.postcode||"").trim(), distance:[String(v.suburb||"").trim(),String(v.city||"").trim()].filter(Boolean).join(", ")||"Location not set", icon:liveVenueIcon(tag),
     homeImage:mainImage||galleryImages[0]||"", photos:venuePhotos, blurb:String(v.about||"").trim(),
     hours:liveHoursLabel(v), openDays:liveOpenDays(v.open_days), openTime:liveDbTime(v.open_time), closeTime:liveDbTime(v.close_time), dailyHours:normalizedDailyHours(v.metadata&&v.metadata.hours),
     phone:v.phone||"", address:v.address||"Address available from venue",
@@ -1771,7 +1771,7 @@ function liveVenueToSalon(v){
     bufferTime:Math.max(0,Number(v.buffer_minutes||0)),
     loyalty:(v.loyalty&&typeof v.loyalty==="object")?{enabled:!!v.loyalty.enabled,pointsPerDollar:Number(v.loyalty.pointsPerDollar)||1,rewardThreshold:Number(v.loyalty.rewardThreshold)||100,rewardText:v.loyalty.rewardText||"",rewardValue:Number(v.loyalty.rewardValue)||0}:{enabled:false},
     cloudBookedSlots:Array.isArray(v.booked_slots)?v.booked_slots:[], cloudBlockouts:Array.isArray(v.blockouts)?v.blockouts:[],
-    stylists, reviewList:reviews.map(r=>({name:r.customer_name||"Blooma customer",rating:Number(r.rating||0),text:r.note||""})), services
+    stylists, reviewList:reviews.map(r=>({name:r.customer_name||"Blooma customer",rating:Number(r.rating||0),text:r.note||"",date:r.date||null,serviceName:r.service_name||"",stylistName:r.stylist_name||"",stylistId:r.stylist_id||null})), services
   };
 }
 function mergeLiveVenue(live){
@@ -1787,6 +1787,7 @@ function mergeLiveVenue(live){
   existing.lat=live.lat; existing.lng=live.lng; existing.addressVerified=live.addressVerified;
   existing.city=live.city;
   existing.suburb=live.suburb;
+  existing.postcode=live.postcode;
   existing.region=live.region;
   existing.distance=live.distance;
   existing.blurb=live.blurb;
