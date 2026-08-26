@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Blooma Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#131218;
+    --surface:#1C1B24;
+    --surface-2:#242330;
+    --surface-hover:#2A2938;
+    --border:#2E2D3C;
+    --violet:#6D5FE8;
+    --violet-soft:rgba(109,95,232,0.16);
+    --violet-text:#B7ADF5;
+    --text:#F2F1F7;
+    --text-soft:#9F9CB0;
+    --text-faint:#6C6980;
+    --success:#3ED598;
+    --success-soft:rgba(62,213,152,0.14);
+    --warning:#F4C93A;
+    --danger:#FF6B81;
+    --white:#FFFFFF;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%; scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    scrollbar-width:none;
+  }
+  body::-webkit-scrollbar{display:none;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+  }
+
+  .btn{
+    font-weight:700; font-size:13.5px;
+    padding:10px 18px; border-radius:10px;
+    border:1px solid transparent; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn-violet{background:var(--violet); color:var(--white);}
+  .btn-violet:hover{background:#5C4EDB;}
+  .btn-ghost{background:var(--surface-2); color:var(--text); border-color:var(--border);}
+  .btn-ghost:hover{background:var(--surface-hover);}
+
+  /* ---------- SHELL ---------- */
+  .shell{display:flex; min-height:100vh;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:240px; flex:none;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+    position:fixed; top:0; bottom:0; left:-240px; z-index:60;
+    transition:left .2s ease;
+  }
+  .sidebar.open{left:0;}
+  .sb-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 18px 14px;
+  }
+  .sb-logo{font-weight:800; font-size:18px; letter-spacing:-0.01em;}
+  .sb-logo span{color:var(--violet-text);}
+  .sb-close{
+    width:30px; height:30px; border-radius:8px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft);
+  }
+  .sb-venue{
+    margin:6px 14px 14px; padding:10px 12px;
+    background:var(--surface-2); border-radius:10px;
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+  }
+  .sb-venue-avatar{
+    width:32px; height:32px; border-radius:8px; flex:none;
+    background:linear-gradient(155deg,#A9865F,#6E8268);
+  }
+  .sb-venue-name{font-size:13px; font-weight:700;}
+  .sb-venue-sub{font-size:11px; color:var(--text-faint);}
+  .sb-venue svg{margin-left:auto; color:var(--text-faint); flex:none;}
+
+  .sb-nav{padding:6px 12px; flex:1; overflow-y:auto;}
+  .sb-section-label{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-faint); padding:14px 10px 8px;
+  }
+  .sb-link{
+    display:flex; align-items:center; gap:11px;
+    padding:9px 10px; border-radius:9px;
+    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    margin-bottom:2px;
+  }
+  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link:hover{background:var(--surface-hover); color:var(--text);}
+  .sb-link.active{background:var(--violet-soft); color:var(--white);}
+  .sb-link.active svg{color:var(--violet-text);}
+  .sb-badge{
+    margin-left:auto; font-size:10px; font-weight:700;
+    background:var(--violet); color:var(--white);
+    padding:2px 7px; border-radius:99px;
+  }
+
+  .sb-bottom{
+    padding:14px; border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .sb-avatar{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    background:var(--violet); color:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700;
+  }
+  .sb-user-name{font-size:12.5px; font-weight:700;}
+  .sb-user-role{font-size:11px; color:var(--text-faint);}
+  .sb-bottom svg{margin-left:auto; color:var(--text-faint); flex:none; cursor:pointer;}
+
+  .sb-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:55;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .sb-overlay.open{opacity:1; pointer-events:auto;}
+
+  @media (min-width:1080px){
+    .sidebar{position:sticky; top:0; left:auto; height:100vh;}
+    .sb-close{display:none;}
+    .sb-overlay{display:none;}
+  }
+
+  @media (max-width:1079px){
+    .sidebar{
+      left:0; right:0; top:auto; bottom:0; width:auto; max-width:480px; margin:0 auto;
+      height:auto; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      border-radius:22px 22px 0 0;
+      border-right:none; border-top:1px solid var(--border);
+      box-shadow:0 -18px 40px rgba(0,0,0,.55);
+      transform:translateY(100%);
+      transition:transform .25s ease;
+    }
+    .sidebar.open{transform:translateY(0);}
+  }
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1; min-width:0;}
+
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:rgba(19,18,24,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:14px;
+    padding:0 18px; height:64px;
+  }
+  .menu-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    flex:none; color:var(--text-soft);
+  }
+  @media (min-width:1080px){ .menu-btn{display:none;} }
+  .tb-logo-mobile{font-weight:800; font-size:16px; letter-spacing:-0.01em; flex:none; white-space:nowrap;}
+  @media (min-width:1080px){ .tb-logo-mobile{display:none;} }
+
+  .tb-search{
+    flex:1; max-width:360px;
+    display:flex; align-items:center; gap:9px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 13px;
+  }
+  .tb-search svg{color:var(--text-faint); flex:none;}
+  .tb-search input{
+    border:none; background:none; outline:none; color:var(--text);
+    font-family:inherit; font-size:13.5px; width:100%;
+  }
+  .tb-search input::placeholder{color:var(--text-faint);}
+  .tb-right{display:flex; align-items:center; gap:10px; margin-left:auto;}
+  .tb-right .btn{height:36px; padding:0 16px;}
+  .tb-icon-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft); position:relative; flex:none;
+  }
+  .tb-icon-btn .dot{
+    position:absolute; top:7px; right:7px;
+    width:7px; height:7px; border-radius:50%; background:var(--danger);
+    border:1.5px solid var(--surface);
+  }
+  .tb-search-mobile-hide{display:none;}
+  @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+
+  /* ---------- CONTENT ---------- */
+  .content{padding:22px 16px 60px;}
+  @media (min-width:900px){ .content{padding:30px 32px 70px;} }
+
+  .greet-row{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap:wrap; gap:14px; margin-bottom:22px;
+  }
+  .greet-row h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
+  .greet-row .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
+  @media (min-width:900px){ .greet-row h1{font-size:26px;} }
+
+  /* ---------- STAT CARDS ---------- */
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+    margin-bottom:22px;
+  }
+  @media (min-width:800px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
+  .stat-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:16px 18px;
+  }
+  .stat-top{display:flex; align-items:center; justify-content:space-between;}
+  .stat-label{font-size:12px; color:var(--text-soft); font-weight:600;}
+  .stat-icon{
+    width:28px; height:28px; border-radius:8px; background:var(--violet-soft);
+    display:flex; align-items:center; justify-content:center; color:var(--violet-text);
+  }
+  .stat-value{font-size:26px; font-weight:800; margin-top:12px; letter-spacing:-0.01em;}
+  .stat-delta{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:11.5px; font-weight:700; margin-top:6px;
+    color:var(--success);
+  }
+  .stat-delta.down{color:var(--danger);}
+  .stat-delta span.muted{color:var(--text-faint); font-weight:500;}
+
+  /* ---------- PANELS / GRID LAYOUT ---------- */
+  .dash-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+  @media (min-width:1100px){ .dash-grid{grid-template-columns:2fr 1fr;} }
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px;
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-bottom:16px;
+  }
+  .panel-head h2{font-size:15.5px; font-weight:700;}
+  .panel-head .link{font-size:12.5px; font-weight:700; color:var(--violet-text);}
+  .panel-tabs{display:flex; gap:6px;}
+  .panel-tab{
+    font-size:12px; font-weight:700; padding:6px 12px; border-radius:99px;
+    background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+  }
+  .panel-tab.active{background:var(--violet); color:var(--white);}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline-wrap{overflow-x:auto; overflow-y:hidden; scrollbar-width:none;}
+  .timeline-wrap::-webkit-scrollbar{display:none;}
+  .timeline{
+    display:flex; min-width:560px;
+  }
+  .tl-times{
+    flex:none; width:52px; position:relative; height:600px;
+  }
+  .tl-times span{
+    position:absolute; left:0; transform:translateY(-50%);
+    font-size:10.5px; color:var(--text-faint); font-weight:600;
+  }
+  .tl-staff{flex:1; display:flex; gap:10px;}
+  .tl-col{
+    flex:1; position:relative; height:600px; min-width:118px;
+    background-image:repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent 60px);
+    border-left:1px solid var(--border);
+  }
+  .tl-col-head{
+    text-align:center; font-size:11.5px; font-weight:700; color:var(--text-soft);
+    margin-bottom:8px;
+  }
+  .tl-appt{
+    position:absolute; left:3px; right:3px;
+    border-radius:8px; padding:6px 8px;
+    border-left:3px solid; overflow:hidden;
+  }
+  .tl-appt .t1{font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tl-appt .t2{font-size:10px; opacity:0.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tl-c-violet{background:rgba(109,95,232,0.18); border-color:var(--violet);}
+  .tl-c-blue{background:rgba(95,168,232,0.18); border-color:#5FA8E8;}
+  .tl-c-pink{background:rgba(232,95,158,0.18); border-color:#E85F9E;}
+  .tl-c-green{background:rgba(95,232,160,0.18); border-color:#5FE8A0;}
+
+  .tl-heads{display:flex; gap:10px; padding-left:52px; min-width:560px;}
+  .tl-heads .tl-col-head{flex:1; min-width:118px;}
+
+  /* ---------- UPCOMING LIST ---------- */
+  .side-col{display:flex; flex-direction:column; gap:16px;}
+  .appt-row{
+    display:flex; align-items:center; gap:11px;
+    padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .appt-row:last-child{border-bottom:none; padding-bottom:0;}
+  .appt-avatar{
+    width:36px; height:36px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:700; color:var(--white);
+  }
+  .appt-name{font-size:13px; font-weight:700;}
+  .appt-service{font-size:11.5px; color:var(--text-soft); margin-top:1px;}
+  .appt-time{margin-left:auto; text-align:right; flex:none;}
+  .appt-time .t{font-size:12.5px; font-weight:700;}
+  .status-pill{
+    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:2px 7px; border-radius:99px; margin-top:3px; display:inline-block;
+  }
+  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
+
+  /* ---------- MINI CHART ---------- */
+  .chart-row{
+    display:flex; align-items:flex-end; gap:8px; height:120px; margin-top:6px;
+  }
+  .chart-bar{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .chart-bar .bar{
+    width:100%; border-radius:5px 5px 0 0; background:var(--surface-2);
+  }
+  .chart-bar.today .bar{background:var(--violet);}
+  .chart-bar span{font-size:10px; color:var(--text-faint); font-weight:600;}
+
+  /* ---------- TEAM MINI LIST ---------- */
+  .team-row{
+    display:flex; align-items:center; gap:10px; padding:9px 0;
+  }
+  .team-avatar{
+    width:32px; height:32px; border-radius:50%; flex:none;
+  }
+  .team-name{font-size:12.5px; font-weight:700;}
+  .team-meta{font-size:11px; color:var(--text-faint);}
+  .team-status{
+    margin-left:auto; font-size:10.5px; font-weight:700; flex:none;
+  }
+  .team-status.busy{color:var(--warning);}
+  .team-status.free{color:var(--success);}
+
+  /* ---------- PAGE HEAD ---------- */
+  .page-head{margin-bottom:20px;}
+  .page-head h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
+  .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
+  @media (min-width:900px){ .page-head h1{font-size:26px;} }
+
+  /* ---------- FILTER BAR ---------- */
+  .filter-bar{
+    display:flex; flex-direction:column; gap:12px;
+    margin-bottom:18px;
+  }
+  .filter-tabs{
+    display:flex; gap:6px; flex-wrap:nowrap;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none;
+  }
+  .filter-tabs::-webkit-scrollbar{display:none;}
+  .filter-tab{
+    flex:none;
+    font-size:12.5px; font-weight:700; padding:8px 14px; border-radius:99px;
+    background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+    border:1px solid var(--border); white-space:nowrap;
+  }
+  .filter-tab.active{background:var(--violet); color:var(--white); border-color:var(--violet);}
+  .filter-actions{display:flex; align-items:center; gap:10px;}
+  .filter-search{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 13px; flex:1; min-width:0; max-width:280px;
+  }
+  .filter-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
+  .filter-search input::placeholder{color:var(--text-faint);}
+  @media (min-width:900px){
+    .filter-bar{flex-direction:row; align-items:center;}
+    .filter-tabs{flex:none;}
+    .filter-actions{margin-left:auto; flex:none;}
+  }
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{overflow-x:auto; overflow-y:hidden;}
+  table.data{width:100%; border-collapse:collapse; min-width:760px;}
+  table.data th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--text-faint); font-weight:700; padding:0 14px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
+  table.data tr:last-child td{border-bottom:none;}
+  table.data tr:hover td{background:var(--surface-hover);}
+  .cell-person{display:flex; align-items:center; gap:10px;}
+  .cell-avatar{
+    width:32px; height:32px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11.5px; font-weight:700; color:#fff;
+  }
+  .cell-name{font-weight:700; font-size:13px;}
+  .cell-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
+  .status-badge{
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:4px 9px; border-radius:99px; display:inline-block; white-space:nowrap;
+  }
+  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
+  .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
+  .row-action{
+    width:30px; height:30px; border-radius:8px; background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-faint); cursor:pointer; flex:none;
+  }
+  .row-cell-actions{display:flex; align-items:center; justify-content:flex-end; gap:10px;}
+  .row-checkout{
+    font-size:11.5px; font-weight:700; color:var(--white); white-space:nowrap;
+    background:var(--violet); padding:6px 12px; border-radius:8px;
+  }
+  .row-checkout:hover{background:#5C4EDB;}
+  .tag-pill{font-size:10px; font-weight:700; padding:3px 8px; border-radius:99px; margin-right:4px; display:inline-block; white-space:nowrap;}
+  .tag-vip{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .tag-new{background:var(--violet-soft); color:var(--violet-text);}
+  .tag-inactive{background:rgba(157,152,176,0.14); color:var(--text-soft);}
+
+  /* ---------- PAGINATION ---------- */
+  .pagination{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-top:16px; margin-top:2px; flex-wrap:wrap; gap:10px;
+  }
+  .pagination .info{font-size:12px; color:var(--text-faint);}
+  .pg-btns{display:flex; gap:8px;}
+  .pg-btn{
+    width:32px; height:32px; border-radius:8px; background:var(--surface-2);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    color:var(--text-soft); cursor:pointer; font-size:12px; font-weight:700;
+  }
+  .pg-btn.active{background:var(--violet); color:#fff; border-color:var(--violet);}
+  .pg-btn.disabled{opacity:0.35; cursor:not-allowed;}
+  .empty-row td{text-align:center; padding:36px 14px; color:var(--text-faint); font-size:13px;}
+
+  /* ---------- FILTERS POPOVER ---------- */
+  .filters-wrap{position:relative;}
+  .filters-popover{
+    position:absolute; top:calc(100% + 8px); right:0; z-index:30;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+    padding:10px; width:200px; display:none; box-shadow:0 12px 30px rgba(0,0,0,.4);
+  }
+  .filters-popover.open{display:block;}
+  .filters-popover-label{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint); padding:6px 8px;}
+  .filters-popover-item{
+    padding:8px 8px; border-radius:8px; font-size:13px; font-weight:600; color:var(--text-soft); cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .filters-popover-item:hover{background:var(--surface-hover); color:var(--text);}
+  .filters-popover-item.active{background:var(--violet-soft); color:var(--white);}
+  .filter-btn-count{
+    font-size:10px; font-weight:700; background:var(--violet); color:#fff;
+    padding:1px 6px; border-radius:99px; margin-left:6px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="shell">
+
+  <div class="sb-overlay" id="sbOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">Blooma <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
+      <div class="sb-close" id="sbClose">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+
+    <div class="sb-venue">
+      <div class="sb-venue-avatar"></div>
+      <div>
+        <div class="sb-venue-name">Ivy Salon Loft</div>
+        <div class="sb-venue-sub">SoHo, New York</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Overview</div>
+      <a href="/venue/admin" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        Dashboard
+      </a>
+      <a href="/venue/admin/calendar" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Calendar
+      </a>
+      <a href="/venue/admin/bookings" class="sb-link active">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
+        Bookings
+        <span class="sb-badge">24</span>
+      </a>
+      <a href="/venue/admin/messages" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+        <span class="sb-badge">3</span>
+      </a>
+
+      <div class="sb-section-label">Manage</div>
+      <a href="/venue/admin/clients" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
+        Clients
+      </a>
+      <a href="/venue/admin/team" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        Team
+      </a>
+      <a href="/venue/admin/services" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        Services
+      </a>
+
+      <div class="sb-section-label">Insights</div>
+      <a href="/venue/admin/reports" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
+        Reports
+      </a>
+      <a href="/venue/admin/payments" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        Payments
+      </a>
+      <a href="/venue/admin/addons" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Add-ons
+      </a>
+      <a href="/venue/admin/settings" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sb-bottom">
+      <div class="sb-avatar">MJ</div>
+      <div>
+        <div class="sb-user-name">Maria J.</div>
+        <div class="sb-user-role">Owner</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="tb-logo-mobile">Blooma</div>
+      <div class="tb-search tb-search-mobile-hide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search clients, bookings, services…">
+      </div>
+      <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          New booking
+        </a>
+        <div class="menu-btn" id="menuBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+  <div class="page-head">
+    <h1>Bookings</h1>
+    <div class="sub">156 appointments this month across your team</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Today</div>
+        <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+      </div>
+      <div class="stat-value">24</div>
+      <div class="stat-delta"><span class="muted">4 pending confirmation</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Upcoming</div>
+        <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+      </div>
+      <div class="stat-value">156</div>
+      <div class="stat-delta"><span class="muted">Next 7 days</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Completed</div>
+        <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
+      </div>
+      <div class="stat-value">412</div>
+      <div class="stat-delta"><span class="muted">This month</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Cancelled</div>
+        <div class="stat-icon" style="background:rgba(255,107,129,0.14); color:var(--danger);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+      </div>
+      <div class="stat-value">8</div>
+      <div class="stat-delta down"><span class="muted">This month</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="filter-bar">
+      <div class="filter-tabs" id="filterTabs">
+        <div class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</div>
+        <div class="filter-tab" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</div>
+        <div class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed</div>
+        <div class="filter-tab" data-filter="cancelled" onclick="setFilter('cancelled')">Cancelled</div>
+        <div class="filter-tab" data-filter="noshow" onclick="setFilter('noshow')">No-show</div>
+      </div>
+      <div class="filter-actions">
+        <div class="filter-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="bookingSearch" placeholder="Search bookings…" oninput="setSearch(this.value)">
+        </div>
+        <div class="filters-wrap">
+          <div class="btn btn-ghost" id="filtersBtn" onclick="toggleFiltersPopover()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+            Filters<span class="filter-btn-count" id="filterStaffCount" style="display:none;"></span>
+          </div>
+          <div class="filters-popover" id="filtersPopover">
+            <div class="filters-popover-label">Staff member</div>
+            <div id="staffFilterList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Service</th>
+            <th>Staff</th>
+            <th>Date &amp; time</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="bookingsTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <div class="info" id="paginationInfo"></div>
+      <div class="pg-btns" id="paginationBtns"></div>
+    </div>
+  </div>
+
+</div>
+
+  </div>
+</div>
+
+<script>
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sbOverlay');
+  var menuBtn = document.getElementById('menuBtn');
+  var closeBtn = document.getElementById('sbClose');
+
+  function openSb(){ sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSb(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+  menuBtn.addEventListener('click', openSb);
+  closeBtn.addEventListener('click', closeSb);
+  overlay.addEventListener('click', closeSb);
+</script>
+
+<script>
+  var bookingsData = [
+    { name:'Sarah K.', initials:'SK', color:'#6D5FE8', email:'sarah.k@email.com', service:'Balayage', staff:'Fana R.', when:'Today, 9:30 AM', price:220, status:'confirmed' },
+    { name:'Alex J.', initials:'AJ', color:'#5FA8E8', email:'alex.j@email.com', service:'Men\'s cut', staff:'Jordan M.', when:'Today, 9:00 AM', price:55, status:'confirmed' },
+    { name:'Jade W.', initials:'JW', color:'#E85F9E', email:'jade.w@email.com', service:'Blowout', staff:'Naomi K.', when:'Today, 9:15 AM', price:60, status:'pending' },
+    { name:'Kim S.', initials:'KS', color:'#5FE8A0', dark:true, email:'kim.s@email.com', service:'Blowout', staff:'Chris T.', when:'Today, 10:30 AM', price:60, status:'confirmed' },
+    { name:'Mia T.', initials:'MT', color:'#6D5FE8', email:'mia.t@email.com', service:'Root touch-up', staff:'Fana R.', when:'Today, 12:00 PM', price:110, status:'confirmed' },
+    { name:'Nina P.', initials:'NP', color:'#5FA8E8', email:'nina.p@email.com', service:'Cut & blowout', staff:'Jordan M.', when:'Yesterday, 2:15 PM', price:95, status:'completed' },
+    { name:'Sam O.', initials:'SO', color:'#E85F9E', email:'sam.o@email.com', service:'Men\'s cut', staff:'Naomi K.', when:'Yesterday, 11:00 AM', price:55, status:'cancelled' },
+    { name:'Dana F.', initials:'DF', color:'#5FE8A0', dark:true, email:'dana.f@email.com', service:'Color gloss', staff:'Naomi K.', when:'Mon, Aug 18 · 3:00 PM', price:65, status:'completed' },
+    { name:'Priya N.', initials:'PN', color:'#6D5FE8', email:'priya.n@email.com', service:'Consult', staff:'Fana R.', when:'Wed, Aug 20 · 4:30 PM', price:0, status:'pending' },
+    { name:'Chris B.', initials:'CB', color:'#5FA8E8', email:'chris.b@email.com', service:'Men\'s cut', staff:'Jordan M.', when:'Tue, Aug 19 · 3:30 PM', price:55, status:'completed' },
+    { name:'Maya L.', initials:'ML', color:'#E85F9E', email:'maya.l@email.com', service:'Cut & style', staff:'Jordan M.', when:'Today, 1:00 PM', price:95, status:'confirmed' },
+    { name:'Rachel P.', initials:'RP', color:'#5FE8A0', dark:true, email:'rachel.p@email.com', service:'Updo', staff:'Jordan M.', when:'Today, 5:00 PM', price:135, status:'confirmed' },
+    { name:'Elena R.', initials:'ER', color:'#6D5FE8', email:'elena.r@email.com', service:'Gloss', staff:'Fana R.', when:'Today, 2:00 PM', price:95, status:'pending' },
+    { name:'Leo & Mia', initials:'LM', color:'#5FA8E8', email:'leo.mia@email.com', service:'Kids cut', staff:'Naomi K.', when:'Today, 12:30 PM', price:40, status:'completed' },
+    { name:'Ana G.', initials:'AG', color:'#E85F9E', email:'ana.g@email.com', service:'Blowout', staff:'Chris T.', when:'Today, 1:30 PM', price:60, status:'completed' },
+    { name:'Jess H.', initials:'JH', color:'#5FE8A0', dark:true, email:'jess.h@email.com', service:'Updo trial', staff:'Chris T.', when:'Today, 4:00 PM', price:85, status:'noshow' },
+    { name:'Priya S.', initials:'PS', color:'#6D5FE8', email:'priya.s@email.com', service:'Full balayage', staff:'Fana R.', when:'Sat, Aug 15 · 1:00 PM', price:210, status:'cancelled' },
+    { name:'Tom W.', initials:'TW', color:'#5FA8E8', email:'tom.w@email.com', service:'Root touch-up', staff:'Fana R.', when:'Fri, Aug 14 · 10:00 AM', price:140, status:'completed' }
+  ];
+
+  var STAFF_LIST = ['Fana R.', 'Jordan M.', 'Naomi K.', 'Chris T.'];
+  var TOTAL_BOOKINGS_LABEL = 156;
+  var PAGE_SIZE = 6;
+  var currentFilter = 'all';
+  var currentSearch = '';
+  var currentStaff = null;
+  var currentPage = 1;
+
+  function statusBadge(status){
+    var map = { confirmed:'Confirmed', pending:'Pending', completed:'Completed', cancelled:'Cancelled', noshow:'No-show' };
+    return '<span class="status-badge status-' + status + '">' + map[status] + '</span>';
+  }
+
+  function matchesFilter(b){
+    if(currentFilter === 'all') return true;
+    if(currentFilter === 'upcoming') return b.status === 'confirmed' || b.status === 'pending';
+    return b.status === currentFilter;
+  }
+
+  function getFiltered(){
+    return bookingsData.filter(function(b){
+      if(!matchesFilter(b)) return false;
+      if(currentStaff && b.staff !== currentStaff) return false;
+      if(currentSearch){
+        var q = currentSearch.toLowerCase();
+        if(b.name.toLowerCase().indexOf(q) === -1 && b.email.toLowerCase().indexOf(q) === -1 && b.service.toLowerCase().indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderBookings(){
+    var filtered = getFiltered();
+    var totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if(currentPage > totalPages) currentPage = totalPages;
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+    var tbody = document.getElementById('bookingsTbody');
+    if(pageItems.length === 0){
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No bookings match this filter.</td></tr>';
+    } else {
+      tbody.innerHTML = pageItems.map(function(b){
+        var avatarStyle = 'background:' + b.color + ';' + (b.dark ? ' color:#131218;' : '');
+        var actionCell = b.status === 'confirmed'
+          ? '<div class="row-cell-actions"><a href="/venue/admin/checkout" class="row-checkout">Checkout</a><a href="/venue/admin/booking" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></div>'
+          : '<div class="row-cell-actions"><a href="/venue/admin/booking" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></div>';
+        return '<tr>' +
+          '<td><div class="cell-person"><div class="cell-avatar" style="' + avatarStyle + '">' + b.initials + '</div>' +
+          '<div><div class="cell-name">' + b.name + '</div><div class="cell-sub">' + b.email + '</div></div></div></td>' +
+          '<td>' + b.service + '</td>' +
+          '<td>' + b.staff + '</td>' +
+          '<td>' + b.when + '</td>' +
+          '<td>' + (b.price ? '$' + b.price : '—') + '</td>' +
+          '<td>' + statusBadge(b.status) + '</td>' +
+          '<td>' + actionCell + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    var infoEl = document.getElementById('paginationInfo');
+    if(filtered.length === 0){
+      infoEl.textContent = 'Showing 0 of 0 bookings';
+    } else if(currentFilter === 'all' && !currentSearch && !currentStaff){
+      infoEl.textContent = 'Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, filtered.length) + ' of ' + TOTAL_BOOKINGS_LABEL.toLocaleString() + ' bookings';
+    } else {
+      infoEl.textContent = 'Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, filtered.length) + ' of ' + filtered.length + ' matching bookings';
+    }
+
+    var btnsEl = document.getElementById('paginationBtns');
+    var html = '<div class="pg-btn' + (currentPage === 1 ? ' disabled' : '') + '" onclick="goToPage(' + (currentPage - 1) + ')">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></div>';
+    for(var p = 1; p <= totalPages; p++){
+      html += '<div class="pg-btn' + (p === currentPage ? ' active' : '') + '" onclick="goToPage(' + p + ')">' + p + '</div>';
+    }
+    html += '<div class="pg-btn' + (currentPage === totalPages ? ' disabled' : '') + '" onclick="goToPage(' + (currentPage + 1) + ')">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg></div>';
+    btnsEl.innerHTML = html;
+  }
+
+  function goToPage(p){
+    var filtered = getFiltered();
+    var totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if(p < 1 || p > totalPages) return;
+    currentPage = p;
+    renderBookings();
+  }
+
+  function setFilter(filter){
+    currentFilter = filter;
+    currentPage = 1;
+    document.querySelectorAll('#filterTabs .filter-tab').forEach(function(tab){
+      tab.classList.toggle('active', tab.getAttribute('data-filter') === filter);
+    });
+    renderBookings();
+  }
+
+  function setSearch(value){
+    currentSearch = value.trim();
+    currentPage = 1;
+    renderBookings();
+  }
+
+  function renderStaffFilterList(){
+    var list = document.getElementById('staffFilterList');
+    var html = '<div class="filters-popover-item' + (currentStaff === null ? ' active' : '') + '" onclick="setStaffFilter(null)">All staff</div>';
+    STAFF_LIST.forEach(function(name){
+      html += '<div class="filters-popover-item' + (currentStaff === name ? ' active' : '') + '" onclick="setStaffFilter(\'' + name + '\')">' + name + '</div>';
+    });
+    list.innerHTML = html;
+  }
+
+  function setStaffFilter(name){
+    currentStaff = name;
+    currentPage = 1;
+    var countEl = document.getElementById('filterStaffCount');
+    if(name){ countEl.textContent = '1'; countEl.style.display = 'inline-block'; }
+    else { countEl.style.display = 'none'; }
+    renderStaffFilterList();
+    renderBookings();
+    document.getElementById('filtersPopover').classList.remove('open');
+  }
+
+  function toggleFiltersPopover(){
+    document.getElementById('filtersPopover').classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e){
+    var wrap = document.querySelector('.filters-wrap');
+    if(!wrap.contains(e.target)) document.getElementById('filtersPopover').classList.remove('open');
+  });
+
+  renderStaffFilterList();
+  renderBookings();
+</script>
+
+</body>
+</html>

@@ -96,10 +96,12 @@
 
   .chip{
     padding:9px 15px;border-radius:999px;border:1.5px solid var(--border-2);background:var(--white);
-    font-size:13px;font-weight:700;color:var(--ink);transition:all .15s;
+    font-size:13px;font-weight:700;color:var(--ink);transition:all .15s;flex:none;white-space:nowrap;
   }
   .chip:hover{border-color:var(--border-hover);}
   .chip.active{border-color:var(--purple);background:var(--purple);color:#fff;}
+  .chip-row-scroll{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
+  .chip-row-scroll::-webkit-scrollbar{display:none;}
 
   .icon{display:inline-flex;align-items:center;justify-content:center;}
 
@@ -738,13 +740,13 @@ function renderLoginStep(){
   return `
     <div class="field">
       <label>Email address</label>
-      <input id="loginEmailInput" class="${e.loginEmail?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.loginEmail)}" placeholder="you@example.com" />
+      <input id="loginEmailInput" class="${e.loginEmail?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.loginEmail)}" />
       ${e.loginEmail?`<p class="hint" style="color:var(--red);">${e.loginEmail}</p>`:""}
     </div>
     <div class="field" style="margin-bottom:0;">
       <label>Password</label>
       <div class="password-wrap">
-        <input id="loginPasswordInput" class="${e.loginPassword?'error':''}" type="${state.showLoginPassword?'text':'password'}" autocomplete="current-password" enterkeyhint="go" value="${escapeAttr(state.loginPassword)}" placeholder="Enter your password" />
+        <input id="loginPasswordInput" class="${e.loginPassword?'error':''}" type="${state.showLoginPassword?'text':'password'}" autocomplete="current-password" enterkeyhint="go" value="${escapeAttr(state.loginPassword)}" />
         <button type="button" class="password-toggle" id="toggleLoginPasswordBtn" aria-label="${state.showLoginPassword?'Hide password':'Show password'}">${icon(state.showLoginPassword?'eyeOff':'eye')}</button>
       </div>
       ${e.loginPassword?`<p class="hint" style="color:var(--red);">${e.loginPassword}</p>`:""}
@@ -761,7 +763,7 @@ function renderEmailStep(){
   return `
     <div class="field" style="margin-bottom:0;">
       <label>Email address</label>
-      <input id="emailInput" class="${e.email?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.email)}" placeholder="you@example.com" />
+      <input id="emailInput" class="${e.email?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.email)}" />
       ${e.email?`<p class="hint" style="color:var(--red);">${e.email}</p>`:""}
     </div>
   `;
@@ -777,23 +779,23 @@ function renderDetailsStep(){
     ${e.confirmation?`<p class="hint" style="color:var(--red);margin:-6px 2px 14px;">${escapeHtml(e.confirmation)}</p>`:""}
     <div class="field">
       <label>First name</label>
-      <input id="firstNameInput" class="${e.firstName?'error':''}" autocomplete="given-name" enterkeyhint="next" value="${escapeAttr(state.firstName)}" placeholder="e.g. Priya" />
+      <input id="firstNameInput" class="${e.firstName?'error':''}" autocomplete="given-name" enterkeyhint="next" value="${escapeAttr(state.firstName)}" />
       ${e.firstName?`<p class="hint" style="color:var(--red);">${e.firstName}</p>`:""}
     </div>
     <div class="field">
       <label>Last name</label>
-      <input id="lastNameInput" class="${e.lastName?'error':''}" autocomplete="family-name" enterkeyhint="next" value="${escapeAttr(state.lastName)}" placeholder="e.g. Nair" />
+      <input id="lastNameInput" class="${e.lastName?'error':''}" autocomplete="family-name" enterkeyhint="next" value="${escapeAttr(state.lastName)}" />
       ${e.lastName?`<p class="hint" style="color:var(--red);">${e.lastName}</p>`:""}
     </div>
     <div class="field">
       <label>Phone</label>
-      <input id="regPhoneInput" class="${e.regPhone?'error':''}" autocomplete="tel" inputmode="tel" enterkeyhint="next" value="${escapeAttr(state.regPhone)}" placeholder="e.g. 07 839 4210" />
+      <input id="regPhoneInput" class="${e.regPhone?'error':''}" autocomplete="tel" inputmode="tel" enterkeyhint="next" value="${escapeAttr(state.regPhone)}" />
       ${e.regPhone?`<p class="hint" style="color:var(--red);">${e.regPhone}</p>`:""}
     </div>
     <div class="field">
       <label>Password</label>
       <div class="password-wrap">
-        <input id="passwordInput" class="${e.password?'error':''}" type="${state.showPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.password)}" placeholder="At least 6 characters" />
+        <input id="passwordInput" class="${e.password?'error':''}" type="${state.showPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.password)}" />
         <button type="button" class="password-toggle" id="togglePasswordBtn" aria-label="${state.showPassword?'Hide password':'Show password'}">${icon(state.showPassword?'eyeOff':'eye')}</button>
       </div>
       ${e.password?`<p class="hint" style="color:var(--red);">${e.password}</p>`:""}
@@ -816,41 +818,41 @@ function renderBusinessStep(){
   return `
     <div class="field">
       <label>Venue name</label>
-      <input id="nameInput" class="${e.name?'error':''}" value="${escapeAttr(state.name)}" placeholder="e.g. Willow & Co." />
+      <input id="nameInput" class="${e.name?'error':''}" value="${escapeAttr(state.name)}" />
       ${e.name?`<p class="hint" style="color:var(--red);">${e.name}</p>`:""}
     </div>
     <div class="field">
       <label>Categories</label>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <div class="chip-row-scroll">
         ${CATEGORY_OPTIONS.map(c=>`<button class="chip ${state.categories.includes(c)?'active':''}" data-togglecat="${escapeAttr(c)}">${c}</button>`).join("")}
       </div>
       ${e.categories?`<p class="hint" style="color:var(--red);">${e.categories}</p>`:""}
     </div>
     <div class="field">
       <label>Address</label>
-      <input id="addressInput" class="${e.address?'error':''}" value="${escapeAttr(state.address)}" placeholder="e.g. 14 Victoria St, Hamilton Central" />
+      <input id="addressInput" class="${e.address?'error':''}" value="${escapeAttr(state.address)}" />
       ${e.address?`<p class="hint" style="color:var(--red);">${e.address}</p>`:""}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="field">
         <label>City</label>
-        <input id="cityInput" class="${e.city?'error':''}" value="${escapeAttr(state.city)}" placeholder="e.g. Hamilton" />
+        <input id="cityInput" class="${e.city?'error':''}" value="${escapeAttr(state.city)}" />
         ${e.city?`<p class="hint" style="color:var(--red);">${e.city}</p>`:""}
       </div>
       <div class="field">
         <label>Region</label>
-        <input id="regionInput" class="${e.region?'error':''}" value="${escapeAttr(state.region)}" placeholder="e.g. Waikato" />
+        <input id="regionInput" class="${e.region?'error':''}" value="${escapeAttr(state.region)}" />
         ${e.region?`<p class="hint" style="color:var(--red);">${e.region}</p>`:""}
       </div>
     </div>
     <div class="field">
       <label>Contact phone</label>
-      <input id="phoneInput" class="${e.phone?'error':''}" value="${escapeAttr(state.phone)}" placeholder="e.g. 07 839 4210" inputmode="tel" />
+      <input id="phoneInput" class="${e.phone?'error':''}" value="${escapeAttr(state.phone)}" inputmode="tel" />
       ${e.phone?`<p class="hint" style="color:var(--red);">${e.phone}</p>`:""}
     </div>
     <div class="field" style="margin-bottom:0;">
       <label>Description <span style="font-weight:400;color:var(--ink-soft);">(optional)</span></label>
-      <textarea id="descInput" placeholder="A short description customers will see on your venue page">${escapeHtml(state.description)}</textarea>
+      <textarea id="descInput">${escapeHtml(state.description)}</textarea>
     </div>
   `;
 }
@@ -988,16 +990,16 @@ function renderServiceModal(){
       <p class="modal-sheet-title">${isEdit?'Edit service':'Add a service'}</p>
       <div class="field">
         <label>Service name</label>
-        <input id="svcNameInput" value="${escapeAttr(state.svcName)}" placeholder="e.g. Signature Cut" />
+        <input id="svcNameInput" value="${escapeAttr(state.svcName)}" />
       </div>
       <div style="display:flex;gap:10px;">
         <div class="field" style="flex:1;">
           <label>Duration (min)</label>
-          <input id="svcDurationInput" type="number" min="15" max="480" step="5" value="${escapeAttr(state.svcDuration)}" inputmode="numeric" placeholder="45" />
+          <input id="svcDurationInput" type="number" min="15" max="480" step="5" value="${escapeAttr(state.svcDuration)}" inputmode="numeric" />
         </div>
         <div class="field" style="flex:1;">
           <label>Price ($)</label>
-          <input id="svcPriceInput" value="${escapeAttr(state.svcPrice)}" inputmode="decimal" placeholder="65" />
+          <input id="svcPriceInput" value="${escapeAttr(state.svcPrice)}" inputmode="decimal" />
         </div>
       </div>
       <div class="sheet-actions">
@@ -1021,11 +1023,11 @@ function renderStylistModal(){
       <p class="modal-sheet-title">${isEdit?'Edit team member':'Add a team member'}</p>
       <div class="field">
         <label>Name</label>
-        <input id="stylistNameInput" value="${escapeAttr(state.stylistName)}" placeholder="e.g. Priya N" />
+        <input id="stylistNameInput" value="${escapeAttr(state.stylistName)}" />
       </div>
       <div class="field" style="margin-bottom:6px;">
         <label>Specialty <span style="font-weight:400;color:var(--ink-soft);">(optional)</span></label>
-        <input id="stylistSpecialtyInput" value="${escapeAttr(state.stylistSpecialty)}" placeholder="e.g. Colour specialist" />
+        <input id="stylistSpecialtyInput" value="${escapeAttr(state.stylistSpecialty)}" />
       </div>
       <div class="sheet-actions">
         <button class="sheet-btn-secondary" data-dismissstylistmodal>Cancel</button>
@@ -1152,7 +1154,7 @@ function renderAuthFlow(root){
         ${body}
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="authNextBtn">${nextLabel}</button>
+        <button class="primary-btn" id="authNextBtn" ${isEmailStep ? (Object.keys(validateEmailStep()).length?'disabled':'') : (Object.keys(validateDetailsStep()).length?'disabled':'')}>${nextLabel}</button>
         ${isEmailStep?`<p class="auth-footnote" id="gotoLoginLink" style="cursor:pointer;">Already have an account? <span style="color:var(--purple);font-weight:700;">Log in</span></p>`:""}
       </div>
     </div>
@@ -1161,6 +1163,12 @@ function renderAuthFlow(root){
   root.innerHTML = `<div class="shell">${html}</div>`;
   resetScroll(root);
   bindAuthEvents();
+}
+function syncAuthNextBtn(){
+  const btn = document.getElementById("authNextBtn");
+  if (!btn) return;
+  const errors = state.authStep===0 ? validateEmailStep() : validateDetailsStep();
+  btn.disabled = Object.keys(errors).length>0;
 }
 
 /* ---------------------------------------------------
@@ -1179,7 +1187,7 @@ function renderLoginFlow(root){
         ${renderLoginStep()}
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="loginNextBtn">Log in</button>
+        <button class="primary-btn" id="loginNextBtn" ${Object.keys(validateLoginStep()).length?'disabled':''}>Log in</button>
         <p class="auth-footnote" id="gotoRegisterLink" style="cursor:pointer;">Don't have an account? <span style="color:var(--purple);font-weight:700;">Sign up</span></p>
       </div>
     </div>
@@ -1216,12 +1224,12 @@ function renderForgotPassword(root){
         <p class="step-sub">Enter your email and we'll send you a link to reset it.</p>
         <div class="field" style="margin-bottom:0;">
           <label>Email address</label>
-          <input id="forgotEmailInput" class="${e.forgotEmail?'error':''}" type="email" autocomplete="email" inputmode="email" enterkeyhint="go" value="${escapeAttr(state.forgotEmail)}" placeholder="you@example.com" />
+          <input id="forgotEmailInput" class="${e.forgotEmail?'error':''}" type="email" autocomplete="email" inputmode="email" enterkeyhint="go" value="${escapeAttr(state.forgotEmail)}" />
           ${e.forgotEmail?`<p class="hint" style="color:var(--red);">${e.forgotEmail}</p>`:""}
         </div>
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="sendResetBtn">Send reset link</button>
+        <button class="primary-btn" id="sendResetBtn" ${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.forgotEmail.trim())?'':'disabled'}>Send reset link</button>
       </div>
     </div>
   `;
@@ -1233,6 +1241,9 @@ function renderForgotPassword(root){
   if (backToLoginBtn) backToLoginBtn.addEventListener("click", ()=>{ setState({ authView:"login", forgotSent:false, forgotEmail:"", forgotErrors:{} }); });
   const sendBtn = document.getElementById("sendResetBtn");
   const emailInput = document.getElementById("forgotEmailInput");
+  if (emailInput) emailInput.addEventListener("input", e=>{
+    if (sendBtn) sendBtn.disabled = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value.trim());
+  });
   const doSend = async ()=>{
     if (state.forgotBusy) return;
     const email = (emailInput?.value||"").trim();
@@ -1266,14 +1277,14 @@ function renderResetPassword(root){
         <div class="field" style="margin-bottom:0;">
           <label>New password</label>
           <div class="password-wrap">
-            <input id="newPasswordInput" class="${e.newPassword?'error':''}" type="${state.showNewPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.newPassword)}" placeholder="At least 8 characters" />
+            <input id="newPasswordInput" class="${e.newPassword?'error':''}" type="${state.showNewPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.newPassword)}" />
             <button type="button" class="password-toggle" id="toggleNewPasswordBtn" aria-label="${state.showNewPassword?'Hide password':'Show password'}">${icon(state.showNewPassword?'eyeOff':'eye')}</button>
           </div>
           ${e.newPassword?`<p class="hint" style="color:var(--red);">${e.newPassword}</p>`:""}
         </div>
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="submitNewPasswordBtn">Update password</button>
+        <button class="primary-btn" id="submitNewPasswordBtn" ${state.newPassword.length>=8?'':'disabled'}>Update password</button>
       </div>
     </div>
   `;
@@ -1283,6 +1294,7 @@ function renderResetPassword(root){
   if (toggleBtn) toggleBtn.addEventListener("click", ()=> setState({ showNewPassword: !state.showNewPassword }));
   const submitBtn = document.getElementById("submitNewPasswordBtn");
   const pwInput = document.getElementById("newPasswordInput");
+  if (pwInput) pwInput.addEventListener("input", e=>{ if (submitBtn) submitBtn.disabled = e.target.value.length<8; });
   const doSubmit = async ()=>{
     if (state.resetBusy) return;
     const pw = pwInput?.value||"";
@@ -1356,7 +1368,7 @@ function render(){
         ${body}
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="nextBtn">${nextLabel}</button>
+        <button class="primary-btn" id="nextBtn" ${state.step===0 && Object.keys(validateBusinessStep()).length?'disabled':''}>${nextLabel}</button>
       </div>
     </div>
   `;
@@ -1364,6 +1376,11 @@ function render(){
   root.innerHTML = `<div class="shell">${html}</div>`;
   resetScroll(root);
   bindEvents();
+}
+function syncNextBtn(){
+  const btn = document.getElementById("nextBtn");
+  if (!btn || state.step!==0) return;
+  btn.disabled = Object.keys(validateBusinessStep()).length>0;
 }
 
 /* ---------------------------------------------------
@@ -1419,15 +1436,15 @@ function bindAuthEvents(){
   });
 
   const emailInput = document.getElementById("emailInput");
-  if (emailInput) emailInput.addEventListener("input", e=>{ state.email = e.target.value; persistRegistrationDraft(); });
+  if (emailInput) emailInput.addEventListener("input", e=>{ state.email = e.target.value; persistRegistrationDraft(); syncAuthNextBtn(); });
   const firstNameInput = document.getElementById("firstNameInput");
-  if (firstNameInput) firstNameInput.addEventListener("input", e=>{ state.firstName = e.target.value; persistRegistrationDraft(); });
+  if (firstNameInput) firstNameInput.addEventListener("input", e=>{ state.firstName = e.target.value; persistRegistrationDraft(); syncAuthNextBtn(); });
   const lastNameInput = document.getElementById("lastNameInput");
-  if (lastNameInput) lastNameInput.addEventListener("input", e=>{ state.lastName = e.target.value; persistRegistrationDraft(); });
+  if (lastNameInput) lastNameInput.addEventListener("input", e=>{ state.lastName = e.target.value; persistRegistrationDraft(); syncAuthNextBtn(); });
   const regPhoneInput = document.getElementById("regPhoneInput");
-  if (regPhoneInput) regPhoneInput.addEventListener("input", e=>{ state.regPhone = e.target.value; persistRegistrationDraft(); });
+  if (regPhoneInput) regPhoneInput.addEventListener("input", e=>{ state.regPhone = e.target.value; persistRegistrationDraft(); syncAuthNextBtn(); });
   const passwordInput = document.getElementById("passwordInput");
-  if (passwordInput) passwordInput.addEventListener("input", e=>{ state.password = e.target.value; persistRegistrationDraft(); });
+  if (passwordInput) passwordInput.addEventListener("input", e=>{ state.password = e.target.value; persistRegistrationDraft(); syncAuthNextBtn(); });
   const togglePasswordBtn = document.getElementById("togglePasswordBtn");
   if (togglePasswordBtn) togglePasswordBtn.addEventListener("click", ()=> setState({ showPassword: !state.showPassword }));
   const termsRow = document.getElementById("termsRow");
@@ -1438,6 +1455,7 @@ function bindAuthEvents(){
     if(box){ box.classList.toggle("checked",state.acceptedTerms); box.classList.remove("error"); box.innerHTML=state.acceptedTerms?icon("checkSmall"):""; }
     const termsError=document.querySelector("[data-terms-error]"); if(termsError) termsError.remove();
     persistRegistrationDraft();
+    syncAuthNextBtn();
   });
   document.querySelectorAll("[data-legal-link]").forEach(a=>a.addEventListener("click", e=>{
     e.stopPropagation();
@@ -1496,10 +1514,11 @@ function bindLoginEvents(){
     });
   });
 
+  const syncLoginNextBtn = ()=>{ if (loginNextBtn) loginNextBtn.disabled = Object.keys(validateLoginStep()).length>0; };
   const loginEmailInput = document.getElementById("loginEmailInput");
-  if (loginEmailInput) loginEmailInput.addEventListener("input", e=>{ state.loginEmail = e.target.value; });
+  if (loginEmailInput) loginEmailInput.addEventListener("input", e=>{ state.loginEmail = e.target.value; syncLoginNextBtn(); });
   const loginPasswordInput = document.getElementById("loginPasswordInput");
-  if (loginPasswordInput) loginPasswordInput.addEventListener("input", e=>{ state.loginPassword = e.target.value; });
+  if (loginPasswordInput) loginPasswordInput.addEventListener("input", e=>{ state.loginPassword = e.target.value; syncLoginNextBtn(); });
   const toggleLoginPasswordBtn = document.getElementById("toggleLoginPasswordBtn");
   if (toggleLoginPasswordBtn) toggleLoginPasswordBtn.addEventListener("click", ()=> setState({ showLoginPassword: !state.showLoginPassword }));
 
@@ -1570,15 +1589,15 @@ function bindEvents(){
 
   // step 0 — business
   const nameInput = document.getElementById("nameInput");
-  if (nameInput) nameInput.addEventListener("input", e=>{ state.name = e.target.value; });
+  if (nameInput) nameInput.addEventListener("input", e=>{ state.name = e.target.value; syncNextBtn(); });
   const addressInput = document.getElementById("addressInput");
-  if (addressInput) addressInput.addEventListener("input", e=>{ state.address = e.target.value; });
+  if (addressInput) addressInput.addEventListener("input", e=>{ state.address = e.target.value; syncNextBtn(); });
   const cityInput = document.getElementById("cityInput");
-  if (cityInput) cityInput.addEventListener("input", e=>{ state.city = e.target.value; });
+  if (cityInput) cityInput.addEventListener("input", e=>{ state.city = e.target.value; syncNextBtn(); });
   const regionInput = document.getElementById("regionInput");
-  if (regionInput) regionInput.addEventListener("input", e=>{ state.region = e.target.value; });
+  if (regionInput) regionInput.addEventListener("input", e=>{ state.region = e.target.value; syncNextBtn(); });
   const phoneInput = document.getElementById("phoneInput");
-  if (phoneInput) phoneInput.addEventListener("input", e=>{ state.phone = e.target.value; });
+  if (phoneInput) phoneInput.addEventListener("input", e=>{ state.phone = e.target.value; syncNextBtn(); });
   const descInput = document.getElementById("descInput");
   if (descInput) descInput.addEventListener("input", e=>{ state.description = e.target.value; });
   document.querySelectorAll("[data-togglecat]").forEach(btn=>{

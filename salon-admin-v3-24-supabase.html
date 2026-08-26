@@ -4,27 +4,32 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Blooma — Venue Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#241F33;
-    --ink-soft:#8A80AD;
-    --ink-mute:#6B6285;
-    --purple:#7C5CD9;
-    --purple-dark:#6D4DC7;
-    --purple-pastel:#F1ECFB;
-    --purple-pastel-2:#F3EEFC;
-    --border:#EFECF9;
-    --border-2:#E9E4F7;
-    --border-hover:#C9BBEF;
-    --bg:#FAF9FD;
-    --white:#FFFFFF;
-    --placeholder:#B3ABCB;
-    --disabled:#DED4F5;
+    --ink:#F2F1F7;
+    --ink-soft:#9F9CB0;
+    --ink-mute:#8A85A0;
+    --purple:#6D5FE8;
+    --purple-dark:#5C4EDB;
+    --purple-pastel:rgba(109,95,232,.22);
+    --purple-pastel-2:rgba(109,95,232,.14);
+    --border:#2E2D3C;
+    --border-2:#2E2D3C;
+    --border-hover:#6D5FE8;
+    --bg:#131218;
+    --white:#1C1B24;
+    --surface-2:#242330;
+    --surface-hover:#2A2938;
+    --placeholder:#6C6980;
+    --disabled:#3A3946;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
@@ -46,29 +51,72 @@
   @supports not (height:100dvh){.shell{height:100vh;}}
   @media (min-width:640px) and (max-width:1023px){#app{padding:24px 0;}.shell{max-width:480px;height:calc(100dvh - 48px);border-radius:24px;box-shadow:0 18px 60px rgba(36,31,51,.10);}}
 
-  .sidebar-nav{display:none;}
+  /* ---------- APP SIDEBAR (mobile drawer + desktop static) ---------- */
+  .sidebar-nav{
+    display:flex;flex-direction:column;width:250px;flex-shrink:0;background:var(--white);
+    border-right:1px solid var(--border);position:fixed;top:0;bottom:0;left:-260px;z-index:70;
+    transition:left .2s ease;
+  }
+  .sidebar-nav.open{left:0;}
+  .sidebar-top{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 12px;flex-shrink:0;}
+  .sidebar-brand{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;}
+  .sidebar-close{
+    width:30px;height:30px;border-radius:8px;background:var(--purple-pastel-2);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .sidebar-links{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto;padding:4px 12px 12px;}
+  .sidebar-section-label{
+    font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--ink-soft);padding:14px 10px 6px;
+  }
+  .sidebar-link{
+    display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:10px;width:100%;
+    font-size:13.5px;font-weight:600;color:var(--ink-soft);transition:background .15s,color .15s;text-align:left;
+  }
+  .sidebar-link:hover{background:var(--purple-pastel-2);color:var(--ink);}
+  .sidebar-link.active{background:var(--purple-pastel-2);color:var(--purple);}
+  .sidebar-link .icon{flex-shrink:0;}
+  .manage-toggle{justify-content:space-between;}
+  .manage-toggle-chevron{transition:transform .15s;flex-shrink:0;color:var(--ink-soft);}
+  .manage-toggle-chevron.open{transform:rotate(180deg);}
+  .manage-sublist{display:flex;flex-direction:column;gap:1px;overflow:hidden;max-height:0;transition:max-height .2s ease;}
+  .manage-sublist.open{max-height:600px;}
+  .manage-sublink{
+    display:flex;align-items:center;gap:10px;padding:8px 10px 8px 34px;border-radius:9px;width:100%;
+    font-size:13px;font-weight:600;color:var(--ink-soft);text-align:left;transition:background .15s,color .15s;
+  }
+  .manage-sublink:hover{background:var(--purple-pastel-2);color:var(--ink);}
+  .manage-sublink.active{background:var(--purple-pastel-2);color:var(--purple);}
+  .sidebar-bottom{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+  .sidebar-overlay{
+    position:fixed;inset:0;background:rgba(6,5,10,.6);z-index:65;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;
+  }
+  .sidebar-overlay.open{opacity:1;pointer-events:auto;}
+
+  .app-topbar{
+    display:flex;align-items:center;gap:12px;padding:14px 16px;flex-shrink:0;
+    background:var(--white);border-bottom:1px solid var(--border);
+  }
+  .topbar-menu-btn{
+    width:34px;height:34px;border-radius:9px;background:var(--purple-pastel-2);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .topbar-title{font-size:15.5px;font-weight:800;color:var(--ink);letter-spacing:-.01em;}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+
   .main-column{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
   @media (min-width:1024px){
     #app{padding:0;align-items:stretch;}
     .shell{max-width:1280px;margin:0 auto;flex-direction:row;border-radius:0;box-shadow:none;height:100dvh;}
-    .sidebar-nav{
-      display:flex;flex-direction:column;width:248px;flex-shrink:0;background:var(--white);
-      border-right:1px solid var(--border);padding:24px 16px;
-    }
-    .sidebar-brand{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.4px;padding:0 10px;margin-bottom:28px;}
-    .sidebar-links{display:flex;flex-direction:column;gap:2px;flex:1;}
-    .sidebar-link{
-      display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;
-      font-size:14.5px;font-weight:600;color:var(--ink-soft);transition:background .15s,color .15s;text-align:left;
-    }
-    .sidebar-link:hover{background:var(--purple-pastel-2);color:var(--ink);}
-    .sidebar-link.active{background:var(--purple-pastel-2);color:var(--purple);}
-    .sidebar-link .icon{flex-shrink:0;}
-    .sidebar-nav .owner-badge{align-self:flex-start;margin-top:12px;}
+    .sidebar-nav{position:static;width:248px;left:auto;padding-top:6px;}
+    .sidebar-top{padding:14px 16px 16px;}
+    .sidebar-close,.sidebar-overlay,.topbar-menu-btn{display:none;}
     .main-column .admin-header{display:none;}
     .main-column .page-content{padding:32px 40px 40px;max-width:1120px;width:100%;margin:0 auto;}
     .main-column .page-content.has-footer{padding-bottom:40px;}
     .main-column .tab-bar{display:none;}
+    .main-column .app-topbar{display:none;}
     .main-column .settings-footer{position:static;max-width:1120px;width:100%;margin:0 auto;border-radius:0;box-shadow:none;}
     .stat-grid-desktop{grid-template-columns:repeat(4,1fr);}
     .manage-grid-desktop{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;align-items:start;}
@@ -90,8 +138,8 @@
     display:inline-flex;align-items:center;justify-content:center;transition:background .12s,border-color .12s;
   }
   .loyalty-adjust-btn:hover{border-color:var(--purple);}
-  .loyalty-adjust-btn.danger{background:#FBEAEA;color:#C13B3B;}
-  .loyalty-adjust-btn.danger:hover{border-color:#C13B3B;}
+  .loyalty-adjust-btn.danger{background:rgba(255,107,129,.14);color:#FF6B81;}
+  .loyalty-adjust-btn.danger:hover{border-color:#FF6B81;}
   .loyalty-redeem-btn{
     width:100%;margin-top:10px;padding:10px 12px;border-radius:12px;font-size:12.5px;font-weight:700;
     background:var(--purple-pastel-2);color:var(--purple);border:1px solid transparent;transition:background .12s,border-color .12s;
@@ -124,9 +172,9 @@
   }
   .field input:focus, .field textarea:focus{border-color:var(--purple);}
   .field input::placeholder, .field textarea::placeholder{color:var(--placeholder);}
-  .field input.error, .field textarea.error{border-color:#C13B3B;}
-  .required-mark{color:#C13B3B;font-weight:700;}
-  .address-section-card{background:var(--purple-pastel-2);border-radius:18px;padding:16px;margin-bottom:14px;}
+  .field input.error, .field textarea.error{border-color:#FF6B81;}
+  .required-mark{color:#FF6B81;font-weight:700;}
+  .address-section-card{background:var(--purple-pastel-2);border-radius:16px;padding:16px;margin-bottom:14px;}
   .verify-address-btn{display:inline-flex;align-items:center;gap:8px;}
   .field textarea{-ms-overflow-style:none;scrollbar-width:none;resize:none;}
   .field textarea::-webkit-scrollbar{display:none;}
@@ -168,66 +216,49 @@
     color:var(--ink);font-size:12.5px;font-weight:700;transition:all .15s;white-space:nowrap;
   }
   .hist-action-btn:hover{border-color:var(--border-hover);}
-  .hist-action-btn.cancel{color:#C13B3B;}
-  .hist-action-btn.cancel:hover{border-color:#F3C6C6;background:#FBEAEA;}
+  .hist-action-btn.cancel{color:#FF6B81;}
+  .hist-action-btn.cancel:hover{border-color:rgba(255,107,129,.45);background:rgba(255,107,129,.14);}
 
   .booking-action-btn{
     flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
     padding:10px 0;border-radius:12px;border:1px solid transparent;
     font-size:12.5px;font-weight:700;transition:all .15s;white-space:nowrap;
   }
-  .booking-action-btn.complete{background:#E6F6EC;color:#1E8A4C;}
-  .booking-action-btn.complete:hover{background:#D8F0E1;}
-  .booking-action-btn.noshow{background:#FDF1E0;color:#B0700D;}
-  .booking-action-btn.noshow:hover{background:#FBE7CB;}
-  .booking-action-btn.cancel{background:var(--white);border-color:var(--border-2);color:#C13B3B;}
-  .booking-action-btn.cancel:hover{border-color:#F3C6C6;background:#FBEAEA;}
+  .booking-action-btn.complete{background:rgba(62,213,152,.14);color:#3ED598;}
+  .booking-action-btn.complete:hover{background:rgba(62,213,152,.24);}
+  .booking-action-btn.noshow{background:rgba(244,201,58,.16);color:#F4C93A;}
+  .booking-action-btn.noshow:hover{background:rgba(244,201,58,.24);}
+  .booking-action-btn.cancel{background:var(--white);border-color:var(--border-2);color:#FF6B81;}
+  .booking-action-btn.cancel:hover{border-color:rgba(255,107,129,.45);background:rgba(255,107,129,.14);}
 
   /* --- admin-specific --- */
-  .admin-header{
-    padding:18px 20px 16px;flex-shrink:0;background:var(--white);
-    border-bottom:1px solid var(--border);
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .brand-logo{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;}
   .owner-badge{
     display:inline-flex;align-items:center;gap:6px;padding:4px 11px 4px 9px;border-radius:999px;
-    background:var(--white);border:1px solid var(--border-2);
+    background:var(--white);border:1px solid var(--border-2);flex-shrink:0;
   }
   .owner-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;}
   .owner-badge span.label{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--purple);text-transform:uppercase;}
-  .page-content{flex:1;overflow-y:auto;padding:20px 20px 108px;}
+  .page-content{flex:1;overflow-y:auto;padding:20px 20px 28px;}
 
-  .tab-bar{
-    position:absolute;bottom:0;left:0;right:0;background:var(--white);
-    border-top:1px solid var(--border);display:flex;padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-    flex-shrink:0;
-  }
-  .tab-btn{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;
-    color:var(--ink-soft);font-size:11px;font-weight:600;border-radius:12px;transition:color .15s;
-  }
-  .tab-btn.active{color:var(--purple);}
-
-  .stat-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
-  .stat-num{font-size:22px;font-weight:800;color:var(--ink);margin:0;}
-  .stat-label{font-size:12px;color:var(--ink-soft);margin:4px 0 0;font-weight:600;}
+  .stat-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:0 1px 2px rgba(36,31,51,.03),0 10px 22px -18px rgba(36,31,51,.18);}
+  .stat-num{font-size:25px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.02em;}
+  .stat-label{font-size:12.5px;color:var(--ink-soft);margin:4px 0 0;font-weight:600;}
   .stat-grid-mobile{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
   .manage-grid-desktop{display:flex;flex-direction:column;gap:10px;}
 
-  .booking-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:15px 16px;}
+  .booking-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:15px 16px;box-shadow:0 1px 2px rgba(36,31,51,.03),0 10px 22px -18px rgba(36,31,51,.16);}
   .status-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:capitalize;flex-shrink:0;}
-  .status-badge.upcoming{background:var(--purple-pastel);color:#5C4B99;}
-  .status-badge.completed{background:#E6F6EC;color:#1E8A4C;}
-  .status-badge.cancelled{background:#FBEAEA;color:#C13B3B;}
-  .status-badge.no_show{background:#FDF1E0;color:#B0700D;}
-  .status-badge.waiting{background:var(--purple-pastel);color:#5C4B99;}
-  .status-badge.notified{background:#E6F6EC;color:#1E8A4C;}
+  .status-badge.upcoming{background:var(--purple-pastel);color:#B7ADF5;}
+  .status-badge.completed{background:rgba(62,213,152,.14);color:#3ED598;}
+  .status-badge.cancelled{background:rgba(255,107,129,.14);color:#FF6B81;}
+  .status-badge.no_show{background:rgba(244,201,58,.16);color:#F4C93A;}
+  .status-badge.waiting{background:var(--purple-pastel);color:#B7ADF5;}
+  .status-badge.notified{background:rgba(62,213,152,.14);color:#3ED598;}
 
-  .manage-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
-  .tag-pill{font-size:11.5px;padding:3px 10px;border-radius:999px;background:var(--purple-pastel);color:#5C4B99;font-weight:600;}
+  .manage-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:0 1px 2px rgba(36,31,51,.03),0 10px 22px -18px rgba(36,31,51,.16);}
+  .tag-pill{font-size:11.5px;padding:3px 10px;border-radius:999px;background:var(--purple-pastel);color:#B7ADF5;font-weight:600;}
   .text-action{font-size:12.5px;font-weight:700;color:var(--purple);}
-  .text-action.danger{color:#C13B3B;}
+  .text-action.danger{color:#FF6B81;}
 
   .add-btn{
     width:100%;padding:13px 0;border-radius:16px;border:1px solid var(--border);
@@ -376,7 +407,7 @@
 
   .week-strip{
     display:flex;align-items:flex-end;justify-content:space-between;gap:6px;
-    background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px 14px 14px;
+    background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px 14px 14px;
   }
   .week-strip-day{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:0;}
   .week-strip-track{width:100%;max-width:26px;height:52px;border-radius:8px;background:var(--purple-pastel-2);display:flex;align-items:flex-end;overflow:hidden;}
@@ -391,7 +422,7 @@
     display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;
   }
   .modal-card{
-    background:var(--white);border-radius:20px;padding:22px 20px;width:100%;max-width:320px;
+    background:var(--white);border-radius:16px;padding:22px 20px;width:100%;max-width:320px;
     box-shadow:0 16px 40px rgba(36,31,51,.28);
   }
   .modal-title{font-size:16.5px;font-weight:800;color:var(--ink);margin:0 0 8px;}
@@ -403,10 +434,10 @@
   }
   .modal-btn-secondary:hover{border-color:var(--border-hover);}
   .modal-btn-danger{
-    flex:1;padding:12px 0;border-radius:999px;border:none;background:#C13B3B;color:#fff;
+    flex:1;padding:12px 0;border-radius:999px;border:none;background:#FF6B81;color:#fff;
     font-size:13.5px;font-weight:700;transition:background .15s;
   }
-  .modal-btn-danger:hover{background:#A83030;}
+  .modal-btn-danger:hover{background:#E2536C;}
 
   .primary-btn{
     width:100%;padding:14px 0;border-radius:999px;border:none;background:var(--purple);
@@ -417,15 +448,15 @@
 
 
   .logout-btn{
-    width:100%;padding:13px 0;border-radius:999px;background:var(--white);color:#C13B3B;
-    font-size:14px;font-weight:700;border:1.5px solid #F0DADA;transition:background .15s,border-color .15s;
+    width:100%;padding:13px 0;border-radius:999px;background:var(--white);color:#FF6B81;
+    font-size:14px;font-weight:700;border:1.5px solid rgba(255,107,129,.35);transition:background .15s,border-color .15s;
   }
-  .logout-btn:hover{background:#FBEAEA;border-color:#E7BDBD;}
+  .logout-btn:hover{background:rgba(255,107,129,.14);border-color:rgba(255,107,129,.4);}
   .settings-footer{
     position:absolute;left:0;right:0;bottom:0;background:var(--white);
     border-top:1px solid var(--border);padding:14px 20px;z-index:5;
   }
-  .page-content.has-footer{padding-bottom:196px;}
+  .page-content.has-footer{padding-bottom:100px;}
 
   .svc-picker{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
   .field .svc-picker-row{
@@ -447,7 +478,7 @@
   .svc-picker-row input:checked ~ .svc-checkbox{background:var(--purple);border-color:var(--purple);}
   .svc-picker-row input:checked ~ .svc-checkbox .icon{opacity:1;}
 
-  .addon-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(36,31,51,.04);}
+  .addon-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(36,31,51,.04);}
   .addon-icon{
     width:46px;height:46px;border-radius:14px;background:var(--purple-pastel-2);
     display:flex;align-items:center;justify-content:center;color:var(--purple);margin-bottom:14px;
@@ -493,12 +524,214 @@
   .addon-detail-footer{padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;}
 
   .cloud-state{font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-top:5px;}
-  .cloud-state.error{color:#C13B3B;}
+  .cloud-state.error{color:#FF6B81;}
   .login-required{height:100%;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;}
 
 
   @media (max-width:639px), (pointer:coarse){.field input,.field textarea,.search-field input{font-size:16px;}}
   @media (hover:none) and (pointer:coarse){.hist-action-btn:hover{border-color:var(--border-2);}.hist-action-btn.cancel:hover{border-color:var(--border-2);background:var(--white);}}
+
+  /* ---------- SERVICES PAGE (svcx-) ---------- */
+  .svcx-shell{
+    --svcx-bg:#131218; --svcx-surface:#1C1B24; --svcx-surface-2:#242330; --svcx-surface-hover:#2A2938;
+    --svcx-border:#2E2D3C; --svcx-violet:#6D5FE8; --svcx-violet-soft:rgba(109,95,232,0.16); --svcx-violet-text:#B7ADF5;
+    --svcx-text:#F2F1F7; --svcx-text-soft:#9F9CB0; --svcx-text-faint:#6C6980;
+    --svcx-success:#3ED598; --svcx-success-soft:rgba(62,213,152,.14); --svcx-warning:#F4C93A; --svcx-danger:#FF6B81;
+    background:var(--svcx-bg);color:var(--svcx-text);border-radius:20px;padding:16px;margin:0 0 20px;
+  }
+  .svcx-shell *{box-sizing:border-box;}
+  .svcx-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .svcx-stat-card{background:var(--svcx-surface);border:1px solid var(--svcx-border);border-radius:14px;padding:14px 16px;}
+  .svcx-stat-top{display:flex;align-items:center;justify-content:space-between;}
+  .svcx-stat-label{font-size:11.5px;color:var(--svcx-text-soft);font-weight:600;}
+  .svcx-stat-icon{width:26px;height:26px;border-radius:8px;background:var(--svcx-violet-soft);color:var(--svcx-violet-text);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .svcx-stat-value{font-size:22px;font-weight:800;margin-top:10px;letter-spacing:-.01em;color:var(--svcx-text);}
+  .svcx-stat-sub{font-size:11px;color:var(--svcx-text-faint);font-weight:500;margin-top:5px;}
+
+  .svcx-panel{background:var(--svcx-surface);border:1px solid var(--svcx-border);border-radius:16px;padding:14px;margin-bottom:14px;}
+  .svcx-filter-bar{display:flex;flex-direction:column;gap:12px;}
+  .svcx-filter-tabs{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+  .svcx-filter-tabs::-webkit-scrollbar{display:none;}
+  .svcx-filter-tab{
+    flex:none;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:999px;
+    background:var(--svcx-surface-2);color:var(--svcx-text-soft);border:1px solid var(--svcx-border);white-space:nowrap;
+  }
+  .svcx-filter-tab.active{background:var(--svcx-violet);color:#fff;border-color:var(--svcx-violet);}
+  .svcx-filter-actions{display:flex;align-items:center;gap:10px;}
+  .svcx-filter-search{
+    display:flex;align-items:center;gap:8px;background:var(--svcx-surface-2);border:1px solid var(--svcx-border);
+    border-radius:10px;padding:9px 13px;flex:1;min-width:0;
+  }
+  .svcx-filter-search svg{color:var(--svcx-text-faint);flex-shrink:0;}
+  .svcx-filter-search input{border:none;background:none;outline:none;color:var(--svcx-text);font-family:inherit;font-size:13px;width:100%;}
+  .svcx-filter-search input::placeholder{color:var(--svcx-text-faint);}
+  .svcx-btn-violet{
+    font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px;border:none;
+    background:var(--svcx-violet);color:#fff;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;
+  }
+  .svcx-btn-violet:hover{background:#5C4EDB;}
+
+  .svcx-cat-panel{background:var(--svcx-surface);border:1px solid var(--svcx-border);border-radius:16px;padding:16px;margin-bottom:12px;}
+  .svcx-cat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+  .svcx-cat-head h2{font-size:14.5px;font-weight:700;color:var(--svcx-text);margin:0;}
+  .svcx-cat-head .count{font-size:12px;color:var(--svcx-text-faint);font-weight:600;margin-left:6px;}
+  .svcx-cat-add{font-size:12px;font-weight:700;color:var(--svcx-violet-text);display:flex;align-items:center;gap:4px;flex-shrink:0;}
+
+  .svcx-row-grid{display:grid;grid-template-columns:minmax(0,1fr) 92px 70px 56px 26px;align-items:center;gap:10px;}
+  .svcx-head-row{padding:0 4px 8px;border-bottom:1px solid var(--svcx-border);margin-bottom:2px;}
+  .svcx-head-row span{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--svcx-text-faint);font-weight:700;}
+  .svcx-head-row span:not(:first-child){text-align:right;}
+  .svcx-svc-row{padding:12px 4px;border-bottom:1px solid var(--svcx-border);}
+  .svcx-svc-row:last-child{border-bottom:none;}
+  .svcx-svc-row:hover{background:var(--svcx-surface-hover);border-radius:8px;}
+  .svcx-svc-name{font-weight:700;font-size:13px;color:var(--svcx-text);}
+  .svcx-svc-sub{font-size:11.5px;color:var(--svcx-text-faint);margin-top:1px;}
+  .svcx-cell-right{text-align:right;font-size:13px;color:var(--svcx-text);white-space:nowrap;}
+  .svcx-toggle{
+    width:36px;height:21px;border-radius:999px;background:var(--svcx-surface-2);border:1px solid var(--svcx-border);
+    position:relative;flex-shrink:0;justify-self:end;transition:background .15s,border-color .15s;
+  }
+  .svcx-toggle::after{
+    content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;
+    background:var(--svcx-text-faint);transition:transform .15s,background .15s;
+  }
+  .svcx-toggle.on{background:var(--svcx-violet-soft);border-color:var(--svcx-violet);}
+  .svcx-toggle.on::after{transform:translateX(15px);background:var(--svcx-violet);}
+  .svcx-row-action{
+    width:26px;height:26px;border-radius:8px;background:var(--svcx-surface-2);border:1px solid var(--svcx-border);
+    display:flex;align-items:center;justify-content:center;color:var(--svcx-text-faint);justify-self:end;
+  }
+  .svcx-row-action:hover{color:var(--svcx-text);border-color:var(--svcx-violet);}
+  .svcx-svc-detail{grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px solid var(--svcx-border);}
+  .svcx-mobile-meta{display:none;}
+  @media (max-width:799px){
+    .svcx-head-row{display:none;}
+    .svcx-row-grid{grid-template-columns:minmax(0,1fr) auto auto;column-gap:8px;}
+    .svcx-cell-right{display:none;}
+    .svcx-mobile-meta{display:inline;}
+    .svcx-cat-head h2{font-size:14px;}
+  }
+
+  .svcx-add-card{background:var(--svcx-surface-2);border:1px solid var(--svcx-border);border-radius:14px;padding:14px;margin-bottom:12px;}
+  .svcx-shell .field label{color:var(--svcx-text-soft);}
+  .svcx-shell .field input,.svcx-shell .field textarea,.svcx-shell .select-wrap select{
+    background:var(--svcx-surface);border-color:var(--svcx-border);color:var(--svcx-text);
+  }
+  .svcx-shell .field input:focus,.svcx-shell .field textarea:focus,.svcx-shell .select-wrap select:focus{border-color:var(--svcx-violet);}
+  .svcx-shell .select-wrap .select-chevron{color:var(--svcx-text-faint);}
+  .svcx-shell .field input::placeholder{color:var(--svcx-text-faint);}
+  .svcx-shell .primary-btn-sm{background:var(--svcx-violet);}
+  .svcx-shell .primary-btn-sm:hover{background:#5C4EDB;}
+  .svcx-shell .text-action{color:var(--svcx-violet-text);}
+  .svcx-shell .text-action.danger{color:var(--svcx-danger);}
+  .svcx-empty{font-size:12.5px;color:var(--svcx-text-faint);text-align:center;padding:20px 0;}
+
+  @media (min-width:800px){
+    .svcx-stats-grid{grid-template-columns:repeat(4,1fr);}
+    .svcx-filter-bar{flex-direction:row;align-items:center;}
+    .svcx-filter-tabs{flex:none;}
+    .svcx-filter-actions{margin-left:auto;flex:none;}
+    .svcx-filter-search{max-width:240px;}
+    .svcx-shell{padding:22px;}
+  }
+
+  /* ---------- DATA TABLE PAGES (Bookings / Clients) ---------- */
+  .panel{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px;}
+  .stat-top{display:flex;align-items:center;justify-content:space-between;}
+  .stat-icon{
+    width:28px;height:28px;border-radius:8px;background:var(--purple-pastel-2);color:var(--purple);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .stat-value{font-size:25px;font-weight:800;color:var(--ink);margin:10px 0 0;letter-spacing:-.02em;}
+  .stat-delta{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;margin-top:5px;color:#3ED598;}
+  .stat-delta.down{color:#FF6B81;}
+  .stat-delta span.muted{color:var(--ink-soft);font-weight:500;}
+  .filter-bar{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+  .filter-actions{display:flex;align-items:center;gap:10px;}
+  .filter-actions .search-field{flex:1;min-width:0;max-width:280px;margin-bottom:0;}
+  @media (min-width:900px){
+    .filter-bar{flex-direction:row;align-items:center;}
+    .filter-bar .chip-row{flex:1 1 auto;min-width:0;width:auto;}
+    .filter-actions{margin-left:auto;flex-shrink:0;}
+  }
+  .schedule-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .table-wrap{overflow-x:auto;}
+  table.data{width:100%;border-collapse:collapse;min-width:720px;}
+  table.data th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--ink-soft);font-weight:700;padding:0 14px 10px;border-bottom:1px solid var(--border);
+  }
+  table.data td{padding:13px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;color:var(--ink);}
+  table.data tr:last-child td{border-bottom:none;}
+  table.data tr.data-row{cursor:pointer;}
+  table.data tr.data-row:hover td{background:var(--purple-pastel-2);}
+  table.data td.detail-cell{background:var(--purple-pastel-2);cursor:default;}
+  table.data td.detail-cell:hover{background:var(--purple-pastel-2) !important;}
+  .cell-person{display:flex;align-items:center;gap:10px;}
+  .cell-avatar{
+    width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:700;color:#fff;
+  }
+  .cell-name{font-weight:700;font-size:13px;color:var(--ink);}
+  .cell-sub{font-size:11.5px;color:var(--ink-soft);margin-top:1px;}
+  .row-action{
+    width:30px;height:30px;border-radius:8px;background:var(--purple-pastel-2);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--ink-soft);flex-shrink:0;transition:transform .15s;
+  }
+  .row-action.open{transform:rotate(90deg);}
+  .tag-pill.tag-vip{background:rgba(244,201,58,.16);color:#F4C93A;}
+  .tag-pill.tag-new{background:var(--purple-pastel);color:#B7ADF5;}
+  .tag-pill.tag-inactive{background:rgba(157,152,176,.16);color:var(--ink-soft);}
+  .pagination{display:flex;align-items:center;justify-content:space-between;padding-top:16px;margin-top:2px;flex-wrap:wrap;gap:10px;}
+  .pagination .info{font-size:12px;color:var(--ink-soft);}
+  .pg-btns{display:flex;gap:8px;}
+  .pg-btn{
+    width:32px;height:32px;border-radius:8px;background:var(--purple-pastel-2);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:12px;font-weight:700;flex-shrink:0;
+  }
+  .pg-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+  .pg-btn:disabled{opacity:.4;}
+
+  /* ---------- SCHEDULE TIMELINE ---------- */
+  .staff-filter-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;}
+  .staff-filter-row::-webkit-scrollbar{display:none;}
+  .staff-chip{
+    flex:none;display:flex;align-items:center;gap:7px;padding:6px 13px 6px 6px;border-radius:999px;
+    background:var(--white);border:1px solid var(--border);cursor:pointer;font-size:12.5px;font-weight:700;color:var(--ink-soft);
+  }
+  .staff-chip.active{background:var(--purple-pastel-2);border-color:var(--purple);color:var(--ink);}
+  .staff-chip-avatar{width:20px;height:20px;border-radius:50%;flex-shrink:0;}
+  .staff-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);font-weight:600;}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .timeline-wrap{overflow-x:auto;scrollbar-width:none;}
+  .timeline-wrap::-webkit-scrollbar{display:none;}
+  .timeline{display:flex;min-width:640px;}
+  .tl-times{flex-shrink:0;width:48px;position:relative;}
+  .tl-times span{position:absolute;left:0;transform:translateY(-50%);font-size:10px;color:var(--ink-soft);font-weight:600;}
+  .tl-staff{flex:1;display:flex;gap:6px;}
+  .tl-col{
+    flex:1;position:relative;min-width:78px;
+    background-image:repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent 54px);
+    border-left:1px solid var(--border);
+  }
+  .tl-col-head{text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft);margin-bottom:8px;}
+  .tl-col-head.today-head{color:var(--purple);}
+  .tl-heads{display:flex;gap:6px;padding-left:48px;min-width:640px;}
+  .tl-heads .tl-col-head{flex:1;min-width:78px;}
+  .tl-appt{position:absolute;left:3px;right:3px;border-radius:8px;padding:5px 6px;overflow:hidden;}
+  .tl-appt .t1{font-size:10.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tl-appt .t2{font-size:9.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tl-col.today{background-color:var(--purple-pastel-2);}
+  .tl-col.closed{
+    background-image:repeating-linear-gradient(135deg, var(--purple-pastel-2) 0, var(--purple-pastel-2) 6px, transparent 6px, transparent 14px);
+    position:relative;
+  }
+  .tl-col.closed .closed-label{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:10.5px;font-weight:700;color:var(--ink-soft);background:var(--white);padding:4px 9px;border-radius:999px;
+    border:1px solid var(--border);white-space:nowrap;
+  }
 
   /* Desktop overrides placed last so they win the cascade over earlier same-specificity rules. */
   @media (min-width:1024px){
@@ -697,6 +930,14 @@ let state = {
   teamActionError: "",
   showCityPicker: false,
   cityQuery: "",
+  serviceCategoryFilter: "All",
+  serviceSearchQuery: "",
+  addingServiceCategory: null,
+  timelineStaffFilter: "All",
+  manageMenuOpen: true,
+  mobileSidebarOpen: false,
+  customerSearchQuery: "",
+  customerTagFilter: "All",
 };
 function setState(patch){ Object.assign(state, patch); render(); }
 
@@ -1033,58 +1274,221 @@ function renderNewBookingForm(){
 /* ---------------------------------------------------
    RENDER: SCHEDULE
 --------------------------------------------------- */
+const TIMELINE_COLORS = ["#6D5FE8","#5FA8E8","#E85F9E","#5FE8A0","#F4C93A","#FF9F5F"];
+function timelineColorForStylist(name){
+  const names = salon.stylists.map(s=>s.name);
+  let idx = names.indexOf(name);
+  if (idx<0) idx = 0;
+  return TIMELINE_COLORS[idx % TIMELINE_COLORS.length];
+}
+function renderScheduleTimeline(){
+  const DAY_START=8*60, DAY_END=20*60, PPM=0.9;
+  const totalHeight = Math.round((DAY_END-DAY_START)*PPM);
+  const hourMarks = []; for(let m=DAY_START;m<=DAY_END;m+=60) hourMarks.push(m);
+  const activeStaff = state.timelineStaffFilter || "All";
+  const days = [0,1,2,3,4,5,6].map(offset=>{
+    const dateKey = addDaysToDateKey(nzTodayKey(),offset);
+    const wd = nzWeekdayShortForKey(dateKey);
+    const dh = salon.hours[wd];
+    const dayNum = Number(dateKey.split("-")[2]);
+    const dayBookings = bookingsForOffset(offset).filter(b=>b.status!=="cancelled" && (activeStaff==="All" || b.stylistName===activeStaff));
+    return { offset, wd, dayNum, isOpen: !!(dh&&dh.open), bookings: dayBookings, isToday: offset===0 };
+  });
+  return `
+    ${salon.stylists.length ? `
+    <div class="staff-filter-row">
+      <button class="staff-chip ${activeStaff==='All'?'active':''}" data-timelinestaff="All"><span class="staff-chip-avatar" style="background:var(--ink-mute);"></span>All staff</button>
+      ${salon.stylists.map(s=>`<button class="staff-chip ${activeStaff===s.name?'active':''}" data-timelinestaff="${escapeAttr(s.name)}"><span class="staff-chip-avatar" style="background:${timelineColorForStylist(s.name)};"></span>${escapeHtml(s.name)}</button>`).join("")}
+    </div>
+    <div class="staff-legend">
+      ${salon.stylists.map(s=>`<div class="legend-item"><span class="legend-dot" style="background:${timelineColorForStylist(s.name)};"></span>${escapeHtml(s.name)}</div>`).join("")}
+    </div>` : `<div class="empty-state" style="margin-bottom:14px;">Add stylists to see them on the timeline.</div>`}
+    <div class="panel" style="padding:14px;">
+      <div class="timeline-wrap">
+        <div class="tl-heads">
+          ${days.map(d=>`<div class="tl-col-head ${d.isToday?'today-head':''}">${d.wd.toUpperCase()} ${d.dayNum}</div>`).join("")}
+        </div>
+        <div class="timeline" style="height:${totalHeight}px;">
+          <div class="tl-times" style="height:${totalHeight}px;">
+            ${hourMarks.map(m=>`<span style="top:${Math.round((m-DAY_START)*PPM)}px;">${formatTime12(`${String(Math.floor(m/60)).padStart(2,"0")}:00`)}</span>`).join("")}
+          </div>
+          <div class="tl-staff">
+            ${days.map(d=>`
+              <div class="tl-col ${d.isToday?'today':''} ${!d.isOpen?'closed':''}" style="height:${totalHeight}px;">
+                ${!d.isOpen ? `<span class="closed-label">Closed</span>` : d.bookings.map(b=>{
+                  const start = parseTimeMins(b.time);
+                  const dur = manualBookingDuration(b);
+                  const top = Math.max(0,Math.round((start-DAY_START)*PPM));
+                  const height = Math.max(24,Math.round(dur*PPM));
+                  const color = timelineColorForStylist(b.stylistName);
+                  return `<div class="tl-appt" style="top:${top}px;height:${height}px;background:${color}26;border-left:3px solid ${color};">
+                    <div class="t1">${escapeHtml(b.customerName)}</div>
+                    <div class="t2">${escapeHtml(b.serviceName)} · ${escapeHtml(b.stylistName)}</div>
+                  </div>`;
+                }).join("")}
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 function renderSchedule(){
+  if (state.scheduleView==="timeline"){
+    return `
+      <div style="display:flex;align-items:center;justify-content:flex-end;margin:2px 0 14px;">
+        <div class="view-toggle">
+          <button class="view-toggle-btn" data-schedview="list">List</button>
+          <button class="view-toggle-btn" data-schedview="week">Week</button>
+          <button class="view-toggle-btn active" data-schedview="timeline">Timeline</button>
+        </div>
+      </div>
+      ${renderScheduleTimeline()}
+    `;
+  }
   const filters = ["upcoming","completed","cancelled","all"];
   const isWaitlist = state.scheduleFilter==="waitlist";
   const q = state.scheduleSearch.trim().toLowerCase();
 
-  let list, body, countLabel;
-  if (isWaitlist){
-    list = waitlist.slice().sort((a,b)=> a.dayOffset-b.dayOffset || b.createdAt-a.createdAt);
-    if (q) list = list.filter(w=>w.customerName.toLowerCase().includes(q));
-    const emptyMsg = q ? `No waitlist requests match "${escapeHtml(state.scheduleSearch)}".` : `No one is on the waitlist right now.`;
-    body = list.length===0
-      ? `<div class="empty-state">${emptyMsg}</div>`
-      : `<div style="display:flex;flex-direction:column;gap:10px;">${list.map(w=>waitlistRow(w)).join("")}</div>`;
-    countLabel = `<strong>${list.length}</strong> on the waitlist`;
-  } else {
-    list = bookings.slice().sort((a,b)=> a.dayOffset-b.dayOffset || parseTimeMins(a.time)-parseTimeMins(b.time));
-    if (state.scheduleFilter!=="all") list = list.filter(b=>b.status===state.scheduleFilter);
-    if (q) list = list.filter(b=>b.customerName.toLowerCase().includes(q));
-    const emptyMsg = q
-      ? `No bookings match "${escapeHtml(state.scheduleSearch)}".`
-      : `No ${state.scheduleFilter==="all"?"":state.scheduleFilter+" "}bookings.`;
-    body = list.length===0
-      ? `<div class="empty-state">${emptyMsg}</div>`
-      : (state.scheduleView==="week" ? renderWeekGroups(list) : `<div style="display:flex;flex-direction:column;gap:10px;">${list.map(b=>bookingRow(b,true)).join("")}</div>`);
-    countLabel = `<strong>${list.length}</strong> booking${list.length===1?"":"s"}`;
-  }
-
-  return `
-    <div class="search-field" style="margin-bottom:12px;">
+  const filterChips = `
+    <button class="chip ${state.scheduleFilter==='upcoming'?'active':''}" data-schedfilter="upcoming">Upcoming</button>
+    <button class="chip ${state.scheduleFilter==='completed'?'active':''}" data-schedfilter="completed">Completed</button>
+    <button class="chip ${state.scheduleFilter==='cancelled'?'active':''}" data-schedfilter="cancelled">Cancelled</button>
+    <button class="chip ${state.scheduleFilter==='all'?'active':''}" data-schedfilter="all">All</button>
+    <button class="chip ${isWaitlist?'active':''}" data-schedfilter="waitlist">${icon('bell')}&nbsp;Waitlist${waitlist.length?` (${waitlist.length})`:""}</button>
+  `;
+  const searchField = `
+    <div class="search-field">
       ${icon('search','var(--ink-soft)')}
-      <input type="text" id="scheduleSearchInput" placeholder="${isWaitlist?'Search by customer name':'Search by customer name'}" value="${escapeAttr(state.scheduleSearch)}" />
+      <input type="text" id="scheduleSearchInput" placeholder="Search by customer name" value="${escapeAttr(state.scheduleSearch)}" />
       ${state.scheduleSearch ? `<button class="search-clear" data-clearsearch aria-label="Clear search">${icon('x')}</button>` : ""}
     </div>
-    <div class="schedule-shelf" style="margin-bottom:14px;">
-      <div class="no-scrollbar chip-row">
-        ${filters.map(f=>`<button class="chip ${state.scheduleFilter===f?'active':''}" data-schedfilter="${f}">${f.charAt(0).toUpperCase()+f.slice(1)}</button>`).join("")}
-        <button class="chip ${isWaitlist?'active':''}" data-schedfilter="waitlist">${icon('bell')}&nbsp;Waitlist${waitlist.length?` (${waitlist.length})`:""}</button>
+  `;
+
+  if (isWaitlist){
+    let list = waitlist.slice().sort((a,b)=> a.dayOffset-b.dayOffset || b.createdAt-a.createdAt);
+    if (q) list = list.filter(w=>w.customerName.toLowerCase().includes(q));
+    const emptyMsg = q ? `No waitlist requests match "${escapeHtml(state.scheduleSearch)}".` : `No one is on the waitlist right now.`;
+    return `
+      <div class="panel">
+        <div class="filter-bar">
+          <div class="chip-row no-scrollbar">${filterChips}</div>
+          <div class="filter-actions">${searchField}</div>
+        </div>
+        <span class="schedule-count" style="display:block;margin-bottom:14px;"><strong>${list.length}</strong> on the waitlist</span>
+        ${list.length===0
+          ? `<div class="empty-state">${emptyMsg}</div>`
+          : `<div style="display:flex;flex-direction:column;gap:10px;">${list.map(w=>waitlistRow(w)).join("")}</div>`}
       </div>
+    `;
+  }
+
+  let list = bookings.slice().sort((a,b)=> a.dayOffset-b.dayOffset || parseTimeMins(a.time)-parseTimeMins(b.time));
+  if (state.scheduleFilter!=="all") list = list.filter(b=>b.status===state.scheduleFilter);
+  if (q) list = list.filter(b=>b.customerName.toLowerCase().includes(q));
+  const emptyMsg = q
+    ? `No bookings match "${escapeHtml(state.scheduleSearch)}".`
+    : `No ${state.scheduleFilter==="all"?"":state.scheduleFilter+" "}bookings.`;
+  const viewToggle = `
+    <div class="view-toggle">
+      <button class="view-toggle-btn ${state.scheduleView==='list'?'active':''}" data-schedview="list">List</button>
+      <button class="view-toggle-btn ${state.scheduleView==='week'?'active':''}" data-schedview="week">Week</button>
+      <button class="view-toggle-btn" data-schedview="timeline">Timeline</button>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:2px 0 14px;">
-      <span class="schedule-count">${countLabel}</span>
-      ${isWaitlist ? "" : `
-      <div class="view-toggle">
-        <button class="view-toggle-btn ${state.scheduleView==='list'?'active':''}" data-schedview="list">List</button>
-        <button class="view-toggle-btn ${state.scheduleView==='week'?'active':''}" data-schedview="week">Week</button>
-      </div>`}
+  `;
+
+  if (state.scheduleView==="week"){
+    return `
+      <div class="schedule-toolbar">${viewToggle}</div>
+      <div class="panel">
+        <div class="filter-bar">
+          <div class="chip-row no-scrollbar">${filterChips}</div>
+          <div class="filter-actions">${searchField}</div>
+        </div>
+        <span class="schedule-count" style="display:block;margin-bottom:14px;"><strong>${list.length}</strong> booking${list.length===1?"":"s"}</span>
+        ${renderNewBookingForm()}
+        ${list.length===0 ? `<div class="empty-state">${emptyMsg}</div>` : renderWeekGroups(list)}
+      </div>
+    `;
+  }
+
+  // default: table view
+  const today = bookingsForOffset(0).filter(b=>b.status!=="cancelled");
+  const upcoming7 = bookings.filter(b=>b.dayOffset>=0 && b.dayOffset<=6 && b.status!=="cancelled").length;
+  const completedTotal = bookings.filter(b=>b.status==="completed").length;
+  const cancelledTotal = bookings.filter(b=>b.status==="cancelled").length;
+
+  return `
+    <div class="schedule-toolbar">${viewToggle}</div>
+    <div class="stat-grid-mobile stat-grid-desktop">
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">Today</span><span class="stat-icon">${icon('calendar')}</span></div><p class="stat-value">${today.length}</p><p class="stat-delta"><span class="muted">bookings today</span></p></div>
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">Upcoming</span><span class="stat-icon">${icon('trendingUp')}</span></div><p class="stat-value">${upcoming7}</p><p class="stat-delta"><span class="muted">Next 7 days</span></p></div>
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">Completed</span><span class="stat-icon" style="background:rgba(62,213,152,.14);color:#3ED598;">${icon('check')}</span></div><p class="stat-value">${completedTotal}</p><p class="stat-delta"><span class="muted">All time</span></p></div>
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">Cancelled</span><span class="stat-icon" style="background:rgba(255,107,129,.14);color:#FF6B81;">${icon('x')}</span></div><p class="stat-value">${cancelledTotal}</p><p class="stat-delta down"><span class="muted">All time</span></p></div>
     </div>
-    ${isWaitlist ? "" : renderNewBookingForm()}
-    ${body}
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="chip-row no-scrollbar">${filterChips}</div>
+        <div class="filter-actions">${searchField}</div>
+      </div>
+      ${renderNewBookingForm()}
+      ${list.length===0 ? `<div class="empty-state">${emptyMsg}</div>` : `
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Client</th><th>Service</th><th>Staff</th><th>Date &amp; time</th><th>Price</th><th>Status</th><th></th></tr></thead>
+          <tbody>${list.map(b=>bookingTableRow(b)).join("")}</tbody>
+        </table>
+      </div>
+      <div class="pagination"><div class="info">Showing ${list.length} booking${list.length===1?"":"s"}</div></div>
+      `}
+    </div>
   `;
 }
 
+function bookingInitials(name){
+  return String(name||"?").trim().split(/\s+/).map(w=>w[0]).filter(Boolean).slice(0,2).join("").toUpperCase() || "?";
+}
+function bookingTableRow(b){
+  const hasDetail = !!(b.phone || b.notes || (b.addons && b.addons.length));
+  const hasActions = b.status==="upcoming";
+  const canExpand = hasDetail || hasActions;
+  const expanded = canExpand && state.expandedBookingIds.includes(b.id);
+  const avatarColor = timelineColorForStylist(b.stylistName);
+  return `
+  <tr class="data-row" ${canExpand?`data-bookingcard="${b.id}"`:""}>
+    <td>
+      <div class="cell-person">
+        <div class="cell-avatar" style="background:${avatarColor};">${escapeHtml(bookingInitials(b.customerName))}</div>
+        <div><div class="cell-name">${escapeHtml(b.customerName)}</div>${b.phone?`<div class="cell-sub">${escapeHtml(b.phone)}</div>`:""}</div>
+      </div>
+    </td>
+    <td>${escapeHtml(b.serviceName)}</td>
+    <td>${escapeHtml(b.stylistName)}</td>
+    <td>${dayOffsetLabel(b.dayOffset)}, ${escapeHtml(b.time)}</td>
+    <td>$${b.price}</td>
+    <td><span class="status-badge ${b.status}">${b.status==="no_show"?"No-show":b.status}</span></td>
+    <td>${canExpand?`<div class="row-action ${expanded?'open':''}">${icon('chevronRight')}</div>`:""}</td>
+  </tr>
+  ${expanded ? `
+  <tr>
+    <td class="detail-cell" colspan="7">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${b.phone ? `<div class="booking-detail-row">${icon('phone')}<span>${escapeHtml(b.phone)}</span></div>` : ""}
+        ${b.addons && b.addons.length ? `<div class="booking-detail-row">${icon('tag')}<span>${b.addons.map(a=>`${escapeHtml(a.name)} ($${a.price})`).join(", ")}</span></div>` : ""}
+        ${b.notes ? `<div class="booking-detail-row">${icon('fileText')}<span>${escapeHtml(b.notes)}</span></div>` : ""}
+        ${!hasDetail ? `<div class="booking-detail-row" style="color:var(--ink-soft);">No extra details for this booking.</div>` : ""}
+      </div>
+      ${hasActions ? `
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="booking-action-btn complete" data-complete="${b.id}">${icon('check')}Mark completed</button>
+        <button class="booking-action-btn noshow" data-noshow="${b.id}">${icon('userX')}No-show</button>
+        <button class="booking-action-btn cancel" data-cancelbooking="${b.id}">${icon('x')}Cancel</button>
+      </div>` : ""}
+    </td>
+  </tr>` : ""}
+  `;
+}
 function waitlistRow(w){
   return `
   <div class="booking-card">
@@ -1293,23 +1697,7 @@ function renderManage(){
   else if (state.manageView==="loyalty") body = renderLoyaltyManage();
   else if (state.manageView==="team") body = renderTeamManage();
   else if (state.manageView==="blockouts") body = renderBlockoutsView();
-  return `
-    <div class="schedule-shelf" style="margin-bottom:16px;">
-      <div class="chip-row no-scrollbar">
-        <button class="chip ${state.manageView==='venue'?'active':''}" data-manageview="venue">Venue</button>
-        <button class="chip ${state.manageView==='services'?'active':''}" data-manageview="services">Services</button>
-        <button class="chip ${state.manageView==='addons'?'active':''}" data-manageview="addons">Add-ons</button>
-        <button class="chip ${state.manageView==='categories'?'active':''}" data-manageview="categories">Categories</button>
-        <button class="chip ${state.manageView==='stylists'?'active':''}" data-manageview="stylists">Stylists</button>
-        <button class="chip ${state.manageView==='customers'?'active':''}" data-manageview="customers">Customers</button>
-        <button class="chip ${state.manageView==='promos'?'active':''}" data-manageview="promos">Promotions</button>
-        <button class="chip ${state.manageView==='loyalty'?'active':''}" data-manageview="loyalty">Loyalty</button>
-        <button class="chip ${state.manageView==='team'?'active':''}" data-manageview="team">Team</button>
-        <button class="chip ${state.manageView==='blockouts'?'active':''}" data-manageview="blockouts">Block-outs</button>
-      </div>
-    </div>
-    ${body}
-  `;
+  return body;
 }
 
 function venuePublishChecklist(){
@@ -1334,13 +1722,13 @@ function renderVenueManage(){
       <div class="manage-card" style="background:var(--purple-pastel-2);border:none;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:2px;">
           <p class="eyebrow" style="margin:0;">Publish checklist</p>
-          <span class="tag-pill" style="background:${checklistDone===checklist.length?'#1E8A4C':'var(--white)'};color:${checklistDone===checklist.length?'#fff':'var(--ink)'};">${checklistDone}/${checklist.length}</span>
+          <span class="tag-pill" style="background:${checklistDone===checklist.length?'#3ED598':'var(--white)'};color:${checklistDone===checklist.length?'#fff':'var(--ink)'};">${checklistDone}/${checklist.length}</span>
         </div>
         <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 12px;">Finish these so customers can find and book your venue.</p>
         <div style="display:flex;flex-direction:column;gap:9px;">
           ${checklist.map(it=>`
             <div style="display:flex;align-items:center;gap:10px;">
-              <span style="width:19px;height:19px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${it.done?'#1E8A4C':'var(--white)'};border:1.5px solid ${it.done?'#1E8A4C':'var(--border-hover)'};">${it.done?icon('check','#fff'):''}</span>
+              <span style="width:19px;height:19px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${it.done?'#3ED598':'var(--white)'};border:1.5px solid ${it.done?'#3ED598':'var(--border-hover)'};">${it.done?icon('check','#fff'):''}</span>
               <span style="font-size:13.5px;color:${it.done?'var(--ink)':'var(--ink-soft)'};">${it.label}</span>
             </div>
           `).join("")}
@@ -1389,10 +1777,19 @@ function renderVenueManage(){
   `;
 }
 
-function serviceCard(s){
-  if (state.editingServiceId===s.id){
-    return `
-    <div class="manage-card">
+function serviceRow(s){
+  const editing = state.editingServiceId===s.id;
+  return `
+  <div class="svcx-svc-row">
+    <div class="svcx-row-grid">
+      <div style="min-width:0;"><p class="svcx-svc-name">${escapeHtml(s.name)}</p><p class="svcx-svc-sub"><span class="svcx-mobile-meta">${s.duration} min · $${s.price} · </span>${s.isNew?'New · ':''}${s.addons&&s.addons.length?`${s.addons.length} add-on${s.addons.length>1?'s':''}`:'No add-ons'}</p></div>
+      <div class="svcx-cell-right">${s.duration} min</div>
+      <div class="svcx-cell-right">$${s.price}</div>
+      <button class="svcx-toggle ${s.active?'on':''}" data-toggleservice="${s.id}" aria-label="Toggle bookable"></button>
+      <button class="svcx-row-action" ${editing?`data-donesvc="${s.id}"`:`data-editservice="${s.id}"`} aria-label="${editing?'Close':'Edit service'}">${icon(editing?'chevronDown':'chevronRight')}</button>
+    </div>
+    ${editing ? `
+    <div class="svcx-svc-detail">
       <div class="field"><label>Name</label><input type="text" data-editfield="name" data-sid="${s.id}" value="${escapeAttr(s.name)}" /></div>
       <div style="display:flex;gap:10px;">
         <div class="field" style="flex:1;"><label>Duration (min)</label><input type="number" min="15" max="480" step="5" data-editfield="duration" data-sid="${s.id}" value="${s.duration}" /></div>
@@ -1407,48 +1804,87 @@ function serviceCard(s){
           <span class="select-chevron">${icon('chevronDown')}</span>
         </div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:2px 0 14px;">
-        <div>
-          <p style="font-weight:700;font-size:13.5px;color:var(--ink);margin:0;">Show “New” badge</p>
-          <p style="font-size:12px;color:var(--ink-soft);margin:3px 0 0;">Shown beside this service to customers.</p>
-        </div>
-        <button class="switch ${s.isNew?'on':''}" data-togglenewservice="${s.id}" aria-label="Toggle New badge"><span class="knob"></span></button>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:2px 0 12px;">
+        <p style="font-weight:700;font-size:13px;color:var(--svcx-text);margin:0;">Show “New” badge</p>
+        <button class="svcx-toggle ${s.isNew?'on':''}" data-togglenewservice="${s.id}" aria-label="Toggle New badge"></button>
       </div>
-      <button class="primary-btn-sm" data-donesvc="${s.id}">Done</button>
-    </div>`;
-  }
-  return `
-  <div class="manage-card">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
-      <div style="min-width:0;">
-        <p style="font-weight:700;font-size:14.5px;color:var(--ink);margin:0;">${escapeHtml(s.name)}</p>
-        <p style="font-size:12.5px;color:var(--ink-soft);margin:4px 0 0;">${s.duration} min · $${s.price}${s.addons&&s.addons.length?` · ${s.addons.length} add-on${s.addons.length>1?'s':''}`:''}</p>
-      </div>
-      <button class="switch ${s.active?'on':''}" data-toggleservice="${s.id}" aria-label="Toggle bookable"><span class="knob"></span></button>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-      <span class="tag-pill">${escapeHtml(s.category||'Uncategorized')}</span>
-      <div style="display:flex;gap:18px;">
-        <button class="text-action" data-editservice="${s.id}">Edit</button>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <button class="primary-btn-sm" data-donesvc="${s.id}">Done</button>
         <button class="text-action danger" data-deleteservice="${s.id}">Delete</button>
       </div>
-    </div>
+    </div>` : ""}
   </div>`;
 }
 
 function renderServicesManage(){
+  const query = state.serviceSearchQuery.trim().toLowerCase();
+  const filterCat = state.serviceCategoryFilter;
+  const visibleServices = salon.services.filter(s=>{
+    if (filterCat!=="All" && (s.category||"Uncategorized")!==filterCat) return false;
+    if (query && !s.name.toLowerCase().includes(query)) return false;
+    return true;
+  });
   const grouped = {};
-  salon.services.forEach(s=>{
+  visibleServices.forEach(s=>{
     const cat = s.category || "Uncategorized";
     if (!grouped[cat]) grouped[cat] = [];
     grouped[cat].push(s);
   });
   const catOrder = [...salon.categories, ...Object.keys(grouped).filter(c=>!salon.categories.includes(c))];
+  const visibleCats = catOrder.filter(c=>grouped[c] && grouped[c].length);
+
+  const totalCount = salon.services.length;
+  const avgPrice = totalCount ? Math.round(salon.services.reduce((sum,x)=>sum+Number(x.price||0),0)/totalCount) : 0;
+  const avgDurationMin = totalCount ? Math.round(salon.services.reduce((sum,x)=>sum+Number(x.duration||0),0)/totalCount) : 0;
+  const activeCount = salon.services.filter(s=>s.active).length;
+  const bookingCounts = {};
+  bookings.forEach(b=>{ if(b.status!=="cancelled") bookingCounts[b.serviceName]=(bookingCounts[b.serviceName]||0)+1; });
+  let topService=null, topCount=0;
+  Object.entries(bookingCounts).forEach(([name,count])=>{ if(count>topCount){ topCount=count; topService=name; } });
 
   return `
-    <div style="margin-bottom:14px;">
+    <div class="svcx-shell">
+      <div class="svcx-stats-grid">
+        <div class="svcx-stat-card">
+          <div class="svcx-stat-top"><span class="svcx-stat-label">Total services</span><span class="svcx-stat-icon">${icon('grid')}</span></div>
+          <p class="svcx-stat-value">${totalCount}</p>
+          <p class="svcx-stat-sub">${salon.categories.length} categor${salon.categories.length===1?'y':'ies'}</p>
+        </div>
+        <div class="svcx-stat-card">
+          <div class="svcx-stat-top"><span class="svcx-stat-label">Avg. price</span><span class="svcx-stat-icon" style="background:rgba(244,201,58,.16);color:var(--svcx-warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span></div>
+          <p class="svcx-stat-value">$${avgPrice}</p>
+          <p class="svcx-stat-sub">Per service</p>
+        </div>
+        <div class="svcx-stat-card">
+          <div class="svcx-stat-top"><span class="svcx-stat-label">Avg. duration</span><span class="svcx-stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span></div>
+          <p class="svcx-stat-value">${avgDurationMin} min</p>
+          <p class="svcx-stat-sub">Per service</p>
+        </div>
+        <div class="svcx-stat-card">
+          <div class="svcx-stat-top"><span class="svcx-stat-label">Active</span><span class="svcx-stat-icon" style="background:var(--svcx-success-soft);color:var(--svcx-success);">${icon('check')}</span></div>
+          <p class="svcx-stat-value">${activeCount}/${totalCount}</p>
+          <p class="svcx-stat-sub">${topService?`Top: ${escapeHtml(topService)}`:'Bookable now'}</p>
+        </div>
+      </div>
+
+      <div class="svcx-panel">
+        <div class="svcx-filter-bar">
+          <div class="svcx-filter-tabs">
+            <button class="svcx-filter-tab ${filterCat==='All'?'active':''}" data-svccatfilter="All">All</button>
+            ${salon.categories.map(c=>`<button class="svcx-filter-tab ${filterCat===c?'active':''}" data-svccatfilter="${escapeAttr(c)}">${escapeHtml(c)}</button>`).join("")}
+          </div>
+          <div class="svcx-filter-actions">
+            <div class="svcx-filter-search">
+              ${icon('search')}
+              <input type="text" id="svcSearchInput" placeholder="Search services…" value="${escapeAttr(state.serviceSearchQuery)}">
+            </div>
+            ${salon.categories.length ? `<button class="svcx-btn-violet" data-addservice>${icon('plusSmall')}Add service</button>` : ""}
+          </div>
+        </div>
+      </div>
+
       ${state.addingService ? `
-      <div class="manage-card">
+      <div class="svcx-add-card">
         <div class="field"><label>Name</label><input type="text" id="newServiceName" placeholder="e.g. Keratin Treatment" /></div>
         <div style="display:flex;gap:10px;">
           <div class="field" style="flex:1;"><label>Duration (min)</label><input type="number" id="newServiceDuration" min="15" max="480" step="5" placeholder="45" /></div>
@@ -1458,25 +1894,31 @@ function renderServicesManage(){
           <label>Category</label>
           <div class="select-wrap">
             <select id="newServiceCategory">
-              ${salon.categories.map(c=>`<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join("")}
+              ${salon.categories.map(c=>`<option value="${escapeAttr(c)}" ${state.addingServiceCategory===c?'selected':''}>${escapeHtml(c)}</option>`).join("")}
             </select>
             <span class="select-chevron">${icon('chevronDown')}</span>
           </div>
         </div>
         <div style="display:flex;gap:16px;align-items:center;">
           <button class="primary-btn-sm" data-saveaddservice>Add service</button>
-          <button class="text-action" data-canceladdservice>Cancel</button>
+          <button class="text-action" data-canceladdservice style="color:var(--svcx-text-soft);">Cancel</button>
         </div>
-      </div>` : (salon.categories.length ? `<button class="add-btn" data-addservice>${icon('plus')} Add service</button>` : `<p style="font-size:12.5px;color:var(--ink-soft);text-align:center;padding:8px 0;">Add a category first before creating services.</p>`)}
+      </div>` : (salon.categories.length ? "" : `<p class="svcx-empty">Add a category first before creating services.</p>`)}
+
+      ${visibleCats.map(c=>`
+        <div class="svcx-cat-panel">
+          <div class="svcx-cat-head">
+            <h2>${escapeHtml(c)}<span class="count">${grouped[c].length} service${grouped[c].length===1?'':'s'}</span></h2>
+            <button class="svcx-cat-add" data-addservice="${escapeAttr(c)}">${icon('plusSmall')}Add</button>
+          </div>
+          <div class="svcx-row-grid svcx-head-row">
+            <span>Service</span><span>Duration</span><span>Price</span><span>Status</span><span></span>
+          </div>
+          ${grouped[c].map(serviceRow).join("")}
+        </div>
+      `).join("")}
+      ${visibleCats.length===0 && salon.categories.length>0 ? `<p class="svcx-empty">No services match your search.</p>` : ""}
     </div>
-    ${catOrder.filter(c=>grouped[c] && grouped[c].length).map(c=>`
-      <div style="margin-bottom:18px;">
-        <p class="eyebrow" style="margin-bottom:10px;">${escapeHtml(c)}</p>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          ${grouped[c].map(serviceCard).join("")}
-        </div>
-      </div>
-    `).join("")}
   `;
 }
 
@@ -1561,7 +2003,7 @@ function stylistCard(st){
             </div>`;
           }).join("")}
         </div>
-        ${state.scheduleSaveError?`<p style="font-size:12px;color:#C13B3B;margin:8px 0 0;">${escapeHtml(state.scheduleSaveError)}</p>`:""}
+        ${state.scheduleSaveError?`<p style="font-size:12px;color:#FF6B81;margin:8px 0 0;">${escapeHtml(state.scheduleSaveError)}</p>`:""}
       </div>
       <button class="primary-btn-sm" data-donestylist="${st.id}">Done</button>
     </div>`;
@@ -1691,8 +2133,73 @@ function renderAddonsManage(){
 /* ---------------------------------------------------
    RENDER: CUSTOMERS MANAGE
 --------------------------------------------------- */
+function customerTagFor(c){
+  if (c.totalSpent>=300 || c.bookings.length>=8) return "VIP";
+  if (c.bookings.length===1) return "New";
+  if (!c.bookings.some(b=>b.status==="upcoming")) return "Inactive";
+  return null;
+}
+function customerRow(c){
+  const completed = c.bookings.filter(b=>b.status==="completed").length;
+  const upcoming = c.bookings.filter(b=>b.status==="upcoming").length;
+  const expanded = state.expandedCustomerName===c.name;
+  const tag = customerTagFor(c);
+  const completedSorted = c.bookings.filter(b=>b.status==="completed").sort((a,b)=>b.dayOffset-a.dayOffset);
+  const lastVisit = completedSorted[0] ? `${dayOffsetLabel(completedSorted[0].dayOffset)}` : (upcoming>0 ? "No visits yet" : "—");
+  const avatarColor = TIMELINE_COLORS[Math.abs([...c.name].reduce((h,ch)=>h+ch.charCodeAt(0),0))%TIMELINE_COLORS.length];
+  return `
+  <tr class="data-row" data-customertoggle="${escapeAttr(c.name)}">
+    <td>
+      <div class="cell-person">
+        <div class="cell-avatar" style="background:${avatarColor};">${escapeHtml(bookingInitials(c.name))}</div>
+        <div><div class="cell-name">${escapeHtml(c.name)}</div>${c.phone?`<div class="cell-sub">${escapeHtml(c.phone)}</div>`:""}</div>
+      </div>
+    </td>
+    <td>${c.phone?escapeHtml(c.phone):"—"}</td>
+    <td>${c.bookings.length}</td>
+    <td>$${c.totalSpent}</td>
+    <td>${escapeHtml(lastVisit)}</td>
+    <td>${tag?`<span class="tag-pill tag-${tag.toLowerCase()}">${tag}</span>`:"—"}</td>
+    <td><div class="row-action ${expanded?'open':''}">${icon('chevronRight')}</div></td>
+  </tr>
+  ${expanded ? `
+  <tr>
+    <td class="detail-cell" colspan="7">
+      <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:100px;background:var(--white);border-radius:12px;padding:10px 12px;text-align:center;">
+          <p style="font-size:18px;font-weight:800;color:var(--ink);margin:0;">${completed}</p>
+          <p style="font-size:11px;color:var(--ink-soft);font-weight:600;margin:2px 0 0;">Completed</p>
+        </div>
+        <div style="flex:1;min-width:100px;background:var(--white);border-radius:12px;padding:10px 12px;text-align:center;">
+          <p style="font-size:18px;font-weight:800;color:var(--ink);margin:0;">${upcoming}</p>
+          <p style="font-size:11px;color:var(--ink-soft);font-weight:600;margin:2px 0 0;">Upcoming</p>
+        </div>
+        <div style="flex:1;min-width:100px;background:var(--white);border-radius:12px;padding:10px 12px;text-align:center;">
+          <p style="font-size:18px;font-weight:800;color:var(--purple);margin:0;">$${c.totalSpent}</p>
+          <p style="font-size:11px;color:var(--ink-soft);font-weight:600;margin:2px 0 0;">Total spent</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        ${c.bookings.slice().sort((a,b)=>b.dayOffset-a.dayOffset).map(b=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;padding:6px 0;border-top:1px solid var(--border);">
+            <span style="color:var(--ink-soft);">${dayOffsetLabel(b.dayOffset)} · ${escapeHtml(b.time)}</span>
+            <span style="color:var(--ink);font-weight:600;">${escapeHtml(b.serviceName)}</span>
+            <span class="status-badge ${b.status}">${b.status==="no_show"?"No-show":b.status}</span>
+          </div>`).join("")}
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+        <label style="font-size:11.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.02em;">Client notes</label>
+        <textarea data-clientnote="${escapeAttr(c.name)}" placeholder="Preferences, allergies, anything worth remembering…" style="width:100%;min-height:64px;margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:13px;color:var(--ink);background:var(--white);resize:vertical;">${escapeHtml(getClientNote(c.name))}</textarea>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+          <button class="primary-btn-sm" data-saveclientnote="${escapeAttr(c.name)}">${state.savingNoteFor===c.name?'Saving…':'Save note'}</button>
+          ${state.noteSavedFor===c.name?`<span style="font-size:12px;color:var(--purple);font-weight:600;">Saved</span>`:""}
+        </div>
+      </div>
+    </td>
+  </tr>` : ""}
+  `;
+}
 function renderCustomersManage(){
-  // Build customer list from bookings
   const customerMap = new Map();
   bookings.forEach(b=>{
     if (!customerMap.has(b.customerName)){
@@ -1700,65 +2207,59 @@ function renderCustomersManage(){
     }
     customerMap.get(b.customerName).bookings.push(b);
   });
-  const customers = [...customerMap.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  const allCustomers = [...customerMap.values()].map(c=>({
+    ...c, totalSpent: c.bookings.reduce((sum,b)=>b.status==="completed"?sum+b.price:sum,0)
+  })).sort((a,b)=>a.name.localeCompare(b.name));
 
-  if (customers.length===0) return `<div class="empty-state">No customers yet.</div>`;
+  if (allCustomers.length===0) return `<div class="empty-state">No customers yet. They'll appear here once bookings come in.</div>`;
+
+  const totalClients = allCustomers.length;
+  const newCount = allCustomers.filter(c=>customerTagFor(c)==="New").length;
+  const returningCount = allCustomers.filter(c=>c.bookings.length>1).length;
+  const returningRate = totalClients ? Math.round(returningCount/totalClients*100) : 0;
+  const allCompleted = allCustomers.flatMap(c=>c.bookings.filter(b=>b.status==="completed"));
+  const avgSpend = allCompleted.length ? Math.round(allCompleted.reduce((s,b)=>s+b.price,0)/allCompleted.length) : 0;
+
+  const q = state.customerSearchQuery.trim().toLowerCase();
+  const tagFilter = state.customerTagFilter;
+  const customers = allCustomers.filter(c=>{
+    if (q && !c.name.toLowerCase().includes(q)) return false;
+    if (tagFilter!=="All" && customerTagFor(c)!==tagFilter) return false;
+    return true;
+  });
 
   return `
-    <div class="manage-grid-desktop">
-      ${customers.map(c=>{
-        const completed = c.bookings.filter(b=>b.status==="completed").length;
-        const upcoming = c.bookings.filter(b=>b.status==="upcoming").length;
-        const total = c.bookings.reduce((sum,b)=>b.status==="completed"?sum+b.price:sum,0);
-        const expanded = state.expandedCustomerName===c.name;
-        return `
-        <div class="manage-card" style="cursor:pointer;" data-customertoggle="${escapeAttr(c.name)}">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-            <div style="display:flex;align-items:center;gap:12px;min-width:0;">
-              <div class="stylist-avatar">${escapeHtml(c.name.charAt(0))}</div>
-              <div style="min-width:0;">
-                <p style="font-weight:700;font-size:14.5px;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.name)}</p>
-                <p style="font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;">${c.bookings.length} booking${c.bookings.length===1?"":"s"} · $${total} spent</p>
-              </div>
-            </div>
-            <span class="icon booking-chevron ${expanded?'open':''}" style="color:var(--ink-soft);">${ICONS.chevronDown}</span>
+    <div class="stat-grid-mobile stat-grid-desktop">
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">Total clients</span><span class="stat-icon">${icon('user')}</span></div><p class="stat-value">${totalClients}</p><p class="stat-delta"><span class="muted">In your directory</span></p></div>
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">New clients</span><span class="stat-icon">${icon('sparkles')}</span></div><p class="stat-value">${newCount}</p><p class="stat-delta"><span class="muted">1 booking so far</span></p></div>
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">Returning rate</span><span class="stat-icon" style="background:rgba(62,213,152,.14);color:#3ED598;">${icon('trendingUp')}</span></div><p class="stat-value">${returningRate}%</p><p class="stat-delta"><span class="muted">Booked more than once</span></p></div>
+      <div class="stat-card"><div class="stat-top"><span class="stat-label">Avg. spend</span><span class="stat-icon" style="background:rgba(244,201,58,.16);color:#F4C93A;">${icon('diamond')}</span></div><p class="stat-value">$${avgSpend}</p><p class="stat-delta"><span class="muted">Per completed visit</span></p></div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="chip-row no-scrollbar">
+          <button class="chip ${tagFilter==='All'?'active':''}" data-custtagfilter="All">All</button>
+          <button class="chip ${tagFilter==='VIP'?'active':''}" data-custtagfilter="VIP">VIP</button>
+          <button class="chip ${tagFilter==='New'?'active':''}" data-custtagfilter="New">New</button>
+          <button class="chip ${tagFilter==='Inactive'?'active':''}" data-custtagfilter="Inactive">Inactive</button>
+        </div>
+        <div class="filter-actions">
+          <div class="search-field">
+            ${icon('search','var(--ink-soft)')}
+            <input type="text" id="customerSearchInput" placeholder="Search clients…" value="${escapeAttr(state.customerSearchQuery)}" />
+            ${state.customerSearchQuery ? `<button class="search-clear" data-clearcustomersearch aria-label="Clear search">${icon('x')}</button>` : ""}
           </div>
-          ${expanded ? `
-          <div class="booking-detail">
-            ${c.phone ? `<div class="booking-detail-row">${icon('phone')}<span>${escapeHtml(c.phone)}</span></div>` : ""}
-            <div style="display:flex;gap:10px;margin-top:4px;">
-              <div style="flex:1;background:var(--purple-pastel-2);border-radius:12px;padding:10px 12px;text-align:center;">
-                <p style="font-size:18px;font-weight:800;color:var(--ink);margin:0;">${completed}</p>
-                <p style="font-size:11px;color:var(--ink-soft);font-weight:600;margin:2px 0 0;">Completed</p>
-              </div>
-              <div style="flex:1;background:var(--purple-pastel-2);border-radius:12px;padding:10px 12px;text-align:center;">
-                <p style="font-size:18px;font-weight:800;color:var(--ink);margin:0;">${upcoming}</p>
-                <p style="font-size:11px;color:var(--ink-soft);font-weight:600;margin:2px 0 0;">Upcoming</p>
-              </div>
-              <div style="flex:1;background:var(--purple-pastel-2);border-radius:12px;padding:10px 12px;text-align:center;">
-                <p style="font-size:18px;font-weight:800;color:var(--purple);margin:0;">$${total}</p>
-                <p style="font-size:11px;color:var(--ink-soft);font-weight:600;margin:2px 0 0;">Total spent</p>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
-              ${c.bookings.sort((a,b)=>a.dayOffset-b.dayOffset).map(b=>`
-                <div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;padding:6px 0;border-top:1px solid var(--border);">
-                  <span style="color:var(--ink-soft);">${dayOffsetLabel(b.dayOffset)} · ${b.time}</span>
-                  <span style="color:var(--ink);font-weight:600;">${escapeHtml(b.serviceName)}</span>
-                  <span class="status-badge ${b.status}">${b.status==="no_show"?"No-show":b.status}</span>
-                </div>`).join("")}
-            </div>
-            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-              <label style="font-size:11.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.02em;">Client notes</label>
-              <textarea data-clientnote="${escapeAttr(c.name)}" placeholder="Preferences, allergies, anything worth remembering…" style="width:100%;min-height:64px;margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:13px;color:var(--ink);resize:vertical;">${escapeHtml(getClientNote(c.name))}</textarea>
-              <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
-                <button class="primary-btn-sm" data-saveclientnote="${escapeAttr(c.name)}">${state.savingNoteFor===c.name?'Saving…':'Save note'}</button>
-                ${state.noteSavedFor===c.name?`<span style="font-size:12px;color:var(--purple);font-weight:600;">Saved</span>`:""}
-              </div>
-            </div>
-          </div>` : ""}
-        </div>`;
-      }).join("")}
+        </div>
+      </div>
+      ${customers.length===0 ? `<div class="empty-state">No clients match${q?` "${escapeHtml(state.customerSearchQuery)}"`:" this filter"}.</div>` : `
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Client</th><th>Phone</th><th>Visits</th><th>Total spent</th><th>Last visit</th><th>Tags</th><th></th></tr></thead>
+          <tbody>${customers.map(customerRow).join("")}</tbody>
+        </table>
+      </div>
+      <div class="pagination"><div class="info">Showing ${customers.length} of ${totalClients} clients</div></div>
+      `}
     </div>
   `;
 }
@@ -1839,7 +2340,7 @@ function renderTeamManage(){
     <div class="manage-card" style="margin-bottom:14px;">
       <p style="font-weight:700;font-size:14.5px;color:var(--ink);margin:0 0 10px;">Invite a team member</p>
       <div class="field"><label>Email address</label><input type="email" id="teamInviteEmailInput" value="${escapeAttr(state.teamInviteEmail)}" placeholder="teammate@example.com" /></div>
-      ${state.teamInviteError?`<p style="font-size:12px;color:#C13B3B;margin:-6px 0 12px;">${escapeHtml(state.teamInviteError)}</p>`:""}
+      ${state.teamInviteError?`<p style="font-size:12px;color:#FF6B81;margin:-6px 0 12px;">${escapeHtml(state.teamInviteError)}</p>`:""}
       <button class="primary-btn-sm" data-sendteaminvite>${state.teamInviteBusy?"Sending…":"Send invite"}</button>
     </div>
 
@@ -1855,7 +2356,7 @@ function renderTeamManage(){
         `).join("")}
       </div>
     </div>` : ""}
-    ${state.teamActionError?`<p style="font-size:12px;color:#C13B3B;margin:12px 2px 0;">${escapeHtml(state.teamActionError)}</p>`:""}
+    ${state.teamActionError?`<p style="font-size:12px;color:#FF6B81;margin:12px 2px 0;">${escapeHtml(state.teamActionError)}</p>`:""}
   `;
 }
 
@@ -1943,7 +2444,7 @@ function renderPromosManage(){
 const ADDONS = [
   {
     id:"insights", icon:"barChart",
-    iconColor:"#3D6FE0", iconBg:"#EAF0FE",
+    iconColor:"#5FA8E8", iconBg:"rgba(95,168,232,.16)",
     title:"Insights",
     desc:"Enhance your reports with rich data, control your team's access, and make more profitable decisions for your business.",
     price:"NZ$16.95", unit:"per bookable team member, per month",
@@ -1956,7 +2457,7 @@ const ADDONS = [
   },
   {
     id:"loyalty", icon:"diamond",
-    iconColor:"#D2489B", iconBg:"#FBEAF4",
+    iconColor:"#E85F9E", iconBg:"rgba(232,95,158,.16)",
     title:"Client Loyalty",
     desc:"Turn every client into a regular with points, tiers, and referral rewards that encourage repeat visits.",
     price:"NZ$89.95", unit:"per location, per month",
@@ -1969,7 +2470,7 @@ const ADDONS = [
   },
   {
     id:"googlerating", icon:"star",
-    iconColor:"#B9860B", iconBg:"#FBF2D9",
+    iconColor:"#F4C93A", iconBg:"rgba(244,201,58,.16)",
     title:"Google Rating Boost",
     desc:"Send happy clients straight to your Google Business Profile to leave a review, and watch your footfall grow.",
     price:"NZ$24.95", unit:"per location, per month",
@@ -2154,8 +2655,8 @@ function renderSettings(){
       </div>
       <p style="font-size:12px;color:var(--ink-mute);margin:10px 0 14px;">Filling these in helps "Verify address" find the exact building, especially on common street names.</p>
       <button type="button" class="primary-btn-sm verify-address-btn" id="verifyAddressBtn">${icon('mapPin')}${addressVerifyBusy?"Checking…":"Verify address on map"}</button>
-      ${salon.addressVerified && salon.lat!=null ? `<div style="margin-top:10px;font-size:12px;color:#1E8A4C;font-weight:600;display:flex;align-items:center;gap:5px;">${icon('check')} Verified location</div>` : ""}
-      ${addressVerifyError ? `<p style="font-size:12px;color:#C13B3B;margin:10px 0 0;">${escapeHtml(addressVerifyError)}</p>` : ""}
+      ${salon.addressVerified && salon.lat!=null ? `<div style="margin-top:10px;font-size:12px;color:#3ED598;font-weight:600;display:flex;align-items:center;gap:5px;">${icon('check')} Verified location</div>` : ""}
+      ${addressVerifyError ? `<p style="font-size:12px;color:#FF6B81;margin:10px 0 0;">${escapeHtml(addressVerifyError)}</p>` : ""}
       ${addressCandidates.length ? `
       <div style="margin-top:10px;background:var(--white);border:1px solid var(--border-2);border-radius:14px;overflow:hidden;">
         <p style="font-size:12px;font-weight:600;color:var(--ink-soft);margin:0;padding:10px 14px 4px;">Multiple matches — which one is it?</p>
@@ -2618,6 +3119,22 @@ const TABS = [
   {key:"addons", label:"Add-ons", icon:"trendingUp"},
   {key:"settings", label:"Settings", icon:"gear"},
 ];
+const MANAGE_ITEMS = [
+  {key:"venue", label:"Venue", icon:"home"},
+  {key:"services", label:"Services", icon:"scissors"},
+  {key:"categories", label:"Categories", icon:"tag"},
+  {key:"addons", label:"Service add-ons", icon:"plusSmall"},
+  {key:"stylists", label:"Stylists", icon:"user"},
+  {key:"team", label:"Team", icon:"user"},
+  {key:"customers", label:"Customers", icon:"user"},
+  {key:"promos", label:"Promotions", icon:"diamond"},
+  {key:"loyalty", label:"Loyalty", icon:"star"},
+  {key:"blockouts", label:"Block-outs", icon:"calendarSmall"},
+];
+function currentPageLabel(){
+  if (state.tab==="manage") return MANAGE_ITEMS.find(m=>m.key===state.manageView)?.label || "Manage";
+  return TABS.find(t=>t.key===state.tab)?.label || "Blooma";
+}
 
 let lastRenderedTab = null;
 let chipRowScrollLeft = 0;
@@ -2646,38 +3163,55 @@ function render(){
   else if (state.tab==="addons") content = renderAddons();
   else if (state.tab==="settings") content = renderSettings();
 
+  const manageOpen = state.manageMenuOpen || state.tab==="manage";
+
   document.getElementById("app").innerHTML = `
     <div class="shell">
-      <nav class="sidebar-nav">
-        <div class="sidebar-brand">Blooma</div>
-        <div class="sidebar-links">
-          ${TABS.map(t=>`
-            <button class="sidebar-link ${state.tab===t.key?'active':''}" data-tab="${t.key}">
-              ${icon(t.icon)}
-              <span>${t.label}</span>
-            </button>
-          `).join("")}
+      <div class="sidebar-overlay ${state.mobileSidebarOpen?'open':''}" id="sidebarOverlay"></div>
+      <nav class="sidebar-nav ${state.mobileSidebarOpen?'open':''}" id="sidebarNav">
+        <div class="sidebar-top">
+          <div class="sidebar-brand">Blooma <span style="font-weight:600;color:var(--ink-soft);font-size:14px;letter-spacing:0;">business</span></div>
+          <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">${icon('x')}</button>
         </div>
-        <div class="owner-badge"><span class="owner-badge-dot"></span><span class="label">Owner view</span></div>
-      </nav>
-      <div class="main-column">
-        <div class="admin-header">
-          <span class="brand-logo">Blooma</span>
+        <div class="sidebar-links">
+          <div class="sidebar-section-label">Overview</div>
+          <button class="sidebar-link ${state.tab==='dashboard'?'active':''}" data-tab="dashboard">${icon('home')}<span>Home</span></button>
+          <button class="sidebar-link ${state.tab==='schedule'?'active':''}" data-tab="schedule">${icon('calendar')}<span>Schedule</span></button>
+
+          <div class="sidebar-section-label">Manage</div>
+          <button class="sidebar-link manage-toggle ${state.tab==='manage'?'active':''}" data-managetoggle>
+            ${icon('grid')}<span>Manage</span>
+            <span class="manage-toggle-chevron ${manageOpen?'open':''}">${icon('chevronDown')}</span>
+          </button>
+          <div class="manage-sublist ${manageOpen?'open':''}">
+            ${MANAGE_ITEMS.map(m=>`
+              <button class="manage-sublink ${state.tab==='manage'&&state.manageView===m.key?'active':''}" data-managesub="${m.key}">
+                ${icon(m.icon)}<span>${m.label}</span>
+              </button>
+            `).join("")}
+          </div>
+
+          <div class="sidebar-section-label">Grow</div>
+          <button class="sidebar-link ${state.tab==='addons'?'active':''}" data-tab="addons">${icon('trendingUp')}<span>Add-ons</span></button>
+          <button class="sidebar-link ${state.tab==='settings'?'active':''}" data-tab="settings">${icon('gear')}<span>Settings</span></button>
+        </div>
+        <div class="sidebar-bottom">
           <div class="owner-badge"><span class="owner-badge-dot"></span><span class="label">Owner view</span></div>
         </div>
+      </nav>
+      <div class="main-column">
+        <header class="app-topbar">
+          <button class="topbar-menu-btn" id="topbarMenuBtn" aria-label="Open menu">${icon('grid')}</button>
+          <span class="topbar-title">${escapeHtml(currentPageLabel())}</span>
+          <div class="topbar-right">
+            <div class="owner-badge"><span class="owner-badge-dot"></span><span class="label">Owner</span></div>
+          </div>
+        </header>
         <div class="page-content no-scrollbar ${state.tab==='settings'?'has-footer':''}" id="pageContent">${content}</div>
         ${state.tab==='settings' ? `
         <div class="settings-footer" id="settingsFooter">
           <button class="primary-btn" data-savesettings>${state.settingsSaved ? `${icon('check')} Saved` : "Save changes"}</button>
         </div>` : ""}
-        <div class="tab-bar">
-          ${TABS.map(t=>`
-            <button class="tab-btn ${state.tab===t.key?'active':''}" data-tab="${t.key}">
-              ${icon(t.icon)}
-              <span>${t.label}</span>
-            </button>
-          `).join("")}
-        </div>
       </div>
       ${renderConfirmModal()}
       ${state.tab==='addons' && state.viewingAddonId ? renderAddonDetail(ADDONS.find(a=>a.id===state.viewingAddonId)) : ""}
@@ -2692,10 +3226,6 @@ function render(){
   // restore chip-row scroll position (prevents snap-back on re-render)
   const newChipRow = document.querySelector(".chip-row");
   if (newChipRow && sameTab) newChipRow.scrollLeft = chipRowScrollLeft;
-
-  const settingsFooter = document.getElementById("settingsFooter");
-  const tabBarEl = document.querySelector(".tab-bar");
-  if (settingsFooter && tabBarEl) settingsFooter.style.bottom = tabBarEl.offsetHeight + "px";
 
   if (focusId){
     const el = document.getElementById(focusId);
@@ -2713,8 +3243,20 @@ function render(){
 --------------------------------------------------- */
 function bindEvents(){
   document.querySelectorAll("[data-tab]").forEach(btn=>{
-    btn.addEventListener("click", ()=> setState({ tab: btn.getAttribute("data-tab"), viewingAddonId: null }));
+    btn.addEventListener("click", ()=> setState({ tab: btn.getAttribute("data-tab"), viewingAddonId: null, mobileSidebarOpen:false }));
   });
+  document.querySelectorAll("[data-managetoggle]").forEach(btn=>{
+    btn.addEventListener("click", ()=> setState({ manageMenuOpen: !(state.manageMenuOpen || state.tab==="manage") }));
+  });
+  document.querySelectorAll("[data-managesub]").forEach(btn=>{
+    btn.addEventListener("click", ()=> setState({ tab:"manage", manageView: btn.getAttribute("data-managesub"), manageMenuOpen:true, mobileSidebarOpen:false }));
+  });
+  const menuBtn = document.getElementById("topbarMenuBtn");
+  if (menuBtn) menuBtn.addEventListener("click", ()=> setState({ mobileSidebarOpen: true }));
+  const sidebarClose = document.getElementById("sidebarClose");
+  if (sidebarClose) sidebarClose.addEventListener("click", ()=> setState({ mobileSidebarOpen: false }));
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+  if (sidebarOverlay) sidebarOverlay.addEventListener("click", ()=> setState({ mobileSidebarOpen: false }));
 
   document.querySelectorAll("[data-addonview]").forEach(btn=>{
     btn.addEventListener("click", ()=> setState({ viewingAddonId: btn.getAttribute("data-addonview") }));
@@ -2790,6 +3332,9 @@ function bindEvents(){
     });
     document.querySelectorAll("[data-schedview]").forEach(btn=>{
       btn.addEventListener("click", ()=> setState({ scheduleView: btn.getAttribute("data-schedview") }));
+    });
+    document.querySelectorAll("[data-timelinestaff]").forEach(btn=>{
+      btn.addEventListener("click", ()=> setState({ timelineStaffFilter: btn.getAttribute("data-timelinestaff") }));
     });
     const searchInput = document.getElementById("scheduleSearchInput");
     if (searchInput) searchInput.addEventListener("input", e=> setState({ scheduleSearch: e.target.value }));
@@ -2892,7 +3437,7 @@ function bindEvents(){
       const nameInput = document.getElementById("nbCustomerName");
       const customerName = nameInput.value.trim();
       if (!customerName){
-        nameInput.style.borderColor = "#C13B3B";
+        nameInput.style.borderColor = "#FF6B81";
         return;
       }
       const serviceId = document.getElementById("nbService").value;
@@ -2903,7 +3448,7 @@ function bindEvents(){
       const time = timeEl?.value||"";
       const phoneInput = document.getElementById("nbPhone");
       const phone = phoneInput.value.trim();
-      if(phone.replace(/\D/g,"").length<6){ phoneInput.style.borderColor="#C13B3B"; phoneInput.focus(); return; }
+      if(phone.replace(/\D/g,"").length<6){ phoneInput.style.borderColor="#FF6B81"; phoneInput.focus(); return; }
       if(!Number.isFinite(dayOffset)||!time){ cloudError="Choose an available day and time."; render(); return; }
       const notes = document.getElementById("nbNotes").value.trim();
       const selectedCustomerIndex=existingCustomerSelect&&existingCustomerSelect.value!==""?Number(existingCustomerSelect.value):null;
@@ -3046,10 +3591,14 @@ function bindEvents(){
           else s[field]=inp.value;
         });
       });
-      const addBtn = document.querySelector("[data-addservice]");
-      if (addBtn) addBtn.addEventListener("click", ()=> setState({ addingService:true }));
+      document.querySelectorAll("[data-addservice]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const cat = btn.getAttribute("data-addservice");
+          setState({ addingService:true, addingServiceCategory: cat || null });
+        });
+      });
       const cancelAdd = document.querySelector("[data-canceladdservice]");
-      if (cancelAdd) cancelAdd.addEventListener("click", ()=> setState({ addingService:false }));
+      if (cancelAdd) cancelAdd.addEventListener("click", ()=> setState({ addingService:false, addingServiceCategory:null }));
       const saveAdd = document.querySelector("[data-saveaddservice]");
       if (saveAdd) saveAdd.addEventListener("click", ()=>{
         const name = document.getElementById("newServiceName").value.trim();
@@ -3059,8 +3608,13 @@ function bindEvents(){
         const catSelect = document.getElementById("newServiceCategory");
         const category = catSelect ? catSelect.value : (salon.categories[0] || "General");
         salon.services.push({ id:makeEntityId("svc"), name, duration, price, category, active:true, isNew:true });
-        setState({ addingService:false });
+        setState({ addingService:false, addingServiceCategory:null });
       });
+      document.querySelectorAll("[data-svccatfilter]").forEach(btn=>{
+        btn.addEventListener("click", ()=> setState({ serviceCategoryFilter: btn.getAttribute("data-svccatfilter") }));
+      });
+      const svcSearchInput = document.getElementById("svcSearchInput");
+      if (svcSearchInput) svcSearchInput.addEventListener("input", e=> setState({ serviceSearchQuery: e.target.value }));
     } else if (state.manageView==="stylists") {
       document.querySelectorAll("[data-togglestylist]").forEach(btn=>{
         btn.addEventListener("click", ()=>{
@@ -3208,6 +3762,13 @@ function bindEvents(){
           }
         });
       });
+      document.querySelectorAll("[data-custtagfilter]").forEach(btn=>{
+        btn.addEventListener("click", ()=> setState({ customerTagFilter: btn.getAttribute("data-custtagfilter") }));
+      });
+      const customerSearchInput = document.getElementById("customerSearchInput");
+      if (customerSearchInput) customerSearchInput.addEventListener("input", e=> setState({ customerSearchQuery: e.target.value }));
+      const clearCustomerSearch = document.querySelector("[data-clearcustomersearch]");
+      if (clearCustomerSearch) clearCustomerSearch.addEventListener("click", ()=> setState({ customerSearchQuery: "" }));
     } else if (state.manageView==="loyalty") {
       const toggleBtn=document.querySelector("[data-toggleloyalty]");
       if (toggleBtn) toggleBtn.addEventListener("click", ()=>{ salon.loyalty.enabled=!salon.loyalty.enabled; state.loyaltySettingsSaved=false; render(); });
@@ -3273,7 +3834,7 @@ function bindEvents(){
         const codeInput=document.getElementById("promoCode");
         const code = codeInput.value.trim().toUpperCase();
         if (!code) return;
-        if(promos.some(p=>String(p.code||"").toUpperCase()===code)){ codeInput.style.borderColor="#C13B3B"; return; }
+        if(promos.some(p=>String(p.code||"").toUpperCase()===code)){ codeInput.style.borderColor="#FF6B81"; return; }
         const description = document.getElementById("promoDesc").value.trim();
         const type = document.getElementById("promoType").value;
         let value = Math.max(0,Number(document.getElementById("promoValue").value)||0);
@@ -3291,7 +3852,7 @@ function bindEvents(){
           if (!p) return;
           const codeEl=document.getElementById("editPromoCode_"+pid);
           const nextCode=(codeEl?.value.trim().toUpperCase())||p.code;
-          if(promos.some(x=>x.id!==pid && String(x.code||"").toUpperCase()===nextCode)){ if(codeEl) codeEl.style.borderColor="#C13B3B"; return; }
+          if(promos.some(x=>x.id!==pid && String(x.code||"").toUpperCase()===nextCode)){ if(codeEl) codeEl.style.borderColor="#FF6B81"; return; }
           p.code = nextCode;
           p.description = document.getElementById("editPromoDesc_"+pid)?.value.trim() || p.description;
           p.type = document.getElementById("editPromoType_"+pid)?.value || p.type;
@@ -3356,7 +3917,7 @@ function bindEvents(){
         const name = input.value.trim();
         if (!name) return;
         if (salon.categories.some(c=>c.toLowerCase()===name.toLowerCase())){
-          input.style.borderColor = "#C13B3B";
+          input.style.borderColor = "#FF6B81";
           return;
         }
         salon.categories.push(name);
@@ -3372,7 +3933,7 @@ function bindEvents(){
           const newName = input ? input.value.trim() : "";
           if (newName && newName !== original){
             if (salon.categories.some(c=>c!==original && c.toLowerCase()===newName.toLowerCase())){
-              input.style.borderColor = "#C13B3B";
+              input.style.borderColor = "#FF6B81";
               return;
             }
             const idx = salon.categories.indexOf(original);

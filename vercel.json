@@ -17,7 +17,71 @@
     },
     {
       "source": "/venue/admin",
-      "destination": "/salon-admin-v3-24-supabase"
+      "destination": "/admin"
+    },
+    {
+      "source": "/venue/admin/bookings",
+      "destination": "/bookings"
+    },
+    {
+      "source": "/venue/admin/calendar",
+      "destination": "/calendar"
+    },
+    {
+      "source": "/venue/admin/clients",
+      "destination": "/clients"
+    },
+    {
+      "source": "/venue/admin/services",
+      "destination": "/services"
+    },
+    {
+      "source": "/venue/admin/team",
+      "destination": "/team"
+    },
+    {
+      "source": "/venue/admin/reports",
+      "destination": "/reports"
+    },
+    {
+      "source": "/venue/admin/settings",
+      "destination": "/settings"
+    },
+    {
+      "source": "/venue/admin/messages",
+      "destination": "/messages"
+    },
+    {
+      "source": "/venue/admin/addons",
+      "destination": "/addons"
+    },
+    {
+      "source": "/venue/admin/checkin",
+      "destination": "/checkin"
+    },
+    {
+      "source": "/venue/admin/checkout",
+      "destination": "/checkout"
+    },
+    {
+      "source": "/venue/admin/payments",
+      "destination": "/payments"
+    },
+    {
+      "source": "/venue/admin/new-booking",
+      "destination": "/new-booking"
+    },
+    {
+      "source": "/venue/admin/client",
+      "destination": "/client"
+    },
+    {
+      "source": "/venue/admin/booking",
+      "destination": "/booking"
+    },
+    {
+      "source": "/venue/admin/team-member",
+      "destination": "/team-member"
     },
     {
       "source": "/venue",

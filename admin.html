@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Blooma Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#131218;
+    --surface:#1C1B24;
+    --surface-2:#242330;
+    --surface-hover:#2A2938;
+    --border:#2E2D3C;
+    --violet:#6D5FE8;
+    --violet-soft:rgba(109,95,232,0.16);
+    --violet-text:#B7ADF5;
+    --text:#F2F1F7;
+    --text-soft:#9F9CB0;
+    --text-faint:#6C6980;
+    --success:#3ED598;
+    --success-soft:rgba(62,213,152,0.14);
+    --warning:#F4C93A;
+    --danger:#FF6B81;
+    --white:#FFFFFF;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%; scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    scrollbar-width:none;
+  }
+  body::-webkit-scrollbar{display:none;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+  }
+
+  .btn{
+    font-weight:700; font-size:13.5px;
+    padding:10px 18px; border-radius:10px;
+    border:1px solid transparent; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn-violet{background:var(--violet); color:var(--white);}
+  .btn-violet:hover{background:#5C4EDB;}
+  .btn-ghost{background:var(--surface-2); color:var(--text); border-color:var(--border);}
+  .btn-ghost:hover{background:var(--surface-hover);}
+
+  /* ---------- SHELL ---------- */
+  .shell{display:flex; min-height:100vh;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:240px; flex:none;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+    position:fixed; top:0; bottom:0; left:-240px; z-index:60;
+    transition:left .2s ease;
+  }
+  .sidebar.open{left:0;}
+  .sb-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 18px 14px;
+  }
+  .sb-logo{font-weight:800; font-size:18px; letter-spacing:-0.01em;}
+  .sb-logo span{color:var(--violet-text);}
+  .sb-close{
+    width:30px; height:30px; border-radius:8px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft);
+  }
+  .sb-venue{
+    margin:6px 14px 14px; padding:10px 12px;
+    background:var(--surface-2); border-radius:10px;
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+  }
+  .sb-venue-avatar{
+    width:32px; height:32px; border-radius:8px; flex:none;
+    background:linear-gradient(155deg,#A9865F,#6E8268);
+  }
+  .sb-venue-name{font-size:13px; font-weight:700;}
+  .sb-venue-sub{font-size:11px; color:var(--text-faint);}
+  .sb-venue svg{margin-left:auto; color:var(--text-faint); flex:none;}
+
+  .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
+  .sb-section-label{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-faint); padding:14px 10px 8px;
+  }
+  .sb-link{
+    display:flex; align-items:center; gap:11px;
+    padding:9px 10px; border-radius:9px;
+    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    margin-bottom:2px;
+  }
+  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link:hover{background:var(--surface-hover); color:var(--text);}
+  .sb-link.active{background:var(--violet-soft); color:var(--white);}
+  .sb-link.active svg{color:var(--violet-text);}
+  .sb-badge{
+    margin-left:auto; font-size:10px; font-weight:700;
+    background:var(--violet); color:var(--white);
+    padding:2px 7px; border-radius:99px;
+  }
+
+  .sb-bottom{
+    padding:14px; border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .sb-avatar{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    background:var(--violet); color:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700;
+  }
+  .sb-user-name{font-size:12.5px; font-weight:700;}
+  .sb-user-role{font-size:11px; color:var(--text-faint);}
+  .sb-bottom svg{margin-left:auto; color:var(--text-faint); flex:none; cursor:pointer;}
+
+  .sb-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:55;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .sb-overlay.open{opacity:1; pointer-events:auto;}
+
+  @media (min-width:1080px){
+    .sidebar{position:sticky; top:0; left:auto; height:100vh;}
+    .sb-close{display:none;}
+    .sb-overlay{display:none;}
+  }
+
+  @media (max-width:1079px){
+    .sidebar{
+      left:0; right:0; top:auto; bottom:0; width:auto; max-width:480px; margin:0 auto;
+      height:auto; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      border-radius:22px 22px 0 0;
+      border-right:none; border-top:1px solid var(--border);
+      box-shadow:0 -18px 40px rgba(0,0,0,.55);
+      transform:translateY(100%);
+      transition:transform .25s ease;
+    }
+    .sidebar.open{transform:translateY(0);}
+  }
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1; min-width:0;}
+
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:rgba(19,18,24,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:14px;
+    padding:0 18px; height:64px;
+  }
+  .menu-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    flex:none; color:var(--text-soft);
+  }
+  @media (min-width:1080px){ .menu-btn{display:none;} }
+  .tb-logo-mobile{font-weight:800; font-size:16px; letter-spacing:-0.01em; flex:none; white-space:nowrap;}
+  @media (min-width:1080px){ .tb-logo-mobile{display:none;} }
+
+  .tb-search{
+    flex:1; max-width:360px;
+    display:flex; align-items:center; gap:9px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 13px;
+  }
+  .tb-search svg{color:var(--text-faint); flex:none;}
+  .tb-search input{
+    border:none; background:none; outline:none; color:var(--text);
+    font-family:inherit; font-size:13.5px; width:100%;
+  }
+  .tb-search input::placeholder{color:var(--text-faint);}
+  .tb-right{display:flex; align-items:center; gap:10px; margin-left:auto;}
+  .tb-right .btn{height:36px; padding:0 16px;}
+  .tb-icon-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft); position:relative; flex:none;
+  }
+  .tb-icon-btn .dot{
+    position:absolute; top:7px; right:7px;
+    width:7px; height:7px; border-radius:50%; background:var(--danger);
+    border:1.5px solid var(--surface);
+  }
+  .tb-search-mobile-hide{display:none;}
+  @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+
+  /* ---------- CONTENT ---------- */
+  .content{padding:22px 16px 60px;}
+  @media (min-width:900px){ .content{padding:30px 32px 70px;} }
+
+  .greet-row{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap:wrap; gap:14px; margin-bottom:22px;
+  }
+  .greet-row h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
+  .greet-row .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
+  @media (min-width:900px){ .greet-row h1{font-size:26px;} }
+
+  /* ---------- QUICK ACTIONS ---------- */
+  .qa-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:20px;}
+  @media (min-width:700px){ .qa-grid{grid-template-columns:repeat(4,1fr);} }
+  .qa-btn{
+    display:flex; text-decoration:none; color:inherit; align-items:center; gap:11px;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:14px 15px; cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .qa-btn:hover{background:var(--surface-hover); border-color:var(--violet);}
+  .qa-icon{
+    width:34px; height:34px; border-radius:9px; flex:none;
+    background:var(--violet-soft); color:var(--violet-text);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .qa-label{font-size:13px; font-weight:700;}
+
+  /* ---------- STAT CARDS ---------- */
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+    margin-bottom:22px;
+  }
+  @media (min-width:800px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
+  .stat-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:16px 18px;
+  }
+  .stat-top{display:flex; align-items:center; justify-content:space-between;}
+  .stat-label{font-size:12px; color:var(--text-soft); font-weight:600;}
+  .stat-icon{
+    width:28px; height:28px; border-radius:8px; background:var(--violet-soft);
+    display:flex; align-items:center; justify-content:center; color:var(--violet-text);
+  }
+  .stat-value{font-size:26px; font-weight:800; margin-top:12px; letter-spacing:-0.01em;}
+  .stat-delta{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:11.5px; font-weight:700; margin-top:6px;
+    color:var(--success);
+  }
+  .stat-delta.down{color:var(--danger);}
+  .stat-delta span.muted{color:var(--text-faint); font-weight:500;}
+
+  /* ---------- PANELS / GRID LAYOUT ---------- */
+  .dash-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+  .dash-grid > *{min-width:0;}
+  @media (min-width:1100px){ .dash-grid{grid-template-columns:2fr 1fr;} }
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px;
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-bottom:16px;
+  }
+  .panel-head h2{font-size:15.5px; font-weight:700;}
+  .panel-head .link{font-size:12.5px; font-weight:700; color:var(--violet-text);}
+  .panel-tabs{display:flex; gap:6px;}
+  .panel-tab{
+    font-size:12px; font-weight:700; padding:6px 12px; border-radius:99px;
+    background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+  }
+  .panel-tab.active{background:var(--violet); color:var(--white);}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline-wrap{overflow-x:auto; overflow-y:hidden; scrollbar-width:none;}
+  .timeline-wrap::-webkit-scrollbar{display:none;}
+
+  /* ---------- MOBILE SCHEDULE AGENDA ---------- */
+  .agenda{display:none;}
+  .ag-row{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:11px 0; border-bottom:1px solid var(--border);
+  }
+  .ag-row:last-child{border-bottom:none; padding-bottom:0;}
+  .ag-time{width:52px; flex:none; font-size:11.5px; font-weight:700; color:var(--text-soft); padding-top:2px;}
+  .ag-bar{width:3px; border-radius:2px; flex:none; align-self:stretch; min-height:32px;}
+  .ag-bar.violet{background:#6D5FE8;}
+  .ag-bar.blue{background:#5FA8E8;}
+  .ag-bar.pink{background:#E85F9E;}
+  .ag-bar.green{background:#5FE8A0;}
+  .ag-info{flex:1; min-width:0;}
+  .ag-name{font-size:13px; font-weight:700;}
+  .ag-service{font-size:11.5px; color:var(--text-soft); margin-top:1px;}
+  .ag-staff{font-size:11px; color:var(--text-faint); margin-top:1px;}
+  .timeline{
+    display:flex; min-width:560px;
+  }
+  .tl-times{
+    flex:none; width:52px; position:relative; height:690px;
+  }
+  .tl-times span{
+    position:absolute; left:0; transform:translateY(-50%);
+    font-size:10.5px; color:var(--text-faint); font-weight:600;
+  }
+  .tl-staff{flex:1; display:flex; gap:10px;}
+  .tl-col{
+    flex:1; position:relative; height:690px; min-width:118px;
+    background-image:repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent 60px);
+    border-left:1px solid var(--border);
+  }
+  .tl-col-head{
+    text-align:center; font-size:11.5px; font-weight:700; color:var(--text-soft);
+    margin-bottom:8px;
+  }
+  .tl-appt{
+    position:absolute; left:3px; right:3px;
+    border-radius:8px; padding:6px 8px;
+    border-left:3px solid; overflow:hidden; cursor:pointer;
+  }
+  .tl-appt .t1{font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tl-appt .t2{font-size:10px; opacity:0.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tl-c-violet{background:rgba(109,95,232,0.18); border-color:var(--violet);}
+  .tl-c-blue{background:rgba(95,168,232,0.18); border-color:#5FA8E8;}
+  .tl-c-pink{background:rgba(232,95,158,0.18); border-color:#E85F9E;}
+  .tl-c-green{background:rgba(95,232,160,0.18); border-color:#5FE8A0;}
+
+  .tl-heads{display:flex; gap:10px; padding-left:52px; min-width:560px;}
+  .tl-heads .tl-col-head{flex:1; min-width:118px;}
+
+  /* ---------- UPCOMING LIST ---------- */
+  .side-col{display:flex; flex-direction:column; gap:16px;}
+  .appt-row{
+    display:flex; align-items:center; gap:11px;
+    padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .appt-row:last-child{border-bottom:none; padding-bottom:0;}
+  .appt-avatar{
+    width:36px; height:36px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:700; color:var(--white);
+  }
+  .appt-name{font-size:13px; font-weight:700;}
+  .appt-service{font-size:11.5px; color:var(--text-soft); margin-top:1px;}
+  .appt-time{margin-left:auto; text-align:right; flex:none;}
+  .appt-time .t{font-size:12.5px; font-weight:700;}
+  .status-pill{
+    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:2px 7px; border-radius:99px; margin-top:3px; display:inline-block;
+  }
+  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
+
+  /* ---------- ADD-ON TEASER ---------- */
+  .teaser-panel{
+    background:linear-gradient(155deg, var(--violet-soft), var(--surface) 65%);
+  }
+  .teaser-icon{
+    width:36px; height:36px; border-radius:10px; background:var(--violet);
+    color:var(--white); display:flex; align-items:center; justify-content:center;
+    margin-bottom:12px;
+  }
+  .teaser-panel h3{font-size:14.5px; font-weight:700; margin-bottom:6px;}
+  .teaser-panel p{font-size:12px; color:var(--text-soft); line-height:1.55; margin-bottom:14px;}
+  .teaser-panel .btn{font-size:12.5px; padding:9px 16px;}
+
+  /* ---------- TEAM MINI LIST ---------- */
+  .team-row{
+    display:flex; align-items:center; gap:10px; padding:9px 0;
+  }
+  .team-avatar{
+    width:32px; height:32px; border-radius:50%; flex:none;
+  }
+  .team-name{font-size:12.5px; font-weight:700;}
+  .team-meta{font-size:11px; color:var(--text-faint);}
+  .team-status{
+    margin-left:auto; font-size:10.5px; font-weight:700; flex:none;
+  }
+  .team-status.busy{color:var(--warning);}
+  .team-status.free{color:var(--success);}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="sb-overlay" id="sbOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">Blooma <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
+      <div class="sb-close" id="sbClose">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+
+    <div class="sb-venue">
+      <div class="sb-venue-avatar"></div>
+      <div>
+        <div class="sb-venue-name">Ivy Salon Loft</div>
+        <div class="sb-venue-sub">SoHo, New York</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Overview</div>
+      <a href="/venue/admin" class="sb-link active">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        Dashboard
+      </a>
+      <a href="/venue/admin/calendar" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Calendar
+      </a>
+      <a href="/venue/admin/bookings" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
+        Bookings
+        <span class="sb-badge">24</span>
+      </a>
+      <a href="/venue/admin/messages" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+        <span class="sb-badge">3</span>
+      </a>
+
+      <div class="sb-section-label">Manage</div>
+      <a href="/venue/admin/clients" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
+        Clients
+      </a>
+      <a href="/venue/admin/team" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        Team
+      </a>
+      <a href="/venue/admin/services" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        Services
+      </a>
+
+      <div class="sb-section-label">Insights</div>
+      <a href="/venue/admin/reports" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
+        Reports
+      </a>
+      <a href="/venue/admin/payments" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        Payments
+      </a>
+      <a href="/venue/admin/addons" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Add-ons
+      </a>
+      <a href="/venue/admin/settings" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sb-bottom">
+      <div class="sb-avatar">MJ</div>
+      <div>
+        <div class="sb-user-name">Maria J.</div>
+        <div class="sb-user-role">Owner</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="tb-logo-mobile">Blooma</div>
+      <div class="tb-search tb-search-mobile-hide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search clients, bookings, services…">
+      </div>
+      <div class="tb-right">
+        <a href="/venue/admin/new-booking" class="btn btn-violet">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          New booking
+        </a>
+        <div class="menu-btn" id="menuBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="greet-row">
+        <div>
+          <h1>Good morning, Maria</h1>
+          <div class="sub">Thursday, August 20</div>
+        </div>
+        <div class="panel-tabs" id="dashPeriodTabs">
+          <div class="panel-tab active" data-period="today" onclick="setDashPeriod('today')">Today</div>
+          <div class="panel-tab" data-period="week" onclick="setDashPeriod('week')">This week</div>
+          <div class="panel-tab" data-period="month" onclick="setDashPeriod('month')">This month</div>
+        </div>
+      </div>
+
+      <div class="qa-grid">
+        <a href="/venue/admin/new-booking" class="qa-btn">
+          <div class="qa-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v4M10 16h4"/></svg></div>
+          <div class="qa-label">New booking</div>
+        </a>
+        <a href="/venue/admin/clients?action=add" class="qa-btn">
+          <div class="qa-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M18 4v6M21 7h-6"/></svg></div>
+          <div class="qa-label">Add client</div>
+        </a>
+        <a href="/venue/admin/checkin" class="qa-btn">
+          <div class="qa-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="qa-label">Check in walk-in</div>
+        </a>
+        <a href="/venue/admin/messages" class="qa-btn">
+          <div class="qa-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="qa-label">Message clients</div>
+        </a>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-label" id="statBookingsLabel">Today's bookings</div>
+            <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+          </div>
+          <div class="stat-value" id="statBookingsValue">24</div>
+          <div class="stat-delta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span id="statBookingsDelta">+3 vs yesterday</span></div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-label" id="statRevenueLabel">Today's revenue</div>
+            <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="stat-value" id="statRevenueValue">$1,840</div>
+          <div class="stat-delta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span id="statRevenueDelta">+12% vs last week</span></div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-label">New clients</div>
+            <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M18 4v6M21 7h-6"/></svg></div>
+          </div>
+          <div class="stat-value" id="statClientsValue">6</div>
+          <div class="stat-delta"><span class="muted" id="statClientsDelta">This week</span></div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-label">Avg. rating</div>
+            <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z"/></svg></div>
+          </div>
+          <div class="stat-value">4.9</div>
+          <div class="stat-delta"><span class="muted">312 reviews</span></div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Today's schedule</h2>
+            <a href="/venue/admin/calendar" class="link">Open calendar</a>
+          </div>
+          <div class="timeline-wrap">
+            <div class="tl-heads">
+              <div class="tl-col-head">Fana R.</div>
+              <div class="tl-col-head">Jordan M.</div>
+              <div class="tl-col-head">Naomi K.</div>
+              <div class="tl-col-head">Chris T.</div>
+            </div>
+            <div class="timeline">
+              <div class="tl-times">
+                <span style="top:0">9 AM</span>
+                <span style="top:60px">10 AM</span>
+                <span style="top:120px">11 AM</span>
+                <span style="top:180px">12 PM</span>
+                <span style="top:240px">1 PM</span>
+                <span style="top:300px">2 PM</span>
+                <span style="top:360px">3 PM</span>
+                <span style="top:420px">4 PM</span>
+                <span style="top:480px">5 PM</span>
+                <span style="top:540px">6 PM</span>
+                <span style="top:600px">7 PM</span>
+                <span style="top:660px">8 PM</span>
+              </div>
+              <div class="tl-staff">
+                <div class="tl-col">
+                  <div onclick="goToBooking()" class="tl-appt tl-c-violet" style="top:30px; height:90px;"><div class="t1">Sarah K.</div><div class="t2">Balayage</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-violet" style="top:150px; height:45px;"><div class="t1">Mia T.</div><div class="t2">Root touch-up</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-violet" style="top:300px; height:60px;"><div class="t1">Elena R.</div><div class="t2">Gloss</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-violet" style="top:450px; height:60px;"><div class="t1">Priya N.</div><div class="t2">Consult</div></div>
+                </div>
+                <div class="tl-col">
+                  <div onclick="goToBooking()" class="tl-appt tl-c-blue" style="top:0px; height:45px;"><div class="t1">Alex J.</div><div class="t2">Cut</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-blue" style="top:60px; height:40px;"><div class="t1">Nina P.</div><div class="t2">Cut &amp; blowout</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-blue" style="top:240px; height:60px;"><div class="t1">Maya L.</div><div class="t2">Cut &amp; style</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-blue" style="top:390px; height:45px;"><div class="t1">Chris B.</div><div class="t2">Cut</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-blue" style="top:480px; height:60px;"><div class="t1">Rachel P.</div><div class="t2">Updo</div></div>
+                </div>
+                <div class="tl-col">
+                  <div onclick="goToBooking()" class="tl-appt tl-c-pink" style="top:15px; height:45px;"><div class="t1">Jade W.</div><div class="t2">Blowout</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-pink" style="top:120px; height:45px;"><div class="t1">Sam O.</div><div class="t2">Cut</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-pink" style="top:210px; height:45px;"><div class="t1">Leo &amp; Mia</div><div class="t2">Kids cut</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-pink" style="top:360px; height:60px;"><div class="t1">Dana F.</div><div class="t2">Color gloss</div></div>
+                </div>
+                <div class="tl-col">
+                  <div onclick="goToBooking()" class="tl-appt tl-c-green" style="top:90px; height:45px;"><div class="t1">Kim S.</div><div class="t2">Blowout</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-green" style="top:270px; height:45px;"><div class="t1">Ana G.</div><div class="t2">Blowout</div></div>
+                  <div onclick="goToBooking()" class="tl-appt tl-c-green" style="top:420px; height:60px;"><div class="t1">Jess H.</div><div class="t2">Updo trial</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agenda">
+            <div class="ag-row">
+              <div class="ag-time">9:00a</div>
+              <div class="ag-bar blue"></div>
+              <div class="ag-info"><div class="ag-name">Alex J.</div><div class="ag-service">Cut</div><div class="ag-staff">Jordan M.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">9:15a</div>
+              <div class="ag-bar pink"></div>
+              <div class="ag-info"><div class="ag-name">Jade W.</div><div class="ag-service">Blowout</div><div class="ag-staff">Naomi K.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">9:30a</div>
+              <div class="ag-bar violet"></div>
+              <div class="ag-info"><div class="ag-name">Sarah K.</div><div class="ag-service">Balayage</div><div class="ag-staff">Fana R.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">10:00a</div>
+              <div class="ag-bar blue"></div>
+              <div class="ag-info"><div class="ag-name">Nina P.</div><div class="ag-service">Cut &amp; blowout</div><div class="ag-staff">Jordan M.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">10:30a</div>
+              <div class="ag-bar green"></div>
+              <div class="ag-info"><div class="ag-name">Kim S.</div><div class="ag-service">Blowout</div><div class="ag-staff">Chris T.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">11:00a</div>
+              <div class="ag-bar pink"></div>
+              <div class="ag-info"><div class="ag-name">Sam O.</div><div class="ag-service">Cut</div><div class="ag-staff">Naomi K.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">11:30a</div>
+              <div class="ag-bar violet"></div>
+              <div class="ag-info"><div class="ag-name">Mia T.</div><div class="ag-service">Root touch-up</div><div class="ag-staff">Fana R.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">12:30p</div>
+              <div class="ag-bar pink"></div>
+              <div class="ag-info"><div class="ag-name">Leo &amp; Mia</div><div class="ag-service">Kids cut</div><div class="ag-staff">Naomi K.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">1:00p</div>
+              <div class="ag-bar blue"></div>
+              <div class="ag-info"><div class="ag-name">Maya L.</div><div class="ag-service">Cut &amp; style</div><div class="ag-staff">Jordan M.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">1:30p</div>
+              <div class="ag-bar green"></div>
+              <div class="ag-info"><div class="ag-name">Ana G.</div><div class="ag-service">Blowout</div><div class="ag-staff">Chris T.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">2:00p</div>
+              <div class="ag-bar violet"></div>
+              <div class="ag-info"><div class="ag-name">Elena R.</div><div class="ag-service">Gloss</div><div class="ag-staff">Fana R.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">3:00p</div>
+              <div class="ag-bar pink"></div>
+              <div class="ag-info"><div class="ag-name">Dana F.</div><div class="ag-service">Color gloss</div><div class="ag-staff">Naomi K.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">3:30p</div>
+              <div class="ag-bar blue"></div>
+              <div class="ag-info"><div class="ag-name">Chris B.</div><div class="ag-service">Cut</div><div class="ag-staff">Jordan M.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">4:00p</div>
+              <div class="ag-bar green"></div>
+              <div class="ag-info"><div class="ag-name">Jess H.</div><div class="ag-service">Updo trial</div><div class="ag-staff">Chris T.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">4:30p</div>
+              <div class="ag-bar violet"></div>
+              <div class="ag-info"><div class="ag-name">Priya N.</div><div class="ag-service">Consult</div><div class="ag-staff">Fana R.</div></div>
+            </div>
+            <div class="ag-row">
+              <div class="ag-time">5:00p</div>
+              <div class="ag-bar blue"></div>
+              <div class="ag-info"><div class="ag-name">Rachel P.</div><div class="ag-service">Updo</div><div class="ag-staff">Jordan M.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-col">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Up next</h2>
+              <a href="/venue/admin/bookings" class="link">See all</a>
+            </div>
+            <div class="appt-row">
+              <div class="appt-avatar" style="background:#6D5FE8;">SK</div>
+              <div>
+                <div class="appt-name">Sarah K.</div>
+                <div class="appt-service">Balayage · Fana R.</div>
+              </div>
+              <div class="appt-time">
+                <div class="t">9:30 AM</div>
+                <div class="status-pill status-confirmed">Confirmed</div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-avatar" style="background:#5FA8E8;">AJ</div>
+              <div>
+                <div class="appt-name">Alex J.</div>
+                <div class="appt-service">Cut · Jordan M.</div>
+              </div>
+              <div class="appt-time">
+                <div class="t">9:00 AM</div>
+                <div class="status-pill status-confirmed">Confirmed</div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-avatar" style="background:#E85F9E;">JW</div>
+              <div>
+                <div class="appt-name">Jade W.</div>
+                <div class="appt-service">Blowout · Naomi K.</div>
+              </div>
+              <div class="appt-time">
+                <div class="t">9:15 AM</div>
+                <div class="status-pill status-pending">Pending</div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-avatar" style="background:#5FE8A0; color:#131218;">KS</div>
+              <div>
+                <div class="appt-name">Kim S.</div>
+                <div class="appt-service">Blowout · Chris T.</div>
+              </div>
+              <div class="appt-time">
+                <div class="t">10:30 AM</div>
+                <div class="status-pill status-confirmed">Confirmed</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel teaser-panel">
+            <div class="teaser-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg></div>
+            <h3>Unlock deeper insights</h3>
+            <p>See revenue trends, service breakdowns and staff performance with the Reports add-on.</p>
+            <a href="/venue/admin/addons" class="btn btn-violet">Explore add-ons</a>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Team today</h2>
+              <a href="/venue/admin/team" class="link">Manage</a>
+            </div>
+            <div class="team-row">
+              <div class="team-avatar" style="background:#E4C9A0;"></div>
+              <div>
+                <div class="team-name">Fana R.</div>
+                <div class="team-meta">Senior Colorist</div>
+              </div>
+              <div class="team-status busy">4 booked</div>
+            </div>
+            <div class="team-row">
+              <div class="team-avatar" style="background:#D9B48F;"></div>
+              <div>
+                <div class="team-name">Jordan M.</div>
+                <div class="team-meta">Master Stylist</div>
+              </div>
+              <div class="team-status busy">5 booked</div>
+            </div>
+            <div class="team-row">
+              <div class="team-avatar" style="background:#E3C4BE;"></div>
+              <div>
+                <div class="team-name">Naomi K.</div>
+                <div class="team-meta">Stylist</div>
+              </div>
+              <div class="team-status busy">4 booked</div>
+            </div>
+            <div class="team-row">
+              <div class="team-avatar" style="background:#C9D3C2;"></div>
+              <div>
+                <div class="team-name">Chris T.</div>
+                <div class="team-meta">Blowout Specialist</div>
+              </div>
+              <div class="team-status free">2 open slots</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sbOverlay');
+  var menuBtn = document.getElementById('menuBtn');
+  var closeBtn = document.getElementById('sbClose');
+
+  function openSb(){ sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSb(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+  menuBtn.addEventListener('click', openSb);
+  closeBtn.addEventListener('click', closeSb);
+  overlay.addEventListener('click', closeSb);
+
+  function goToBooking(){ window.location.href = '/venue/admin/booking'; }
+
+  var DASH_STATS = {
+    today: { bookingsLabel:"Today's bookings", bookings:'24', bookingsDelta:'+3 vs yesterday',
+      revenueLabel:"Today's revenue", revenue:'$1,840', revenueDelta:'+12% vs last week',
+      clients:'6', clientsDelta:'This week' },
+    week: { bookingsLabel:"This week's bookings", bookings:'156', bookingsDelta:'+18 vs last week',
+      revenueLabel:"This week's revenue", revenue:'$12,650', revenueDelta:'+9% vs last week',
+      clients:'38', clientsDelta:'This month' },
+    month: { bookingsLabel:"This month's bookings", bookings:'640', bookingsDelta:'+52 vs last month',
+      revenueLabel:"This month's revenue", revenue:'$38,420', revenueDelta:'+18% vs last month',
+      clients:'142', clientsDelta:'Last 90 days' }
+  };
+  function setDashPeriod(period){
+    document.querySelectorAll('#dashPeriodTabs .panel-tab').forEach(function(tab){
+      tab.classList.toggle('active', tab.getAttribute('data-period') === period);
+    });
+    var d = DASH_STATS[period];
+    document.getElementById('statBookingsLabel').textContent = d.bookingsLabel;
+    document.getElementById('statBookingsValue').textContent = d.bookings;
+    document.getElementById('statBookingsDelta').textContent = d.bookingsDelta;
+    document.getElementById('statRevenueLabel').textContent = d.revenueLabel;
+    document.getElementById('statRevenueValue').textContent = d.revenue;
+    document.getElementById('statRevenueDelta').textContent = d.revenueDelta;
+    document.getElementById('statClientsValue').textContent = d.clients;
+    document.getElementById('statClientsDelta').textContent = d.clientsDelta;
+  }
+</script>
+
+</body>
+</html>

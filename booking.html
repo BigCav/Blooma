@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking — Blooma Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#131218;
+    --surface:#1C1B24;
+    --surface-2:#242330;
+    --surface-hover:#2A2938;
+    --border:#2E2D3C;
+    --violet:#6D5FE8;
+    --violet-soft:rgba(109,95,232,0.16);
+    --violet-text:#B7ADF5;
+    --text:#F2F1F7;
+    --text-soft:#9F9CB0;
+    --text-faint:#6C6980;
+    --success:#3ED598;
+    --success-soft:rgba(62,213,152,0.14);
+    --warning:#F4C93A;
+    --danger:#FF6B81;
+    --white:#FFFFFF;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%; scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    scrollbar-width:none;
+  }
+  body::-webkit-scrollbar{display:none;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+  }
+
+  .btn{
+    font-weight:700; font-size:13.5px;
+    padding:10px 18px; border-radius:10px;
+    border:1px solid transparent; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn-violet{background:var(--violet); color:var(--white);}
+  .btn-violet:hover{background:#5C4EDB;}
+  .btn-ghost{background:var(--surface-2); color:var(--text); border-color:var(--border);}
+  .btn-ghost:hover{background:var(--surface-hover);}
+  .btn-danger{background:rgba(255,107,129,0.14); color:var(--danger); border-color:rgba(255,107,129,0.3);}
+  .btn-danger:hover{background:rgba(255,107,129,0.22);}
+  .btn[disabled]{opacity:0.4; cursor:not-allowed; pointer-events:none;}
+
+  /* ---------- SHELL ---------- */
+  .shell{display:flex; min-height:100vh;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:240px; flex:none;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+    position:fixed; top:0; bottom:0; left:-240px; z-index:60;
+    transition:left .2s ease;
+  }
+  .sidebar.open{left:0;}
+  .sb-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 18px 14px;
+  }
+  .sb-logo{font-weight:800; font-size:18px; letter-spacing:-0.01em;}
+  .sb-logo span{color:var(--violet-text);}
+  .sb-close{
+    width:30px; height:30px; border-radius:8px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft);
+  }
+  .sb-venue{
+    margin:6px 14px 14px; padding:10px 12px;
+    background:var(--surface-2); border-radius:10px;
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+  }
+  .sb-venue-avatar{
+    width:32px; height:32px; border-radius:8px; flex:none;
+    background:linear-gradient(155deg,#A9865F,#6E8268);
+  }
+  .sb-venue-name{font-size:13px; font-weight:700;}
+  .sb-venue-sub{font-size:11px; color:var(--text-faint);}
+  .sb-venue svg{margin-left:auto; color:var(--text-faint); flex:none;}
+
+  .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
+  .sb-section-label{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-faint); padding:14px 10px 8px;
+  }
+  .sb-link{
+    display:flex; align-items:center; gap:11px;
+    padding:9px 10px; border-radius:9px;
+    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    margin-bottom:2px;
+  }
+  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link:hover{background:var(--surface-hover); color:var(--text);}
+  .sb-link.active{background:var(--violet-soft); color:var(--white);}
+  .sb-link.active svg{color:var(--violet-text);}
+  .sb-badge{
+    margin-left:auto; font-size:10px; font-weight:700;
+    background:var(--violet); color:var(--white);
+    padding:2px 7px; border-radius:99px;
+  }
+
+  .sb-bottom{
+    padding:14px; border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .sb-avatar{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    background:var(--violet); color:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700;
+  }
+  .sb-user-name{font-size:12.5px; font-weight:700;}
+  .sb-user-role{font-size:11px; color:var(--text-faint);}
+  .sb-bottom svg{margin-left:auto; color:var(--text-faint); flex:none; cursor:pointer;}
+
+  .sb-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:55;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .sb-overlay.open{opacity:1; pointer-events:auto;}
+
+  @media (min-width:1080px){
+    .sidebar{position:sticky; top:0; left:auto; height:100vh;}
+    .sb-close{display:none;}
+    .sb-overlay{display:none;}
+  }
+
+  @media (max-width:1079px){
+    .sidebar{
+      left:0; right:0; top:auto; bottom:0; width:auto; max-width:480px; margin:0 auto;
+      height:auto; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      border-radius:22px 22px 0 0;
+      border-right:none; border-top:1px solid var(--border);
+      box-shadow:0 -18px 40px rgba(0,0,0,.55);
+      transform:translateY(100%);
+      transition:transform .25s ease;
+    }
+    .sidebar.open{transform:translateY(0);}
+  }
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1; min-width:0;}
+
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:rgba(19,18,24,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:14px;
+    padding:0 18px; height:64px;
+  }
+  .menu-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    flex:none; color:var(--text-soft);
+  }
+  @media (min-width:1080px){ .menu-btn{display:none;} }
+  .tb-logo-mobile{font-weight:800; font-size:16px; letter-spacing:-0.01em; flex:none; white-space:nowrap;}
+  @media (min-width:1080px){ .tb-logo-mobile{display:none;} }
+
+  .tb-search{
+    flex:1; max-width:360px;
+    display:flex; align-items:center; gap:9px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 13px;
+  }
+  .tb-search svg{color:var(--text-faint); flex:none;}
+  .tb-search input{
+    border:none; background:none; outline:none; color:var(--text);
+    font-family:inherit; font-size:13.5px; width:100%;
+  }
+  .tb-search input::placeholder{color:var(--text-faint);}
+  .tb-right{display:flex; align-items:center; gap:10px; margin-left:auto;}
+  .tb-right .btn{height:36px; padding:0 16px;}
+  .tb-icon-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft); position:relative; flex:none;
+  }
+  .tb-icon-btn .dot{
+    position:absolute; top:7px; right:7px;
+    width:7px; height:7px; border-radius:50%; background:var(--danger);
+    border:1.5px solid var(--surface);
+  }
+  .tb-search-mobile-hide{display:none;}
+  @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+
+  /* ---------- CONTENT ---------- */
+  .content{padding:22px 16px 60px;}
+  @media (min-width:900px){ .content{padding:30px 32px 70px;} }
+
+  .dash-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+  @media (min-width:1100px){ .dash-grid{grid-template-columns:1.6fr 1fr;} }
+  .dash-grid > *{min-width:0;}
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px;
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-bottom:16px;
+  }
+  .panel-head h2{font-size:15.5px; font-weight:700;}
+  .panel-head .link{font-size:12.5px; font-weight:700; color:var(--violet-text);}
+
+  .side-col{display:flex; flex-direction:column; gap:16px;}
+
+  .status-badge{
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:4px 9px; border-radius:99px; display:inline-block; white-space:nowrap;
+  }
+  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
+  .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
+
+  /* ---------- BREADCRUMB ---------- */
+  .crumb{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700; color:var(--text-soft);
+    margin-bottom:14px;
+  }
+  .crumb:hover{color:var(--text);}
+
+  /* ---------- BOOKING HEAD ---------- */
+  .bk-head-panel{margin-bottom:20px;}
+  .bk-head{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .bk-avatar{
+    width:56px; height:56px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:19px; font-weight:700; color:var(--white);
+  }
+  .bk-title-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .bk-title-row h1{font-size:19px; font-weight:800; letter-spacing:-0.01em;}
+  .bk-number{
+    font-size:13.5px; font-weight:700; color:var(--violet-text);
+    font-family:'SFMono-Regular',Consolas,monospace;
+    background:var(--violet-soft); padding:3px 9px; border-radius:99px;
+  }
+  .bk-meta{font-size:12.5px; color:var(--text-soft); margin-top:4px;}
+  .bk-meta a{color:var(--violet-text); font-weight:700;}
+  .bk-actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto;}
+
+  /* ---------- INFO ROWS ---------- */
+  .info-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; gap:10px;}
+  .info-row:last-child{border-bottom:none; padding-bottom:0;}
+  .info-row .info-label{color:var(--text-faint); font-weight:600; flex:none;}
+  .info-row .info-value{font-weight:700; text-align:right;}
+  .info-row.total{padding-top:14px; margin-top:4px; border-top:2px solid var(--border); border-bottom:none;}
+  .info-row.total .info-label{color:var(--text); font-size:14px;}
+  .info-row.total .info-value{font-size:19px;}
+
+  .notes-box{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+    padding:14px; font-size:12.5px; color:var(--text-soft); line-height:1.6;
+  }
+
+  .cancel-banner{
+    background:rgba(255,107,129,0.1); border:1px solid rgba(255,107,129,0.3); border-radius:12px;
+    padding:12px 14px; font-size:12.5px; color:var(--danger); margin-bottom:16px; display:none;
+  }
+  .cancel-banner.show{display:block;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:80;
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:22px; width:100%; max-width:380px; text-align:center;
+  }
+  .modal-icon{
+    width:48px; height:48px; border-radius:50%; margin:0 auto 14px;
+    background:rgba(255,107,129,0.14); color:var(--danger);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-box h2{font-size:16px; font-weight:700; margin-bottom:6px;}
+  .modal-box p{font-size:13px; color:var(--text-soft); line-height:1.5; margin-bottom:20px;}
+  .modal-actions{display:flex; gap:10px;}
+  .modal-actions .btn{flex:1; justify-content:center;}
+</style>
+</head>
+
+<body>
+
+<div class="shell">
+
+  <div class="sb-overlay" id="sbOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">Blooma <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
+      <div class="sb-close" id="sbClose">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+
+    <div class="sb-venue">
+      <div class="sb-venue-avatar"></div>
+      <div>
+        <div class="sb-venue-name">Ivy Salon Loft</div>
+        <div class="sb-venue-sub">SoHo, New York</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Overview</div>
+      <a href="/venue/admin" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        Dashboard
+      </a>
+      <a href="/venue/admin/calendar" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Calendar
+      </a>
+      <a href="/venue/admin/bookings" class="sb-link active">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
+        Bookings
+        <span class="sb-badge">24</span>
+      </a>
+      <a href="/venue/admin/messages" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+        <span class="sb-badge">3</span>
+      </a>
+
+      <div class="sb-section-label">Manage</div>
+      <a href="/venue/admin/clients" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
+        Clients
+      </a>
+      <a href="/venue/admin/team" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        Team
+      </a>
+      <a href="/venue/admin/services" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        Services
+      </a>
+
+      <div class="sb-section-label">Insights</div>
+      <a href="/venue/admin/reports" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
+        Reports
+      </a>
+      <a href="/venue/admin/payments" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        Payments
+      </a>
+      <a href="/venue/admin/addons" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Add-ons
+      </a>
+      <a href="/venue/admin/settings" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sb-bottom">
+      <div class="sb-avatar">MJ</div>
+      <div>
+        <div class="sb-user-name">Maria J.</div>
+        <div class="sb-user-role">Owner</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="tb-logo-mobile">Blooma</div>
+      <div class="tb-search tb-search-mobile-hide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search clients, bookings, services…">
+      </div>
+      <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          New booking
+        </a>
+        <div class="menu-btn" id="menuBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+  <a href="/venue/admin/bookings" class="crumb">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    Back to bookings
+  </a>
+
+  <div class="cancel-banner" id="cancelBanner">This booking has been cancelled. The client has been notified automatically.</div>
+
+  <div class="panel bk-head-panel">
+    <div class="bk-head">
+      <div class="bk-avatar" style="background:#6D5FE8;">SK</div>
+      <div>
+        <div class="bk-title-row">
+          <h1>Full balayage</h1>
+          <span class="status-badge status-confirmed" id="bkStatusBadge">Confirmed</span>
+          <span class="bk-number">#BK-48210</span>
+        </div>
+        <div class="bk-meta">with <a href="/venue/admin/client">Sarah K.</a> · Fana R. · Today, 9:30 AM</div>
+      </div>
+      <div class="bk-actions">
+        <div class="btn btn-ghost" onclick="messageClient()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Message
+        </div>
+        <div class="btn btn-danger" id="cancelBtn" onclick="cancelBooking()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          Cancel booking
+        </div>
+        <a href="/venue/admin/checkout" class="btn btn-violet" id="checkoutBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          Checkout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <div class="side-col">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Appointment details</h2>
+        </div>
+        <div class="info-row"><span class="info-label">Booking #</span><span class="info-value">BK-48210</span></div>
+        <div class="info-row"><span class="info-label">Service</span><span class="info-value">Full balayage</span></div>
+        <div class="info-row"><span class="info-label">Duration</span><span class="info-value">2 hr 30 min</span></div>
+        <div class="info-row"><span class="info-label">Stylist</span><span class="info-value">Fana R.</span></div>
+        <div class="info-row"><span class="info-label">Date</span><span class="info-value">Thursday, August 20</span></div>
+        <div class="info-row"><span class="info-label">Time</span><span class="info-value">9:30 AM – 12:00 PM</span></div>
+        <div class="info-row"><span class="info-label">Booked via</span><span class="info-value">Online booking</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Price</h2>
+        </div>
+        <div class="info-row"><span class="info-label">Full balayage</span><span class="info-value">$220.00</span></div>
+        <div class="info-row" style="border-bottom:none;"><span class="info-label">Tax</span><span class="info-value">$0.00</span></div>
+        <div class="info-row total"><span class="info-label">Total due</span><span class="info-value">$220.00</span></div>
+      </div>
+    </div>
+
+    <div class="side-col">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Client</h2>
+          <a href="/venue/admin/client" class="link">View profile</a>
+        </div>
+        <div class="info-row"><span class="info-label">Name</span><span class="info-value">Sarah K.</span></div>
+        <div class="info-row"><span class="info-label">Email</span><span class="info-value">sarah.k@email.com</span></div>
+        <div class="info-row"><span class="info-label">Phone</span><span class="info-value">(917) 555-0148</span></div>
+        <div class="info-row"><span class="info-label">Client since</span><span class="info-value">Jan 2023</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Notes for stylist</h2>
+        </div>
+        <div class="notes-box">
+          Prefers a matte finish on blowouts. Allergic to PPD-based dye — use ammonia-free formula only.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="cancelOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </div>
+    <h2>Cancel this booking?</h2>
+    <p>Sarah K.'s Full balayage appointment today at 9:30 AM will be cancelled and she'll be notified automatically. This can't be undone.</p>
+    <div class="modal-actions">
+      <div class="btn btn-ghost" onclick="closeCancelModal()">Keep booking</div>
+      <div class="btn btn-danger" onclick="confirmCancelBooking()">Cancel booking</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sbOverlay');
+  var menuBtn = document.getElementById('menuBtn');
+  var closeBtn = document.getElementById('sbClose');
+
+  function openSb(){ sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSb(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+  menuBtn.addEventListener('click', openSb);
+  closeBtn.addEventListener('click', closeSb);
+  overlay.addEventListener('click', closeSb);
+
+  function messageClient(){
+    window.location.href = '/venue/admin/messages';
+  }
+
+  function cancelBooking(){
+    document.getElementById('cancelOverlay').classList.add('open');
+  }
+  function closeCancelModal(){
+    document.getElementById('cancelOverlay').classList.remove('open');
+  }
+  function confirmCancelBooking(){
+    var badge = document.getElementById('bkStatusBadge');
+    badge.textContent = 'Cancelled';
+    badge.className = 'status-badge status-cancelled';
+    document.getElementById('cancelBanner').classList.add('show');
+    document.getElementById('cancelBtn').setAttribute('disabled', 'true');
+    var checkoutBtn = document.getElementById('checkoutBtn');
+    checkoutBtn.setAttribute('disabled', 'true');
+    checkoutBtn.removeAttribute('href');
+    closeCancelModal();
+  }
+
+  document.getElementById('cancelOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeCancelModal();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeCancelModal();
+  });
+</script>
+
+</body>
+</html>

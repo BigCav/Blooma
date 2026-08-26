@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="format-detection" content="telephone=no, address=no, email=no" />
 <title>Salon Booking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#241F33;
@@ -22,11 +25,12 @@
     --placeholder:#B3ABCB;
     --disabled:#DED4F5;
     --gold:#F5A623;
+    --near-black:#000000;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
@@ -105,8 +109,11 @@
   .searchbox input{width:100%;background:transparent;border:none;outline:none;font-size:14px;color:var(--ink);}
   .searchbox input::placeholder{color:var(--placeholder);}
 
-  .home-topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;flex-shrink:0;border-bottom:1px solid var(--border);}
-  .greeting-desktop{display:none;}
+  .home-topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;flex-shrink:0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;background:rgba(250,249,253,.92);backdrop-filter:blur(6px);}
+  .greeting{padding:18px 20px 0;}
+  .greeting h1{font-size:26px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
+  .greeting p{font-size:14px;color:var(--ink-soft);margin:4px 0 0;}
+  .search-wrap{padding:16px 20px 6px;}
   .brand-logo{display:flex;align-items:center;gap:7px;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;-webkit-tap-highlight-color:transparent;}
   .brand-mark{width:26px;height:26px;border-radius:9px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .brand-mark .icon svg{width:15px;height:15px;}
@@ -121,7 +128,7 @@
   .menu-badge{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--purple);border:2px solid var(--white);}
 
   .home-menu-sheet{
-    position:absolute;left:0;right:0;bottom:0;z-index:50;
+    position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:480px;margin:0 auto;
     background:var(--bg);border-radius:24px 24px 0 0;box-shadow:0 -14px 36px rgba(36,31,51,.14);
     max-height:88%;overflow-y:auto;-webkit-overflow-scrolling:touch;
     padding:22px 20px calc(24px + env(safe-area-inset-bottom));
@@ -140,9 +147,9 @@
   #cityPickerOverlay{animation:homeMenuOverlayIn .22s ease;}
   #cityPickerOverlay.closing{animation:homeMenuOverlayOut .22s ease forwards;pointer-events:none;}
   .home-menu-sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-  .home-menu-sheet-title{font-size:26px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.5px;}
+  .home-menu-sheet-title{font-size:22px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
   .home-menu-sheet-close{width:32px;height:32px;border-radius:50%;background:var(--purple-pastel-2);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);flex-shrink:0;-webkit-tap-highlight-color:transparent;}
-  .home-menu-list{background:var(--white);border:1px solid var(--border-2);border-radius:18px;padding:6px;margin-bottom:14px;}
+  .home-menu-list{background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:6px;margin-bottom:14px;}
   .home-menu-row{
     display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:14px 12px;
     border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);transition:background .12s;
@@ -158,34 +165,46 @@
   .home-menu-row.danger:active{background:var(--purple);color:#fff;}
   .home-menu-row.danger:active .icon{color:#fff!important;}
   .home-menu-divider{height:1px;background:var(--border);margin:6px 4px;}
-  .home-menu-business-card{
-    display:flex;align-items:center;justify-content:space-between;width:100%;
-    background:var(--white);border:1px solid var(--border-2);border-radius:18px;padding:16px;
-    font-size:15px;font-weight:700;color:var(--ink);-webkit-tap-highlight-color:transparent;transition:background .12s;
-  }
-  .home-menu-business-card:hover{background:var(--purple-pastel-2);}
-  .home-menu-business-card:active{background:var(--purple);color:#fff;border-color:var(--purple);}
-  .home-menu-business-card:active .icon{color:#fff!important;}
-  .home-menu-business-card .icon{color:var(--ink-soft);}
 
   .location-pill{
-    display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:9999px;height:38px;box-sizing:border-box;
-    background:var(--white);border:1px solid var(--border-2);-webkit-tap-highlight-color:transparent;max-width:150px;
+    display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;max-width:150px;
+    background:var(--white);border:1px solid var(--border-2);font-size:13px;font-weight:700;color:var(--ink);
+    transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent;
   }
+  .location-pill:hover{background:var(--purple-pastel-2);border-color:var(--border-hover);}
   .location-pill .icon{color:var(--purple);flex-shrink:0;}
-  .location-pill span.loc-name{font-size:12.5px;font-weight:700;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .location-pill span.loc-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-  .category-shelf{
-    background:var(--purple-pastel-2);border-radius:20px;padding:4px 8px;
+  .cats-wrap{padding:16px 0 6px;}
+  .cats-wrap .chip-row{
+    padding-left:20px;padding-right:20px;
+    -webkit-mask-image:linear-gradient(to right, black calc(100% - 28px), transparent);
+    mask-image:linear-gradient(to right, black calc(100% - 28px), transparent);
   }
-  .category-shelf .chip-row{padding-top:6px;padding-bottom:6px;}
-  .category-shelf .chip-row::after{content:none;}
-  .category-shelf .chip{background:var(--white);border-color:var(--white);}
-  .category-shelf .chip.active{border-color:var(--purple);background:var(--purple);}
+  .cats-wrap .chip-row::after{content:none;}
+
+  .home-promo-banner{display:none;position:relative;background:var(--near-black);border-radius:24px;padding:22px 20px;margin:18px 20px 4px;color:#fff;overflow:hidden;flex-shrink:0;}
+  .home-promo-banner::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle at 88% 10%, rgba(183,157,245,.28), transparent 55%);
+  }
+  .home-promo-banner > *{position:relative;z-index:1;}
+  .home-promo-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple-pastel);margin:0 0 8px;}
+  .home-promo-banner h2{color:#fff;font-size:21px;font-weight:800;line-height:1.2;letter-spacing:-.01em;margin:0;max-width:320px;}
+  .home-promo-banner p{color:rgba(255,255,255,.65);font-size:12.5px;margin:6px 0 0;max-width:280px;}
+  .home-trust-strip{
+    display:none;flex-shrink:0;background:var(--white);border:1px solid var(--border);border-radius:16px;
+    margin:26px 20px 4px;padding:16px 6px;box-shadow:0 1px 2px rgba(36,31,51,.04),0 10px 24px -18px rgba(36,31,51,.2);
+  }
+  .home-trust-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 8px;gap:2px;}
+  .home-trust-item strong{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.01em;}
+  .home-trust-item span{font-size:10.5px;color:var(--ink-soft);font-weight:600;margin-top:2px;}
+  .home-trust-divider{width:1px;background:var(--border);margin:2px 0;}
+  .home-trust-item-4,.home-trust-divider-3{display:none;}
   .salon-list{padding:0 20px 32px;display:flex;flex-direction:column;gap:12px;}
 
   .salon-card{
-    text-align:left;background:var(--white);border:1px solid var(--border);border-radius:18px;
+    text-align:left;background:var(--white);border:1px solid var(--border);border-radius:16px;
     padding:16px;display:flex;align-items:center;gap:14px;transition:border-color .15s,background-color .15s;width:100%;
     cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;
   }
@@ -198,12 +217,12 @@
   }
   .tag-pill{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--purple-pastel);color:#5C4B99;font-weight:600;}
 
-  .featured-salon-card{display:flex;flex-direction:column;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;text-align:left;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:0;width:100%;overflow:hidden;box-shadow:0 1px 2px rgba(36,31,51,.04);transition:border-color .15s;}
-  .featured-salon-card:hover{border-color:var(--border-hover);}
+  .featured-salon-card{display:flex;flex-direction:column;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;text-align:left;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:0;width:100%;overflow:hidden;box-shadow:0 1px 2px rgba(36,31,51,.03),0 10px 22px -18px rgba(36,31,51,.18);transition:transform .15s ease,box-shadow .15s ease;}
+  .featured-salon-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(36,31,51,.05),0 16px 28px -16px rgba(36,31,51,.22);}
   .featured-salon-image{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--purple-pastel-2);flex-shrink:0;}
   .featured-salon-image img{width:100%;height:100%;object-fit:cover;display:block;}
   .featured-salon-body{padding:12px 14px 16px;min-width:0;}
-  .featured-salon-name{font-weight:700;color:var(--ink);font-size:15px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .featured-salon-name{font-weight:700;color:var(--ink);font-size:14.5px;letter-spacing:-.005em;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .featured-salon-rating{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:13px;font-weight:600;color:var(--ink);}
   .featured-salon-rating .star-row{display:flex;align-items:center;gap:1px;}
   .featured-salon-rating .star-row .icon svg{width:13px;height:13px;}
@@ -213,9 +232,77 @@
   .checkout-summary-strip-time{font-size:12px;color:var(--purple);font-weight:600;margin:4px 0 0;}
   .checkout-day-row{gap:8px;}
   .gallery-group{display:flex;flex-direction:column;gap:16px;}
-  .venue-carousel-section{display:none;}
-  .checkout-summary-desktop{display:none;}
-  .checkout-summary-mobile{display:flex;}
+  .venue-carousel-section{padding:30px 0 0;}
+  .venue-carousel-header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;margin-bottom:16px;}
+  .venue-carousel-header h2{font-size:19px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0;}
+  .venue-carousel-arrows{display:none;}
+  .venue-carousel-row{display:flex;gap:14px;overflow-x:auto;scroll-behavior:smooth;padding:0 20px 4px;-ms-overflow-style:none;scrollbar-width:none;}
+  .venue-carousel-row::-webkit-scrollbar{display:none;}
+  .venue-carousel-row .featured-salon-card,.venue-carousel-row .salon-card{width:220px;flex-shrink:0;}
+  .venue-featured-section{background:var(--near-black);margin-top:34px;padding:34px 0 38px;}
+  .venue-featured-banner{position:relative;max-width:1400px;margin:0 auto;padding:0 20px;color:#fff;overflow:hidden;box-sizing:border-box;}
+  .venue-featured-banner > *{position:relative;z-index:1;}
+  .venue-dark-row + .venue-dark-row{margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,.14);}
+  .venue-featured-eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple-pastel);margin:0 0 6px;}
+  .venue-featured-title-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .venue-featured-title{font-size:19px;font-weight:800;margin:0;line-height:1.3;letter-spacing:-.01em;color:#fff;}
+  .venue-featured-arrows{display:none;}
+  .carousel-arrow-btn.light{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24);color:#fff;}
+  .carousel-arrow-btn.light:hover{background:rgba(255,255,255,.22);}
+  .venue-featured-row{display:flex;gap:14px;overflow-x:auto;padding:0 0 4px;-ms-overflow-style:none;scrollbar-width:none;}
+  .venue-featured-row::-webkit-scrollbar{display:none;}
+  .venue-featured-row .featured-salon-card{width:220px;flex-shrink:0;background:#2A2A2E;border-color:#3A3A40;}
+  .venue-featured-row .featured-salon-name{color:#fff;}
+  .venue-featured-row .featured-salon-rating{color:#fff;}
+  .venue-featured-row .featured-salon-location,
+  .venue-featured-row .featured-salon-status{color:#9A97A8;}
+  .venue-featured-row .featured-salon-status.is-open{color:#3ED17A;}
+
+  .upcoming-booking-card{display:flex;flex-direction:column;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:left;background:#2A2A2E;border:1px solid #3A3A40;border-radius:16px;overflow:hidden;width:220px;flex-shrink:0;}
+  .upcoming-booking-image{position:relative;width:100%;aspect-ratio:16/10;overflow:hidden;background:var(--purple-pastel-2);}
+  .upcoming-booking-image img{width:100%;height:100%;object-fit:cover;display:block;}
+  .upcoming-booking-pin{position:absolute;bottom:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
+  .upcoming-booking-pin:hover{background:rgba(0,0,0,.75);}
+  .upcoming-booking-body{padding:12px 14px 14px;min-width:0;}
+  .upcoming-booking-name{font-weight:700;color:#fff;font-size:14.5px;letter-spacing:-.005em;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .upcoming-booking-row{display:flex;align-items:center;gap:12px;margin-top:6px;}
+  .upcoming-booking-item{display:flex;align-items:center;gap:4px;font-size:12.5px;color:#B7B4C4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .home-cap{max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}
+  .how-it-works-section{margin:28px 20px 0;}
+  .how-it-works-title{font-size:19px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0 0 16px;}
+  .how-it-works-list{display:flex;flex-direction:column;gap:12px;}
+  .how-it-works-step{display:flex;gap:14px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 1px 2px rgba(36,31,51,.03),0 10px 22px -18px rgba(36,31,51,.14);}
+  .how-it-works-num{width:36px;height:36px;border-radius:50%;background:var(--purple-pastel-2);color:var(--purple);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .how-it-works-body{min-width:0;}
+  .how-it-works-body h3{font-size:14.5px;font-weight:700;color:var(--ink);margin:0 0 4px;}
+  .how-it-works-body p{font-size:13px;color:var(--ink-soft);margin:0;line-height:1.5;}
+  .bottom-cta-section{margin:28px 20px 0;background:var(--purple-pastel);border-radius:24px;padding:32px 24px;text-align:center;}
+  .bottom-cta-title{font-size:21px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0 0 10px;}
+  .bottom-cta-body{font-size:13.5px;color:var(--ink-mute);line-height:1.55;margin:0 0 20px;max-width:440px;margin-left:auto;margin-right:auto;}
+  .bottom-cta-actions{display:flex;flex-direction:column;gap:10px;}
+  .bottom-cta-btn{border-radius:999px;padding:13px 22px;font-size:14px;font-weight:700;transition:background .15s,border-color .15s,color .15s;text-align:center;}
+  .bottom-cta-btn.primary{background:var(--purple);color:#fff;border:none;}
+  .bottom-cta-btn.primary:hover{background:var(--purple-dark);}
+  .bottom-cta-btn.outline{background:var(--white);color:var(--ink);border:1px solid var(--border-2);}
+  .bottom-cta-btn.outline:hover{background:var(--purple-pastel-2);border-color:var(--border-hover);}
+  .home-footer{background:var(--near-black);color:#fff;margin-top:36px;padding:32px 0 24px;}
+  .home-footer-inner{max-width:1400px;margin:0 auto;padding:0 20px;}
+  .home-footer-top{display:flex;flex-direction:column;gap:24px;padding-bottom:20px;border-bottom:1px solid #232323;}
+  .home-footer-logo{font-size:18px;font-weight:800;color:#fff;margin:0 0 6px;}
+  .home-footer-tagline{font-size:13.5px;color:#9A97A8;margin:0;max-width:320px;line-height:1.6;}
+  .home-footer-links{display:flex;gap:32px;}
+  .home-footer-col-title{font-size:11px;font-weight:700;color:#9A97A8;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;}
+  .home-footer-link{display:block;background:none;border:none;padding:0;margin:0 0 8px;font-size:13.5px;color:#C7C4D6;text-align:left;cursor:pointer;}
+  .home-footer-link:hover{color:#fff;}
+  .home-footer-bottom{margin-top:20px;font-size:12px;color:#77807A;}
+  .home-footer-bottom p{margin:0 0 4px;}
+  .home-footer-legal-link{color:inherit;}
+  .home-footer-legal-link:hover{color:#fff;}
+  .checkout-summary-strip{display:none;}
+  .checkout-summary-desktop{display:block;}
+  .checkout-summary-mobile{display:none;}
+  .checkout-sidebar-booking-info{display:none;}
   .checkout-sidebar-venue-row{display:flex;gap:12px;align-items:flex-start;}
   .checkout-sidebar-venue-img{width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--purple-pastel-2);}
   .checkout-sidebar-venue-img img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -237,7 +324,7 @@
   .checkout-sidebar-total-row{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700;color:var(--ink);}
 
   .service-card{
-    background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px;
+    background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;
   }
   .book-btn{
     padding:9px 18px;border-radius:999px;background:var(--purple);color:#fff;
@@ -247,12 +334,12 @@
   .service-card[data-service-row]{cursor:pointer;transition:border-color .15s,background .15s;}
   .service-card[data-service-row]:active{background:var(--purple-pastel-2);}
   .service-detail-overlay{
-    position:absolute;inset:0;background:rgba(20,10,40,.42);z-index:69;
+    position:fixed;inset:0;background:rgba(20,10,40,.42);z-index:69;
     animation:serviceDetailOverlayIn .24s ease;
   }
   .service-detail-overlay.closing{animation:serviceDetailOverlayOut .24s ease forwards;pointer-events:none;}
   .service-detail-sheet{
-    position:absolute;left:0;right:0;bottom:0;z-index:70;height:58%;min-height:390px;max-height:620px;
+    position:absolute;left:0;right:0;bottom:0;z-index:70;max-width:480px;margin:0 auto;height:58%;min-height:390px;max-height:620px;
     background:var(--white);border-radius:26px 26px 0 0;box-shadow:0 -14px 38px rgba(36,31,51,.16);
     padding:22px 20px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;
     animation:serviceDetailUp .24s ease;will-change:transform;
@@ -281,19 +368,19 @@
     min-width:56px;padding:10px 0;border-radius:14px;border:1px solid var(--border-2);
     background:var(--white);color:var(--ink);flex-shrink:0;transition:border-color .15s,background-color .15s,color .15s;
   }
-  .day-pill.active{border-color:var(--purple);background:var(--purple);color:#fff;}
+  .day-pill.active{border-color:var(--purple);background:var(--white);color:var(--purple);}
   .day-pill:disabled{opacity:.4;cursor:not-allowed;}
   .day-pill:disabled:hover{border-color:var(--border-2);}
   .day-pill .dname{font-size:11px;font-weight:600;opacity:.7;color:var(--ink-soft);}
-  .day-pill.active .dname{opacity:.85;color:#fff;}
+  .day-pill.active .dname{opacity:1;color:var(--purple);}
   .day-pill .dnum{font-size:15px;font-weight:700;margin-top:2px;color:var(--ink);}
-  .day-pill.active .dnum{color:#fff;}
+  .day-pill.active .dnum{color:var(--purple);}
 
   .time-pill{
-    padding:11px 0;border-radius:14px;font-size:13.5px;font-weight:600;
+    padding:17px 0;border-radius:14px;font-size:13.5px;font-weight:600;
     border:1px solid var(--border-2);background:var(--white);color:var(--ink);transition:all .15s;
   }
-  .time-pill.active{border-color:var(--purple);background:var(--purple);color:#fff;}
+  .time-pill.active{border-color:var(--purple);background:var(--white);color:var(--purple);}
   .time-pill:disabled{opacity:.4;cursor:not-allowed;text-decoration:line-through;}
   .time-pill:disabled:hover{border-color:var(--border-2);}
 
@@ -304,7 +391,7 @@
   }
   .field input::placeholder, .field textarea::placeholder{color:var(--placeholder);}
 
-  .summary-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px;}
+  .summary-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;}
   .eyebrow{font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 12px;}
   .contact-hero-row{display:flex;align-items:center;gap:12px;margin:-2px 0 14px;padding-bottom:14px;border-bottom:1px dashed var(--border-2);}
   .contact-avatar{
@@ -316,13 +403,62 @@
     font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;
   }
   .confirm-page-title{font-size:25px;font-weight:800;color:var(--ink);margin:2px 0 20px;line-height:1.15;letter-spacing:-.3px;}
-  .confirm-stylist-row{display:flex;align-items:center;gap:12px;}
   .confirm-total-drawer{background:var(--purple-pastel-2);border-radius:14px;padding:12px 14px;margin-bottom:12px;}
-  .profile-rewards-card{background:var(--purple-pastel-2);border-radius:18px;padding:16px;}
+  .confirm-footer-row{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .confirm-footer-price{min-width:0;flex:none;}
+  .confirm-footer-amount{display:block;font-size:19px;font-weight:800;color:var(--ink);}
+  .confirm-footer-label{display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;}
+  .confirm-footer-row .confirm-footer-btn{width:auto;padding:14px 28px;flex:none;}
+
+  /* ---------- BOOKING CONFIRMED ---------- */
+  .confirm-hero{
+    height:190px;flex-shrink:0;position:relative;overflow:hidden;background:var(--purple-pastel-2);
+  }
+  .confirm-hero img{width:100%;height:100%;object-fit:cover;display:block;}
+  .confirm-hero-backbtn{position:absolute;top:16px;left:16px;background:var(--white);box-shadow:0 4px 12px rgba(20,10,40,.18);}
+  .confirm-badge{
+    display:inline-flex;align-items:center;gap:6px;background:var(--purple-pastel-2);color:var(--purple-dark);
+    font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px;
+  }
+  .confirm-badge .icon svg{width:13px;height:13px;}
+  .confirm-when{font-size:22px;font-weight:800;color:var(--ink);margin:14px 0 2px;line-height:1.25;letter-spacing:-.3px;}
+  .confirm-duration{font-size:13px;color:var(--ink-soft);margin:0;}
+  .confirm-action-list{background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:6px;margin-top:20px;}
+  .confirm-action-row{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 10px;border-radius:12px;
+    -webkit-tap-highlight-color:transparent;transition:background .12s;
+  }
+  .confirm-action-row:hover{background:var(--purple-pastel-2);}
+  .confirm-action-icon{
+    width:36px;height:36px;border-radius:50%;background:var(--purple-pastel-2);color:var(--purple);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .confirm-action-label{flex:1;font-size:14px;font-weight:600;color:var(--ink);}
+  .confirm-action-chevron{color:var(--ink-soft);flex-shrink:0;display:flex;}
+  .confirm-booking-ref{text-align:center;font-size:12px;color:var(--ink-soft);margin:22px 0 0;}
+
+  /* ---------- VENUE MESSAGE THREAD ---------- */
+  .msg-venue-header{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 20px 8px;}
+  .msg-venue-avatar{width:64px;height:64px;border-radius:16px;overflow:hidden;background:var(--purple-pastel-2);flex-shrink:0;margin-bottom:12px;}
+  .msg-venue-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .msg-venue-name{font-size:16px;font-weight:800;color:var(--ink);margin:0;}
+  .msg-venue-sub{font-size:13px;color:var(--ink-soft);margin:3px 0 0;}
+  .msg-thread-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:13px;padding:20px;text-align:center;}
+  .msg-bubble-row{display:flex;padding:2px 20px;}
+  .msg-bubble-row.me{justify-content:flex-end;}
+  .msg-bubble{max-width:78%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.4;}
+  .msg-bubble-row.me .msg-bubble{background:var(--purple);color:#fff;border-bottom-right-radius:4px;}
+  .msg-bubble-row:not(.me) .msg-bubble{background:var(--white);border:1px solid var(--border-2);color:var(--ink);border-bottom-left-radius:4px;}
+  .msg-compose{display:flex;align-items:center;gap:10px;padding:14px 16px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;}
+  .msg-compose input{flex:1;border:1px solid var(--border-2);border-radius:999px;padding:11px 16px;font-size:13.5px;font-family:inherit;outline:none;color:var(--ink);}
+  .msg-compose input::placeholder{color:var(--placeholder);}
+  .msg-send-btn{width:38px;height:38px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .msg-send-btn:disabled{background:var(--disabled);}
+  .profile-rewards-card{background:var(--purple-pastel-2);border-radius:16px;padding:16px;}
   .section-rule{display:flex;align-items:center;gap:12px;margin:26px 0 12px;}
   .section-rule:first-of-type{margin-top:0;}
   .section-rule .lbl{font-size:12px;font-weight:700;letter-spacing:.6px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;}
-  .section-rule .line{flex:1;height:1px;background:var(--border);}
+  .section-rule .line{display:none;}
 
   .promo-input{
     flex:1;min-width:0;background:var(--white);border:1px solid var(--border-2);border-radius:14px;
@@ -343,7 +479,7 @@
   .promo-remove-btn:hover{color:var(--ink);}
   .loyalty-checkout-card{
     display:flex;align-items:center;gap:12px;width:100%;text-align:left;
-    background:var(--white);border:1px solid var(--border);border-radius:18px;padding:14px 16px;
+    background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;
     -webkit-tap-highlight-color:transparent;transition:background .12s,border-color .12s;
   }
   .loyalty-checkout-card:hover{background:var(--purple-pastel-2);border-color:var(--border-hover);}
@@ -356,11 +492,11 @@
   .loyalty-sheet-bar span{display:block;height:100%;background:var(--purple);border-radius:999px;transition:width .2s ease;}
 
   .modal-overlay{
-    position:absolute;inset:0;background:rgba(36,31,51,.55);
+    position:fixed;inset:0;background:rgba(36,31,51,.55);
     display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;
   }
   .modal-card{
-    background:var(--white);border-radius:20px;padding:22px 20px;width:100%;max-width:320px;
+    background:var(--white);border-radius:16px;padding:22px 20px;width:100%;max-width:320px;
     box-shadow:0 16px 40px rgba(36,31,51,.28);
   }
   .modal-title{font-size:16.5px;font-weight:800;color:var(--ink);margin:0 0 8px;}
@@ -390,7 +526,7 @@
   }
   .waitlist-pref-chip.active{border-color:var(--purple);background:var(--purple);color:#fff;}
   .waitlist-card{
-    background:var(--white);border:1px solid var(--border);border-radius:18px;padding:16px;
+    background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;
   }
 
   .primary-btn{
@@ -411,7 +547,7 @@
   .dot.current{width:24px;background:var(--purple);}
   .dot.upcoming{width:6px;background:var(--border);}
 
-  .info-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:14px 16px;}
+  .info-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
   .info-line{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13.5px;color:var(--ink);}
   .info-line .icon{color:var(--purple);}
   .info-line + .info-line{border-top:1px solid var(--border);}
@@ -424,7 +560,7 @@
   .status-pill.closed{background:#FBEAEA;color:#C13B3B;}
   .status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
 
-  .venue-info-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:4px 16px;}
+  .venue-info-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:4px 16px;}
   .venue-info-row{display:flex;align-items:center;gap:12px;padding:13px 0;width:100%;text-align:left;-webkit-tap-highlight-color:transparent;}
   .venue-info-row+.venue-info-row{border-top:1px solid var(--border);}
   a.venue-info-row{transition:opacity .15s;text-decoration:none;}
@@ -440,9 +576,9 @@
   .venue-info-sub.warn{color:#C13B3B;}
   .venue-info-chevron{color:var(--ink-soft);flex-shrink:0;display:flex;}
 
-  .hours-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:6px 16px;}
+  .hours-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:6px 16px;}
 
-  .location-card{background:var(--white);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+  .location-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
   .map-placeholder{
     position:relative;height:190px;overflow:hidden;background:#f7f8fa;
   }
@@ -487,7 +623,7 @@
     background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:14px;
     display:flex;align-items:center;gap:12px;width:100%;text-align:left;transition:all .15s;
   }
-  .stylist-card.active{border-color:var(--purple);background:var(--purple-pastel-2);}
+  .stylist-card.active{border-color:var(--purple);background:var(--white);}
   .stylist-avatar{
     width:42px;height:42px;border-radius:50%;background:var(--purple-pastel);
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
@@ -498,17 +634,21 @@
     display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;
   }
 
-  .hist-panel{background:var(--white);border:1px solid var(--border);border-radius:22px;padding:16px;}
+  .hist-panel{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;}
   .hist-card-simple{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background-color .15s;}
   .hist-card-simple:last-child{margin-bottom:0;}
   .hist-card-simple:hover{border-color:var(--border-hover);}
   .hist-card-simple.expanded{background:var(--white);border-color:var(--border-hover);cursor:default;}
+  .hcs-thumb{width:100%;height:130px;border-radius:12px;overflow:hidden;margin:-14px -16px 12px;width:calc(100% + 32px);background:var(--purple-pastel-2);position:relative;}
+  .hcs-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .hcs-thumb-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--purple);}
   .hcs-salon{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .hcs-service{font-size:13.5px;color:var(--ink-mute);margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .hcs-addons{font-size:12px;color:var(--ink-soft);margin:3px 0 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .hcs-price{font-size:14px;font-weight:700;color:var(--ink);margin:0;flex-shrink:0;text-align:right;white-space:nowrap;}
   .hcs-price-sub{display:block;font-size:10.5px;font-weight:600;color:var(--ink-soft);margin-top:1px;}
-  .hcs-datetime{font-size:12.5px;color:var(--purple);font-weight:600;margin:0;}
+  .hcs-datetime{font-size:12.5px;color:var(--purple);font-weight:600;margin:0;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .hcs-datetime .icon svg{width:12px;height:12px;}
   .hcs-actions-row{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
   .hcs-icon-btn{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;font-size:11px;font-weight:700;color:var(--ink-mute);}
   .hcs-icon-circle{width:38px;height:38px;border-radius:12px;background:var(--purple-pastel-2);color:var(--purple);display:flex;align-items:center;justify-content:center;transition:background .15s;}
@@ -604,34 +744,41 @@
   .venue-book-btn{flex-shrink:0;padding:12px 22px;border-radius:999px;background:var(--purple);color:#fff;font-size:13.5px;font-weight:700;box-shadow:0 5px 14px rgba(124,92,217,.22);}
   .venue-book-btn:hover{background:var(--purple-dark);}
   .venue-side-col{display:none;}
-  .venue-book-panel-desktop{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:22px;}
+  .venue-main-col{display:flex;flex-direction:column;}
+  .venue-services-section{order:1;}
+  .venue-team-wrap{order:2;}
+  .venue-reviews-wrap{order:3;}
+  .venue-hours-wrap{order:4;}
+  .venue-about-wrap{order:5;}
+  .venue-location-wrap{order:6;}
+  .venue-book-panel-desktop{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:22px;}
   .venue-book-panel-desktop .venue-book-title{font-size:16px;margin-bottom:2px;}
   .venue-book-panel-desktop .venue-book-sub{font-size:12.5px;margin-bottom:16px;}
   .venue-book-panel-desktop .venue-book-btn{display:block;width:100%;text-align:center;padding:13px 0;}
   .service-select-card{width:100%;background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;transition:border-color .15s,background-color .15s;}
-  .service-select-card.active{border-color:var(--purple);background:var(--purple-pastel-2);}
+  .service-select-card.active{border-color:var(--purple);background:var(--white);}
   .service-select-check{
     width:20px;height:20px;border-radius:50%;background:var(--purple);
     display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;
   }
-  .service-select-card:hover{border-color:var(--border-hover);}
 
   .closed-banner{
     background:#FBEAEA;border:1px solid #F3C6C6;border-radius:14px;padding:12px 14px;
     display:flex;align-items:center;gap:10px;color:#C13B3B;
   }
   .closing-soon-banner{
-    background:#F1F0F4;border-bottom:1px solid var(--border-2);padding:10px 20px;
-    display:flex;align-items:center;gap:8px;color:var(--ink-mute);font-size:12.5px;font-weight:600;
+    background:#FFF4E0;border:1px solid #FBE3B0;border-radius:14px;padding:13px 20px;margin:14px 16px;
+    display:flex;align-items:center;gap:9px;color:#8A5A00;font-size:13.5px;font-weight:700;letter-spacing:-.005em;
   }
+  .closing-soon-banner .icon svg{width:17px;height:17px;}
   .new-badge{
     font-size:10.5px;font-weight:700;letter-spacing:.3px;color:#fff;background:var(--purple);
     border-radius:999px;padding:2px 8px;text-transform:uppercase;
   }
 
-  .salon-hero{position:relative;height:300px;flex-shrink:0;overflow:hidden;background:var(--purple-pastel-2);border-radius:20px;margin:0 20px;}
+  .salon-hero{position:relative;height:300px;flex-shrink:0;overflow:hidden;background:var(--purple-pastel-2);border-radius:16px;margin:0 20px;}
   .salon-drawer{
-    position:relative;background:var(--white);border:1px solid var(--border);border-radius:20px;
+    position:relative;background:var(--white);border:1px solid var(--border);border-radius:16px;
     padding:16px 18px;margin:-30px 20px 0;box-shadow:0 8px 20px rgba(36,31,51,.06);
   }
   .hero-carousel{
@@ -649,16 +796,19 @@
 
   .city-row{
     display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;
-    padding:10px 12px;border-radius:16px;border:1.5px solid var(--border);background:var(--white);transition:background .15s,border-color .15s;
+    padding:14px 12px;border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);transition:background .12s;
   }
   .city-row:hover{background:var(--purple-pastel-2);}
-  .city-row.active{background:var(--purple-pastel-2);border-color:var(--purple);}
+  .city-row .check-icon{visibility:hidden;}
+  .city-row .check-icon svg{width:16px;height:16px;}
+  .city-row.active{color:var(--purple);}
+  .city-row.active .check-icon{visibility:visible;color:var(--purple);}
 
   .addon-row{
     display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;min-height:52px;
     background:var(--white);border:1px solid var(--border-2);border-radius:14px;padding:12px 14px;transition:border-color .15s,background-color .15s;
   }
-  .addon-row.active{border-color:var(--purple);background:var(--purple-pastel-2);}
+  .addon-row.active{border-color:var(--purple);background:var(--white);}
 
   .avatar-btn{
     width:38px;height:38px;border-radius:50%;background:var(--white);color:var(--purple);
@@ -669,7 +819,7 @@
     display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:22px;
   }
   .profile-section-title{font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 10px;}
-  .settings-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:2px 16px;}
+  .settings-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:2px 16px;}
   .settings-row{display:flex;align-items:center;gap:12px;padding:14px 0;}
   .settings-row + .settings-row{border-top:1px solid var(--border);}
   .settings-row .srow-icon{width:32px;height:32px;border-radius:10px;background:var(--purple-pastel-2);color:var(--purple);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -689,7 +839,7 @@
   .toggle.on .knob{transform:translateX(18px);}
 
   .review-prompt-card{
-    background:var(--purple-pastel-2);border:1px solid var(--border-hover);border-radius:18px;padding:16px;margin-left:0;margin-right:0;
+    background:var(--purple-pastel-2);border:1px solid var(--border-hover);border-radius:16px;padding:16px;margin-left:0;margin-right:0;
   }
   .star-picker{display:flex;gap:8px;justify-content:center;padding:6px 0 4px;}
   .star-btn{color:var(--border-hover);transition:color .1s,transform .1s;}
@@ -707,6 +857,14 @@
     -webkit-tap-highlight-color:transparent;transition:opacity .15s;
   }
   .portfolio-tile:active{opacity:.85;}
+  .stylist-portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 20px;}
+  .stylist-portfolio-grid .portfolio-tile{flex:none;width:100%;height:0;padding-bottom:100%;}
+  .stylist-portfolio-grid .portfolio-tile > img,.stylist-portfolio-grid .portfolio-tile > div{position:absolute;inset:0;}
+  .portfolio-tile-more{
+    position:absolute;inset:0;background:rgba(20,16,30,.55);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:13px;font-weight:700;text-align:center;
+  }
   .day-chip{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
     flex:1;height:68px;border-radius:16px;background:var(--white);border:1px solid var(--border-2);
@@ -730,58 +888,116 @@
     .book-btn:hover{background:var(--purple);}
     .backbtn:hover,.city-row:hover{background:inherit;}
     .recent-card:hover{border-color:var(--border);transform:none;}
-    .service-select-card:hover{border-color:var(--border-2);}
     .day-pill:disabled:hover{border-color:var(--border-2);}
     .logout-btn:hover{background:var(--white);border-color:#F0DADA;}
   }
+
+  .service-select-sidebar{display:contents;}
+  .service-select-footer{order:1;}
 
   /* Desktop overrides — placed last on purpose so they win the cascade
      regardless of where other same-specificity rules appear above. */
   @media (min-width:1024px){
     #app{padding:0;max-width:1400px;margin:0 auto;}
     .shell{max-width:none;height:100dvh;border-radius:0;box-shadow:none;}
+    body.page-home #app{max-width:none;margin:0;}
+    .cats-wrap .chip-row{padding-left:32px;padding-right:32px;}
     .salon-list{display:none;}
     .salon-count-label{display:none;}
-    .venue-carousel-section{display:block;margin-bottom:32px;}
+    .venue-carousel-section{display:block;}
     .venue-carousel-header{display:flex;align-items:center;justify-content:space-between;padding:0 32px;margin-bottom:16px;}
-    .venue-carousel-header h2{font-size:18px;font-weight:700;color:var(--ink);margin:0;}
+    .venue-carousel-header h2{font-size:24px;}
+    .home-topbar{padding:18px 32px;}
+    .home-promo-banner{display:block;padding:32px 40px;margin:24px 32px 4px;text-align:center;}
+    .home-promo-banner h2{font-size:28px;max-width:none;}
+    .home-promo-banner p{font-size:14px;max-width:480px;margin:8px auto 0;}
+    .home-trust-strip{display:flex;margin:38px 32px 6px;padding:22px 10px;}
+    .home-trust-item strong{font-size:22px;}
+    .home-trust-item span{font-size:12px;}
+    .home-trust-item-4,.home-trust-divider-3{display:flex;}
+    .home-trust-divider-3{display:block;}
     .venue-carousel-arrows{display:flex;gap:8px;}
     .carousel-arrow-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border-2);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;}
     .carousel-arrow-btn:hover{background:var(--purple-pastel-2);}
-    .venue-carousel-row{display:flex;gap:20px;overflow-x:auto;scroll-behavior:smooth;padding:0 0 8px 32px;}
+    .venue-carousel-row{display:flex;gap:20px;overflow-x:auto;scroll-behavior:smooth;padding:0 32px 8px;}
     .venue-carousel-row .featured-salon-card,.venue-carousel-row .salon-card{flex:0 0 calc(25% - 15px);width:calc(25% - 15px);}
+    .venue-featured-section{padding:52px 0 56px;margin-top:44px;}
+    .venue-featured-banner{padding:0 32px;}
+    .venue-dark-row + .venue-dark-row{margin-top:28px;padding-top:28px;}
+    .venue-featured-title{font-size:24px;}
+    .venue-featured-row{gap:20px;}
+    .venue-featured-row .featured-salon-card{flex:0 0 calc(25% - 15px);width:calc(25% - 15px);}
+    .venue-featured-row .upcoming-booking-card{flex:0 0 calc(25% - 15px);width:calc(25% - 15px);}
+    .how-it-works-section{margin:36px 32px 0;}
+    .how-it-works-title{font-size:24px;}
+    .how-it-works-list{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    .bottom-cta-section{margin:36px 32px 0;padding:48px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;text-align:left;}
+    .bottom-cta-text{text-align:left;}
+    .bottom-cta-title{font-size:28px;margin:0 0 8px;}
+    .bottom-cta-body{font-size:14.5px;text-align:left;margin-left:0;max-width:380px;}
+    .bottom-cta-actions{flex-direction:row;flex-shrink:0;}
+    .bottom-cta-btn{width:auto;padding:14px 28px;}
+    .home-footer{margin-top:50px;padding:50px 0 26px;}
+    .home-footer-inner{padding:0 32px;}
+    .home-footer-top{flex-direction:row;justify-content:space-between;align-items:flex-start;gap:40px;padding-bottom:28px;}
+    .home-footer-tagline{max-width:280px;}
+    .home-footer-links{gap:56px;}
+    .home-footer-link{font-size:14px;margin:0 0 10px;}
+    .home-footer-bottom{display:flex;justify-content:space-between;margin-top:22px;}
+    .home-footer-bottom p{margin:0;}
     .featured-salon-card{height:100%;}
-    .greeting-mobile{display:none;}
-    .greeting-desktop{display:inline;}
-    .venue-body-grid{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start;padding:0 20px;}
+    .greeting{padding-top:30px;text-align:center;}
+    .greeting h1{font-size:34px;}
+    .greeting p{font-size:15px;}
+    .search-wrap{padding:26px 32px 8px;display:flex;justify-content:center;}
+    .search-wrap .searchbox{max-width:640px;width:100%;}
+    .venue-body-grid{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start;padding:0 20px;order:1;}
     .venue-main-col{min-width:0;margin-top:0;}
-    .venue-side-col{display:block;position:sticky;top:20px;margin-top:24px;}
+    .venue-main-col .venue-services-section{padding-top:18px !important;margin-top:24px !important;margin-left:0;margin-right:0;}
+    .venue-main-col .venue-about-wrap,
+    .venue-main-col .venue-team-wrap,
+    .venue-main-col .venue-reviews-wrap,
+    .venue-main-col .venue-hours-wrap,
+    .venue-main-col .venue-location-wrap{padding-left:0 !important;padding-right:0 !important;}
+    .venue-side-col{display:block;position:sticky;top:95px;margin-top:24px;}
     .venue-book-panel-desktop{padding:22px;padding-top:18px !important;}
-    .venue-main-col > div:first-child{padding-top:18px !important;}
     .venue-book-bar{display:none;}
+    .home-topbar{order:-2;}
+    .salon-drawer{order:-1;}
+    .closing-soon-banner{padding:14px 32px;font-size:14.5px;gap:10px;margin:0 20px 20px;border-radius:16px;}
+    .salon-drawer.salon-drawer--attached{border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:none;margin-bottom:0;}
+    .closing-soon-banner.closing-soon-banner--attached{border-top-left-radius:0;border-top-right-radius:0;margin-top:0;}
+    .closing-soon-banner .icon svg{width:18px;height:18px;}
     .page[style*="padding-bottom:86px"]{padding-bottom:32px;}
     .checkout-shell{width:100%;max-width:640px;margin:32px auto;border:1px solid var(--border);border-radius:24px;box-shadow:0 20px 60px rgba(36,31,51,.08);flex:0 1 auto;max-height:calc(100dvh - 128px);}
     .checkout-shell.service-select-shell,.checkout-shell.booking-checkout-shell{max-width:1040px;display:grid;column-gap:28px;row-gap:0;}
-    .service-select-shell{grid-template-columns:1fr 340px;grid-template-rows:auto auto 1fr;grid-template-areas:"topbar topbar" "chips salonInfo" "list footer";}
+    .service-select-shell{grid-template-columns:1fr 380px;grid-template-rows:auto auto 1fr;grid-template-areas:"topbar topbar" "chips sidebar" "list sidebar";}
     .service-select-shell > .topbar{grid-area:topbar;}
-    .service-select-shell > .chip-row{grid-area:chips;padding-left:0;padding-right:0;}
-    .service-select-shell > .service-select-salon-strip{grid-area:salonInfo;border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;margin:24px 0 0;}
-    .service-select-shell > .service-select-list{grid-area:list;padding-left:0;padding-right:20px;}
-    .service-select-shell > .service-select-footer{grid-area:footer;border:1px solid var(--border);border-radius:0 0 16px 16px;align-self:start;margin:0;}
-    .booking-checkout-shell{grid-template-columns:1fr 340px;grid-template-rows:auto auto 1fr;grid-template-areas:"topbar topbar" "body summary" "body footer";}
+    .service-select-shell > .chip-row{grid-area:chips;padding-left:0;padding-right:0;align-self:start;}
+    .service-select-shell > .service-select-sidebar{grid-area:sidebar;align-self:start;display:flex;flex-direction:column;gap:16px;margin:24px 20px 24px 0;}
+    .service-select-shell > .service-select-sidebar .service-select-salon-strip{background:var(--white);border:1px solid var(--border);border-radius:16px;}
+    .service-select-shell > .service-select-sidebar .service-select-footer{border:1px solid var(--border);border-radius:16px;}
+    .service-select-shell > .service-select-list{grid-area:list;padding-left:0;padding-right:0;}
+    .booking-checkout-shell{grid-template-columns:1fr 380px;grid-template-rows:auto auto 1fr;grid-template-areas:"topbar topbar" "body summary" "body footer";}
     .booking-checkout-shell > .topbar{grid-area:topbar;}
-    .booking-checkout-shell > .checkout-summary-strip{grid-area:summary;border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;margin:24px 0 0;}
-    .booking-checkout-shell > #checkoutBody{grid-area:body;padding-right:28px;}
-    .booking-checkout-shell > .checkout-footer{grid-area:footer;border:1px solid var(--border);border-radius:0 0 16px 16px;align-self:start;margin:0;}
+    .booking-checkout-shell > .checkout-summary-strip{grid-area:summary;background:var(--white);border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;margin:24px 20px 0 0;}
+    .booking-checkout-shell > #checkoutBody{grid-area:body;padding-right:0;}
+    #checkoutBody{scrollbar-width:none;-ms-overflow-style:none;}
+    #checkoutBody::-webkit-scrollbar{display:none;}
+    .booking-checkout-shell > .checkout-footer{grid-area:footer;border:1px solid var(--border);border-radius:0 0 16px 16px;align-self:start;margin:0 20px 24px 0;}
+    .checkout-summary-strip{display:block;}
+    .confirm-mobile-summary{display:none;}
     .service-select-shell .checkout-summary-mobile,.booking-checkout-shell .checkout-summary-mobile{display:none;}
     .service-select-shell .checkout-summary-desktop,.booking-checkout-shell .checkout-summary-desktop{display:block;}
-    .booking-checkout-shell .checkout-footer .confirm-total-drawer{display:none;}
+    .checkout-sidebar-booking-info{display:block;}
+    .booking-checkout-shell .checkout-footer .confirm-footer-price{display:none;}
+    .booking-checkout-shell .checkout-footer .confirm-footer-row .confirm-footer-btn{width:100%;padding:14px 0;}
     .booking-checkout-shell .checkout-day-row{gap:10px;}
     .booking-checkout-shell .day-pill{min-width:82px;padding:16px 6px;border-radius:16px;gap:4px;}
     .booking-checkout-shell .day-pill .dname{font-size:12.5px;}
     .booking-checkout-shell .day-pill .dnum{font-size:19px;margin-top:4px;}
     .checkout-shell.confirm-done-shell{max-width:760px;}
-    .salon-hero{height:480px;}
+    .salon-hero{height:560px;}
     .hero-carousel{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:8px;overflow:visible;}
     .hero-slide{border-radius:14px;}
     .hero-slide:nth-child(1){grid-column:1;grid-row:1/3;}
@@ -792,7 +1008,7 @@
     .hero-dots-pill{display:none;}
     .salon-hero{background:var(--white);}
     .hero-overlay-bar{background:none !important;justify-content:flex-end !important;padding:0 16px 16px 0 !important;}
-    .salon-drawer{margin:20px 20px 0;}
+    .salon-drawer{margin:20px 20px 24px;}
     .page:not(.checkout-shell) > .topbar{
       border-bottom:none !important;background:transparent !important;
       padding:24px 32px !important;position:static;
@@ -878,21 +1094,16 @@ const ICONS = {
   briefcase: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`,
   logOut: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`,
   share: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>`,
+  send: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`,
 };
 function icon(name, color){ return `<span class="icon${name==='star'?' icon-star':''}" style="color:${color||'currentColor'}">${ICONS[name]}</span>`; }
-function hamburgerMenuMarkup(){
-  if(!state.showHomeMenu) return "";
-  const loggedIn = isLoggedInCustomer();
-  const showVenueRewards = state.page==="salon" && state.salon && state.salon.loyalty && state.salon.loyalty.enabled && loggedIn && state.loyaltyAccount;
+function venueRewardsShown(){
+  return state.page==="salon" && state.salon && state.salon.loyalty && state.salon.loyalty.enabled && isLoggedInCustomer() && state.loyaltyAccount;
+}
+function venueRewardsCardMarkup(extraStyle){
+  if (!venueRewardsShown()) return "";
   return `
-    <div id="homeMenuOverlay" style="position:absolute;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
-    <div class="home-menu-sheet" id="homeMenuCard">
-      <div class="home-menu-sheet-header">
-        <h2 class="home-menu-sheet-title">Menu</h2>
-        <button id="closeHomeMenu" class="home-menu-sheet-close" aria-label="Close menu">${icon('x')}</button>
-      </div>
-      ${showVenueRewards ? `
-      <div class="profile-rewards-card" style="margin-bottom:14px;">
+      <div class="profile-rewards-card" style="${extraStyle||''}">
         <p style="font-size:11.5px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.02em;margin:0 0 6px;">Rewards at ${escapeHtml(state.salon.name)}</p>
         <p style="font-size:20px;font-weight:800;color:var(--ink);margin:0;">${state.loyaltyAccount.points} point${state.loyaltyAccount.points===1?"":"s"}</p>
         <div style="height:6px;border-radius:999px;background:#fff;margin-top:10px;overflow:hidden;">
@@ -904,38 +1115,35 @@ function hamburgerMenuMarkup(){
             : `${Math.max(0,state.loyaltyAccount.threshold-state.loyaltyAccount.points)} more point${(state.loyaltyAccount.threshold-state.loyaltyAccount.points)===1?"":"s"} until ${escapeHtml(state.loyaltyAccount.rewardText||"your reward")}.`}
         </p>
       </div>
-      ` : ""}
+  `;
+}
+function hamburgerMenuMarkup(){
+  if(!state.showHomeMenu) return "";
+  const loggedIn = isLoggedInCustomer();
+  return `
+    <div id="homeMenuOverlay" style="position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
+    <div class="home-menu-sheet" id="homeMenuCard">
+      <div class="home-menu-sheet-header">
+        <h2 class="home-menu-sheet-title">Menu</h2>
+        <button id="closeHomeMenu" class="home-menu-sheet-close" aria-label="Close menu">${icon('x')}</button>
+      </div>
+      ${venueRewardsCardMarkup('margin-bottom:14px;')}
       <div class="home-menu-list">
         ${loggedIn ? `
-          <button class="home-menu-row" id="menuProfileBtn"><span class="home-menu-row-left">${icon('user')}Profile</span>${icon('chevronRight')}</button>
-          <button class="home-menu-row" id="menuHistoryBtn"><span class="home-menu-row-left">${icon('history')}Booking history</span>${icon('chevronRight')}</button>
+          <button class="home-menu-row" id="menuProfileBtn"><span>Profile</span>${icon('chevronRight')}</button>
+          <button class="home-menu-row" id="menuHistoryBtn"><span>Activity</span>${icon('chevronRight')}</button>
         ` : `
-          <button class="home-menu-row" id="menuLoginBtn"><span class="home-menu-row-left">${icon('logIn')}Log in</span>${icon('chevronRight')}</button>
-          <button class="home-menu-row" id="menuRegisterBtn"><span class="home-menu-row-left">${icon('userPlus')}Sign up</span>${icon('chevronRight')}</button>
+          <button class="home-menu-row" id="menuLoginBtn"><span>Log in</span>${icon('chevronRight')}</button>
+          <button class="home-menu-row" id="menuRegisterBtn"><span>Sign up</span>${icon('chevronRight')}</button>
         `}
+        <button class="home-menu-row" id="menuBusinessBtn"><span>Blooma for Business</span>${icon('chevronRight')}</button>
       </div>
-      <button class="home-menu-business-card" id="menuBusinessBtn">
-        <span>Blooma for Business</span>
-        ${icon('chevronRight')}
-      </button>
     </div>
   `;
 }
 function greetingLabel(){
   const hour = new Date().getHours();
-  const period = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  if (isLoggedInCustomer()){
-    const firstName = (state.profile.name||"").trim().split(/\s+/)[0];
-    if (firstName) return `${period}, ${firstName}`;
-  }
-  return period;
-}
-function desktopGreetingLabel(){
-  if (isLoggedInCustomer()){
-    const firstName = (state.profile.name||"").trim().split(/\s+/)[0];
-    if (firstName) return `Find your next appointment, ${firstName}`;
-  }
-  return "Find your next appointment";
+  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 }
 function topbarMarkup(opts){
   opts = opts || {};
@@ -943,7 +1151,7 @@ function topbarMarkup(opts){
     <div class="home-topbar">
       ${opts.backBtn ? `<button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>` : `<span class="brand-logo">Blooma</span>`}
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-        ${opts.locationBtn ? `<button id="locationBtn" class="location-pill">${icon('mapPin')}<span class="loc-name">${escapeHtml(opts.locationBtn.cityName)}</span>${icon('chevronDown')}</button>` : ""}
+        ${opts.locationBtn ? `<button id="locationBtn" class="location-pill">${icon('mapPin','var(--purple)')}<span class="loc-name">${escapeHtml(opts.locationBtn.cityName)}</span></button>` : ""}
         ${opts.shareBtn ? `<button class="menu-btn" id="shareVenueBtn" data-sharetitle="${escapeAttr(opts.shareBtn.title)}" data-shareurl="${escapeAttr(opts.shareBtn.url)}" aria-label="Share">${icon('share')}</button>` : ""}
         ${opts.favBtn ? `<button class="menu-btn ${opts.favBtn.active?'active-fav':''}" data-fav="${opts.favBtn.salonId}" aria-label="Save salon">${icon(opts.favBtn.active?'heartFill':'heart')}</button>` : ""}
         <button class="menu-btn ${isLoggedInCustomer()?'has-badge':''}" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">${icon('menu')}${isLoggedInCustomer()?'<span class="menu-badge"></span>':''}</button>
@@ -1103,7 +1311,7 @@ function venueMapUrl(s, embed){
     : `https://www.google.com/maps?q=${encodeURIComponent([s.address,s.city,s.region,'New Zealand'].filter(Boolean).join(', '))}`;
   return base + `&t=m&z=16` + (embed ? `&output=embed` : ``);
 }
-function stylistPreferenceLabel(stylist){ return isAnyAvailableStylist(stylist) ? "Any available stylist" : String(stylist?.name||stylist||""); }
+function stylistPreferenceLabel(stylist,lowercase){ return isAnyAvailableStylist(stylist) ? (lowercase?"any available stylist":"Any available stylist") : String(stylist?.name||stylist||""); }
 function stylistAvailabilityPhrase(stylist){ return isAnyAvailableStylist(stylist) ? "with any available stylist" : `with ${String(stylist?.name||stylist||"this stylist")}`; }
 function toggleFavorite(id){
   if(!isLoggedInCustomer()){ window.location.href=customerLoginDestination(); return; }
@@ -1146,7 +1354,7 @@ function icsEscape(str){ return String(str||"").replace(/\\/g,"\\\\").replace(/;
 function calendarSheetMarkup(){
   if(!state.calendarSheetEvent) return "";
   return `
-    <div id="calendarSheetOverlay" style="position:absolute;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
+    <div id="calendarSheetOverlay" style="position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
     <div class="home-menu-sheet" id="calendarSheetCard">
       <div class="home-menu-sheet-header">
         <h2 class="home-menu-sheet-title">Add to calendar</h2>
@@ -1158,7 +1366,7 @@ function calendarSheetMarkup(){
           ${icon('chevronRight')}
         </button>
         <button class="home-menu-row" id="calendarSheetIcsBtn">
-          <span class="home-menu-row-left">${icon('calendar')}Apple / Outlook (.ics)</span>
+          <span class="home-menu-row-left">${icon('calendar')}Apple / Outlook</span>
           ${icon('chevronRight')}
         </button>
       </div>
@@ -1280,7 +1488,7 @@ async function rescheduleCloudBooking(original,booking){
     starts_at:bookingStartIso(state.selectedDay,booking.time),local_date:nzDateKey(DAYS[state.selectedDay]),local_time:bookingLocalTime24(booking.time),duration_minutes:state.service?.duration||booking.duration||30,
     subtotal:booking.subtotal||0,discount:booking.discount||0,total:booking.price||0,promo_code:booking.promoCode||null,notes:booking.notes||"",preferences:booking.preferences||[],addons:booking.addons||[]
   };
-  if(!original?.publicToken) throw new Error("This booking cannot be rescheduled yet. Refresh Your bookings and try again.");
+  if(!original?.publicToken) throw new Error("This booking cannot be rescheduled yet. Refresh Activity and try again.");
   const {data,error}=await customerSupabaseClient.rpc("reschedule_public_booking",{token:original.publicToken,payload});
   if(error) throw error;
   return data||{};
@@ -1390,7 +1598,7 @@ async function loadCustomerAuth(){
     if(row?.preferred_city) state.city={name:row.preferred_city,region:row.preferred_region||""};
     if(!state.name) state.name=state.profile.name; if(!state.phone) state.phone=state.profile.phone;
     await loadCustomerCloudState();
-    if(state.salon){ const rv=[state.salon.id,...state.recentlyViewed.filter(id=>id!==state.salon.id)].slice(0,6); state.recentlyViewed=rv; queueCustomerPrefsSave(); }
+    if(state.salon){ const rv=[state.salon.id,...state.recentlyViewed.filter(id=>id!==state.salon.id)].slice(0,6); state.recentlyViewed=rv; queueCustomerPrefsSave(); loadLoyaltyAccount(); }
     renderAfterCustomerAuth();
   }catch(err){ console.warn("Blooma account details could not be loaded.",err); state.authReady=true; renderAfterCustomerAuth(); }
 }
@@ -1470,12 +1678,13 @@ function liveVenueToSalon(v){
   const venuePhotos=[mainImage,...galleryImages.filter(x=>x!==mainImage)].filter(Boolean);
   const stylists=(Array.isArray(v.stylists)?v.stylists:[]).map(st=>({
     id:String(st.id), name:st.name, specialty:st.specialty||"", bio:"", availableDays:liveOpenDays(v.open_days),
-    availableToday:st.available_today!==false, photo:st.image_url||"", portfolio:Array.isArray(st.portfolio)?st.portfolio:[]
+    availableToday:st.available_today!==false, photo:st.image_url||"", portfolio:Array.isArray(st.portfolio)?st.portfolio:[],
+    serviceIds:Array.isArray(st.service_ids)?st.service_ids.map(String):[]
   }));
   if(!stylists.some(st=>st.name==="Any available")) stylists.unshift({id:`${v.id}-any`,name:"Any available",availableDays:liveOpenDays(v.open_days)});
   const services=(Array.isArray(v.services)?v.services:[]).map(sv=>({
     id:String(sv.id), name:sv.name, description:String(sv.description||sv.service_description||"").trim(), duration:Math.max(15,Number(sv.duration_minutes||30)), price:Math.max(0,Number(sv.price||0)), isNew:Boolean(sv.is_new),
-    category:sv.category_name||tag.split("·")[0].trim()||"Services", addons:(Array.isArray(sv.addons)?sv.addons:[]).map(a=>({id:String(a.id),name:a.name,price:Number(a.price||0)}))
+    category:sv.category_name||tag.split("·")[0].trim()||"Services", addons:(Array.isArray(sv.addons)?sv.addons:[]).map(a=>({id:String(a.id),name:a.name,price:Number(a.price||0),duration:Number(a.duration_minutes||a.duration||0)}))
   }));
   return {
     id:String(v.id), _cloud:true, publicSlug:String(v.public_slug||"").trim(), name:v.name||"Venue", tag, rating, reviews:reviews.length, city:String(v.city||"").trim(), region:String(v.region||"").trim(), suburb:String(v.suburb||"").trim(), distance:[String(v.suburb||"").trim(),String(v.city||"").trim()].filter(Boolean).join(", ")||"Location not set", icon:liveVenueIcon(tag),
@@ -1567,6 +1776,7 @@ async function loadMarketplaceVenues(applyRouteAfterLoad=false){
         if(location.protocol!=="file:") history.replaceState({blooma:true},"","/");
         Object.assign(state,{page:"home",salon:null,salonCategory:"All"});
       }
+      if(found && state.page==="salon") loadLoyaltyAccount();
     }
     render({samePage:!applyRouteAfterLoad});
   }catch(err){
@@ -1589,6 +1799,10 @@ const DAYS = Array.from({length:21},(_,i)=>dateFromNzKey(addDaysToDateKey(nzToda
 function dayShort(d){ return d.toLocaleDateString(undefined,{weekday:"short",timeZone:NZ_TIME_ZONE}); }
 function dayLabel(d){ return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",timeZone:NZ_TIME_ZONE}); }
 function bookingStatusLabel(status){ return status==="completed"?"Completed":status==="cancelled"?"Cancelled":status==="no_show"?"No-show":"Upcoming"; }
+function bookingRefFor(booking){
+  const source = booking.publicToken || String(booking.dbId||booking.id||"");
+  return source.replace(/-/g,"").slice(0,8).toUpperCase();
+}
 function dateKeyDayDiff(aKey,bKey){ const [ay,am,ad]=aKey.split("-").map(Number),[by,bm,bd]=bKey.split("-").map(Number); return Math.round((Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000); }
 function countdownLabel(iso){
   const diff=dateKeyDayDiff(nzDateKey(new Date(iso)),nzTodayKey());
@@ -1620,6 +1834,9 @@ function selectedDayHours(salon,dayIndex){
 function timeSlotsForSalon(salon,dayIndex,durationMins){
   const bounds=selectedDayHours(salon,dayIndex); if(!bounds) return [];
   const out=[]; for(let m=bounds.start;m+Number(durationMins||0)<=bounds.end;m+=15) out.push(formatTimeMins(m)); return out;
+}
+function isPastTimeSlot(dayIndex,timeStr){
+  return new Date(bookingStartIso(dayIndex,timeStr)).getTime() < Date.now()+5*60000;
 }
 function intervalOverlaps(aStart,aEnd,bStart,bEnd){ return aStart<bEnd && aEnd>bStart; }
 function staffUnavailableInCloud(salon,staffId,slotStart,slotEnd){
@@ -1785,6 +2002,7 @@ let state = {
   selectedTime: null,
   selectedAddons: [],
   selectedNotes: [],
+  firstVisitAnswered: false,
   step: 0,
   name: "",
   phone: "",
@@ -1833,6 +2051,12 @@ let state = {
   pendingBookingRequestId: null,
   pendingWaitlistRequestId: null,
   rescheduleBookingId: null,
+  lastBookingId: null,
+  viewBookingId: null,
+  bookingDetailReturnPage: "history",
+  messageSalon: null,
+  messageThread: [],
+  messageDraft: "",
   showHomeMenu: false,
 };
 let bookingCounter = 2;
@@ -1900,7 +2124,7 @@ function restoreCustomerHistoryState(entry){
   if(page==="history"||page==="profile"){ Object.assign(state,{page}); render(); if(page==="profile") loadLoyaltyAccount(); return true; }
   if(!salon){ Object.assign(state,{page:"home",salon:null,service:null,step:0}); render(); return true; }
   state.salon=salon;
-  if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); return true; }
+  if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); loadLoyaltyAccount(); return true; }
   if(page==="serviceSelect"){ Object.assign(state,{page:"serviceSelect"}); render(); return true; }
   if(page==="checkout"){ const service=(salon.services||[]).find(s=>s.id===entry.serviceId)||state.service; if(service) state.service=service; Object.assign(state,{page:"checkout",step:Number(entry.step||0),checkoutOrigin:entry.checkoutOrigin||state.checkoutOrigin}); render(); return true; }
   if(page==="stylist"){ state.stylistProfile=(salon.stylists||[]).find(st=>st.id===entry.stylistId)||state.stylistProfile; state.page="stylist"; render(); return true; }
@@ -1926,6 +2150,16 @@ function goSalon(salon, opts){
   queueCustomerPrefsSave();
   loadLoyaltyAccount();
 }
+function goVenueMessage(salon){
+  setState({ page:"venueMessage", messageSalon:salon, messageDraft:"" });
+  pushCustomerHistoryState();
+}
+function goBookingDetail(bookingId, opts){
+  const historyPage = document.querySelector(".page");
+  state.historyReturnScrollTop = historyPage ? historyPage.scrollTop : 0;
+  setState({ page:"bookingDetail", viewBookingId:bookingId, bookingDetailReturnPage:(opts&&opts.returnPage)||"history" });
+  pushCustomerHistoryState();
+}
 function currentPageScrollTop(){
   const page = document.querySelector(".page");
   return page ? page.scrollTop : 0;
@@ -1944,11 +2178,11 @@ function goServiceSelect(){
 function checkoutStepKeys(service){
   return (service && service.addons && service.addons.length) ? ["addons","stylist","time","details","confirm"] : ["stylist","time","details","confirm"];
 }
-function goCheckout(service, origin){
+function goCheckout(service, origin, preferredStylist){
   delete scrollPositions["checkout-day"];
   const contact = bookingContact();
   const anyAvailable = (state.salon?.stylists||[]).find(st=>st.name==="Any available") || null;
-  setState({ page:"checkout", checkoutOrigin:origin||"salon", service, step:0, selectedStylist:anyAvailable, selectedDay:firstOpenDayIndex(state.salon), selectedTime:null, selectedAddons:[], selectedNotes:[], name:contact.name, phone:contact.phone, guestEmail:contact.email, notes:"", promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"", bookingError:"", bookingSaving:false, pendingBookingRequestId:null, rescheduleBookingId:null, done:false });
+  setState({ page:"checkout", checkoutOrigin:origin||"salon", service, step:0, selectedStylist:preferredStylist||anyAvailable, selectedDay:firstOpenDayIndex(state.salon), selectedTime:null, selectedAddons:[], selectedNotes:[], firstVisitAnswered:false, name:contact.name, phone:contact.phone, guestEmail:contact.email, notes:"", promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"", bookingError:"", bookingSaving:false, pendingBookingRequestId:null, rescheduleBookingId:null, done:false });
   pushCustomerHistoryState();
   loadLoyaltyAccount();
 }
@@ -1978,7 +2212,7 @@ function goReschedule(booking){
   delete scrollPositions["checkout-day"];
   setState({
     page:"checkout", checkoutOrigin:"history", salon, service, step:checkoutStepKeys(service).indexOf("time"),
-    selectedStylist: stylist, selectedDay:firstOpenDayIndex(salon), selectedTime:null, selectedAddons:[], selectedNotes: booking.preferences||[],
+    selectedStylist: stylist, selectedDay:firstOpenDayIndex(salon), selectedTime:null, selectedAddons:[], selectedNotes: booking.preferences||[], firstVisitAnswered: !!(booking.preferences||[]).length,
     name: booking.name||"", phone: booking.phone||"", notes: booking.notes||"",
     promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"",
     done:false, rescheduleBookingId:booking.id, pendingBookingRequestId:null,
@@ -2081,6 +2315,46 @@ function featuredSalonCardMarkup(s){
     </div>
   `;
 }
+function upcomingBookingCardMarkup(b){
+  const salon = SALONS.find(s=>s.id===b.salonId);
+  const img = salon ? (salon.homeImage || (salon.photos && salon.photos.length ? salon.photos[0] : "")) : "";
+  return `
+    <div class="upcoming-booking-card" data-bookingview="${b.id}">
+      <div class="upcoming-booking-image">
+        ${img ? `<img src="${escapeAttr(img)}" alt="${escapeAttr(b.salonName)}" loading="lazy" decoding="async">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--purple);">${icon((salon&&salon.icon)||'sparkle')}</div>`}
+        <span class="upcoming-booking-pin" data-mappin="${b.id}" aria-label="Get directions">${icon('mapPin')}</span>
+      </div>
+      <div class="upcoming-booking-body">
+        <h3 class="upcoming-booking-name">${escapeHtml(b.salonName)}</h3>
+        <div class="upcoming-booking-row">
+          <span class="upcoming-booking-item">${icon('calendar')}<span>${escapeHtml(b.dateLabel||"")}</span></span>
+          <span class="upcoming-booking-item">${icon('clock')}<span>${escapeHtml(b.time||"")}</span></span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function upcomingBookingsSectionMarkup(){
+  if (!isLoggedInCustomer()) return "";
+  const now = Date.now();
+  const upcoming = state.bookings
+    .filter(b=>b.status==="upcoming" && b.date && new Date(b.date).getTime()>now)
+    .sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if (!upcoming.length) return "";
+  return `
+    <div class="venue-featured-section upcoming-bookings-section">
+      <div class="venue-featured-banner">
+        <p class="venue-featured-eyebrow">YOUR SCHEDULE</p>
+        <div class="venue-featured-title-row">
+          <h2 class="venue-featured-title">Upcoming appointments</h2>
+        </div>
+        <div class="venue-featured-row no-scrollbar" id="homeUpcomingRow" data-scrollkey="homeUpcomingRow">
+          ${upcoming.map(b=>upcomingBookingCardMarkup(b)).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
 function venueCarouselSectionMarkup(rowId,title,salons){
   if (!salons.length) return "";
   return `
@@ -2096,6 +2370,110 @@ function venueCarouselSectionMarkup(rowId,title,salons){
         ${salons.map(s=>featuredSalonCardMarkup(s)).join("")}
       </div>
     </div>
+  `;
+}
+function venueDarkRowMarkup(rowId,eyebrow,title,salons){
+  if (!salons.length) return "";
+  return `
+    <div class="venue-dark-row">
+      ${eyebrow ? `<p class="venue-featured-eyebrow">${escapeHtml(eyebrow)}</p>` : ""}
+      <div class="venue-featured-title-row">
+        <h2 class="venue-featured-title">${escapeHtml(title)}</h2>
+      </div>
+      <div class="venue-featured-row no-scrollbar" id="${rowId}" data-scrollkey="${rowId}">
+        ${salons.map(s=>featuredSalonCardMarkup(s)).join("")}
+      </div>
+    </div>
+  `;
+}
+function venueDarkBannerMarkup(rows){
+  const content = rows.filter(Boolean).join("");
+  if (!content) return "";
+  return `
+    <div class="venue-featured-section">
+      <div class="venue-featured-banner">
+        ${content}
+      </div>
+    </div>
+  `;
+}
+function howItWorksSectionMarkup(){
+  const steps = [
+    { title:'Find a salon', body:'Filter by service, category, or suburb to find salons with real availability that fits your schedule.' },
+    { title:'Book instantly', body:'See real openings and lock in your appointment in seconds — no calls, no waiting on a reply.' },
+    { title:'Show up & relax', body:'Your booking, stylist, and details are all saved in one place — just arrive and get started.' },
+  ];
+  return `
+    <div class="how-it-works-section">
+      <h2 class="how-it-works-title">How Blooma works</h2>
+      <div class="how-it-works-list">
+        ${steps.map((s,i)=>`
+          <div class="how-it-works-step">
+            <div class="how-it-works-num">${i+1}</div>
+            <div class="how-it-works-body">
+              <h3>${escapeHtml(s.title)}</h3>
+              <p>${escapeHtml(s.body)}</p>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+function bottomCtaSectionMarkup(){
+  if (isLoggedInCustomer()){
+    return `
+      <div class="bottom-cta-section">
+        <div class="bottom-cta-text">
+          <h2 class="bottom-cta-title">Own a venue?</h2>
+          <p class="bottom-cta-body">List your salon on Blooma and start filling your chairs with new clients across New Zealand.</p>
+        </div>
+        <div class="bottom-cta-actions">
+          <button id="bottomCtaBusinessBtn" class="bottom-cta-btn primary">List your salon</button>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="bottom-cta-section">
+      <div class="bottom-cta-text">
+        <h2 class="bottom-cta-title">Ready when you are</h2>
+        <p class="bottom-cta-body">Join thousands of customers booking trusted salons across New Zealand, or list your salon and start filling your chairs.</p>
+      </div>
+      <div class="bottom-cta-actions">
+        <button id="bottomCtaSignupBtn" class="bottom-cta-btn primary">Sign up free</button>
+        <button id="bottomCtaBusinessBtn" class="bottom-cta-btn outline">List your salon</button>
+      </div>
+    </div>
+  `;
+}
+function homeFooterMarkup(){
+  return `
+    <footer class="home-footer">
+      <div class="home-footer-inner">
+      <div class="home-footer-top">
+        <div class="home-footer-brand">
+          <p class="home-footer-logo">Blooma</p>
+          <p class="home-footer-tagline">Book trusted salons across New Zealand, all in one place.</p>
+        </div>
+        <div class="home-footer-links">
+          <div class="home-footer-col">
+            <p class="home-footer-col-title">Customers</p>
+            <button class="home-footer-link" id="footerSignupBtn">Sign up</button>
+            <button class="home-footer-link" id="footerLoginBtn">Log in</button>
+          </div>
+          <div class="home-footer-col">
+            <p class="home-footer-col-title">Business</p>
+            <button class="home-footer-link" id="footerBusinessBtn">List your salon</button>
+          </div>
+        </div>
+      </div>
+      <div class="home-footer-bottom">
+        <p>© ${new Date().getFullYear()} Blooma. All rights reserved.</p>
+        <p><a class="home-footer-legal-link" href="/privacy">Privacy</a> · <a class="home-footer-legal-link" href="/terms">Terms</a></p>
+      </div>
+      </div>
+    </footer>
   `;
 }
 function renderHome(){
@@ -2115,97 +2493,94 @@ function renderHome(){
     return matchesFilter && matchesQuery && matchesCity;
   });
 
-  const recentSalons = state.recentlyViewed
-    .map(id=>SALONS.find(s=>s.id===id))
-    .filter(Boolean);
-
   const newSalons = SALONS.filter(s=>{
+    const matchesFilter = state.homeFilter==="All" ||
+      (state.homeFilter==="Saved" ? state.favorites.includes(s.id) :
+        (s.tag===state.homeFilter || s.tag.split("·").map(t=>t.trim()).includes(state.homeFilter)));
+    const q = state.homeQuery.toLowerCase();
+    const matchesQuery = s.name.toLowerCase().includes(q) || s.tag.toLowerCase().includes(q) || String(s.address||"").toLowerCase().includes(q);
     const matchesCity = !state.city?.name || String(s.city||"").toLowerCase()===String(state.city.name).toLowerCase();
-    return matchesCity && String(s.rating)==="New";
+    return matchesFilter && matchesQuery && matchesCity && String(s.rating)==="New";
   });
 
   return `
     <div class="page" style="position:relative;">
+      <div class="home-cap">
       ${topbarMarkup({locationBtn:{cityName:state.city.name}})}
 
-      <div style="padding:16px 20px 16px;">
-        <h1 style="font-size:26px;line-height:1.2;font-weight:700;color:var(--ink);margin:0;"><span class="greeting-mobile">${escapeHtml(greetingLabel())}</span><span class="greeting-desktop">${escapeHtml(desktopGreetingLabel())}</span></h1>
+      <div class="greeting">
+        <h1>${escapeHtml(greetingLabel())}</h1>
+        <p>Let's find your next appointment in ${escapeHtml(state.city.name)}.</p>
       </div>
 
-      <div style="padding:0 20px 16px;">
-        <div class="searchbox">
+      <div class="search-wrap">
+        <div class="searchbox" style="width:100%;">
           ${icon('search','var(--placeholder)')}
           <input id="searchInput" value="${escapeAttr(state.homeQuery)}" placeholder="Search salons or services" />
         </div>
       </div>
 
-      ${recentSalons.length ? `
-      <div style="padding:0 20px 6px;">
-        <p class="eyebrow" style="margin:0 0 10px;">Recently viewed</p>
-      </div>
-      <div class="no-scrollbar" data-scrollkey="recent-viewed" style="display:flex;align-items:flex-start;gap:10px;min-height:156px;overflow-x:auto;overflow-y:hidden;padding:0 20px 18px;">
-        ${recentSalons.map(s=>{
-          const recentImage = s.homeImage || (s.photos && s.photos.length ? s.photos[0] : "");
-          return `
-          <button class="recent-card" data-salon="${s.id}">
-            <div class="recent-card-image">${recentImage ? `<img src="${escapeAttr(recentImage)}" alt="${escapeAttr(s.name)}" loading="lazy" decoding="async">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--purple);">${bigIcon(s.icon,44)}</div>`}</div>
-            <div class="recent-card-body">
-              <span class="recent-card-name">${escapeHtml(s.name)}</span>
-              <span class="recent-card-meta"><span>${escapeHtml(s.tag.split('·')[0].trim())}</span><span style="display:flex;align-items:center;gap:3px;">${icon('star','var(--gold)')} ${s.rating}${s.rating!=="New" && Number(s.reviews)>0 ? ` (${s.reviews})` : ""}</span></span>
-            </div>
-          </button>`;
-        }).join("")}
-      </div>` : ""}
-
-      <div class="category-shelf" style="margin:0 20px 16px;">
+      <div class="cats-wrap">
         <div class="no-scrollbar chip-row" data-scrollkey="home-filter">
           ${categories.map(c=>`<button class="chip ${state.homeFilter===c?'active':''}" data-filter="${escapeAttr(c)}">${escapeHtml(c)}</button>`).join("")}
         </div>
       </div>
 
+      <div class="home-promo-banner">
+        <p class="home-promo-eyebrow">412 chairs open today</p>
+        <h2>Your next appointment is closer than you think.</h2>
+        <p>Real-time openings across 400+ independent salons and barbershops in ${escapeHtml(state.city.name)}.</p>
+      </div>
+
+      <div class="home-trust-strip">
+        <div class="home-trust-item"><strong>4.7★</strong><span>Avg. rating</span></div>
+        <div class="home-trust-divider"></div>
+        <div class="home-trust-item"><strong>110+</strong><span>Venues on Blooma</span></div>
+        <div class="home-trust-divider"></div>
+        <div class="home-trust-item"><strong>3,900+</strong><span>Bookings this year</span></div>
+        <div class="home-trust-divider home-trust-divider-3"></div>
+        <div class="home-trust-item home-trust-item-4"><strong>42 sec</strong><span>Avg. booking time</span></div>
+      </div>
+
+      ${(state.marketplaceError || filtered.length===0) ? `
       <div class="salon-count-label" style="padding:4px 20px 18px;">
         <span style="font-size:14px;font-weight:600;color:var(--ink);">${state.marketplaceError?"Venues unavailable":`${filtered.length} ${filtered.length===1?'salon':'salons'} in ${escapeHtml(state.city.name)}`}</span>
       </div>
-
       <div class="salon-list">
         ${!state.marketplaceError && filtered.length===0 && state.homeFilter==="Saved" ? `<div style="text-align:center;padding:56px 24px;grid-column:1/-1;"><div style="width:56px;height:56px;border-radius:50%;background:var(--purple-pastel-2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--purple);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></div><p style="color:var(--ink);font-size:14.5px;font-weight:700;margin:0 0 6px;">No saved salons yet</p><p style="color:var(--ink-soft);font-size:13px;line-height:1.5;margin:0;">Tap the heart on a salon to save it here for quick access later.</p></div>` : ""}
-        ${filtered.map(s=>featuredSalonCardMarkup(s)).join("")}
         ${state.marketplaceError ? `<div style="text-align:center;padding:54px 20px;grid-column:1/-1;"><p style="color:var(--ink);font-size:14.5px;font-weight:700;margin:0 0 6px;">We couldn't load venues</p><p style="color:var(--ink-soft);font-size:13px;line-height:1.5;margin:0 0 16px;">Check your connection and try again. Blooma won't show cached or demo venue data instead.</p><button id="retryMarketplaceBtn" class="primary-btn" style="width:auto;padding:10px 18px;">Retry</button></div>` : ""}
         ${!state.marketplaceError && filtered.length===0 && state.homeFilter!=="Saved" ?`<div style="text-align:center;padding:64px 0;grid-column:1/-1;"><p style="color:var(--ink-soft);font-size:14px;">${state.homeQuery.trim()?`No salons match "${escapeHtml(state.homeQuery)}". Try another search.`:`No venues are currently listed in ${escapeHtml(state.city.name)}.`}</p></div>`:""}
+      </div>` : ""}
       </div>
-
-      ${!state.marketplaceError && filtered.length ? venueCarouselSectionMarkup('homeCarouselMain',`${filtered.length} ${filtered.length===1?'salon':'salons'} in ${state.city.name}`,filtered) : ""}
+      ${upcomingBookingsSectionMarkup()}
+      <div class="home-cap">
+      ${!state.marketplaceError && filtered.length ? venueCarouselSectionMarkup('homeCarouselMain','Recommended for you',filtered) : ""}
       ${!state.marketplaceError ? venueCarouselSectionMarkup('homeCarouselNew','New to Blooma',newSalons) : ""}
+      </div>
+      ${!state.marketplaceError ? venueDarkBannerMarkup([
+        venueDarkRowMarkup('homeCarouselFeatured','FEATURED THIS WEEK','Salons worth building your week around',filtered),
+      ]) : ""}
+      <div class="home-cap">
+      ${howItWorksSectionMarkup()}
+      ${bottomCtaSectionMarkup()}
+      </div>
+      ${homeFooterMarkup()}
     </div>
     ${hamburgerMenuMarkup()}
     ${state.showCityPicker ? `
-    <div id="cityPickerOverlay" style="position:absolute;inset:0;background:rgba(20,10,40,.4);z-index:50;display:flex;align-items:flex-end;">
-      <div id="cityPickerSheet" class="city-picker-sheet" style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:78%;display:flex;flex-direction:column;padding:20px 20px 20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-shrink:0;">
-          <h2 style="font-size:16px;font-weight:800;color:var(--ink);margin:0;">Choose your city</h2>
-          <button id="closeCityPicker" style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel-2);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);">${icon('x')}</button>
+    <div id="cityPickerOverlay" style="position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:50;display:flex;align-items:flex-end;">
+      <div id="cityPickerSheet" class="city-picker-sheet" style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:480px;margin:0 auto;max-height:78%;display:flex;flex-direction:column;padding:22px 20px 20px;">
+        <div class="home-menu-sheet-header" style="flex-shrink:0;">
+          <h2 class="home-menu-sheet-title" style="font-size:22px;">Choose city</h2>
+          <button id="closeCityPicker" class="home-menu-sheet-close">${icon('x')}</button>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;flex:1;min-height:0;margin-bottom:14px;">
-          ${(() => {
-            const q = state.cityQuery.trim().toLowerCase();
-            const matches = marketplaceCityOptions().filter(c => !q || c.name.toLowerCase().includes(q) || c.region.toLowerCase().includes(q));
-            if (!matches.length) return `<p style="text-align:center;font-size:13px;color:var(--ink-soft);padding:24px 0;">No cities match "${escapeHtml(state.cityQuery)}".</p>`;
-            return matches.map(c=>`
+        <div class="home-menu-list no-scrollbar" style="overflow-y:auto;flex:1;min-height:0;">
+          ${marketplaceCityOptions().map(c=>`
             <button class="city-row ${state.city.name===c.name?'active':''}" data-city="${escapeAttr(c.name)}" data-region="${escapeAttr(c.region)}">
-              <span style="display:flex;align-items:center;gap:12px;min-width:0;">
-                <span class="venue-info-icon">${icon('mapPin')}</span>
-                <span style="min-width:0;">
-                  <span style="display:block;font-size:14.5px;font-weight:700;color:var(--ink);">${escapeHtml(c.name)}</span>
-                  <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;">${escapeHtml(c.region)}</span>
-                </span>
-              </span>
+              <span>${escapeHtml(c.name)}</span>
+              <span class="icon check-icon">${icon('check')}</span>
             </button>
-          `).join("");
-          })()}
-        </div>
-        <div class="searchbox" style="flex-shrink:0;">
-          ${icon('search','var(--placeholder)')}
-          <input id="citySearchInput" value="${escapeAttr(state.cityQuery)}" placeholder="Search city or region" />
+          `).join("")}
         </div>
       </div>
     </div>` : ""}
@@ -2338,7 +2713,7 @@ function renderSalon(){
     <div class="page" style="padding-bottom:86px;position:relative;">
       ${topbarMarkup({backBtn:true, shareBtn:{title:salon.name, url:`${location.origin}${venuePublicPath(salon)}`}, favBtn:{active:isFav, salonId:salon.id}})}
       ${closingSoon ? `
-      <div class="closing-soon-banner">
+      <div class="closing-soon-banner closing-soon-banner--attached">
         ${icon('clock')}
         <span>Closing soon · ${status.minutesUntilClose} minute${status.minutesUntilClose===1?"":"s"} left</span>
       </div>` : ""}
@@ -2356,7 +2731,7 @@ function renderSalon(){
         </div>
       </div>
 
-      <div class="salon-drawer">
+      <div class="salon-drawer${closingSoon ? ' salon-drawer--attached' : ''}">
         <h1 class="salon-title" style="font-size:19px;font-weight:800;color:var(--ink);margin:0;">${escapeHtml(salon.name)}</h1>
         <div class="venue-rating-row-mobile" style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--ink-soft);">
           <span style="display:flex;align-items:center;gap:4px;">${icon('star','var(--gold)')} <span style="font-weight:700;color:var(--ink);">${salon.rating}</span> (${salon.reviews})</span>
@@ -2378,7 +2753,7 @@ function renderSalon(){
 
       <div class="venue-body-grid">
       <div class="venue-main-col">
-      ${salon.blurb?`<div style="padding:18px 20px 4px;">
+      ${salon.blurb?`<div class="venue-about-wrap" style="padding:18px 20px 4px;">
         <p class="eyebrow" style="margin-bottom:8px;">About</p>
         <p style="font-size:13.5px;color:var(--ink-mute);margin:0;line-height:1.5;">${escapeHtml(salon.blurb)}</p>
       </div>`:""}
@@ -2391,16 +2766,16 @@ function renderSalon(){
       </div>
 
       ${salon.stylists && salon.stylists.filter(s=>s.name!=='Any available').length ? `
-      <div style="padding:20px 20px 0;">
+      <div class="venue-team-wrap" style="padding:20px 20px 0;">
         <div class="venue-team-section">
           <p class="eyebrow" style="margin-bottom:10px;">Meet the team</p>
           <div style="display:flex;flex-direction:column;gap:10px;">
             ${salon.stylists.filter(s=>s.name!=='Any available').map(st=>`
-              <button class="stylist-card" data-stylistprofile="${st.id}">
-                <div class="stylist-avatar" style="overflow:hidden;${st.photo?'background:var(--purple-pastel-2);':''}">${st.photo?`<img src="${escapeAttr(st.photo)}" alt="${escapeAttr(st.name)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(st.name.charAt(0))}</div>
+              <button class="stylist-card" data-stylistprofile="${st.id}" style="padding:18px;gap:16px;">
+                <div class="stylist-avatar" style="width:60px;height:60px;font-size:22px;overflow:hidden;${st.photo?'background:var(--purple-pastel-2);':''}">${st.photo?`<img src="${escapeAttr(st.photo)}" alt="${escapeAttr(st.name)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(st.name.charAt(0))}</div>
                 <span style="min-width:0;">
-                  <span style="display:block;font-size:14px;font-weight:600;color:var(--ink);">${escapeHtml(st.name)}</span>
-                  ${st.specialty?`<span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:2px;">${escapeHtml(st.specialty)}</span>`:""}
+                  <span style="display:block;font-size:17px;font-weight:700;color:var(--ink);">${escapeHtml(st.name)}</span>
+                  ${st.specialty?`<span style="display:block;font-size:13.5px;color:var(--ink-soft);margin-top:3px;">${escapeHtml(st.specialty)}</span>`:""}
                 </span>
                 <span style="margin-left:auto;color:var(--ink-soft);flex-shrink:0;display:flex;transform:rotate(180deg);">${icon('chevronLeft')}</span>
               </button>
@@ -2410,10 +2785,10 @@ function renderSalon(){
       </div>` : ""}
 
       ${salon.reviewList && salon.reviewList.length ? `
-      <div style="padding:20px 20px 0;">
+      <div class="venue-reviews-wrap" style="padding:20px 20px 0;">
         <div class="venue-reviews-section">
         <p class="eyebrow" style="margin-bottom:10px;">What people say</p>
-        <button class="review-summary-card" data-reviews="${salon.id}" style="width:100%;text-align:left;justify-content:space-between;border-radius:18px;cursor:pointer;">
+        <button class="review-summary-card" data-reviews="${salon.id}" style="width:100%;text-align:left;justify-content:space-between;border-radius:16px;cursor:pointer;">
           <div style="display:flex;align-items:center;gap:16px;min-width:0;">
             <span class="rs-number">${salon.rating}</span>
             <div style="min-width:0;">
@@ -2437,7 +2812,7 @@ function renderSalon(){
         </div>
       </div>` : ""}
 
-      <div style="padding:20px 20px 0;">
+      <div class="venue-hours-wrap" style="padding:20px 20px 0;">
         <p class="eyebrow" style="margin-bottom:10px;">Opening hours</p>
         <div class="hours-card">
           ${DAY_NAMES.map((dname, idx)=>{
@@ -2454,7 +2829,7 @@ function renderSalon(){
         </div>
       </div>
 
-      <div style="padding:20px 20px 20px;">
+      <div class="venue-location-wrap" style="padding:20px 20px 20px;">
         <div class="venue-location-section">
           <p class="eyebrow" style="margin-bottom:10px;">Location</p>
           <div class="location-card">
@@ -2494,6 +2869,7 @@ function renderSalon(){
             <span class="status-pill ${status.isOpenNow?'open':'closed'}"><span class="status-dot"></span>${status.isOpenNow?'Open':'Closed'}</span>
           </div>
         </div>
+        ${venueRewardsCardMarkup('margin-top:16px;')}
       </div>
       </div>
     </div>
@@ -2516,9 +2892,12 @@ function renderServiceSelect(){
   const categories = ["All", ...Array.from(new Set(salon.services.map(s=>s.category)))];
   const services = state.salonCategory==="All" ? salon.services : salon.services.filter(s=>s.category===state.salonCategory);
   const pickedService = services.find(s=>s.id===state.selectedServiceId) || salon.services.find(s=>s.id===state.selectedServiceId);
+  const allStepKeys = ["service", ...checkoutStepKeys(pickedService)];
+  const dots = allStepKeys.map((k,i)=>`<div class="dot ${i===0?'current':'upcoming'}"></div>`).join("");
   return `
     <div class="page checkout-shell service-select-shell">
-      <div class="topbar"><div style="display:flex;align-items:center;gap:12px;min-width:0;"><button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Choose a service</h1></div></div>
+      <div class="topbar"><div style="display:flex;align-items:center;gap:12px;min-width:0;"><button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Service</h1></div><div class="stepdots">${dots}</div></div>
+      <div class="service-select-sidebar">
       <div class="service-select-salon-strip">
         <div class="checkout-summary-mobile" style="padding:16px 20px;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);">
           <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
@@ -2529,26 +2908,162 @@ function renderServiceSelect(){
         </div>
         <div class="checkout-summary-desktop" style="padding:16px;">
           ${checkoutVenueCardMarkup(salon)}
-          ${pickedService?`
-          <div class="checkout-sidebar-divider"></div>
-          <div class="checkout-sidebar-item-row">
-            <span class="checkout-sidebar-item-name">${escapeHtml(pickedService.name)}</span>
-            <span class="checkout-sidebar-item-price">$${pickedService.price}</span>
+          <div class="checkout-sidebar-booking-info">
+            ${pickedService?`
+            <div class="checkout-sidebar-divider"></div>
+            <div class="checkout-sidebar-item-row">
+              <span class="checkout-sidebar-item-name">${escapeHtml(pickedService.name)}</span>
+              <span class="checkout-sidebar-item-price">$${pickedService.price}</span>
+            </div>
+            <p class="checkout-sidebar-item-sub">${pickedService.duration} min</p>
+            <div class="checkout-sidebar-divider"></div>
+            <div class="checkout-sidebar-total-row"><span>Total</span><span>$${pickedService.price}</span></div>
+            `:""}
           </div>
-          <p class="checkout-sidebar-item-sub">${pickedService.duration} min</p>
-          <div class="checkout-sidebar-divider"></div>
-          <div class="checkout-sidebar-total-row"><span>Total</span><span>$${pickedService.price}</span></div>
-          `:""}
         </div>
-      </div>
-      <div class="no-scrollbar chip-row" data-scrollkey="service-select-filter" style="padding:6px 20px 10px;flex-shrink:0;">${categories.map(c=>`<button class="chip ${state.salonCategory===c?'active':''}" data-servicecat="${escapeAttr(c)}">${c}</button>`).join("")}</div>
-      <div class="service-select-list" style="flex:1;overflow-y:auto;padding:2px 20px 20px;display:flex;flex-direction:column;gap:8px;min-height:0;">
-        ${services.map(service=>`<button class="service-select-card ${state.selectedServiceId===service.id?'active':''}" data-pickservice="${service.id}"><span style="min-width:0;"><span style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);">${escapeHtml(service.name)}${service.isNew?`<span class="new-badge">New</span>`:""}</span><span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${service.duration} min${service.addons&&service.addons.length?' · add-ons available':''}</span></span><strong style="font-size:14px;color:var(--ink);flex-shrink:0;">$${service.price}</strong></button>`).join("")}
       </div>
       <div class="service-select-footer" style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
         <button class="primary-btn" id="serviceContinueBtn" ${!state.selectedServiceId?'disabled':''}>Continue</button>
       </div>
+      </div>
+      <div class="no-scrollbar chip-row" data-scrollkey="service-select-filter" style="padding:16px 20px;flex-shrink:0;">${categories.map(c=>`<button class="chip ${state.salonCategory===c?'active':''}" data-servicecat="${escapeAttr(c)}">${c}</button>`).join("")}</div>
+      <div class="service-select-list" style="flex:1;overflow-y:auto;padding:2px 20px 20px;display:flex;flex-direction:column;gap:8px;min-height:0;">
+        ${services.map(service=>`<button class="service-select-card ${state.selectedServiceId===service.id?'active':''}" data-pickservice="${service.id}"><span style="min-width:0;"><span style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);">${escapeHtml(service.name)}${service.isNew?`<span class="new-badge">New</span>`:""}</span><span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${service.duration} min${service.addons&&service.addons.length?' · add-ons available':''}</span></span><strong style="font-size:14px;color:var(--ink);flex-shrink:0;">$${service.price}</strong></button>`).join("")}
+      </div>
     </div>`;
+}
+
+/* ---------------------------------------------------
+   RENDER: BOOKING CONFIRMED (shared by checkout-done and Activity detail view)
+--------------------------------------------------- */
+function renderBookingConfirmed(booking){
+  if (!booking){
+    return `
+      <div class="page checkout-shell confirm-done-shell">
+        <div class="topbar"><div style="display:flex;align-items:center;gap:12px;"><button class="backbtn" id="doneBackBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Booking</h1></div></div>
+        <div class="empty-state">This booking couldn't be found.</div>
+      </div>
+    `;
+  }
+  const salon = SALONS.find(s=>s.id===booking.salonId) || null;
+  const heroImg = salon ? ((salon.photos && salon.photos.length) ? salon.photos[0] : (salon.homeImage||"")) : "";
+  const bookingRef = bookingRefFor(booking);
+  const addonsList = booking.addons || [];
+  const addonsSum = addonsList.reduce((s,a)=>s+(Number(a.price)||0),0);
+  const servicePrice = Math.max(0, Number(booking.subtotal!=null?booking.subtotal:booking.price||0) - addonsSum);
+  const isUpcoming = booking.status === "upcoming";
+  return `
+    <div class="page checkout-shell confirm-done-shell">
+      <div class="confirm-hero">
+        ${heroImg?`<img src="${escapeAttr(heroImg)}" alt="${escapeAttr(booking.salonName)}" decoding="async">`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--purple);">${salon?bigIcon(salon.icon,64):icon('store')}</div>`}
+        <button class="backbtn confirm-hero-backbtn" id="doneBackBtn" aria-label="Back">${icon('chevronLeft','var(--ink)')}</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0;padding:20px 20px 28px;">
+        <span class="confirm-badge">${icon('checkSmall')}<span>${isUpcoming?"Confirmed":bookingStatusLabel(booking.status)}</span></span>
+        <h1 class="confirm-when">${escapeHtml(booking.dateLabel)} at ${escapeHtml(booking.time)}</h1>
+        <p class="confirm-duration">${booking.duration} min${addonsList.length?` · ${escapeHtml(booking.serviceName)} + ${addonsList.length} add-on${addonsList.length===1?"":"s"}`:` · ${escapeHtml(booking.serviceName)}`}</p>
+
+        <div class="confirm-action-list">
+          <button class="confirm-action-row" id="addToCalendarBtn">
+            <span class="confirm-action-icon">${icon('calendar')}</span>
+            <span class="confirm-action-label">Add to calendar</span>
+            <span class="confirm-action-chevron">${icon('chevronRight')}</span>
+          </button>
+          ${salon?`
+          <button class="confirm-action-row" id="doneDirectionsBtn">
+            <span class="confirm-action-icon">${icon('navigation')}</span>
+            <span class="confirm-action-label">Get directions</span>
+            <span class="confirm-action-chevron">${icon('chevronRight')}</span>
+          </button>
+          <button class="confirm-action-row" id="doneMessageBtn">
+            <span class="confirm-action-icon">${icon('messageSquare')}</span>
+            <span class="confirm-action-label">Send message</span>
+            <span class="confirm-action-chevron">${icon('chevronRight')}</span>
+          </button>
+          <button class="confirm-action-row" id="doneVenueBtn">
+            <span class="confirm-action-icon">${icon('store')}</span>
+            <span class="confirm-action-label">Venue details</span>
+            <span class="confirm-action-chevron">${icon('chevronRight')}</span>
+          </button>
+          `:""}
+        </div>
+
+        <div class="section-rule"><span class="lbl">Overview</span><span class="line"></span></div>
+        <div class="summary-card">
+          <div class="row"><span style="font-weight:700;color:var(--ink);">${escapeHtml(booking.serviceName)}</span><span class="value">$${servicePrice}</span></div>
+          <p style="font-size:12px;color:var(--ink-soft);margin:2px 0 0;">${booking.duration} min</p>
+          ${addonsList.map(a=>`
+          <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+          <div class="row"><span style="font-weight:600;color:var(--ink);">${escapeHtml(a.name)}</span><span class="value">+$${a.price}</span></div>
+          `).join("")}
+          <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+          ${booking.discount?`<div class="row"><span class="label">${booking.promoCode?`Promo (${escapeHtml(booking.promoCode)})`:"Discount"}</span><span class="value" style="color:#1E8A4C;">−$${booking.discount}</span></div>`:""}
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:14px;font-weight:700;color:var(--ink);">Total</span>
+            <span style="font-size:19px;font-weight:800;color:var(--purple);">$${booking.price}</span>
+          </div>
+        </div>
+
+        <div class="section-rule"><span class="lbl">More details</span><span class="line"></span></div>
+        <div class="summary-card">
+          <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 6px;">Cancellation policy</p>
+          <p style="font-size:13px;color:var(--ink-mute);margin:0 0 14px;line-height:1.5;">${escapeHtml((salon&&salon.cancellationPolicy)||"You can cancel or reschedule this booking at any time before your appointment.")}</p>
+          ${isUpcoming?`
+          <div style="height:1px;background:var(--border);margin:0 0 4px;"></div>
+          <button class="home-menu-row" id="doneRescheduleBtn"><span>Reschedule appointment</span>${icon('chevronRight')}</button>
+          <button class="home-menu-row" id="doneCancelBtn"><span>Cancel appointment</span>${icon('chevronRight')}</button>
+          `:""}
+        </div>
+
+        ${salon&&salon.address?`
+        <div class="section-rule"><span class="lbl">Getting there</span><span class="line"></span></div>
+        <div class="location-card">
+          <div class="map-placeholder">
+            <iframe class="map-embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" src="${venueMapUrl(salon,true)}" aria-label="Google map showing ${escapeAttr(salon.address)}"></iframe>
+          </div>
+          <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
+            <span class="venue-info-icon">${icon('mapPin')}</span>
+            <span class="addr-text">${escapeHtml(salon.address)}</span>
+            <span class="venue-info-chevron">${icon('chevronRight')}</span>
+          </a>
+        </div>
+        `:""}
+
+        ${bookingRef?`<p class="confirm-booking-ref">Booking ref: ${escapeHtml(bookingRef)}</p>`:""}
+      </div>
+    </div>
+    ${calendarSheetMarkup()}
+  `;
+}
+function bindBookingConfirmedEvents(booking, onBack){
+  const doneBackBtn = document.getElementById("doneBackBtn");
+  if (doneBackBtn) doneBackBtn.addEventListener("click", onBack);
+  if (!booking) return;
+  const salon = SALONS.find(s=>s.id===booking.salonId) || null;
+  const addToCalendarBtn = document.getElementById("addToCalendarBtn");
+  if (addToCalendarBtn) addToCalendarBtn.addEventListener("click", ()=>{
+    const evt = buildCalendarEvent({
+      title: `${booking.serviceName} at ${booking.salonName}`,
+      description: `Booked via Blooma${booking.stylistName && !isAnyAvailableStylist(booking.stylistName) ? ` with ${booking.stylistName}` : ""}`,
+      location: salon ? salon.address : "",
+      startIso: booking.date,
+      durationMinutes: booking.duration,
+    });
+    setState({ calendarSheetEvent: evt }, { samePage:true });
+  });
+  const doneDirectionsBtn = document.getElementById("doneDirectionsBtn");
+  if (doneDirectionsBtn && salon) doneDirectionsBtn.addEventListener("click", ()=>{
+    window.open(venueMapUrl(salon,false), "_blank", "noopener");
+  });
+  const doneMessageBtn = document.getElementById("doneMessageBtn");
+  if (doneMessageBtn && salon) doneMessageBtn.addEventListener("click", ()=> goVenueMessage(salon));
+  const doneVenueBtn = document.getElementById("doneVenueBtn");
+  if (doneVenueBtn && salon) doneVenueBtn.addEventListener("click", ()=> goSalon(salon));
+  const doneRescheduleBtn = document.getElementById("doneRescheduleBtn");
+  if (doneRescheduleBtn) doneRescheduleBtn.addEventListener("click", ()=> goReschedule(booking));
+  const doneCancelBtn = document.getElementById("doneCancelBtn");
+  if (doneCancelBtn) doneCancelBtn.addEventListener("click", ()=> cancelBooking(booking.id));
+  bindCalendarSheetControls();
 }
 
 /* ---------------------------------------------------
@@ -2558,49 +3073,8 @@ function renderCheckout(){
   const salon = state.salon, service = state.service;
 
   if (state.done){
-    return `
-      <div class="page checkout-shell confirm-done-shell">
-        <div style="flex:1;overflow-y:auto;padding:28px 20px 28px;">
-          <div style="width:52px;height:52px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--purple);">${icon('check')}</div>
-          <h1 class="confirm-page-title" style="margin-bottom:6px;">You're all set</h1>
-          <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin:0 0 20px;">Your booking is confirmed. You can find it anytime in Your bookings.</p>
-
-          <div class="section-rule" style="margin-top:0;"><span class="lbl">Appointment</span><span class="line"></span></div>
-          <div class="summary-card">
-            <div class="row"><span class="label">Date</span><span class="value">${dayLabel(DAYS[state.selectedDay])}</span></div>
-            <div class="row"><span class="label">Time</span><span class="value">${state.selectedTime}</span></div>
-            <div style="height:1px;background:var(--border);margin:12px 0;"></div>
-            <div class="confirm-stylist-row">
-              <div class="stylist-avatar" style="width:38px;height:38px;flex-shrink:0;">${isAnyAvailableStylist(state.selectedStylist) ? icon('sparkles') : escapeHtml((state.selectedStylist?.name||"?").charAt(0))}</div>
-              <div style="min-width:0;">
-                <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(stylistPreferenceLabel(state.selectedStylist))}</p>
-                <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">${escapeHtml(salon.name)}</p>
-              </div>
-            </div>
-            <div style="height:1px;background:var(--border);margin:12px 0;"></div>
-            <div class="row"><span class="label">Service</span><span class="value">${escapeHtml(service.name)}</span></div>
-            ${selectedAddonsList().length?`<div class="row"><span class="label">Add-ons</span><span class="value">${selectedAddonsList().map(a=>escapeHtml(a.name)).join(", ")}</span></div>`:""}
-          </div>
-
-          <div class="section-rule"><span class="lbl">Total</span><span class="line"></span></div>
-          <div class="summary-card">
-            ${state.appliedPromo?`<div class="row"><span class="label">Promo (${escapeHtml(state.appliedPromo.code)})</span><span class="value" style="color:#1E8A4C;">−$${promoDiscount()}</span></div>`:""}
-            ${state.appliedLoyaltyReward?`<div class="row"><span class="label">Reward</span><span class="value" style="color:#1E8A4C;">−$${loyaltyDiscount()}</span></div>`:""}
-            ${(state.appliedPromo || state.appliedLoyaltyReward) ? `<div style="height:1px;background:var(--border);margin:8px 0;"></div>` : ""}
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:14px;font-weight:700;color:var(--ink);">Total due at salon</span>
-              <span style="font-size:19px;font-weight:800;color:var(--purple);">$${finalTotal()}</span>
-            </div>
-          </div>
-
-          <div style="margin-top:12px;">
-            <button class="secondary-btn" id="addToCalendarBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;">${icon('calendar')}Add to calendar</button>
-          </div>
-          <button class="primary-btn" id="backHomeBtn" style="margin-top:10px;">Back to home</button>
-        </div>
-      </div>
-      ${calendarSheetMarkup()}
-    `;
+    const doneBooking = state.bookings.find(b=>b.id===state.lastBookingId) || null;
+    return renderBookingConfirmed(doneBooking);
   }
 
   const stepKeys = checkoutStepKeys(service);
@@ -2609,7 +3083,7 @@ function renderCheckout(){
   const canContinueStylist = state.selectedStylist !== null;
   const canContinueTime = state.selectedTime !== null && !isTimeBlocked(salon, state.selectedDay, state.selectedStylist, state.selectedTime, service.duration);
   const contact = bookingContact();
-  const canContinueDetails = isLoggedInCustomer() ? (contact.name.length > 1 && contact.phone.length > 5) : (state.name.trim().length > 1 && state.phone.trim().length > 5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.guestEmail.trim()));
+  const canContinueDetails = state.firstVisitAnswered && (isLoggedInCustomer() ? (contact.name.length > 1 && contact.phone.length > 5) : (state.name.trim().length > 1 && state.phone.trim().length > 5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.guestEmail.trim())));
   const disabled = state.bookingSaving || (stepKey==="stylist" && !canContinueStylist) || (stepKey==="time" && !canContinueTime) || (stepKey==="details" && !canContinueDetails);
 
   let body = "";
@@ -2619,8 +3093,11 @@ function renderCheckout(){
       <div style="display:flex;flex-direction:column;gap:10px;">
         ${service.addons.map(a=>`
           <button class="addon-row ${state.selectedAddons.includes(a.id)?'active':''}" data-addon="${a.id}">
-            <span style="font-size:13.5px;font-weight:600;color:var(--ink);">${escapeHtml(a.name)}</span>
-            <span style="font-size:13.5px;font-weight:700;color:var(--ink);">+$${a.price}</span>
+            <span style="min-width:0;">
+              <span style="display:block;font-size:13.5px;font-weight:600;color:var(--ink);">${escapeHtml(a.name)}</span>
+              ${a.duration?`<span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:2px;">${a.duration} min</span>`:""}
+            </span>
+            <span style="font-size:13.5px;font-weight:700;color:var(--ink);flex-shrink:0;">+$${a.price}</span>
           </button>
         `).join("")}
       </div>
@@ -2628,7 +3105,7 @@ function renderCheckout(){
     `;
   } else if (stepKey==="stylist"){
     body = `
-      <p class="checkout-step-label">Choose a stylist</p>
+      <p class="checkout-step-label">Stylist</p>
       <div style="display:flex;flex-direction:column;gap:10px;">
         ${salon.stylists.map(st=>`
           <button class="stylist-card ${state.selectedStylist && state.selectedStylist.id===st.id?'active':''}" data-stylist="${st.id}">
@@ -2640,15 +3117,10 @@ function renderCheckout(){
           </button>
         `).join("")}
       </div>
-      ${salon.cancellationPolicy ? `
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-top:24px;padding:12px 14px;background:var(--purple-pastel-2);border-radius:14px;">
-        ${icon('clock','var(--purple)')}
-        <span style="font-size:12.5px;color:var(--ink-mute);line-height:1.5;">${escapeHtml(salon.cancellationPolicy)}</span>
-      </div>` : ""}
     `;
   } else if (stepKey==="time"){
     body = `
-      <p class="checkout-step-label">Select a day</p>
+      <p class="checkout-step-label">Day</p>
       <div class="no-scrollbar checkout-day-row" data-scrollkey="checkout-day" style="display:flex;overflow-x:auto;padding-bottom:4px;margin-bottom:24px;">
         ${DAYS.map((d,i)=>{
           const isOpen = !!customerDayHours(salon,nzDayIndex(d));
@@ -2660,13 +3132,13 @@ function renderCheckout(){
         }).join("")}
       </div>
       <p class="checkout-step-label">Available times</p>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-        ${timeSlotsForSalon(salon,state.selectedDay,service.duration).map(t=>{
+      <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+        ${timeSlotsForSalon(salon,state.selectedDay,service.duration).filter(t=>!isPastTimeSlot(state.selectedDay,t)).map(t=>{
           const blocked = isTimeBlocked(salon, state.selectedDay, state.selectedStylist, t, service.duration);
           return `<button class="time-pill ${state.selectedTime===t?'active':''}" data-time="${t}" ${blocked?'disabled title="Unavailable"':''}>${t}</button>`;
         }).join("")}
       </div>
-      ${timeSlotsForSalon(salon,state.selectedDay,service.duration).every(t=>isTimeBlocked(salon, state.selectedDay, state.selectedStylist, t, service.duration)) ? `
+      ${timeSlotsForSalon(salon,state.selectedDay,service.duration).filter(t=>!isPastTimeSlot(state.selectedDay,t)).every(t=>isTimeBlocked(salon, state.selectedDay, state.selectedStylist, t, service.duration)) ? `
       <p style="font-size:12.5px;color:var(--ink-soft);margin:14px 2px 0;line-height:1.5;">No times are available ${escapeHtml(stylistAvailabilityPhrase(state.selectedStylist))} on ${dayLabel(DAYS[state.selectedDay])}. Try another day or stylist, or join the waitlist below.</p>
       <button class="primary-btn" id="joinWaitlistBtn" style="margin-top:14px;">${icon('bell')}&nbsp;Join the waitlist</button>
       ` : `
@@ -2679,65 +3151,60 @@ function renderCheckout(){
         ${isLoggedInCustomer() ? "" : `
         <div class="field">
           <label>Full name</label>
-          <input id="nameInput" value="${escapeAttr(state.name)}" placeholder="Jamie Rivera" autocomplete="name" />
+          <input id="nameInput" value="${escapeAttr(state.name)}" autocomplete="name" required />
         </div>
         <div class="field">
           <label>Phone number</label>
-          <input id="phoneInput" value="${escapeAttr(state.phone)}" placeholder="021 234 5678" autocomplete="tel" inputmode="tel" />
+          <input id="phoneInput" value="${escapeAttr(state.phone)}" autocomplete="tel" inputmode="tel" required />
         </div>
         <div class="field">
           <label>Email address</label>
-          <input id="guestEmailInput" type="email" value="${escapeAttr(state.guestEmail)}" placeholder="you@example.com" autocomplete="email" inputmode="email" />
-          <p style="font-size:12px;color:var(--ink-soft);margin:6px 2px 0;">We'll send your booking confirmation and reminders here.</p>
+          <input id="guestEmailInput" type="email" value="${escapeAttr(state.guestEmail)}" autocomplete="email" inputmode="email" required />
         </div>`}
         <div class="field">
-          <label>Quick notes <span style="color:var(--placeholder);font-weight:400;">(optional)</span></label>
-          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-            ${QUICK_NOTES.map(c=>`
-              <button type="button" class="addon-row ${state.selectedNotes.includes(c)?'active':''}" data-notechip="${escapeAttr(c)}">
-                <span style="font-size:13.5px;font-weight:600;color:var(--ink);">${c}</span>
-              </button>
-            `).join("")}
+          <p class="checkout-step-label" style="margin-bottom:12px;">Is this your first time visiting this salon?</p>
+          <div style="display:flex;gap:10px;">
+            <button type="button" class="addon-row ${(!state.selectedNotes.includes('First time here') && state.firstVisitAnswered)?'active':''}" data-firstvisit="no" style="flex:1;justify-content:center;">
+              <span style="font-size:13.5px;font-weight:600;color:var(--ink);">No</span>
+            </button>
+            <button type="button" class="addon-row ${state.selectedNotes.includes('First time here')?'active':''}" data-firstvisit="yes" style="flex:1;justify-content:center;">
+              <span style="font-size:13.5px;font-weight:600;color:var(--ink);">Yes</span>
+            </button>
           </div>
-          <label>Notes <span style="color:var(--placeholder);font-weight:400;">(optional)</span></label>
-          <textarea id="notesInput" rows="3" placeholder="Any preferences the stylist should know">${escapeHtml(state.notes)}</textarea>
         </div>
       </div>
     `;
   } else {
     const initials = state.name.trim() ? state.name.trim().split(/\s+/).map(p=>p[0]).slice(0,2).join("").toUpperCase() : "?";
     body = `
-      <h1 class="confirm-page-title">Confirm booking</h1>
-      <p style="font-size:13px;color:var(--ink-soft);margin:-14px 0 20px;line-height:1.5;">Double-check the details below, then confirm. You'll pay at the salon.</p>
+      <h1 class="confirm-page-title">Review and confirm</h1>
 
-      <div class="section-rule" style="margin-top:0;"><span class="lbl">Appointment</span><span class="line"></span></div>
-      <div class="summary-card">
-        <div class="row"><span class="label">Date</span><span class="value">${dayLabel(DAYS[state.selectedDay])}</span></div>
-        <div class="row"><span class="label">Time</span><span class="value">${state.selectedTime}</span></div>
-        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
-        <div class="confirm-stylist-row">
-          <div class="stylist-avatar" style="width:38px;height:38px;flex-shrink:0;">${isAnyAvailableStylist(state.selectedStylist) ? icon('sparkles') : escapeHtml((state.selectedStylist?.name||"?").charAt(0))}</div>
-          <div style="min-width:0;">
-            <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(stylistPreferenceLabel(state.selectedStylist))}</p>
-            <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">${escapeHtml(salon.name)}</p>
-          </div>
+      <div class="summary-card confirm-mobile-summary" style="margin-bottom:24px;">
+        ${checkoutVenueCardMarkup(salon)}
+        <div class="checkout-sidebar-divider"></div>
+        ${state.selectedTime?`
+        <div class="checkout-sidebar-datetime">
+          <div class="checkout-sidebar-datetime-row">${icon('calendar')}<span>${dayLabel(DAYS[state.selectedDay])}</span></div>
+          <div class="checkout-sidebar-datetime-row">${icon('clock')}<span>${escapeHtml(state.selectedTime)} – ${formatTimeMins(parseTimeMins(state.selectedTime)+service.duration)} (${service.duration} min)</span></div>
         </div>
-        <div style="height:1px;background:var(--border);margin:12px 0;"></div>
-        <div class="row"><span class="label">Service</span><span class="value">${escapeHtml(service.name)}</span></div>
-        ${selectedAddonsList().length?`<div class="row"><span class="label">Add-ons</span><span class="value">${selectedAddonsList().map(a=>escapeHtml(a.name)).join(", ")}</span></div>`:""}
+        <div class="checkout-sidebar-divider"></div>
+        `:""}
+        <div class="checkout-sidebar-item-row">
+          <span class="checkout-sidebar-item-name">${escapeHtml(service.name)}</span>
+          <span class="checkout-sidebar-item-price">$${service.price}</span>
+        </div>
+        <p class="checkout-sidebar-item-sub">${service.duration} min${state.selectedStylist?` with ${escapeHtml(stylistPreferenceLabel(state.selectedStylist,true))}`:""}</p>
+        ${selectedAddonsList().map(a=>`
+        <div class="checkout-sidebar-item-row" style="margin-top:8px;">
+          <span class="checkout-sidebar-item-name" style="font-weight:600;">${escapeHtml(a.name)}</span>
+          <span class="checkout-sidebar-item-price">+$${a.price}</span>
+        </div>`).join("")}
+        <div class="checkout-sidebar-divider"></div>
+        <div class="checkout-sidebar-total-row"><span>Total</span><span>$${finalTotal()}</span></div>
       </div>
 
-      ${isLoggedInCustomer() ? `
-        ${(state.selectedNotes.length || state.notes) ? `
-        <div class="section-rule"><span class="lbl">Notes</span><span class="line"></span></div>
-        <div class="summary-card">
-          ${state.selectedNotes.length ? `
-          <p style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px;">Preferences</p>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">${state.selectedNotes.map(n=>`<span class="pref-tag">${escapeHtml(n)}</span>`).join("")}</div>` : ""}
-          ${state.notes?`<p style="font-size:13px;color:var(--ink-soft);margin:${state.selectedNotes.length?'10px':'0'} 0 0;line-height:1.5;">${escapeHtml(state.notes)}</p>`:""}
-        </div>` : ""}
-      ` : `
-        <div class="section-rule"><span class="lbl">Contact</span><span class="line"></span></div>
+      ${isLoggedInCustomer() ? "" : `
+        <div class="section-rule" style="margin-top:0;"><span class="lbl">Contact</span><span class="line"></span></div>
         <div class="summary-card">
           <div class="contact-hero-row">
             <div class="contact-avatar">${initials}</div>
@@ -2746,37 +3213,23 @@ function renderCheckout(){
               <p style="font-size:13px;color:var(--ink-soft);margin:2px 0 0;">${escapeHtml(state.phone)}</p>
             </div>
           </div>
-          ${state.selectedNotes.length ? `
-          <p style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px;">Preferences</p>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">${state.selectedNotes.map(n=>`<span class="pref-tag">${escapeHtml(n)}</span>`).join("")}</div>` : ""}
-          ${state.notes?`<p style="font-size:13px;color:var(--ink-soft);margin:${state.selectedNotes.length?'10px':'0'} 0 0;line-height:1.5;">${escapeHtml(state.notes)}</p>`:""}
         </div>
       `}
 
-      <div class="section-rule"><span class="lbl">Savings</span><span class="line"></span></div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="summary-card" style="padding:12px 14px;">
-          ${state.appliedPromo ? `
-            <div class="promo-applied-row">
-              <span style="display:flex;align-items:center;gap:10px;min-width:0;">
-                <span style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;">${icon('checkSmall')}</span>
-                <span style="min-width:0;">
-                  <span style="display:block;font-size:13.5px;font-weight:700;color:var(--ink);">${escapeHtml(state.appliedPromo.code)}</span>
-                  <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;">${escapeHtml(state.appliedPromo.label)}</span>
-                </span>
-              </span>
-              <button class="promo-remove-btn" id="removePromoBtn">Remove</button>
-            </div>
-          ` : `
-            <div style="display:flex;gap:8px;">
-              <input id="promoInput" class="promo-input ${state.promoError?'error':''}" placeholder="Promo code" value="${escapeAttr(state.promoCode)}" />
-              <button class="promo-apply-btn" id="applyPromoBtn">Apply</button>
-            </div>
-            ${state.promoError ? `<p style="font-size:12px;color:#D0554D;margin:8px 2px 0;">${escapeHtml(state.promoError)}</p>` : ""}
-          `}
-        </div>
+      <div class="section-rule" ${isLoggedInCustomer()?'style="margin-top:0;"':''}><span class="lbl">More details</span><span class="line"></span></div>
+      <div class="summary-card">
+        <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 6px;">Cancellation policy</p>
+        <p style="font-size:13px;color:var(--ink-mute);margin:0;line-height:1.5;">${escapeHtml(salon.cancellationPolicy||"You can cancel or reschedule this booking at any time before your appointment.")}</p>
+      </div>
 
-        ${(isLoggedInCustomer() && salon.loyalty && salon.loyalty.enabled) ? `
+      <div class="section-rule"><span class="lbl">Comments or requests</span><span class="line"></span></div>
+      <div class="summary-card">
+        <div class="field" style="margin:0;"><textarea id="notesInput" rows="3">${escapeHtml(state.notes)}</textarea></div>
+      </div>
+
+      ${(isLoggedInCustomer() && salon.loyalty && salon.loyalty.enabled) ? `
+      <div class="section-rule"><span class="lbl">Rewards</span><span class="line"></span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
         ${state.appliedLoyaltyReward ? `
         <div class="summary-card" style="padding:12px 14px;">
           <div class="promo-applied-row">
@@ -2809,17 +3262,17 @@ function renderCheckout(){
           <span style="font-size:12.5px;color:var(--ink-soft);">Checking your rewards…</span>
         </div>
         ` : ""}
-        ` : ""}
       </div>
+      ` : ""}
     `;
   }
 
-  const dots = stepKeys.map((k,i)=>{
+  const dots = `<div class="dot done"></div>` + stepKeys.map((k,i)=>{
     const cls = i===step ? 'current' : (i<step ? 'done' : 'upcoming');
     return `<div class="dot ${cls}"></div>`;
   }).join("");
 
-  const stepTitles = { addons:'Add-ons', stylist:'Choose stylist', time:'Choose time', details: isLoggedInCustomer()?'Booking notes':'Your details', confirm:'Summary' };
+  const stepTitles = { addons:'Add-ons', stylist:'Stylist', time:'Time', details: isLoggedInCustomer()?'Notes':'Details', confirm:'Summary' };
   const stepBtnLabels = { addons:'Continue', stylist:'Continue', time:'Continue', details:'Review booking', confirm: state.bookingSaving?'Confirming…':'Confirm booking' };
 
   return `
@@ -2843,45 +3296,49 @@ function renderCheckout(){
         </div>
         <div class="checkout-summary-desktop" style="padding:16px;">
           ${checkoutVenueCardMarkup(salon)}
-          ${state.selectedTime?`
-          <div class="checkout-sidebar-divider"></div>
-          <div class="checkout-sidebar-datetime">
-            <div class="checkout-sidebar-datetime-row">${icon('calendar')}<span>${dayLabel(DAYS[state.selectedDay])}</span></div>
-            <div class="checkout-sidebar-datetime-row">${icon('clock')}<span>${escapeHtml(state.selectedTime)} – ${formatTimeMins(parseTimeMins(state.selectedTime)+service.duration)} (${service.duration} min)</span></div>
-          </div>`:""}
-          <div class="checkout-sidebar-divider"></div>
-          <div class="checkout-sidebar-item-row">
-            <span class="checkout-sidebar-item-name">${escapeHtml(service.name)}</span>
-            <span class="checkout-sidebar-item-price">$${service.price}</span>
+          <div class="checkout-sidebar-booking-info confirm-step-booking-info">
+            ${state.selectedTime?`
+            <div class="checkout-sidebar-divider"></div>
+            <div class="checkout-sidebar-datetime">
+              <div class="checkout-sidebar-datetime-row">${icon('calendar')}<span>${dayLabel(DAYS[state.selectedDay])}</span></div>
+              <div class="checkout-sidebar-datetime-row">${icon('clock')}<span>${escapeHtml(state.selectedTime)} – ${formatTimeMins(parseTimeMins(state.selectedTime)+service.duration)} (${service.duration} min)</span></div>
+            </div>`:""}
+            <div class="checkout-sidebar-divider"></div>
+            <div class="checkout-sidebar-item-row">
+              <span class="checkout-sidebar-item-name">${escapeHtml(service.name)}</span>
+              <span class="checkout-sidebar-item-price">$${service.price}</span>
+            </div>
+            <p class="checkout-sidebar-item-sub">${service.duration} min${state.selectedStylist?` with ${escapeHtml(stylistPreferenceLabel(state.selectedStylist,true))}`:""}</p>
+            ${selectedAddonsList().map(a=>`
+            <div class="checkout-sidebar-item-row" style="margin-top:8px;">
+              <span class="checkout-sidebar-item-name" style="font-weight:600;">${escapeHtml(a.name)}</span>
+              <span class="checkout-sidebar-item-price">+$${a.price}</span>
+            </div>`).join("")}
+            <div class="checkout-sidebar-divider"></div>
+            <div class="checkout-sidebar-total-row"><span>Total</span><span>$${finalTotal()}</span></div>
           </div>
-          <p class="checkout-sidebar-item-sub">${service.duration} min${state.selectedStylist?` with ${escapeHtml(stylistPreferenceLabel(state.selectedStylist))}`:""}</p>
-          ${selectedAddonsList().map(a=>`
-          <div class="checkout-sidebar-item-row" style="margin-top:8px;">
-            <span class="checkout-sidebar-item-name" style="font-weight:600;">${escapeHtml(a.name)}</span>
-            <span class="checkout-sidebar-item-price">+$${a.price}</span>
-          </div>`).join("")}
-          <div class="checkout-sidebar-divider"></div>
-          <div class="checkout-sidebar-total-row"><span>Total</span><span>$${finalTotal()}</span></div>
         </div>
       </div>
 
       <div id="checkoutBody" style="flex:1;overflow-y:auto;padding:20px;min-height:0;">${body}</div>
 
       <div class="checkout-footer" style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        ${stepKey==="confirm" ? `
-        <div class="confirm-total-drawer">
-          ${state.appliedPromo ? `<div class="row"><span class="label">Promo (${escapeHtml(state.appliedPromo.code)})</span><span class="value" style="color:#1E8A4C;">−$${promoDiscount()}</span></div>` : ""}
-          ${state.appliedLoyaltyReward ? `<div class="row"><span class="label">Reward</span><span class="value" style="color:#1E8A4C;">−$${loyaltyDiscount()}</span></div>` : ""}
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-size:13.5px;font-weight:700;color:var(--ink);">Total due at salon</span>
-            <span style="font-size:18px;font-weight:800;color:var(--purple);">$${finalTotal()}</span>
-          </div>
-        </div>
-        ` : ""}
         ${state.bookingError?`<p style="font-size:12.5px;color:#C13B3B;text-align:center;margin:0 0 10px;line-height:1.4;">${escapeHtml(state.bookingError)}</p>`:""}
+        ${stepKey==="confirm" ? `
+        <div class="confirm-footer-row">
+          <div class="confirm-footer-price">
+            <span class="confirm-footer-amount">$${finalTotal()}</span>
+            <span class="confirm-footer-label">Total due at salon</span>
+          </div>
+          <button class="primary-btn confirm-footer-btn" id="continueBtn" ${disabled?'disabled':''}>
+            ${stepBtnLabels[stepKey]}
+          </button>
+        </div>
+        ` : `
         <button class="primary-btn" id="continueBtn" ${disabled?'disabled':''}>
           ${stepBtnLabels[stepKey]}
         </button>
+        `}
       </div>
     </div>
     ${renderLoyaltySheet()}
@@ -2915,7 +3372,7 @@ function galleryGroupMarkup(groupTiles,groupStartIndex,mirrored,photos,salon){
       const globalIndex = groupStartIndex+pos;
       const area = galleryTileArea(pos,groupTiles.length,mirrored);
       return `
-      <div class="gallery-tile" style="height:220px;flex-shrink:0;border-radius:18px;position:relative;overflow:hidden;background:${photos ? 'var(--purple-pastel-2)' : `linear-gradient(135deg, ${tile[0]}, ${tile[1]})`};grid-column:${area.col};grid-row:${area.row};">
+      <div class="gallery-tile" style="height:220px;flex-shrink:0;border-radius:16px;position:relative;overflow:hidden;background:${photos ? 'var(--purple-pastel-2)' : `linear-gradient(135deg, ${tile[0]}, ${tile[1]})`};grid-column:${area.col};grid-row:${area.row};">
         ${photos ? `<img src="${escapeAttr(tile)}" alt="${escapeAttr(salon.name)} photo ${globalIndex+1}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);">${bigIcon(salon.icon,96)}</div>`}
       </div>`;
     }).join("")}
@@ -2998,6 +3455,43 @@ function renderReviews(){
   `;
 }
 
+function renderVenueMessage(){
+  const salon = state.messageSalon;
+  if (!salon){
+    return `
+      <div class="page">
+        <div class="topbar"><div style="display:flex;align-items:center;gap:12px;"><button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Messages</h1></div></div>
+        <div class="empty-state">No conversation to show.</div>
+      </div>
+    `;
+  }
+  const coverImage = (salon.photos && salon.photos.length) ? salon.photos[0] : (salon.homeImage||"");
+  const thread = state.messageThread||[];
+  return `
+    <div class="page checkout-shell">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+          <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
+        </div>
+      </div>
+      <div class="msg-venue-header">
+        <div class="msg-venue-avatar">${coverImage?`<img src="${escapeAttr(coverImage)}" alt="${escapeAttr(salon.name)}">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--purple);">${icon('store')}</div>`}</div>
+        <p class="msg-venue-name">${escapeHtml(salon.name)}</p>
+        <p class="msg-venue-sub">${escapeHtml(salon.tag||"Salon")}${salon.distance?` · ${escapeHtml(salon.distance)}`:""}</p>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;padding:10px 0;">
+        ${thread.length ? thread.map(m=>`
+          <div class="msg-bubble-row ${m.from==='me'?'me':''}"><div class="msg-bubble">${escapeHtml(m.text)}</div></div>
+        `).join("") : `<div class="msg-thread-empty">Send ${escapeHtml(salon.name)} a message and they'll reply here.</div>`}
+      </div>
+      <div class="msg-compose">
+        <input type="text" id="msgComposeInput" placeholder="Type a message" value="${escapeAttr(state.messageDraft)}" autocomplete="off" />
+        <button class="msg-send-btn" id="msgSendBtn" ${state.messageDraft.trim()?"":"disabled"} aria-label="Send">${icon('send')}</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderStylistProfile(){
   const stylist = state.stylistProfile;
   const salon = state.salon;
@@ -3012,8 +3506,17 @@ function renderStylistProfile(){
   const theme = (HERO_THEMES[salon.id] && HERO_THEMES[salon.id][0]) || ["#B79CF0","#7C5CD9"];
   const palette = HERO_THEMES[salon.id] || [["#B79CF0","#7C5CD9"],["#7C5CD9","#5A3FA8"],["#D8C6F5","#9C7FE0"]];
 
+  const stylistServices = (stylist.serviceIds && stylist.serviceIds.length)
+    ? salon.services.filter(sv=>stylist.serviceIds.includes(sv.id))
+    : salon.services;
+  const portfolioPhotos = (stylist.portfolio && stylist.portfolio.length) ? stylist.portfolio : null;
+  const portfolioTiles = portfolioPhotos || palette.concat(palette).slice(0,3);
+  const visibleTiles = portfolioTiles.slice(0,3);
+  const moreCount = portfolioTiles.length > 3 ? portfolioTiles.length - 2 : 0;
+  const reviews = (salon.reviewList || []).slice(0,4);
+
   return `
-    <div class="page">
+    <div class="page checkout-shell">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
           <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
@@ -3022,47 +3525,64 @@ function renderStylistProfile(){
       </div>
 
       <div style="flex:1;overflow-y:auto;min-height:0;">
-        <div style="padding:20px 20px 4px;display:flex;align-items:center;gap:14px;">
-          <div class="stylist-hero-avatar" style="overflow:hidden;${stylist.photo?'background:var(--purple-pastel-2);':'background:linear-gradient(135deg, '+theme[0]+', '+theme[1]+');color:#fff;'}border:none;">${stylist.photo?`<img src="${escapeAttr(stylist.photo)}" alt="${escapeAttr(stylist.name)}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(stylist.name.charAt(0))}</div>
-          <div style="min-width:0;">
-            <h2 style="font-size:19px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(stylist.name)}</h2>
-            ${stylist.specialty ? `<p style="font-size:13px;color:var(--purple);font-weight:600;margin:3px 0 0;">${escapeHtml(stylist.specialty)}</p>` : ""}
-            <p style="font-size:12px;color:var(--ink-soft);margin:3px 0 0;">${escapeHtml(salon.name)}</p>
-          </div>
+        <div style="padding:28px 20px 6px;display:flex;flex-direction:column;align-items:center;text-align:center;">
+          <div class="stylist-hero-avatar" style="width:96px;height:96px;font-size:34px;overflow:hidden;${stylist.photo?'background:var(--purple-pastel-2);':'background:linear-gradient(135deg, '+theme[0]+', '+theme[1]+');color:#fff;'}border:none;">${stylist.photo?`<img src="${escapeAttr(stylist.photo)}" alt="${escapeAttr(stylist.name)}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(stylist.name.charAt(0))}</div>
+          <h2 style="font-size:21px;font-weight:700;color:var(--ink);margin:14px 0 0;">${escapeHtml(stylist.name)}</h2>
+          ${stylist.specialty ? `<p style="font-size:13.5px;color:var(--purple);font-weight:600;margin:4px 0 0;">${escapeHtml(stylist.specialty)}</p>` : ""}
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:4px 0 0;">${escapeHtml(salon.name)}</p>
         </div>
 
         ${stylist.bio ? `
-        <div style="padding:14px 20px 4px;">
-          <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 8px;">About</p>
-          <p style="font-size:13.5px;color:var(--ink);line-height:1.55;margin:0;">${escapeHtml(stylist.bio)}</p>
+        <div style="padding:18px 20px 4px;">
+          <p style="font-size:13.5px;color:var(--ink);line-height:1.55;margin:0;text-align:center;">${escapeHtml(stylist.bio)}</p>
         </div>` : ""}
 
-        <div style="padding:18px 0 4px;">
-          <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 20px 10px;">Portfolio</p>
-          <div class="portfolio-strip">
-            ${(stylist.portfolio && stylist.portfolio.length ? stylist.portfolio : palette.concat(palette).slice(0,6)).map((item,i)=>`
-              <button class="portfolio-tile" data-stylistgallery="${i}" aria-label="View portfolio image ${i+1}" style="background:${stylist.portfolio&&stylist.portfolio.length?'var(--purple-pastel-2)':`linear-gradient(135deg, ${item[0]}, ${item[1]})`};">
-                ${stylist.portfolio&&stylist.portfolio.length?`<img src="${escapeAttr(item)}" alt="${escapeAttr(stylist.name)} portfolio ${i+1}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);">${icon('sparkles')}</div>`}
+        ${stylistServices.length ? `
+        <div style="padding:22px 20px 4px;">
+          <p class="checkout-step-label" style="margin:0 0 10px;">Services</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${stylistServices.map(sv=>`
+              <div class="service-select-card" style="cursor:default;">
+                <span style="min-width:0;">
+                  <span style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);">${escapeHtml(sv.name)}</span>
+                  <span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${sv.duration} min</span>
+                </span>
+                <button class="book-btn" data-bookservice="${sv.id}" style="flex-shrink:0;">Book</button>
+              </div>
+            `).join("")}
+          </div>
+        </div>` : ""}
+
+        <div style="padding:22px 0 4px;">
+          <p class="checkout-step-label" style="margin:0 20px 10px;">Portfolio</p>
+          <div class="stylist-portfolio-grid">
+            ${visibleTiles.map((item,i)=>`
+              <button class="portfolio-tile" data-stylistgallery="${i}" aria-label="View portfolio image ${i+1}" style="background:${portfolioPhotos?'var(--purple-pastel-2)':`linear-gradient(135deg, ${item[0]}, ${item[1]})`};">
+                ${portfolioPhotos?`<img src="${escapeAttr(item)}" alt="${escapeAttr(stylist.name)} portfolio ${i+1}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);">${icon('sparkles')}</div>`}
+                ${(i===2 && moreCount) ? `<div class="portfolio-tile-more">+${moreCount} more</div>` : ""}
               </button>
             `).join("")}
           </div>
         </div>
 
-        ${stylist.availableDays ? `
-        <div style="padding:14px 20px 24px;">
-          <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 10px;">Available this week</p>
-          <div style="display:flex;gap:6px;">
-            ${DAYS.slice(0,7).map(d=>{
-              const isAvail = stylist.availableDays.includes(nzDayIndex(d)) && salon.openDays.includes(nzDayIndex(d));
-              return `
-              <div class="day-chip ${isAvail?'':'unavailable'}">
-                <span class="dc-day">${dayShort(d)}</span>
-                <span class="dc-date">${nzDayNumber(d)}</span>
-              </div>`;
-            }).join("")}
+        <div style="padding:22px 20px 4px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <p class="checkout-step-label" style="margin:0;">Reviews</p>
+            ${salon.reviewList && salon.reviewList.length>4 ? `<button class="text-link-btn" id="stylistSeeAllReviews" style="font-size:12.5px;">See all</button>` : ""}
           </div>
-          <p style="font-size:12px;color:var(--ink-soft);margin:10px 2px 0;">Exact time slots are shown at checkout.</p>
-        </div>` : ""}
+          ${reviews.length ? `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${reviews.map(r=>`
+              <div class="review-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                  <span style="font-size:13.5px;font-weight:700;color:var(--ink);">${escapeHtml(r.name)}</span>
+                  <span style="display:flex;align-items:center;gap:4px;">${icon('star','var(--gold)')}<span style="font-size:12.5px;font-weight:600;color:var(--ink);">${r.rating}</span></span>
+                </div>
+                <p style="font-size:13px;color:var(--ink-mute);margin:0;line-height:1.55;">${escapeHtml(r.text)}</p>
+              </div>
+            `).join("")}
+          </div>` : `<p style="font-size:13px;color:var(--ink-soft);margin:0;">This professional doesn't have any reviews yet.</p>`}
+        </div>
       </div>
 
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
@@ -3088,7 +3608,7 @@ function renderStylistPortfolioGallery(){
   const tiles = photos || palette.concat(palette).slice(0,6);
 
   return `
-    <div class="page">
+    <div class="page checkout-shell">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
           <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
@@ -3097,7 +3617,7 @@ function renderStylistPortfolioGallery(){
       </div>
       <div style="flex:1;overflow-y:auto;min-height:0;padding:16px 20px 32px;display:flex;flex-direction:column;gap:16px;">
         ${tiles.map((tile,i)=>`
-          <div style="height:220px;flex-shrink:0;border-radius:18px;position:relative;overflow:hidden;background:${photos ? 'var(--purple-pastel-2)' : `linear-gradient(135deg, ${tile[0]}, ${tile[1]})`};">
+          <div style="height:220px;flex-shrink:0;border-radius:16px;position:relative;overflow:hidden;background:${photos ? 'var(--purple-pastel-2)' : `linear-gradient(135deg, ${tile[0]}, ${tile[1]})`};">
             ${photos ? `<img src="${escapeAttr(tile)}" alt="${escapeAttr(stylist.name)} portfolio ${i+1}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);">${icon('sparkles')}</div>`}
           </div>
         `).join("")}
@@ -3168,7 +3688,7 @@ function renderHistory(){
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
           <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
-          <h1 class="toptitle">Your bookings</h1>
+          <h1 class="toptitle">Activity</h1>
         </div>
       </div>
       <div style="flex:1;overflow-y:auto;min-height:0;padding:16px 20px 32px;">
@@ -3214,8 +3734,13 @@ function renderHistory(){
             const salon = SALONS.find(s=>s.id===b.salonId);
             const addonsTotal = (b.addons||[]).reduce((sum,a)=>sum+(Number(a.price)||0),0);
             const expanded = state.expandedBookingId===b.id;
+            const isUpcoming = b.status==="upcoming" && b.id;
             return `
-            <div class="hist-card-simple ${expanded?'expanded':''}" ${b.id?`data-bookingtoggle="${b.id}"`:''}>
+            <div class="hist-card-simple ${expanded?'expanded':''}" ${isUpcoming?`data-bookingview="${b.id}"`:(b.id?`data-bookingtoggle="${b.id}"`:'')}>
+              ${(()=>{ const thumb=(salon&&salon.photos&&salon.photos.length)?salon.photos[0]:(salon&&salon.homeImage||""); return `
+              <div class="hcs-thumb">
+                ${thumb?`<img src="${escapeAttr(thumb)}" alt="${escapeAttr(b.salonName)}" loading="lazy" decoding="async">`:`<div class="hcs-thumb-fallback">${icon('store')}</div>`}
+              </div>`; })()}
               <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
                 <p class="hcs-salon">${escapeHtml(b.salonName)}</p>
                 <span class="hist-status-badge ${b.status}">${bookingStatusLabel(b.status)}</span>
@@ -3223,33 +3748,11 @@ function renderHistory(){
               <p class="hcs-service">${escapeHtml(b.serviceName)}</p>
               ${b.addons && b.addons.length ? `<p class="hcs-addons">+ ${b.addons.map(a=>escapeHtml(a.name)).join(", ")}</p>` : ""}
               <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;">
-                <p class="hcs-datetime">${escapeHtml(b.dateLabel)} · ${escapeHtml(b.time)}</p>
+                <p class="hcs-datetime">${icon('calendar')}<span>${escapeHtml(b.dateLabel)}</span><span style="color:var(--border-hover);">·</span>${icon('clock')}<span>${escapeHtml(b.time)}</span></p>
                 <p class="hcs-price">$${b.price}${addonsTotal ? `<span class="hcs-price-sub">incl. $${addonsTotal} add-ons</span>` : ""}</p>
               </div>
               ${b.status==="completed" ? `
                 <div style="margin-top:12px;">${renderReviewBlock(b)}</div>
-              ` : b.status==="upcoming" && b.id && expanded ? `
-              <div class="hcs-actions-row">
-                <button class="hcs-icon-btn" data-reschedule="${b.id}">
-                  <span class="hcs-icon-circle">${icon('repeat')}</span>
-                  <span>Reschedule</span>
-                </button>
-                <button class="hcs-icon-btn danger" data-cancel="${b.id}">
-                  <span class="hcs-icon-circle">${icon('trash')}</span>
-                  <span>Cancel</span>
-                </button>
-                <div style="position:relative;flex:1;">
-                  <button class="hcs-icon-btn" data-opencalendarsheet="${b.id}" style="width:100%;">
-                    <span class="hcs-icon-circle">${icon('calendar')}</span>
-                    <span>Calendar</span>
-                  </button>
-                </div>
-                ${salon ? `
-                <button class="hcs-icon-btn" data-viewvenue="${salon.id}">
-                  <span class="hcs-icon-circle">${icon('store')}</span>
-                  <span>Venue</span>
-                </button>` : ""}
-              </div>
               ` : ""}
             </div>
           `;}).join("")}
@@ -3391,7 +3894,7 @@ function renderLoyaltySheet(){
         <h2 class="home-menu-sheet-title">Your rewards</h2>
         <button id="closeLoyaltySheet" class="home-menu-sheet-close" aria-label="Close">${icon('x')}</button>
       </div>
-      <div style="background:var(--white);border:1px solid var(--border-2);border-radius:18px;padding:18px;margin-bottom:14px;">
+      <div style="background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:18px;margin-bottom:14px;">
         <p style="font-size:11.5px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.02em;margin:0 0 2px;">${escapeHtml(state.salon.name)}</p>
         <p class="loyalty-sheet-points">${L.points} <span style="font-size:14px;font-weight:600;color:var(--ink-soft);">point${L.points===1?"":"s"}</span></p>
         <div class="loyalty-sheet-bar"><span style="width:${Math.min(100,Math.round((L.points/(L.threshold||1))*100))}%;"></span></div>
@@ -3495,10 +3998,11 @@ function render(opts){
   const root = document.getElementById("app");
   if(!state.marketplaceReady || !state.authReady){
     document.title = "Blooma";
-    root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-topbar"><span class="brand-logo">Blooma</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:18px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:18px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:18px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div>`;
+    root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-topbar"><span class="brand-logo">Blooma</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div>`;
     return;
   }
   document.title = (state.page==="salon" && state.salon) ? `${state.salon.name} — Blooma` : "Blooma";
+  document.body.classList.toggle("page-home", state.page==="home");
   let html = "";
   if (state.page === "home") html = renderHome();
   else if (state.page === "salon") html = renderSalon();
@@ -3508,6 +4012,8 @@ function render(opts){
   else if (state.page === "stylistGallery") html = renderStylistPortfolioGallery();
   else if (state.page === "gallery") html = renderGallery();
   else if (state.page === "reviews") html = renderReviews();
+  else if (state.page === "venueMessage") html = renderVenueMessage();
+  else if (state.page === "bookingDetail") html = renderBookingConfirmed(state.bookings.find(b=>b.id===state.viewBookingId));
   else if (state.page === "history") html = renderHistory();
   else if (state.page === "profile") html = renderProfile();
 
@@ -3605,6 +4111,16 @@ function bindEvents(){
   if (state.page === "home"){
     const retryMarketplaceBtn=document.getElementById("retryMarketplaceBtn");
     if(retryMarketplaceBtn) retryMarketplaceBtn.addEventListener("click",()=>{ state.marketplaceReady=false; state.marketplaceError=""; render({samePage:true}); loadMarketplaceVenues(); });
+    const bottomCtaSignupBtn=document.getElementById("bottomCtaSignupBtn");
+    if(bottomCtaSignupBtn) bottomCtaSignupBtn.addEventListener("click",()=>{ window.location.href = customerSignupDestination(); });
+    const bottomCtaBusinessBtn=document.getElementById("bottomCtaBusinessBtn");
+    if(bottomCtaBusinessBtn) bottomCtaBusinessBtn.addEventListener("click",()=>{ window.location.href = businessDestination(); });
+    const footerSignupBtn=document.getElementById("footerSignupBtn");
+    if(footerSignupBtn) footerSignupBtn.addEventListener("click",()=>{ window.location.href = customerSignupDestination(); });
+    const footerLoginBtn=document.getElementById("footerLoginBtn");
+    if(footerLoginBtn) footerLoginBtn.addEventListener("click",()=>{ window.location.href = customerLoginDestination(); });
+    const footerBusinessBtn=document.getElementById("footerBusinessBtn");
+    if(footerBusinessBtn) footerBusinessBtn.addEventListener("click",()=>{ window.location.href = businessDestination(); });
     const locBtn = document.getElementById("locationBtn");
     if (locBtn) locBtn.addEventListener("click", ()=> setState({ showCityPicker:true, cityQuery:"" }));
     const overlay = document.getElementById("cityPickerOverlay");
@@ -3649,6 +4165,21 @@ function bindEvents(){
         toggleFavorite(id);
       });
     });
+    document.querySelectorAll("[data-bookingview]").forEach(card=>{
+      card.addEventListener("click", ()=>{
+        const id = parseInt(card.getAttribute("data-bookingview"),10);
+        goBookingDetail(id, { returnPage:"home" });
+      });
+    });
+    document.querySelectorAll("[data-mappin]").forEach(pin=>{
+      pin.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const id = parseInt(pin.getAttribute("data-mappin"),10);
+        const booking = state.bookings.find(b=>b.id===id);
+        const salon = booking ? SALONS.find(s=>s.id===booking.salonId) : null;
+        if (salon) window.open(venueMapUrl(salon), "_blank", "noopener");
+      });
+    });
     document.querySelectorAll("[data-filter]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const filter = btn.getAttribute("data-filter");
@@ -3668,6 +4199,13 @@ function bindEvents(){
         if (e.target.closest("button") || e.target.closest("a")) return;
         const id = parseInt(card.getAttribute("data-bookingtoggle"),10);
         setState({ expandedBookingId: state.expandedBookingId===id ? null : id, calendarSheetEvent:null }, { samePage:true });
+      });
+    });
+    document.querySelectorAll("[data-bookingview]").forEach(card=>{
+      card.addEventListener("click", (e)=>{
+        if (e.target.closest("button") || e.target.closest("a")) return;
+        const id = parseInt(card.getAttribute("data-bookingview"),10);
+        goBookingDetail(id, { returnPage:"history" });
       });
     });
     document.querySelectorAll("[data-viewvenue]").forEach(btn=>{
@@ -3832,19 +4370,8 @@ function bindEvents(){
 
   if (state.page === "checkout"){
     if (state.done){
-      document.getElementById("backHomeBtn").addEventListener("click", goHome);
-      const addToCalendarBtn = document.getElementById("addToCalendarBtn");
-      if (addToCalendarBtn) addToCalendarBtn.addEventListener("click", ()=>{
-        const evt = buildCalendarEvent({
-          title: `${state.service.name} at ${state.salon.name}`,
-          description: `Booked via Blooma${state.selectedStylist && !isAnyAvailableStylist(state.selectedStylist) ? ` with ${state.selectedStylist.name}` : ""}`,
-          location: state.salon.address,
-          startIso: bookingStartIso(state.selectedDay, state.selectedTime),
-          durationMinutes: state.service.duration,
-        });
-        setState({ calendarSheetEvent: evt }, { samePage:true });
-      });
-      bindCalendarSheetControls();
+      const doneBooking = state.bookings.find(b=>b.id===state.lastBookingId) || null;
+      bindBookingConfirmedEvents(doneBooking, goHome);
       return;
     }
     const stepKeys = checkoutStepKeys(state.service);
@@ -3903,18 +4430,13 @@ function bindEvents(){
       const nameInput = document.getElementById("nameInput");
       const phoneInput = document.getElementById("phoneInput");
       const guestEmailInput = document.getElementById("guestEmailInput");
-      const notesInput = document.getElementById("notesInput");
       if (nameInput) nameInput.addEventListener("input", (e)=>{ state.name = e.target.value; syncContinueBtn(); });
       if (phoneInput) phoneInput.addEventListener("input", (e)=>{ state.phone = e.target.value; syncContinueBtn(); });
       if (guestEmailInput) guestEmailInput.addEventListener("input", (e)=>{ state.guestEmail = e.target.value; syncContinueBtn(); });
-      if (notesInput) notesInput.addEventListener("input", (e)=>{ state.notes = e.target.value; });
-      document.querySelectorAll("[data-notechip]").forEach(btn=>{
+      document.querySelectorAll("[data-firstvisit]").forEach(btn=>{
         btn.addEventListener("click", ()=>{
-          const phrase = btn.getAttribute("data-notechip");
-          const selected = state.selectedNotes.includes(phrase)
-            ? state.selectedNotes.filter(p=>p!==phrase)
-            : [...state.selectedNotes, phrase];
-          setState({ selectedNotes: selected }, { samePage:true });
+          const isFirst = btn.getAttribute("data-firstvisit")==="yes";
+          setState({ selectedNotes: isFirst?["First time here"]:[], firstVisitAnswered:true }, { samePage:true });
         });
       });
     }
@@ -3925,6 +4447,8 @@ function bindEvents(){
         promoInput.addEventListener("input", (e)=>{ state.promoCode = e.target.value; });
         promoInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter"){ e.preventDefault(); applyPromoCode(); } });
       }
+      const notesInput = document.getElementById("notesInput");
+      if (notesInput) notesInput.addEventListener("input", (e)=>{ state.notes = e.target.value; });
       const applyBtn = document.getElementById("applyPromoBtn");
       if (applyBtn) applyBtn.addEventListener("click", applyPromoCode);
       const removeBtn = document.getElementById("removePromoBtn");
@@ -4011,10 +4535,12 @@ function bindEvents(){
           if(state.checkoutOrigin==="history"&&state.rescheduleBookingId){
             const original=state.bookings.find(b=>b.id===state.rescheduleBookingId); const saved=await rescheduleCloudBooking(original,booking);
             Object.assign(original,booking); applyCanonicalBookingResult(original,saved); original.stylistName=(SALONS.find(s=>s.id===booking.salonId)?.stylists||[]).find(st=>st.id===saved.stylist_id)?.name||booking.stylistName; if(saved.stylist_id){ const assigned=(state.salon?.stylists||[]).find(st=>st.id===saved.stylist_id); if(assigned) state.selectedStylist=assigned; }
+            state.lastBookingId=original.id;
           }else{
             if(!state.pendingBookingRequestId) state.pendingBookingRequestId=makeClientRequestId(); booking.clientRequestId=state.pendingBookingRequestId;
             const saved=await createCloudBooking(booking); applyCanonicalBookingResult(booking,saved); if(saved.stylist_id){ const st=(state.salon.stylists||[]).find(x=>x.id===saved.stylist_id); if(st){ booking.stylistName=st.name; state.selectedStylist=st; } }
             state.bookings.push(booking); state.pendingBookingRequestId=null;
+            state.lastBookingId=booking.id;
           }
           if(state.appliedLoyaltyReward && customerSupabaseClient){
             try{ await customerSupabaseClient.rpc("redeem_loyalty_reward",{p_salon_id:state.salon.id}); }
@@ -4039,6 +4565,14 @@ function bindEvents(){
     document.querySelectorAll("[data-stylistgallery]").forEach(btn=>{
       btn.addEventListener("click", ()=> setState({ page:"stylistGallery" }));
     });
+    document.querySelectorAll("[data-bookservice]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const svc = (state.salon?.services||[]).find(sv=>sv.id===btn.getAttribute("data-bookservice"));
+        if (svc) goCheckout(svc, "stylist", state.stylistProfile);
+      });
+    });
+    const seeAllReviewsBtn = document.getElementById("stylistSeeAllReviews");
+    if (seeAllReviewsBtn) seeAllReviewsBtn.addEventListener("click", ()=> setState({ page:"reviews", reviewSalon: state.salon }));
   }
 
   if (state.page === "stylistGallery"){
@@ -4058,11 +4592,42 @@ function bindEvents(){
       else setState({ page:"home", reviewSalon:null });
     });
   }
+
+  if (state.page === "venueMessage"){
+    const backBtn = document.getElementById("backBtn");
+    if (backBtn) backBtn.addEventListener("click", ()=>{
+      if (state.salon) returnToVenue({ messageSalon:null });
+      else setState({ page:"home", messageSalon:null });
+    });
+    const input = document.getElementById("msgComposeInput");
+    const sendBtn = document.getElementById("msgSendBtn");
+    if (input) input.addEventListener("input", e=>{
+      state.messageDraft = e.target.value;
+      if (sendBtn) sendBtn.disabled = !state.messageDraft.trim();
+    });
+    const doSend = ()=>{
+      const text = state.messageDraft.trim();
+      if (!text) return;
+      state.messageThread = [...state.messageThread, { from:"me", text, time:Date.now() }];
+      state.messageDraft = "";
+      render({samePage:true});
+    };
+    if (sendBtn) sendBtn.addEventListener("click", doSend);
+    if (input) input.addEventListener("keydown", e=>{ if (e.key==="Enter"){ e.preventDefault(); doSend(); } });
+  }
+
+  if (state.page === "bookingDetail"){
+    const booking = state.bookings.find(b=>b.id===state.viewBookingId) || null;
+    const returnPage = state.bookingDetailReturnPage || "history";
+    bindBookingConfirmedEvents(booking, ()=>{
+      setState({ page:returnPage, viewBookingId:null }, { restoreScrollTop: state.historyReturnScrollTop || 0 });
+    });
+  }
 }
 
 function syncContinueBtn(){
   const contact=bookingContact();
-  const canContinueDetails = isLoggedInCustomer() ? (contact.name.length > 1 && contact.phone.length > 5) : (contact.name.length > 1 && contact.phone.length > 5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.guestEmail.trim()));
+  const canContinueDetails = state.firstVisitAnswered && (isLoggedInCustomer() ? (contact.name.length > 1 && contact.phone.length > 5) : (contact.name.length > 1 && contact.phone.length > 5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.guestEmail.trim())));
   const btn = document.getElementById("continueBtn");
   if (btn) btn.disabled = !canContinueDetails;
 }
@@ -4074,24 +4639,18 @@ loadMarketplaceVenues(true);
 loadCustomerAuth();
 let marketplaceRefreshBusy=false;
 async function refreshMarketplaceData(){
-  // Keep an open venue page completely stable. The marketplace loader calls render()
-  // internally, which would destroy/recreate the Google Maps iframe and cause flicker.
-  if(marketplaceRefreshBusy || document.hidden || state.page==="salon") return;
+  // Only refresh silently on the home listing — re-rendering while someone is mid-checkout,
+  // filling in a form, or otherwise engaged elsewhere in the app is jarring and unprofessional.
+  if(marketplaceRefreshBusy || document.hidden || state.page!=="home") return;
   marketplaceRefreshBusy=true;
   try{
     await loadMarketplaceVenues();
-    if(state.salon){
-      const live=SALONS.find(s=>s.id===state.salon.id);
-      if(live) state.salon=live;
-    }
-    if(["home"].includes(state.page)) render({samePage:true});
   }catch(err){
     console.warn("Blooma marketplace refresh failed",err);
   }finally{ marketplaceRefreshBusy=false; }
 }
 window.addEventListener("focus",refreshMarketplaceData);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) refreshMarketplaceData(); });
-setInterval(refreshMarketplaceData,15000);
 
 window.addEventListener("popstate",(event)=>{
   if(restoreCustomerHistoryState(event.state)) return;

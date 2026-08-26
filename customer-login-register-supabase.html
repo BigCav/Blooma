@@ -360,7 +360,7 @@ function renderEmailStep(){
   return `
     <div class="field" style="margin-bottom:0;">
       <label>Email address</label>
-      <input id="emailInput" class="${e.email?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.email)}" placeholder="you@example.com" />
+      <input id="emailInput" class="${e.email?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.email)}" />
       ${e.email?`<p class="hint" style="color:var(--red);">${e.email}</p>`:""}
     </div>
   `;
@@ -376,23 +376,23 @@ function renderPasswordStep(){
     ${e.confirmation?`<p class="hint" style="color:var(--red);margin:-6px 2px 14px;">${escapeHtml(e.confirmation)}</p>`:""}
     <div class="field">
       <label>First name</label>
-      <input id="firstNameInput" class="${e.firstName?'error':''}" autocomplete="given-name" enterkeyhint="next" value="${escapeAttr(state.firstName)}" placeholder="e.g. Priya" />
+      <input id="firstNameInput" class="${e.firstName?'error':''}" autocomplete="given-name" enterkeyhint="next" value="${escapeAttr(state.firstName)}" />
       ${e.firstName?`<p class="hint" style="color:var(--red);">${e.firstName}</p>`:""}
     </div>
     <div class="field">
       <label>Last name</label>
-      <input id="lastNameInput" class="${e.lastName?'error':''}" autocomplete="family-name" enterkeyhint="next" value="${escapeAttr(state.lastName)}" placeholder="e.g. Nair" />
+      <input id="lastNameInput" class="${e.lastName?'error':''}" autocomplete="family-name" enterkeyhint="next" value="${escapeAttr(state.lastName)}" />
       ${e.lastName?`<p class="hint" style="color:var(--red);">${e.lastName}</p>`:""}
     </div>
     <div class="field">
       <label>Mobile number</label>
-      <input id="regPhoneInput" class="${e.regPhone?'error':''}" autocomplete="tel" inputmode="tel" enterkeyhint="next" value="${escapeAttr(state.regPhone)}" placeholder="e.g. 021 234 5678" />
+      <input id="regPhoneInput" class="${e.regPhone?'error':''}" autocomplete="tel" inputmode="tel" enterkeyhint="next" value="${escapeAttr(state.regPhone)}" />
       ${e.regPhone?`<p class="hint" style="color:var(--red);">${e.regPhone}</p>`:""}
     </div>
     <div class="field">
       <label>Password</label>
       <div class="password-wrap">
-        <input id="passwordInput" class="${e.password?'error':''}" type="${state.showPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.password)}" placeholder="At least 6 characters" />
+        <input id="passwordInput" class="${e.password?'error':''}" type="${state.showPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.password)}" />
         <button type="button" class="password-toggle" id="togglePasswordBtn" aria-label="${state.showPassword?'Hide password':'Show password'}">${icon(state.showPassword?'eyeOff':'eye')}</button>
       </div>
       ${e.password?`<p class="hint" style="color:var(--red);">${e.password}</p>`:""}
@@ -415,7 +415,7 @@ function renderLoginEmailStep(){
   return `
     <div class="field" style="margin-bottom:0;">
       <label>Email address</label>
-      <input id="loginEmailInput" class="${e.loginEmail?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.loginEmail)}" placeholder="you@example.com" />
+      <input id="loginEmailInput" class="${e.loginEmail?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.loginEmail)}" />
       ${e.loginEmail?`<p class="hint" style="color:var(--red);">${e.loginEmail}</p>`:""}
     </div>
   `;
@@ -428,7 +428,7 @@ function renderLoginPasswordStep(){
     <div class="field" style="margin-bottom:0;">
       <label>Password</label>
       <div class="password-wrap">
-        <input id="loginPasswordInput" class="${e.loginPassword?'error':''}" type="${state.showLoginPassword?'text':'password'}" autocomplete="current-password" enterkeyhint="go" value="${escapeAttr(state.loginPassword)}" placeholder="Enter your password" />
+        <input id="loginPasswordInput" class="${e.loginPassword?'error':''}" type="${state.showLoginPassword?'text':'password'}" autocomplete="current-password" enterkeyhint="go" value="${escapeAttr(state.loginPassword)}" />
         <button type="button" class="password-toggle" id="toggleLoginPasswordBtn" aria-label="${state.showLoginPassword?'Hide password':'Show password'}">${icon(state.showLoginPassword?'eyeOff':'eye')}</button>
       </div>
       ${e.loginPassword?`<p class="hint" style="color:var(--red);">${e.loginPassword}</p>`:""}
@@ -484,7 +484,7 @@ function renderAuthFlow(root){
         ${body}
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="authNextBtn">${nextLabel}</button>
+        <button class="primary-btn" id="authNextBtn" ${isEmailStep ? (Object.keys(validateEmailStep()).length?'disabled':'') : (Object.keys(validatePasswordStep()).length?'disabled':'')}>${nextLabel}</button>
         ${isEmailStep?`<p class="auth-footnote" id="gotoLoginLink">Already have an account? <span style="color:var(--purple);font-weight:700;">Log in</span></p>`:""}
       </div>
     </div>
@@ -493,6 +493,12 @@ function renderAuthFlow(root){
   root.innerHTML = `<div class="shell">${html}</div>`;
   resetScroll(root);
   bindAuthEvents();
+}
+function syncAuthNextBtn(){
+  const btn = document.getElementById("authNextBtn");
+  if (!btn) return;
+  const errors = state.authStep===0 ? validateEmailStep() : validatePasswordStep();
+  btn.disabled = Object.keys(errors).length>0;
 }
 
 /* ---------------------------------------------------
@@ -517,7 +523,7 @@ function renderLoginFlow(root){
         ${body}
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="loginNextBtn">${isEmailStep ? 'Continue' : 'Log in'}</button>
+        <button class="primary-btn" id="loginNextBtn" ${isEmailStep ? (Object.keys(validateLoginEmailStep()).length?'disabled':'') : (Object.keys(validateLoginPasswordStep()).length?'disabled':'')}>${isEmailStep ? 'Continue' : 'Log in'}</button>
         ${isEmailStep ? `<p class="auth-footnote" id="gotoRegisterLink">Don't have an account? <span style="color:var(--purple);font-weight:700;">Sign up</span></p>` : ''}
       </div>
     </div>
@@ -526,6 +532,12 @@ function renderLoginFlow(root){
   root.innerHTML = `<div class="shell">${html}</div>`;
   resetScroll(root);
   bindLoginEvents();
+}
+function syncLoginNextBtn(){
+  const btn = document.getElementById("loginNextBtn");
+  if (!btn) return;
+  const errors = state.loginStep===0 ? validateLoginEmailStep() : validateLoginPasswordStep();
+  btn.disabled = Object.keys(errors).length>0;
 }
 
 /* ---------------------------------------------------
@@ -554,12 +566,12 @@ function renderForgotPassword(root){
         <p class="step-sub">Enter your email and we'll send you a link to reset it.</p>
         <div class="field" style="margin-bottom:0;">
           <label>Email address</label>
-          <input id="forgotEmailInput" class="${e.forgotEmail?'error':''}" type="email" autocomplete="email" inputmode="email" enterkeyhint="go" value="${escapeAttr(state.forgotEmail)}" placeholder="you@example.com" />
+          <input id="forgotEmailInput" class="${e.forgotEmail?'error':''}" type="email" autocomplete="email" inputmode="email" enterkeyhint="go" value="${escapeAttr(state.forgotEmail)}" />
           ${e.forgotEmail?`<p class="hint" style="color:var(--red);">${e.forgotEmail}</p>`:""}
         </div>
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="sendResetBtn">Send reset link</button>
+        <button class="primary-btn" id="sendResetBtn" ${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.forgotEmail.trim())?'':'disabled'}>Send reset link</button>
       </div>
     </div>
   `;
@@ -574,6 +586,9 @@ function bindForgotPasswordEvents(){
   if (backToLoginBtn) backToLoginBtn.addEventListener("click", ()=>{ setAuthPath("/login"); setState({ authView:"login", loginStep:0, forgotSent:false, forgotEmail:"", forgotErrors:{} }); });
   const sendBtn = document.getElementById("sendResetBtn");
   const emailInput = document.getElementById("forgotEmailInput");
+  if (emailInput) emailInput.addEventListener("input", e=>{
+    if (sendBtn) sendBtn.disabled = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value.trim());
+  });
   const doSend = async ()=>{
     if (state.forgotBusy) return;
     const email = (emailInput?.value||"").trim();
@@ -607,14 +622,14 @@ function renderResetPassword(root){
         <div class="field" style="margin-bottom:0;">
           <label>New password</label>
           <div class="password-wrap">
-            <input id="newPasswordInput" class="${e.newPassword?'error':''}" type="${state.showNewPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.newPassword)}" placeholder="At least 8 characters" />
+            <input id="newPasswordInput" class="${e.newPassword?'error':''}" type="${state.showNewPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.newPassword)}" />
             <button type="button" class="password-toggle" id="toggleNewPasswordBtn" aria-label="${state.showNewPassword?'Hide password':'Show password'}">${icon(state.showNewPassword?'eyeOff':'eye')}</button>
           </div>
           ${e.newPassword?`<p class="hint" style="color:var(--red);">${e.newPassword}</p>`:""}
         </div>
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="submitNewPasswordBtn">Update password</button>
+        <button class="primary-btn" id="submitNewPasswordBtn" ${state.newPassword.length>=8?'':'disabled'}>Update password</button>
       </div>
     </div>
   `;
@@ -624,6 +639,7 @@ function renderResetPassword(root){
   if (toggleBtn) toggleBtn.addEventListener("click", ()=> setState({ showNewPassword: !state.showNewPassword }));
   const submitBtn = document.getElementById("submitNewPasswordBtn");
   const pwInput = document.getElementById("newPasswordInput");
+  if (pwInput) pwInput.addEventListener("input", e=>{ if (submitBtn) submitBtn.disabled = e.target.value.length<8; });
   const doSubmit = async ()=>{
     if (state.resetBusy) return;
     const pw = pwInput?.value||"";
@@ -708,15 +724,15 @@ function bindAuthEvents(){
   });
 
   const emailInput = document.getElementById("emailInput");
-  if (emailInput) emailInput.addEventListener("input", e=>{ state.email = e.target.value; });
+  if (emailInput) emailInput.addEventListener("input", e=>{ state.email = e.target.value; syncAuthNextBtn(); });
   const firstNameInput = document.getElementById("firstNameInput");
-  if (firstNameInput) firstNameInput.addEventListener("input", e=>{ state.firstName = e.target.value; });
+  if (firstNameInput) firstNameInput.addEventListener("input", e=>{ state.firstName = e.target.value; syncAuthNextBtn(); });
   const lastNameInput = document.getElementById("lastNameInput");
-  if (lastNameInput) lastNameInput.addEventListener("input", e=>{ state.lastName = e.target.value; });
+  if (lastNameInput) lastNameInput.addEventListener("input", e=>{ state.lastName = e.target.value; syncAuthNextBtn(); });
   const regPhoneInput = document.getElementById("regPhoneInput");
-  if (regPhoneInput) regPhoneInput.addEventListener("input", e=>{ state.regPhone = e.target.value; });
+  if (regPhoneInput) regPhoneInput.addEventListener("input", e=>{ state.regPhone = e.target.value; syncAuthNextBtn(); });
   const passwordInput = document.getElementById("passwordInput");
-  if (passwordInput) passwordInput.addEventListener("input", e=>{ state.password = e.target.value; });
+  if (passwordInput) passwordInput.addEventListener("input", e=>{ state.password = e.target.value; syncAuthNextBtn(); });
   const togglePasswordBtn = document.getElementById("togglePasswordBtn");
   if (togglePasswordBtn) togglePasswordBtn.addEventListener("click", ()=> setState({ showPassword: !state.showPassword }));
   const termsRow = document.getElementById("termsRow");
@@ -726,6 +742,7 @@ function bindAuthEvents(){
     const box=document.getElementById("termsCheckboxBox");
     if(box){ box.classList.toggle("checked",state.acceptedTerms); box.classList.remove("error"); box.innerHTML=state.acceptedTerms?icon("checkSmall"):""; }
     const termsError=document.querySelector("[data-terms-error]"); if(termsError) termsError.remove();
+    syncAuthNextBtn();
   });
   document.querySelectorAll("[data-legal-link]").forEach(a=>a.addEventListener("click",e=>e.stopPropagation()));
 
@@ -783,9 +800,9 @@ function bindLoginEvents(){
   });
 
   const loginEmailInput = document.getElementById("loginEmailInput");
-  if (loginEmailInput) loginEmailInput.addEventListener("input", e=>{ state.loginEmail = e.target.value; });
+  if (loginEmailInput) loginEmailInput.addEventListener("input", e=>{ state.loginEmail = e.target.value; syncLoginNextBtn(); });
   const loginPasswordInput = document.getElementById("loginPasswordInput");
-  if (loginPasswordInput) loginPasswordInput.addEventListener("input", e=>{ state.loginPassword = e.target.value; });
+  if (loginPasswordInput) loginPasswordInput.addEventListener("input", e=>{ state.loginPassword = e.target.value; syncLoginNextBtn(); });
   const toggleLoginPasswordBtn = document.getElementById("toggleLoginPasswordBtn");
   if (toggleLoginPasswordBtn) toggleLoginPasswordBtn.addEventListener("click", ()=> setState({ showLoginPassword: !state.showLoginPassword }));
 

@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services — Blooma Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#131218;
+    --surface:#1C1B24;
+    --surface-2:#242330;
+    --surface-hover:#2A2938;
+    --border:#2E2D3C;
+    --violet:#6D5FE8;
+    --violet-soft:rgba(109,95,232,0.16);
+    --violet-text:#B7ADF5;
+    --text:#F2F1F7;
+    --text-soft:#9F9CB0;
+    --text-faint:#6C6980;
+    --success:#3ED598;
+    --success-soft:rgba(62,213,152,0.14);
+    --warning:#F4C93A;
+    --danger:#FF6B81;
+    --white:#FFFFFF;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%; scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    scrollbar-width:none;
+  }
+  body::-webkit-scrollbar{display:none;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+  }
+
+  .btn{
+    font-weight:700; font-size:13.5px;
+    padding:10px 18px; border-radius:10px;
+    border:1px solid transparent; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn-violet{background:var(--violet); color:var(--white);}
+  .btn-violet:hover{background:#5C4EDB;}
+  .btn-ghost{background:var(--surface-2); color:var(--text); border-color:var(--border);}
+  .btn-ghost:hover{background:var(--surface-hover);}
+  .btn-danger{background:rgba(255,107,129,0.14); color:var(--danger); border-color:rgba(255,107,129,0.3);}
+  .btn-danger:hover{background:rgba(255,107,129,0.22);}
+
+  /* ---------- SHELL ---------- */
+  .shell{display:flex; min-height:100vh;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:240px; flex:none;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+    position:fixed; top:0; bottom:0; left:-240px; z-index:60;
+    transition:left .2s ease;
+  }
+  .sidebar.open{left:0;}
+  .sb-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 18px 14px;
+  }
+  .sb-logo{font-weight:800; font-size:18px; letter-spacing:-0.01em;}
+  .sb-logo span{color:var(--violet-text);}
+  .sb-close{
+    width:30px; height:30px; border-radius:8px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft);
+  }
+  .sb-venue{
+    margin:6px 14px 14px; padding:10px 12px;
+    background:var(--surface-2); border-radius:10px;
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+  }
+  .sb-venue-avatar{
+    width:32px; height:32px; border-radius:8px; flex:none;
+    background:linear-gradient(155deg,#A9865F,#6E8268);
+  }
+  .sb-venue-name{font-size:13px; font-weight:700;}
+  .sb-venue-sub{font-size:11px; color:var(--text-faint);}
+  .sb-venue svg{margin-left:auto; color:var(--text-faint); flex:none;}
+
+  .sb-nav{padding:6px 12px; flex:1; overflow-y:auto;}
+  .sb-section-label{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-faint); padding:14px 10px 8px;
+  }
+  .sb-link{
+    display:flex; align-items:center; gap:11px;
+    padding:9px 10px; border-radius:9px;
+    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    margin-bottom:2px;
+  }
+  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link:hover{background:var(--surface-hover); color:var(--text);}
+  .sb-link.active{background:var(--violet-soft); color:var(--white);}
+  .sb-link.active svg{color:var(--violet-text);}
+  .sb-badge{
+    margin-left:auto; font-size:10px; font-weight:700;
+    background:var(--violet); color:var(--white);
+    padding:2px 7px; border-radius:99px;
+  }
+
+  .sb-bottom{
+    padding:14px; border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .sb-avatar{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    background:var(--violet); color:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700;
+  }
+  .sb-user-name{font-size:12.5px; font-weight:700;}
+  .sb-user-role{font-size:11px; color:var(--text-faint);}
+  .sb-bottom svg{margin-left:auto; color:var(--text-faint); flex:none; cursor:pointer;}
+
+  .sb-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:55;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .sb-overlay.open{opacity:1; pointer-events:auto;}
+
+  @media (min-width:1080px){
+    .sidebar{position:sticky; top:0; left:auto; height:100vh;}
+    .sb-close{display:none;}
+    .sb-overlay{display:none;}
+  }
+
+  @media (max-width:1079px){
+    .sidebar{
+      left:0; right:0; top:auto; bottom:0; width:auto; max-width:480px; margin:0 auto;
+      height:auto; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      border-radius:22px 22px 0 0;
+      border-right:none; border-top:1px solid var(--border);
+      box-shadow:0 -18px 40px rgba(0,0,0,.55);
+      transform:translateY(100%);
+      transition:transform .25s ease;
+    }
+    .sidebar.open{transform:translateY(0);}
+  }
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1; min-width:0;}
+
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:rgba(19,18,24,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:14px;
+    padding:0 18px; height:64px;
+  }
+  .menu-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    flex:none; color:var(--text-soft);
+  }
+  @media (min-width:1080px){ .menu-btn{display:none;} }
+  .tb-logo-mobile{font-weight:800; font-size:16px; letter-spacing:-0.01em; flex:none; white-space:nowrap;}
+  @media (min-width:1080px){ .tb-logo-mobile{display:none;} }
+
+  .tb-search{
+    flex:1; max-width:360px;
+    display:flex; align-items:center; gap:9px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 13px;
+  }
+  .tb-search svg{color:var(--text-faint); flex:none;}
+  .tb-search input{
+    border:none; background:none; outline:none; color:var(--text);
+    font-family:inherit; font-size:13.5px; width:100%;
+  }
+  .tb-search input::placeholder{color:var(--text-faint);}
+  .tb-right{display:flex; align-items:center; gap:10px; margin-left:auto;}
+  .tb-right .btn{height:36px; padding:0 16px;}
+  .tb-icon-btn{
+    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft); position:relative; flex:none;
+  }
+  .tb-icon-btn .dot{
+    position:absolute; top:7px; right:7px;
+    width:7px; height:7px; border-radius:50%; background:var(--danger);
+    border:1.5px solid var(--surface);
+  }
+  .tb-search-mobile-hide{display:none;}
+  @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+
+  /* ---------- CONTENT ---------- */
+  .content{padding:22px 16px 60px;}
+  @media (min-width:900px){ .content{padding:30px 32px 70px;} }
+
+  .greet-row{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap:wrap; gap:14px; margin-bottom:22px;
+  }
+  .greet-row h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
+  .greet-row .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
+  @media (min-width:900px){ .greet-row h1{font-size:26px;} }
+
+  /* ---------- STAT CARDS ---------- */
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+    margin-bottom:22px;
+  }
+  @media (min-width:800px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
+  .stat-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:16px 18px;
+  }
+  .stat-top{display:flex; align-items:center; justify-content:space-between;}
+  .stat-label{font-size:12px; color:var(--text-soft); font-weight:600;}
+  .stat-icon{
+    width:28px; height:28px; border-radius:8px; background:var(--violet-soft);
+    display:flex; align-items:center; justify-content:center; color:var(--violet-text);
+  }
+  .stat-value{font-size:26px; font-weight:800; margin-top:12px; letter-spacing:-0.01em;}
+  .stat-delta{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:11.5px; font-weight:700; margin-top:6px;
+    color:var(--success);
+  }
+  .stat-delta.down{color:var(--danger);}
+  .stat-delta span.muted{color:var(--text-faint); font-weight:500;}
+
+  /* ---------- PANELS / GRID LAYOUT ---------- */
+  .dash-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+  @media (min-width:1100px){ .dash-grid{grid-template-columns:2fr 1fr;} }
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px;
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-bottom:16px;
+  }
+  .panel-head h2{font-size:15.5px; font-weight:700;}
+  .panel-head .link{font-size:12.5px; font-weight:700; color:var(--violet-text);}
+  .panel-tabs{display:flex; gap:6px;}
+  .panel-tab{
+    font-size:12px; font-weight:700; padding:6px 12px; border-radius:99px;
+    background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+  }
+  .panel-tab.active{background:var(--violet); color:var(--white);}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline-wrap{overflow-x:auto; overflow-y:hidden; scrollbar-width:none;}
+  .timeline-wrap::-webkit-scrollbar{display:none;}
+  .timeline{
+    display:flex; min-width:560px;
+  }
+  .tl-times{
+    flex:none; width:52px; position:relative; height:600px;
+  }
+  .tl-times span{
+    position:absolute; left:0; transform:translateY(-50%);
+    font-size:10.5px; color:var(--text-faint); font-weight:600;
+  }
+  .tl-staff{flex:1; display:flex; gap:10px;}
+  .tl-col{
+    flex:1; position:relative; height:600px; min-width:118px;
+    background-image:repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent 60px);
+    border-left:1px solid var(--border);
+  }
+  .tl-col-head{
+    text-align:center; font-size:11.5px; font-weight:700; color:var(--text-soft);
+    margin-bottom:8px;
+  }
+  .tl-appt{
+    position:absolute; left:3px; right:3px;
+    border-radius:8px; padding:6px 8px;
+    border-left:3px solid; overflow:hidden;
+  }
+  .tl-appt .t1{font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tl-appt .t2{font-size:10px; opacity:0.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tl-c-violet{background:rgba(109,95,232,0.18); border-color:var(--violet);}
+  .tl-c-blue{background:rgba(95,168,232,0.18); border-color:#5FA8E8;}
+  .tl-c-pink{background:rgba(232,95,158,0.18); border-color:#E85F9E;}
+  .tl-c-green{background:rgba(95,232,160,0.18); border-color:#5FE8A0;}
+
+  .tl-heads{display:flex; gap:10px; padding-left:52px; min-width:560px;}
+  .tl-heads .tl-col-head{flex:1; min-width:118px;}
+
+  /* ---------- UPCOMING LIST ---------- */
+  .side-col{display:flex; flex-direction:column; gap:16px;}
+  .appt-row{
+    display:flex; align-items:center; gap:11px;
+    padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .appt-row:last-child{border-bottom:none; padding-bottom:0;}
+  .appt-avatar{
+    width:36px; height:36px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:700; color:var(--white);
+  }
+  .appt-name{font-size:13px; font-weight:700;}
+  .appt-service{font-size:11.5px; color:var(--text-soft); margin-top:1px;}
+  .appt-time{margin-left:auto; text-align:right; flex:none;}
+  .appt-time .t{font-size:12.5px; font-weight:700;}
+  .status-pill{
+    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:2px 7px; border-radius:99px; margin-top:3px; display:inline-block;
+  }
+  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
+
+  /* ---------- MINI CHART ---------- */
+  .chart-row{
+    display:flex; align-items:flex-end; gap:8px; height:120px; margin-top:6px;
+  }
+  .chart-bar{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .chart-bar .bar{
+    width:100%; border-radius:5px 5px 0 0; background:var(--surface-2);
+  }
+  .chart-bar.today .bar{background:var(--violet);}
+  .chart-bar span{font-size:10px; color:var(--text-faint); font-weight:600;}
+
+  /* ---------- TEAM MINI LIST ---------- */
+  .team-row{
+    display:flex; align-items:center; gap:10px; padding:9px 0;
+  }
+  .team-avatar{
+    width:32px; height:32px; border-radius:50%; flex:none;
+  }
+  .team-name{font-size:12.5px; font-weight:700;}
+  .team-meta{font-size:11px; color:var(--text-faint);}
+  .team-status{
+    margin-left:auto; font-size:10.5px; font-weight:700; flex:none;
+  }
+  .team-status.busy{color:var(--warning);}
+  .team-status.free{color:var(--success);}
+
+  /* ---------- PAGE HEAD ---------- */
+  .page-head{margin-bottom:20px;}
+  .page-head h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
+  .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
+  @media (min-width:900px){ .page-head h1{font-size:26px;} }
+
+  /* ---------- FILTER BAR ---------- */
+  .filter-bar{
+    display:flex; flex-direction:column; gap:12px;
+    margin-bottom:18px;
+  }
+  .filter-tabs{
+    display:flex; gap:6px; flex-wrap:nowrap;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none;
+  }
+  .filter-tabs::-webkit-scrollbar{display:none;}
+  .filter-tab{
+    flex:none;
+    font-size:12.5px; font-weight:700; padding:8px 14px; border-radius:99px;
+    background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+    border:1px solid var(--border); white-space:nowrap;
+  }
+  .filter-tab.active{background:var(--violet); color:var(--white); border-color:var(--violet);}
+  .filter-actions{display:flex; align-items:center; gap:10px;}
+  .filter-search{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 13px; flex:1; min-width:0; max-width:280px;
+  }
+  .filter-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
+  .filter-search input::placeholder{color:var(--text-faint);}
+  @media (min-width:900px){
+    .filter-bar{flex-direction:row; align-items:center;}
+    .filter-tabs{flex:none;}
+    .filter-actions{margin-left:auto; flex:none;}
+  }
+  .svc-filter-panel{margin-bottom:16px;}
+  .svc-filter-panel .filter-bar{margin-bottom:0;}
+  .add-category-btn{
+    flex:none; display:flex; align-items:center; gap:5px;
+    font-size:12.5px; font-weight:700; color:var(--violet-text); cursor:pointer; white-space:nowrap;
+  }
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{overflow-x:auto; overflow-y:hidden;}
+  table.data{width:100%; border-collapse:collapse; min-width:760px; table-layout:fixed;}
+  table.data th:nth-child(1), table.data td:nth-child(1){width:44%;}
+  table.data th:nth-child(2), table.data td:nth-child(2){width:16%;}
+  table.data th:nth-child(3), table.data td:nth-child(3){width:14%;}
+  table.data th:nth-child(4), table.data td:nth-child(4){width:16%;}
+  table.data th:nth-child(5), table.data td:nth-child(5){width:10%;}
+  table.data th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--text-faint); font-weight:700; padding:0 14px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
+  table.data tr:last-child td{border-bottom:none;}
+  table.data tr:hover td{background:var(--surface-hover);}
+  .cell-person{display:flex; align-items:center; gap:10px;}
+  .cell-avatar{
+    width:32px; height:32px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11.5px; font-weight:700; color:#fff;
+  }
+  .cell-name{font-weight:700; font-size:13px;}
+  .cell-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
+  .status-badge{
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:4px 9px; border-radius:99px; display:inline-block; white-space:nowrap;
+  }
+  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
+  .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
+  .row-action{
+    width:30px; height:30px; border-radius:8px; background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-faint); cursor:pointer; flex:none;
+  }
+  .tag-pill{font-size:10px; font-weight:700; padding:3px 8px; border-radius:99px; margin-right:4px; display:inline-block; white-space:nowrap;}
+  .tag-vip{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .tag-new{background:var(--violet-soft); color:var(--violet-text);}
+  .tag-inactive{background:rgba(157,152,176,0.14); color:var(--text-soft);}
+
+  /* ---------- PAGINATION ---------- */
+  .pagination{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-top:16px; margin-top:2px; flex-wrap:wrap; gap:10px;
+  }
+  .pagination .info{font-size:12px; color:var(--text-faint);}
+  .pg-btns{display:flex; gap:8px;}
+  .pg-btn{
+    width:32px; height:32px; border-radius:8px; background:var(--surface-2);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    color:var(--text-soft); cursor:pointer; font-size:12px; font-weight:700;
+  }
+  .pg-btn.active{background:var(--violet); color:#fff; border-color:var(--violet);}
+
+  /* ---------- SERVICE TOGGLE ---------- */
+  .toggle{
+    width:38px; height:22px; border-radius:99px;
+    background:var(--surface-2); border:1px solid var(--border);
+    position:relative; cursor:pointer; flex:none;
+  }
+  .toggle::after{
+    content:''; position:absolute; top:2px; left:2px;
+    width:16px; height:16px; border-radius:50%; background:var(--text-faint);
+    transition:transform .15s ease, background .15s ease;
+  }
+  .toggle.on{background:var(--violet-soft); border-color:var(--violet);}
+  .toggle.on::after{transform:translateX(16px); background:var(--violet);}
+
+  /* ---------- CATEGORY PANEL ---------- */
+  .cat-panel{margin-bottom:16px;}
+  .cat-panel:last-child{margin-bottom:0;}
+  .cat-panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-bottom:14px;
+  }
+  .cat-panel-head h2{font-size:15px; font-weight:700;}
+  .cat-panel-head .count{font-size:12px; color:var(--text-faint); font-weight:600; margin-left:8px;}
+  .cat-add{
+    font-size:12px; font-weight:700; color:var(--violet-text); cursor:pointer;
+    display:flex; align-items:center; gap:4px;
+  }
+  .svc-cell-name{font-weight:700; font-size:13px;}
+  .svc-cell-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:80;
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:22px; width:100%; max-width:420px;
+  }
+  .modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .modal-head h2{font-size:16px; font-weight:700;}
+  .modal-close{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft); flex:none;
+  }
+  .form-group{margin-bottom:14px;}
+  .form-group:last-of-type{margin-bottom:20px;}
+  .form-row{display:flex; gap:12px;}
+  .form-row .form-group{flex:1;}
+  .form-label{font-size:12px; font-weight:700; color:var(--text-soft); margin-bottom:6px; display:block;}
+  .form-input, .form-select{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:10px 13px; color:var(--text); font-family:inherit; font-size:13.5px; outline:none;
+  }
+  .form-input:focus, .form-select:focus{border-color:var(--violet);}
+  .form-input::placeholder{color:var(--text-faint);}
+  .modal-actions{display:flex; gap:10px;}
+  .modal-actions .btn{flex:1; justify-content:center;}
+
+  .addon-service-list{
+    max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:2px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:6px;
+  }
+  .addon-service-option{
+    display:flex; align-items:center; gap:9px; padding:8px 8px; border-radius:7px; cursor:pointer; font-size:13px;
+  }
+  .addon-service-option:hover{background:var(--surface-hover);}
+  .addon-service-option input{accent-color:var(--violet); width:15px; height:15px; flex:none;}
+  .addon-service-option .cat{margin-left:auto; font-size:11px; color:var(--text-faint); font-weight:600; flex:none;}
+  .addon-service-empty{font-size:12.5px; color:var(--text-faint); padding:8px;}
+</style>
+</head>
+
+
+<body>
+
+<div class="shell">
+
+  <div class="sb-overlay" id="sbOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">Blooma <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
+      <div class="sb-close" id="sbClose">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+
+    <div class="sb-venue">
+      <div class="sb-venue-avatar"></div>
+      <div>
+        <div class="sb-venue-name">Ivy Salon Loft</div>
+        <div class="sb-venue-sub">SoHo, New York</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Overview</div>
+      <a href="/venue/admin" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        Dashboard
+      </a>
+      <a href="/venue/admin/calendar" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Calendar
+      </a>
+      <a href="/venue/admin/bookings" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
+        Bookings
+        <span class="sb-badge">24</span>
+      </a>
+      <a href="/venue/admin/messages" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+        <span class="sb-badge">3</span>
+      </a>
+
+      <div class="sb-section-label">Manage</div>
+      <a href="/venue/admin/clients" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
+        Clients
+      </a>
+      <a href="/venue/admin/team" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        Team
+      </a>
+      <a href="/venue/admin/services" class="sb-link active">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        Services
+      </a>
+
+      <div class="sb-section-label">Insights</div>
+      <a href="/venue/admin/reports" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
+        Reports
+      </a>
+      <a href="/venue/admin/payments" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        Payments
+      </a>
+      <a href="/venue/admin/addons" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Add-ons
+      </a>
+      <a href="/venue/admin/settings" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sb-bottom">
+      <div class="sb-avatar">MJ</div>
+      <div>
+        <div class="sb-user-name">Maria J.</div>
+        <div class="sb-user-role">Owner</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="tb-logo-mobile">Blooma</div>
+      <div class="tb-search tb-search-mobile-hide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search clients, bookings, services…">
+      </div>
+      <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          New booking
+        </a>
+        <div class="menu-btn" id="menuBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+  <div class="page-head">
+    <h1>Services</h1>
+    <div class="sub" id="svcSub">10 services across 4 categories</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Total services</div>
+        <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg></div>
+      </div>
+      <div class="stat-value" id="svcCountValue">10</div>
+      <div class="stat-delta"><span class="muted">4 categories</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Avg. price</div>
+        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      </div>
+      <div class="stat-value">$81</div>
+      <div class="stat-delta"><span class="muted">Per service</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Avg. duration</div>
+        <div class="stat-icon" style="background:var(--violet-soft); color:var(--violet-text);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+      </div>
+      <div class="stat-value">52 min</div>
+      <div class="stat-delta"><span class="muted">Per service</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Most booked</div>
+        <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z"/></svg></div>
+      </div>
+      <div class="stat-value">Balayage</div>
+      <div class="stat-delta"><span class="muted">38 bookings/mo</span></div>
+    </div>
+  </div>
+
+  <div class="panel svc-filter-panel">
+    <div class="filter-bar">
+      <div class="filter-tabs" id="svcFilterTabs">
+        <div class="filter-tab active" data-category="all" onclick="setServiceFilter('all')">All</div>
+        <div class="filter-tab" data-category="Haircuts" onclick="setServiceFilter('Haircuts')">Haircuts</div>
+        <div class="filter-tab" data-category="Color" onclick="setServiceFilter('Color')">Color</div>
+        <div class="filter-tab" data-category="Styling" onclick="setServiceFilter('Styling')">Styling</div>
+        <div class="filter-tab" data-category="Treatments" onclick="setServiceFilter('Treatments')">Treatments</div>
+        <div class="add-category-btn" onclick="openAddCategory()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          Add category
+        </div>
+      </div>
+      <div class="filter-actions">
+        <div class="filter-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="Search services…">
+        </div>
+        <div class="btn btn-violet" onclick="openAddService('Haircuts')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          Add service
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel cat-panel" data-category="Haircuts">
+    <div class="cat-panel-head">
+      <h2>Haircuts <span class="count" id="countHaircuts">3 services</span></h2>
+      <div class="cat-add" onclick="openAddService('Haircuts')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="tbodyHaircuts">
+          <tr>
+            <td><div class="svc-cell-name">Women's cut &amp; blowout</div><div class="svc-cell-sub">All stylists</div></td>
+            <td>60 min</td>
+            <td>$95</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr>
+            <td><div class="svc-cell-name">Men's cut</div><div class="svc-cell-sub">All stylists</div></td>
+            <td>30 min</td>
+            <td>$55</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr>
+            <td><div class="svc-cell-name">Kids cut (12 &amp; under)</div><div class="svc-cell-sub">All stylists</div></td>
+            <td>30 min</td>
+            <td>$40</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel cat-panel" data-category="Color">
+    <div class="cat-panel-head">
+      <h2>Color <span class="count" id="countColor">3 services</span></h2>
+      <div class="cat-add" onclick="openAddService('Color')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="tbodyColor">
+          <tr>
+            <td><div class="svc-cell-name">Full balayage</div><div class="svc-cell-sub">Fana R., Jordan M.</div></td>
+            <td>2 hr 30 min</td>
+            <td>$220</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr>
+            <td><div class="svc-cell-name">Root touch-up</div><div class="svc-cell-sub">Fana R., Jordan M.</div></td>
+            <td>1 hr 15 min</td>
+            <td>$110</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr>
+            <td><div class="svc-cell-name">Gloss &amp; toner</div><div class="svc-cell-sub">Fana R., Naomi K.</div></td>
+            <td>45 min</td>
+            <td>$65</td>
+            <td><div class="toggle"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel cat-panel" data-category="Styling">
+    <div class="cat-panel-head">
+      <h2>Styling <span class="count" id="countStyling">2 services</span></h2>
+      <div class="cat-add" onclick="openAddService('Styling')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="tbodyStyling">
+          <tr>
+            <td><div class="svc-cell-name">Blowout</div><div class="svc-cell-sub">All stylists</div></td>
+            <td>40 min</td>
+            <td>$60</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr>
+            <td><div class="svc-cell-name">Special occasion updo</div><div class="svc-cell-sub">Jordan M., Chris T.</div></td>
+            <td>1 hr</td>
+            <td>$120</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel cat-panel" data-category="Treatments">
+    <div class="cat-panel-head">
+      <h2>Treatments <span class="count" id="countTreatments">2 services</span></h2>
+      <div class="cat-add" onclick="openAddService('Treatments')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="tbodyTreatments">
+          <tr>
+            <td><div class="svc-cell-name">Deep conditioning treatment</div><div class="svc-cell-sub">All stylists</div></td>
+            <td>30 min</td>
+            <td>$45</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr>
+            <td><div class="svc-cell-name">Scalp treatment</div><div class="svc-cell-sub">Naomi K.</div></td>
+            <td>30 min</td>
+            <td>$50</td>
+            <td><div class="toggle"></div></td>
+            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel cat-panel" data-category="Add-ons" id="addonsPanel">
+    <div class="cat-panel-head">
+      <h2>Add-ons <span class="count" id="countAddons">3 add-ons</span></h2>
+      <div class="cat-add" onclick="openAddAddon()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Add-on</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="tbodyAddons">
+          <tr data-services='["Full balayage","Root touch-up","Gloss &amp; toner"]'>
+            <td><div class="svc-cell-name">Deep conditioning</div><div class="svc-cell-sub">Full balayage, Root touch-up, Gloss &amp; toner</div></td>
+            <td>15 min</td>
+            <td>+$15</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr data-services='["Women&#39;s cut &amp; blowout","Men&#39;s cut","Kids cut (12 &amp; under)"]'>
+            <td><div class="svc-cell-name">Scalp massage</div><div class="svc-cell-sub">Women's cut &amp; blowout, Men's cut, Kids cut (12 &amp; under)</div></td>
+            <td>10 min</td>
+            <td>+$10</td>
+            <td><div class="toggle on"></div></td>
+            <td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+          <tr data-services='["Full balayage"]'>
+            <td><div class="svc-cell-name">Gloss finish</div><div class="svc-cell-sub">Full balayage</div></td>
+            <td>10 min</td>
+            <td>+$20</td>
+            <td><div class="toggle"></div></td>
+            <td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="addServiceOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Add service</h2>
+      <div class="modal-close" onclick="closeAddService()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <form id="addServiceForm" onsubmit="return submitAddService(event)">
+      <div class="form-group">
+        <label class="form-label">Service name</label>
+        <input type="text" class="form-input" id="svcName" placeholder="e.g. Bridal styling" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="svcCategory">
+          <option>Haircuts</option>
+          <option>Color</option>
+          <option>Styling</option>
+          <option>Treatments</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <input type="text" class="form-input" id="svcDuration" placeholder="e.g. 45 min" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <input type="text" class="form-input" id="svcPrice" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Which stylists can perform this?</label>
+        <div class="addon-service-list" id="svcStylistList"></div>
+      </div>
+      <div class="modal-actions">
+        <div class="btn btn-ghost" onclick="closeAddService()">Cancel</div>
+        <button type="submit" class="btn btn-violet">Add service</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editServiceOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Edit service</h2>
+      <div class="modal-close" onclick="closeEditService()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <form id="editServiceForm" onsubmit="return submitEditService(event)">
+      <div class="form-group">
+        <label class="form-label">Service name</label>
+        <input type="text" class="form-input" id="editSvcName" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="editSvcCategory"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <input type="text" class="form-input" id="editSvcDuration" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <input type="text" class="form-input" id="editSvcPrice" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Which stylists can perform this?</label>
+        <div class="addon-service-list" id="editSvcStylistList"></div>
+      </div>
+      <div class="modal-actions">
+        <div class="btn btn-danger" onclick="deleteEditService()">Delete</div>
+        <button type="submit" class="btn btn-violet">Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addCategoryOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Add category</h2>
+      <div class="modal-close" onclick="closeAddCategory()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <form id="addCategoryForm" onsubmit="return submitAddCategory(event)">
+      <div class="form-group">
+        <label class="form-label">Category name</label>
+        <input type="text" class="form-input" id="catName" placeholder="e.g. Waxing" required>
+      </div>
+      <div class="modal-actions">
+        <div class="btn btn-ghost" onclick="closeAddCategory()">Cancel</div>
+        <button type="submit" class="btn btn-violet">Add category</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addAddonOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Add add-on</h2>
+      <div class="modal-close" onclick="closeAddAddon()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <form id="addAddonForm" onsubmit="return submitAddAddon(event)">
+      <div class="form-group">
+        <label class="form-label">Add-on name</label>
+        <input type="text" class="form-input" id="addonName" placeholder="e.g. Deep conditioning" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <input type="text" class="form-input" id="addonDuration" placeholder="e.g. 15 min" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <input type="text" class="form-input" id="addonPrice" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Applies to</label>
+        <div class="addon-service-list" id="addonServiceList"></div>
+      </div>
+      <div class="modal-actions">
+        <div class="btn btn-ghost" onclick="closeAddAddon()">Cancel</div>
+        <button type="submit" class="btn btn-violet">Add add-on</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editAddonOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Edit add-on</h2>
+      <div class="modal-close" onclick="closeEditAddon()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <form id="editAddonForm" onsubmit="return submitEditAddon(event)">
+      <div class="form-group">
+        <label class="form-label">Add-on name</label>
+        <input type="text" class="form-input" id="editAddonName" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <input type="text" class="form-input" id="editAddonDuration" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <input type="text" class="form-input" id="editAddonPrice" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Applies to</label>
+        <div class="addon-service-list" id="editAddonServiceList"></div>
+      </div>
+      <div class="modal-actions">
+        <div class="btn btn-danger" onclick="deleteEditAddon()">Delete</div>
+        <button type="submit" class="btn btn-violet">Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sbOverlay');
+  var menuBtn = document.getElementById('menuBtn');
+  var closeBtn = document.getElementById('sbClose');
+
+  function openSb(){ sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSb(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+  menuBtn.addEventListener('click', openSb);
+  closeBtn.addEventListener('click', closeSb);
+  overlay.addEventListener('click', closeSb);
+
+  document.querySelectorAll('.toggle').forEach(function(t){
+    t.addEventListener('click', function(){ t.classList.toggle('on'); });
+  });
+
+  var svcCounts = { Haircuts:3, Color:3, Styling:2, Treatments:2 };
+  var svcTotal = 10;
+  var svcCategoryCount = 4;
+  var currentServiceFilter = 'all';
+
+  function slugify(name){
+    return name.replace(/[^a-zA-Z0-9]/g, '');
+  }
+
+  function lockPricePrefix(input, prefix){
+    function enforce(){
+      if(input.value.indexOf(prefix) !== 0){
+        var digits = input.value.replace(/[+$]/g, '');
+        input.value = prefix + digits;
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }
+    input.addEventListener('input', enforce);
+    input.addEventListener('keydown', function(e){
+      var start = input.selectionStart, end = input.selectionEnd;
+      if((e.key === 'Backspace' || e.key === 'Delete') && start <= prefix.length && end <= prefix.length){
+        e.preventDefault();
+      }
+    });
+    input.addEventListener('focus', function(){
+      if(!input.value) input.value = prefix;
+      if(input.selectionStart < prefix.length) input.setSelectionRange(input.value.length, input.value.length);
+    });
+    input.addEventListener('click', function(){
+      if(input.selectionStart < prefix.length) input.setSelectionRange(prefix.length > input.value.length ? input.value.length : prefix.length, input.selectionEnd < prefix.length ? prefix.length : input.selectionEnd);
+    });
+  }
+  function setPriceValue(input, prefix, rawText){
+    var digits = String(rawText||'').replace(/[+$]/g, '').trim();
+    input.value = prefix + digits;
+  }
+  function priceHasValue(str){
+    return /\d/.test(str||'');
+  }
+  lockPricePrefix(document.getElementById('svcPrice'), '$');
+  lockPricePrefix(document.getElementById('editSvcPrice'), '$');
+  lockPricePrefix(document.getElementById('addonPrice'), '+$');
+  lockPricePrefix(document.getElementById('editAddonPrice'), '+$');
+
+  function updateSvcSub(){
+    document.getElementById('svcSub').textContent = svcTotal + ' services across ' + svcCategoryCount + ' categor' + (svcCategoryCount === 1 ? 'y' : 'ies');
+  }
+
+  function setServiceFilter(category){
+    currentServiceFilter = category;
+    document.querySelectorAll('#svcFilterTabs .filter-tab').forEach(function(tab){
+      tab.classList.toggle('active', tab.getAttribute('data-category') === category);
+    });
+    document.querySelectorAll('.cat-panel').forEach(function(panel){
+      if(panel.id === 'addonsPanel') return;
+      var match = category === 'all' || panel.getAttribute('data-category') === category;
+      panel.style.display = match ? '' : 'none';
+    });
+  }
+
+  function openAddService(category){
+    document.getElementById('svcCategory').value = category;
+    populateStylistOptions('svcStylistList', []);
+    var priceInput = document.getElementById('svcPrice');
+    if(!priceInput.value) setPriceValue(priceInput, '$', '');
+    document.getElementById('addServiceOverlay').classList.add('open');
+  }
+  function closeAddService(){
+    document.getElementById('addServiceOverlay').classList.remove('open');
+    document.getElementById('addServiceForm').reset();
+    setPriceValue(document.getElementById('svcPrice'), '$', '');
+  }
+  function submitAddService(evt){
+    evt.preventDefault();
+    var name = document.getElementById('svcName').value.trim();
+    var category = document.getElementById('svcCategory').value;
+    var duration = document.getElementById('svcDuration').value.trim();
+    var price = document.getElementById('svcPrice').value.trim();
+    if(!name || !duration || !priceHasValue(price)) return false;
+    var stylists = getCheckedStylistNames('svcStylistList');
+
+    var row = document.createElement('tr');
+    row.setAttribute('data-stylists', JSON.stringify(stylists));
+    row.innerHTML =
+      '<td><div class="svc-cell-name">' + name + '</div><div class="svc-cell-sub">' + svcStylistSubText(stylists) + '</div></td>' +
+      '<td>' + duration + '</td><td>' + price + '</td>' +
+      '<td><div class="toggle on"></div></td>' +
+      '<td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>';
+    row.querySelector('.toggle').addEventListener('click', function(){ row.querySelector('.toggle').classList.toggle('on'); });
+    document.getElementById('tbody' + slugify(category)).appendChild(row);
+
+    svcCounts[category] += 1;
+    svcTotal += 1;
+    document.getElementById('count' + slugify(category)).textContent = svcCounts[category] + ' service' + (svcCounts[category] === 1 ? '' : 's');
+    document.getElementById('svcCountValue').textContent = svcTotal;
+    updateSvcSub();
+
+    closeAddService();
+  }
+  document.getElementById('addServiceOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeAddService();
+  });
+
+  function openAddCategory(){
+    document.getElementById('addCategoryOverlay').classList.add('open');
+  }
+  function closeAddCategory(){
+    document.getElementById('addCategoryOverlay').classList.remove('open');
+    document.getElementById('addCategoryForm').reset();
+  }
+  function submitAddCategory(evt){
+    evt.preventDefault();
+    var name = document.getElementById('catName').value.trim();
+    if(!name) return false;
+    var slug = slugify(name);
+    if(document.getElementById('tbody' + slug)){
+      closeAddCategory();
+      setServiceFilter(name);
+      return false;
+    }
+
+    // Add the filter pill (before the "Add category" trigger)
+    var tab = document.createElement('div');
+    tab.className = 'filter-tab';
+    tab.setAttribute('data-category', name);
+    tab.textContent = name;
+    tab.onclick = function(){ setServiceFilter(name); };
+    document.getElementById('svcFilterTabs').insertBefore(tab, document.querySelector('.add-category-btn'));
+
+    // Add the empty category panel after the last existing one
+    var panel = document.createElement('div');
+    panel.className = 'panel cat-panel';
+    panel.setAttribute('data-category', name);
+    panel.innerHTML =
+      '<div class="cat-panel-head">' +
+        '<h2>' + name + ' <span class="count" id="count' + slug + '">0 services</span></h2>' +
+        '<div class="cat-add" onclick="openAddService(\'' + name + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>' +
+      '</div>' +
+      '<div class="table-wrap">' +
+        '<table class="data">' +
+          '<thead><tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr></thead>' +
+          '<tbody id="tbody' + slug + '"></tbody>' +
+        '</table>' +
+      '</div>';
+    var addonsPanel = document.getElementById('addonsPanel');
+    addonsPanel.parentNode.insertBefore(panel, addonsPanel);
+
+    // Register the new category and add it to the Add Service form's dropdown
+    svcCounts[name] = 0;
+    svcCategoryCount += 1;
+    updateSvcSub();
+    var option = document.createElement('option');
+    option.textContent = name;
+    document.getElementById('svcCategory').appendChild(option);
+
+    closeAddCategory();
+    setServiceFilter(name);
+  }
+  document.getElementById('addCategoryOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeAddCategory();
+  });
+
+  var currentEditRow = null;
+  var currentEditOriginalCategory = null;
+  var deleteConfirmPending = false;
+
+  function openEditService(el){
+    var row = el.closest('tr');
+    var catPanel = el.closest('.cat-panel');
+    var category = catPanel.getAttribute('data-category');
+    currentEditRow = row;
+    currentEditOriginalCategory = category;
+    deleteConfirmPending = false;
+    resetDeleteBtn();
+
+    document.getElementById('editSvcName').value = row.querySelector('.svc-cell-name').textContent;
+    document.getElementById('editSvcDuration').value = row.cells[1].textContent;
+    setPriceValue(document.getElementById('editSvcPrice'), '$', row.cells[2].textContent);
+
+    var stylists = [];
+    if(row.hasAttribute('data-stylists')){
+      try{ stylists = JSON.parse(row.getAttribute('data-stylists') || '[]'); }catch(e){}
+    } else {
+      var subText = row.querySelector('.svc-cell-sub').textContent.trim();
+      if(subText && subText !== 'All stylists') stylists = subText.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    }
+    populateStylistOptions('editSvcStylistList', stylists);
+
+    var select = document.getElementById('editSvcCategory');
+    select.innerHTML = '';
+    document.querySelectorAll('.cat-panel').forEach(function(p){
+      var opt = document.createElement('option');
+      opt.textContent = p.getAttribute('data-category');
+      select.appendChild(opt);
+    });
+    select.value = category;
+
+    document.getElementById('editServiceOverlay').classList.add('open');
+  }
+  function closeEditService(){
+    document.getElementById('editServiceOverlay').classList.remove('open');
+    currentEditRow = null;
+    deleteConfirmPending = false;
+    resetDeleteBtn();
+  }
+  function resetDeleteBtn(){
+    var btn = document.querySelector('#editServiceOverlay .btn-danger');
+    if(btn) btn.textContent = 'Delete';
+  }
+  function submitEditService(evt){
+    evt.preventDefault();
+    if(!currentEditRow) return false;
+    var name = document.getElementById('editSvcName').value.trim();
+    var newCategory = document.getElementById('editSvcCategory').value;
+    var duration = document.getElementById('editSvcDuration').value.trim();
+    var price = document.getElementById('editSvcPrice').value.trim();
+    if(!name || !duration || !priceHasValue(price)) return false;
+    var stylists = getCheckedStylistNames('editSvcStylistList');
+
+    currentEditRow.setAttribute('data-stylists', JSON.stringify(stylists));
+    currentEditRow.querySelector('.svc-cell-name').textContent = name;
+    currentEditRow.querySelector('.svc-cell-sub').textContent = svcStylistSubText(stylists);
+    currentEditRow.cells[1].textContent = duration;
+    currentEditRow.cells[2].textContent = price;
+
+    if(newCategory !== currentEditOriginalCategory){
+      svcCounts[currentEditOriginalCategory] -= 1;
+      svcCounts[newCategory] = (svcCounts[newCategory] || 0) + 1;
+      document.getElementById('count' + slugify(currentEditOriginalCategory)).textContent =
+        svcCounts[currentEditOriginalCategory] + ' service' + (svcCounts[currentEditOriginalCategory] === 1 ? '' : 's');
+      document.getElementById('count' + slugify(newCategory)).textContent =
+        svcCounts[newCategory] + ' service' + (svcCounts[newCategory] === 1 ? '' : 's');
+      document.getElementById('tbody' + slugify(newCategory)).appendChild(currentEditRow);
+    }
+
+    closeEditService();
+  }
+  function deleteEditService(){
+    if(!currentEditRow) return;
+    if(!deleteConfirmPending){
+      deleteConfirmPending = true;
+      var btn = document.querySelector('#editServiceOverlay .btn-danger');
+      btn.textContent = 'Confirm delete?';
+      return;
+    }
+    var category = currentEditOriginalCategory;
+    currentEditRow.parentNode.removeChild(currentEditRow);
+    svcCounts[category] -= 1;
+    svcTotal -= 1;
+    document.getElementById('count' + slugify(category)).textContent =
+      svcCounts[category] + ' service' + (svcCounts[category] === 1 ? '' : 's');
+    document.getElementById('svcCountValue').textContent = svcTotal;
+    updateSvcSub();
+    closeEditService();
+  }
+  document.getElementById('editServiceOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeEditService();
+  });
+
+  var addonCount = 3;
+
+  function updateAddonCount(){
+    document.getElementById('countAddons').textContent = addonCount + ' add-on' + (addonCount === 1 ? '' : 's');
+  }
+
+  function allServiceOptions(){
+    var options = [];
+    document.querySelectorAll('.cat-panel').forEach(function(panel){
+      if(panel.id === 'addonsPanel') return;
+      var category = panel.getAttribute('data-category');
+      panel.querySelectorAll('tbody tr').forEach(function(row){
+        var nameEl = row.querySelector('.svc-cell-name');
+        if(nameEl) options.push({ name: nameEl.textContent, category: category });
+      });
+    });
+    return options;
+  }
+
+  function populateAddonServiceOptions(containerId, checkedNames){
+    var container = document.getElementById(containerId);
+    var options = allServiceOptions();
+    if(!options.length){
+      container.innerHTML = '<div class="addon-service-empty">Add a service first to link add-ons to it.</div>';
+      return;
+    }
+    container.innerHTML = options.map(function(opt, i){
+      var checked = checkedNames.indexOf(opt.name) !== -1 ? ' checked' : '';
+      var id = containerId + 'Opt' + i;
+      return '<label class="addon-service-option" for="' + id + '">' +
+        '<input type="checkbox" id="' + id + '" value="' + opt.name.replace(/"/g,'&quot;') + '"' + checked + '>' +
+        '<span>' + opt.name + '</span>' +
+        '<span class="cat">' + opt.category + '</span>' +
+      '</label>';
+    }).join('');
+  }
+
+  function getCheckedServiceNames(containerId){
+    return Array.from(document.getElementById(containerId).querySelectorAll('input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
+  }
+
+  function addonSubText(names){
+    if(!names.length) return 'Not linked to a service yet';
+    return names.join(', ');
+  }
+
+  var STYLIST_CATALOG = [
+    { name: 'Fana R.', role: 'Senior Colorist' },
+    { name: 'Jordan M.', role: 'Master Stylist' },
+    { name: 'Naomi K.', role: 'Stylist' },
+    { name: 'Chris T.', role: 'Blowout Specialist' }
+  ];
+
+  function populateStylistOptions(containerId, checkedNames){
+    var container = document.getElementById(containerId);
+    container.innerHTML = STYLIST_CATALOG.map(function(st, i){
+      var checked = checkedNames.indexOf(st.name) !== -1 ? ' checked' : '';
+      var id = containerId + 'Opt' + i;
+      return '<label class="addon-service-option" for="' + id + '">' +
+        '<input type="checkbox" id="' + id + '" value="' + st.name.replace(/"/g,'&quot;') + '"' + checked + '>' +
+        '<span>' + st.name + '</span>' +
+        '<span class="cat">' + st.role + '</span>' +
+      '</label>';
+    }).join('');
+  }
+
+  function getCheckedStylistNames(containerId){
+    return Array.from(document.getElementById(containerId).querySelectorAll('input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
+  }
+
+  function svcStylistSubText(names){
+    if(!names.length) return 'All stylists';
+    return names.join(', ');
+  }
+
+  function openAddAddon(){
+    populateAddonServiceOptions('addonServiceList', []);
+    var priceInput = document.getElementById('addonPrice');
+    if(!priceInput.value) setPriceValue(priceInput, '+$', '');
+    document.getElementById('addAddonOverlay').classList.add('open');
+  }
+  function closeAddAddon(){
+    document.getElementById('addAddonOverlay').classList.remove('open');
+    document.getElementById('addAddonForm').reset();
+    setPriceValue(document.getElementById('addonPrice'), '+$', '');
+  }
+  function submitAddAddon(evt){
+    evt.preventDefault();
+    var name = document.getElementById('addonName').value.trim();
+    var duration = document.getElementById('addonDuration').value.trim();
+    var price = document.getElementById('addonPrice').value.trim();
+    if(!name || !duration || !priceHasValue(price)) return false;
+    var services = getCheckedServiceNames('addonServiceList');
+
+    var row = document.createElement('tr');
+    row.setAttribute('data-services', JSON.stringify(services));
+    row.innerHTML =
+      '<td><div class="svc-cell-name">' + name + '</div><div class="svc-cell-sub">' + addonSubText(services) + '</div></td>' +
+      '<td>' + duration + '</td><td>' + price + '</td>' +
+      '<td><div class="toggle on"></div></td>' +
+      '<td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>';
+    row.querySelector('.toggle').addEventListener('click', function(){ row.querySelector('.toggle').classList.toggle('on'); });
+    document.getElementById('tbodyAddons').appendChild(row);
+
+    addonCount += 1;
+    updateAddonCount();
+    closeAddAddon();
+  }
+  document.getElementById('addAddonOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeAddAddon();
+  });
+
+  var currentEditAddonRow = null;
+  var deleteAddonConfirmPending = false;
+
+  function openEditAddon(el){
+    currentEditAddonRow = el.closest('tr');
+    deleteAddonConfirmPending = false;
+    resetDeleteAddonBtn();
+
+    document.getElementById('editAddonName').value = currentEditAddonRow.querySelector('.svc-cell-name').textContent;
+    document.getElementById('editAddonDuration').value = currentEditAddonRow.cells[1].textContent;
+    setPriceValue(document.getElementById('editAddonPrice'), '+$', currentEditAddonRow.cells[2].textContent);
+    var linked = [];
+    try{ linked = JSON.parse(currentEditAddonRow.getAttribute('data-services') || '[]'); }catch(e){}
+    populateAddonServiceOptions('editAddonServiceList', linked);
+
+    document.getElementById('editAddonOverlay').classList.add('open');
+  }
+  function closeEditAddon(){
+    document.getElementById('editAddonOverlay').classList.remove('open');
+    currentEditAddonRow = null;
+    deleteAddonConfirmPending = false;
+    resetDeleteAddonBtn();
+  }
+  function resetDeleteAddonBtn(){
+    var btn = document.querySelector('#editAddonOverlay .btn-danger');
+    if(btn) btn.textContent = 'Delete';
+  }
+  function submitEditAddon(evt){
+    evt.preventDefault();
+    if(!currentEditAddonRow) return false;
+    var name = document.getElementById('editAddonName').value.trim();
+    var duration = document.getElementById('editAddonDuration').value.trim();
+    var price = document.getElementById('editAddonPrice').value.trim();
+    if(!name || !duration || !priceHasValue(price)) return false;
+    var services = getCheckedServiceNames('editAddonServiceList');
+
+    currentEditAddonRow.setAttribute('data-services', JSON.stringify(services));
+    currentEditAddonRow.querySelector('.svc-cell-name').textContent = name;
+    currentEditAddonRow.querySelector('.svc-cell-sub').textContent = addonSubText(services);
+    currentEditAddonRow.cells[1].textContent = duration;
+    currentEditAddonRow.cells[2].textContent = price;
+
+    closeEditAddon();
+  }
+  function deleteEditAddon(){
+    if(!currentEditAddonRow) return;
+    if(!deleteAddonConfirmPending){
+      deleteAddonConfirmPending = true;
+      var btn = document.querySelector('#editAddonOverlay .btn-danger');
+      btn.textContent = 'Confirm delete?';
+      return;
+    }
+    currentEditAddonRow.parentNode.removeChild(currentEditAddonRow);
+    addonCount -= 1;
+    updateAddonCount();
+    closeEditAddon();
+  }
+  document.getElementById('editAddonOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeEditAddon();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Blooma — style comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#241F33;
+    --ink-soft:#8A80AD;
+    --ink-mute:#6B6285;
+    --purple:#7C5CD9;
+    --purple-dark:#6D4DC7;
+    --purple-pastel:#F1ECFB;
+    --purple-pastel-2:#F3EEFC;
+    --border:#EFECF9;
+    --border-2:#E9E4F7;
+    --border-hover:#C9BBEF;
+    --bg:#FAF9FD;
+    --white:#FFFFFF;
+    --placeholder:#B3ABCB;
+    --gold:#F5A623;
+    --near-black:#000000;
+    --near-black-2:#161616;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:100%;max-width:100%;}
+  html{overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;}
+  html::-webkit-scrollbar{display:none;}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);
+    -webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%;
+  }
+  button,a{font-family:inherit;cursor:pointer;touch-action:manipulation;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;outline:none;}
+  button{margin:0;background:none;border:none;padding:0;}
+  a{text-decoration:none;color:inherit;}
+  .icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .no-scrollbar::-webkit-scrollbar{display:none;}
+  .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+
+  .app-cap{max-width:1400px;margin:0 auto;position:relative;background:var(--bg);}
+  .wrap{max-width:1400px;margin:0 auto;padding:0 20px;}
+  @media (min-width:1024px){ .wrap{padding:0 32px;} }
+
+  /* ---------- topbar (page-level sticky, not nested in a capped block, so it
+     stays stuck for the whole page instead of only within one wrapper's height) ---------- */
+  .home-topbar{
+    position:sticky;top:0;z-index:20;
+    border-bottom:1px solid var(--border);
+    background:rgba(250,249,253,.92);backdrop-filter:blur(6px);
+  }
+  .home-topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:18px;padding-bottom:18px;}
+  .brand-logo{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;}
+  .topbar-right{display:flex;align-items:center;gap:10px;}
+  .location-pill{
+    display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;
+    background:var(--white);border:1px solid var(--border-2);font-size:13px;font-weight:700;color:var(--ink);
+    transition:background .15s,border-color .15s;
+  }
+  .location-pill:hover{background:var(--purple-pastel-2);border-color:var(--border-hover);}
+  .location-pill .icon{color:var(--purple);}
+  .book-now-btn{
+    padding:10px 18px;border-radius:999px;background:var(--purple);color:#fff;
+    font-size:13.5px;font-weight:700;transition:background .15s;
+  }
+  .book-now-btn:hover{background:var(--purple-dark);}
+  .menu-btn{
+    width:38px;height:38px;border-radius:50%;background:var(--white);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--border-2);
+    transition:background .15s,border-color .15s;
+  }
+  .menu-btn:hover{background:var(--purple-pastel-2);}
+
+  /* ---------- sheets (location + menu) ---------- */
+  .sheet-overlay{
+    position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:49;
+    opacity:0;pointer-events:none;transition:opacity .22s ease;
+  }
+  .sheet-overlay.open{opacity:1;pointer-events:auto;}
+  .bottom-sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:var(--bg);border-radius:24px 24px 0 0;box-shadow:0 -14px 36px rgba(36,31,51,.14);
+    max-width:480px;margin:0 auto;max-height:80vh;overflow-y:auto;
+    padding:22px 20px calc(24px + env(safe-area-inset-bottom));
+    transform:translateY(100%);pointer-events:none;transition:transform .25s ease;
+  }
+  .bottom-sheet.open{transform:translateY(0);pointer-events:auto;}
+  .sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .sheet-header h2{font-size:22px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
+  .sheet-close{width:32px;height:32px;border-radius:50%;background:var(--purple-pastel-2);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);flex-shrink:0;}
+  .sheet-list{background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:6px;}
+  .sheet-row{
+    display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:14px 12px;
+    border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);transition:background .12s;
+  }
+  .sheet-row:hover{background:var(--purple-pastel-2);}
+  .sheet-row .icon{color:var(--ink-soft);}
+  .sheet-row .check-icon{visibility:hidden;}
+  .sheet-row.is-active{color:var(--purple);}
+  .sheet-row.is-active .check-icon{visibility:visible;color:var(--purple);}
+
+  /* ---------- greeting ---------- */
+  .greeting{padding:18px 20px 0;}
+  .greeting h1{font-size:26px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
+  .greeting p{font-size:14px;color:var(--ink-soft);margin:4px 0 0;}
+  @media (min-width:1024px){
+    .greeting{padding-top:30px;text-align:center;}
+    .greeting h1{font-size:34px;}
+    .greeting p{font-size:15px;}
+  }
+
+  /* ---------- search ---------- */
+  .search-wrap{padding:16px 20px 6px;}
+  @media (min-width:1024px){ .search-wrap{padding:26px 32px 8px;display:flex;justify-content:center;} }
+  .searchbox{
+    display:flex;align-items:center;gap:10px;background:var(--white);
+    border:1px solid var(--border-2);border-radius:16px;padding:13px 16px;
+  }
+  .searchbox input{width:100%;background:transparent;border:none;outline:none;font-size:14px;color:var(--ink);}
+  .searchbox input::placeholder{color:var(--placeholder);}
+  @media (min-width:1024px){ .searchbox{max-width:640px;width:100%;} }
+
+  /* ---------- category chips (Blooma's existing pill style) ---------- */
+  .cats-wrap{padding:16px 0 6px;}
+  .chip{
+    min-height:38px;padding:7px 16px;border-radius:9999px;font-size:14px;font-weight:600;
+    border:1px solid var(--border-2);background:var(--white);color:var(--ink);
+    white-space:nowrap;transition:background .15s,border-color .15s,color .15s;
+    flex:0 0 auto;line-height:20px;display:inline-flex;align-items:center;justify-content:center;
+  }
+  .chip.active{border-color:var(--purple);background:var(--purple);color:#fff;}
+  .chip-row{
+    display:flex;flex-wrap:nowrap;align-items:center;gap:8px;width:100%;min-height:54px;
+    overflow-x:auto;overflow-y:hidden;padding:8px 20px;-ms-overflow-style:none;scrollbar-width:none;
+  }
+  .chip-row::-webkit-scrollbar{display:none;}
+  @media (min-width:1024px){ .chip-row{padding:8px 32px;} }
+
+  /* ---------- promo dark banner ---------- */
+  .promo-wrap{padding:18px 20px 4px;}
+  @media (min-width:1024px){ .promo-wrap{padding:24px 32px 4px;} }
+  .promo-banner{position:relative;background:var(--near-black);border-radius:24px;padding:22px 20px;color:#fff;overflow:hidden;}
+  .promo-banner::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle at 88% 10%, rgba(183,157,245,.28), transparent 55%);
+  }
+  .promo-banner > *{position:relative;z-index:1;}
+  @media (min-width:1024px){ .promo-banner{padding:32px 40px;text-align:center;} }
+  .promo-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple-pastel);margin:0 0 8px;}
+  .promo-banner h2{color:#fff;font-size:21px;font-weight:800;line-height:1.2;letter-spacing:-.01em;margin:0;max-width:320px;}
+  .promo-banner p{color:rgba(255,255,255,.65);font-size:12.5px;margin:6px 0 0;max-width:280px;}
+  @media (min-width:1024px){
+    .promo-banner h2{font-size:28px;max-width:none;}
+    .promo-banner p{font-size:14px;max-width:none;margin:8px auto 0;max-width:480px;}
+  }
+
+  /* ---------- trust strip ---------- */
+  .trust-wrap{padding:22px 20px 4px;}
+  @media (min-width:1024px){ .trust-wrap{padding:34px 32px 6px;} }
+  .trust-strip{
+    display:flex;background:var(--white);border:1px solid var(--border);border-radius:16px;
+    padding:16px 6px;box-shadow:0 1px 2px rgba(36,31,51,.04), 0 10px 24px -18px rgba(36,31,51,.2);
+  }
+  .trust-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 8px;gap:2px;}
+  .trust-item strong{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.01em;}
+  .trust-item span{font-size:10.5px;color:var(--ink-soft);font-weight:600;margin-top:2px;}
+  .trust-divider{width:1px;background:var(--border);margin:2px 0;}
+  @media (min-width:1024px){
+    .trust-strip{padding:22px 10px;}
+    .trust-item strong{font-size:22px;}
+    .trust-item span{font-size:12px;}
+  }
+
+  /* ---------- section head ---------- */
+  .sect{padding:30px 0 0;}
+  .sect-head{display:flex;align-items:center;justify-content:space-between;padding:0 20px;margin-bottom:16px;}
+  .sect-head h2{font-size:19px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
+  .sect-arrows{display:none;gap:8px;}
+  .empty-row-msg{display:none;font-size:13px;color:var(--ink-soft);padding:4px 20px 8px;margin:0;}
+  .empty-row-msg.on-dark{color:#9A97A8;}
+  @media (min-width:1024px){ .empty-row-msg{padding:4px 32px 8px;} }
+  .carousel-arrow-btn{
+    width:36px;height:36px;border-radius:50%;border:1px solid var(--border-2);background:var(--white);
+    display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;transition:background .15s;
+  }
+  .carousel-arrow-btn:hover{background:var(--purple-pastel-2);}
+  @media (min-width:1024px){
+    .sect-head{padding:0 32px;}
+    .sect-head h2{font-size:24px;}
+    .sect-arrows{display:flex;}
+  }
+
+  /* ---------- venue cards (reused from home app) ---------- */
+  .hscroll{display:flex;gap:14px;overflow-x:auto;padding:0 20px 6px;-ms-overflow-style:none;scrollbar-width:none;}
+  .hscroll::-webkit-scrollbar{display:none;}
+  @media (min-width:1024px){ .hscroll{padding:0 32px 8px;gap:20px;} }
+  .featured-salon-card{
+    display:flex;flex-direction:column;flex:none;width:210px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;text-align:left;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:0;overflow:hidden;
+    box-shadow:0 1px 2px rgba(36,31,51,.03), 0 10px 22px -18px rgba(36,31,51,.18);
+    transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .featured-salon-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(36,31,51,.05),0 16px 28px -16px rgba(36,31,51,.22);}
+  @media (min-width:1024px){ .featured-salon-card{flex:0 0 calc(25% - 15px);width:calc(25% - 15px);} }
+  .featured-salon-image{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--purple-pastel-2);flex-shrink:0;}
+  .featured-salon-image img{width:100%;height:100%;object-fit:cover;display:block;}
+  .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;z-index:2;background:rgba(255,255,255,.92);border:1px solid var(--border-2);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);flex-shrink:0;}
+  .featured-salon-body{padding:12px 14px 16px;min-width:0;}
+  .featured-salon-name{font-weight:700;color:var(--ink);font-size:14.5px;letter-spacing:-.005em;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .featured-salon-rating{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:13px;font-weight:600;color:var(--ink);}
+  .featured-salon-rating .star-row{display:flex;align-items:center;gap:1px;}
+  .featured-salon-rating .star-row .icon svg{width:13px;height:13px;}
+  .featured-salon-rating-count{color:var(--ink-soft);font-weight:500;}
+  .featured-salon-location,.featured-salon-status{font-size:12.5px;color:var(--ink-soft);margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .featured-salon-status.is-open{color:#1E8A4C;font-weight:600;}
+
+  /* ---------- featured dark section (full-bleed, true black, like Suite) ---------- */
+  .venue-featured-section{background:var(--near-black);margin-top:34px;padding:34px 0 38px;}
+  @media (min-width:1024px){ .venue-featured-section{padding:52px 0 56px;margin-top:44px;} }
+  .venue-featured-eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple-pastel);margin:0 0 6px;}
+  .venue-featured-title-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .venue-featured-title{font-size:19px;font-weight:800;margin:0;line-height:1.3;letter-spacing:-.01em;color:#fff;}
+  @media (min-width:1024px){ .venue-featured-title{font-size:24px;} }
+  .venue-featured-row{display:flex;gap:14px;overflow-x:auto;padding:0 0 4px;-ms-overflow-style:none;scrollbar-width:none;}
+  @media (min-width:1024px){ .venue-featured-row{gap:20px;} }
+  .venue-featured-row::-webkit-scrollbar{display:none;}
+  .venue-featured-row .featured-salon-card{
+    width:220px;flex-shrink:0;background:#2A2A2E;border-color:#3A3A40;
+  }
+  .venue-featured-row .featured-salon-name{color:#fff;}
+  .venue-featured-row .featured-salon-rating{color:#fff;}
+  .venue-featured-row .featured-salon-location,.venue-featured-row .featured-salon-status{color:#9A97A8;}
+  .venue-featured-row .featured-salon-status.is-open{color:#3ED17A;}
+  @media (min-width:1024px){ .venue-featured-row .featured-salon-card{flex:0 0 calc(25% - 15px);width:calc(25% - 15px);} }
+
+  /* ---------- how it works ---------- */
+  .how-it-works-section{margin:28px 20px 0;}
+  @media (min-width:1024px){ .how-it-works-section{margin:36px 32px 0;} }
+  .how-it-works-title{font-size:19px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0 0 16px;}
+  @media (min-width:1024px){ .how-it-works-title{font-size:24px;} }
+  .how-it-works-list{display:flex;flex-direction:column;gap:12px;}
+  @media (min-width:1024px){ .how-it-works-list{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;} }
+  .how-it-works-step{display:flex;gap:14px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 1px 2px rgba(36,31,51,.03),0 10px 22px -18px rgba(36,31,51,.14);}
+  .how-it-works-num{width:36px;height:36px;border-radius:50%;background:var(--purple-pastel-2);color:var(--purple);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .how-it-works-body h3{font-size:14.5px;font-weight:700;color:var(--ink);margin:0 0 4px;}
+  .how-it-works-body p{font-size:13px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+  /* ---------- bottom cta ---------- */
+  .bottom-cta-section{margin:28px 20px 0;background:var(--purple-pastel);border-radius:24px;padding:32px 24px;text-align:center;}
+  @media (min-width:1024px){ .bottom-cta-section{margin:36px 32px 0;padding:48px 32px;} }
+  .bottom-cta-title{font-size:21px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0 0 10px;}
+  @media (min-width:1024px){ .bottom-cta-title{font-size:28px;} }
+  .bottom-cta-body{font-size:13.5px;color:var(--ink-mute);line-height:1.55;margin:0 0 20px;max-width:440px;margin-left:auto;margin-right:auto;}
+  @media (min-width:1024px){ .bottom-cta-body{font-size:14.5px;max-width:520px;} }
+  .bottom-cta-actions{display:flex;flex-direction:column;gap:10px;}
+  .bottom-cta-btn{border-radius:999px;padding:13px 22px;font-size:14px;font-weight:700;transition:background .15s,border-color .15s,color .15s;text-align:center;}
+  .bottom-cta-btn.primary{background:var(--purple);color:#fff;border:none;}
+  .bottom-cta-btn.primary:hover{background:var(--purple-dark);}
+  .bottom-cta-btn.outline{background:var(--white);color:var(--ink);border:1px solid var(--border-2);}
+  .bottom-cta-btn.outline:hover{background:var(--purple-pastel-2);border-color:var(--border-hover);}
+  @media (min-width:1024px){
+    .bottom-cta-section{display:flex;align-items:center;justify-content:space-between;gap:24px;text-align:left;}
+    .bottom-cta-text{text-align:left;}
+    .bottom-cta-title{margin:0 0 8px;}
+    .bottom-cta-body{text-align:left;margin-left:0;max-width:380px;}
+    .bottom-cta-actions{flex-direction:row;flex-shrink:0;}
+    .bottom-cta-btn{width:auto;padding:14px 28px;}
+  }
+
+  /* ---------- footer (full-bleed true black, like Suite) ---------- */
+  .home-footer{background:var(--near-black);color:#fff;margin-top:36px;padding:32px 0 24px;}
+  .home-footer-top{display:flex;flex-direction:column;gap:24px;padding-bottom:24px;border-bottom:1px solid #232323;}
+  .home-footer-logo{font-size:18px;font-weight:800;color:#fff;margin:0 0 6px;}
+  .home-footer-tagline{font-size:13.5px;color:#9A97A8;margin:0;max-width:320px;line-height:1.6;}
+  .home-footer-links{display:flex;gap:32px;}
+  .home-footer-col-title{font-size:11px;font-weight:700;color:#9A97A8;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;}
+  .home-footer-link{display:block;font-size:13.5px;color:#C7C4D6;margin:0 0 8px;}
+  .home-footer-link:hover{color:#fff;}
+  .home-footer-bottom{margin-top:20px;font-size:12px;color:#77807A;}
+  .home-footer-bottom p{margin:0 0 4px;}
+  @media (min-width:1024px){
+    .home-footer{margin-top:50px;padding:50px 0 26px;}
+    .home-footer-top{flex-direction:row;justify-content:space-between;align-items:flex-start;gap:40px;padding-bottom:34px;}
+    .home-footer-links{gap:56px;}
+    .home-footer-link{font-size:14px;margin:0 0 10px;}
+    .home-footer-bottom{display:flex;justify-content:space-between;margin-top:22px;}
+    .home-footer-bottom p{margin:0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="home-topbar">
+  <div class="wrap">
+    <span class="brand-logo">Blooma</span>
+    <div class="topbar-right">
+      <button class="location-pill" id="locationBtn">
+        <span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+        <span id="locationLabel">Hamilton</span>
+      </button>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="app-cap">
+
+<div class="greeting">
+  <h1 id="greetTitle">Good morning</h1>
+  <p>Let's find your next appointment in <span id="greetCity">Hamilton</span>.</p>
+</div>
+
+<div class="search-wrap">
+  <div class="searchbox" style="width:100%;">
+    <span class="icon" style="color:var(--placeholder);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+    <input type="text" placeholder="Search salons or services">
+  </div>
+</div>
+
+<div class="cats-wrap">
+  <div class="chip-row no-scrollbar" id="categoryChipRow">
+    <button class="chip active">All</button>
+    <button class="chip">Hair &amp; styling</button>
+    <button class="chip">Nails</button>
+    <button class="chip">Hair removal</button>
+    <button class="chip">Eyebrows &amp; eyelashes</button>
+    <button class="chip">Facials &amp; skincare</button>
+    <button class="chip">Massage</button>
+    <button class="chip">Makeup</button>
+    <button class="chip">Barbering</button>
+    <button class="chip">Spa &amp; wellness</button>
+    <button class="chip">Body &amp; skin</button>
+  </div>
+</div>
+
+<div class="promo-wrap">
+  <div class="promo-banner">
+    <p class="promo-eyebrow">412 chairs open today</p>
+    <h2>Your next appointment is closer than you think.</h2>
+    <p>Real-time openings across 400+ independent salons and barbershops in Hamilton.</p>
+  </div>
+</div>
+
+<div class="trust-wrap">
+  <div class="trust-strip">
+    <div class="trust-item"><strong>NZ owned</strong><span>Built &amp; run locally</span></div>
+    <div class="trust-divider"></div>
+    <div class="trust-item"><strong>Live</strong><span>Real-time booking</span></div>
+    <div class="trust-divider"></div>
+    <div class="trust-item"><strong>Free</strong><span>No card required</span></div>
+  </div>
+</div>
+
+<section class="sect">
+  <div class="sect-head">
+    <h2>Recommended for you</h2>
+    <div class="sect-arrows">
+      <button class="carousel-arrow-btn" data-scrollcarousel="recommendedRow" data-dir="-1" aria-label="Scroll left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+      <button class="carousel-arrow-btn" data-scrollcarousel="recommendedRow" data-dir="1" aria-label="Scroll right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+    </div>
+  </div>
+  <div class="hscroll no-scrollbar" id="recommendedRow">
+
+    <a href="/venue/willow-co" class="featured-salon-card" data-category="Hair &amp; styling" data-city="Hamilton">
+      <div class="featured-salon-image">
+        <img src="https://jzyvnipzdgfjportrbpo.supabase.co/storage/v1/object/public/blooma-media/willow/venue/main/1786931282216-888cbfad.jpg" alt="Willow &amp; Co." loading="lazy" decoding="async">
+        <span class="fav-btn" aria-hidden="true"><span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></span></span>
+      </div>
+      <div class="featured-salon-body">
+        <h3 class="featured-salon-name">Willow &amp; Co.</h3>
+        <div class="featured-salon-rating">
+          <span class="icon" style="color:var(--gold)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span>New</span>
+        </div>
+        <p class="featured-salon-location">Fairfield, Hamilton</p>
+        <p class="featured-salon-status">Closed · Opens Monday at 8:30 AM</p>
+      </div>
+    </a>
+
+    <a href="/venue/corban-vietmeyer" class="featured-salon-card" data-category="Nails" data-city="Hamilton">
+      <div class="featured-salon-image">
+        <img src="https://jzyvnipzdgfjportrbpo.supabase.co/storage/v1/object/public/blooma-media/corban-vietmeyer-fbdb6b63/venue/main/1786160301653-1a53dbf7.jpg" alt="Corban Vietmeyer" loading="lazy" decoding="async">
+        <span class="fav-btn" aria-hidden="true"><span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></span></span>
+      </div>
+      <div class="featured-salon-body">
+        <h3 class="featured-salon-name">Corban Vietmeyer</h3>
+        <div class="featured-salon-rating">
+          <span>4.6</span><span class="star-row">
+            <span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span>
+          </span><span class="featured-salon-rating-count">(5)</span>
+        </div>
+        <p class="featured-salon-location">Hamilton</p>
+        <p class="featured-salon-status is-open">Open until 10:00 PM</p>
+      </div>
+    </a>
+
+  </div>
+  <p class="empty-row-msg" id="recommendedEmpty">No salons match this filter yet.</p>
+</section>
+
+<section class="sect">
+  <div class="sect-head">
+    <h2>New to Blooma</h2>
+    <div class="sect-arrows">
+      <button class="carousel-arrow-btn" data-scrollcarousel="newToBloomaRow" data-dir="-1" aria-label="Scroll left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+      <button class="carousel-arrow-btn" data-scrollcarousel="newToBloomaRow" data-dir="1" aria-label="Scroll right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+    </div>
+  </div>
+  <div class="hscroll no-scrollbar" id="newToBloomaRow">
+
+    <a href="/venue/willow-co" class="featured-salon-card" data-category="Hair &amp; styling" data-city="Hamilton">
+      <div class="featured-salon-image">
+        <img src="https://jzyvnipzdgfjportrbpo.supabase.co/storage/v1/object/public/blooma-media/willow/venue/main/1786931282216-888cbfad.jpg" alt="Willow &amp; Co." loading="lazy" decoding="async">
+        <span class="fav-btn" aria-hidden="true"><span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></span></span>
+      </div>
+      <div class="featured-salon-body">
+        <h3 class="featured-salon-name">Willow &amp; Co.</h3>
+        <div class="featured-salon-rating">
+          <span class="icon" style="color:var(--gold)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span>New</span>
+        </div>
+        <p class="featured-salon-location">Fairfield, Hamilton</p>
+        <p class="featured-salon-status">Closed · Opens Monday at 8:30 AM</p>
+      </div>
+    </a>
+
+  </div>
+  <p class="empty-row-msg" id="newToBloomaEmpty">No salons match this filter yet.</p>
+</section>
+
+</div>
+
+<section class="venue-featured-section">
+  <div class="wrap">
+    <p class="venue-featured-eyebrow">Featured this week</p>
+    <div class="venue-featured-title-row">
+      <h2 class="venue-featured-title">Salons worth building your week around</h2>
+    </div>
+    <div class="venue-featured-row no-scrollbar" id="featuredRow">
+
+      <a href="/venue/willow-co" class="featured-salon-card" data-category="Hair &amp; styling" data-city="Hamilton">
+        <div class="featured-salon-image">
+          <img src="https://jzyvnipzdgfjportrbpo.supabase.co/storage/v1/object/public/blooma-media/willow/venue/main/1786931282216-888cbfad.jpg" alt="Willow &amp; Co." loading="lazy" decoding="async">
+          <span class="fav-btn" aria-hidden="true"><span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></span></span>
+        </div>
+        <div class="featured-salon-body">
+          <h3 class="featured-salon-name">Willow &amp; Co.</h3>
+          <div class="featured-salon-rating">
+            <span class="icon" style="color:var(--gold)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span>New</span>
+          </div>
+          <p class="featured-salon-location">Fairfield, Hamilton</p>
+          <p class="featured-salon-status">Closed · Opens Monday at 8:30 AM</p>
+        </div>
+      </a>
+
+      <a href="/venue/corban-vietmeyer" class="featured-salon-card" data-category="Nails" data-city="Hamilton">
+        <div class="featured-salon-image">
+          <img src="https://jzyvnipzdgfjportrbpo.supabase.co/storage/v1/object/public/blooma-media/corban-vietmeyer-fbdb6b63/venue/main/1786160301653-1a53dbf7.jpg" alt="Corban Vietmeyer" loading="lazy" decoding="async">
+          <span class="fav-btn" aria-hidden="true"><span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg></span></span>
+        </div>
+        <div class="featured-salon-body">
+          <h3 class="featured-salon-name">Corban Vietmeyer</h3>
+          <div class="featured-salon-rating">
+            <span>4.6</span><span class="star-row">
+              <span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span><span class="icon" style="color:var(--gold);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span>
+            </span><span class="featured-salon-rating-count">(5)</span>
+          </div>
+          <p class="featured-salon-location">Hamilton</p>
+          <p class="featured-salon-status is-open">Open until 10:00 PM</p>
+        </div>
+      </a>
+
+    </div>
+    <p class="empty-row-msg on-dark" id="featuredEmpty">No salons match this filter yet.</p>
+  </div>
+</section>
+
+<div class="app-cap">
+<div class="how-it-works-section">
+  <h2 class="how-it-works-title">How Blooma works</h2>
+  <div class="how-it-works-list">
+    <div class="how-it-works-step">
+      <div class="how-it-works-num">1</div>
+      <div class="how-it-works-body">
+        <h3>Find a salon</h3>
+        <p>Filter by service, category, or suburb to find salons with real availability that fits your schedule.</p>
+      </div>
+    </div>
+    <div class="how-it-works-step">
+      <div class="how-it-works-num">2</div>
+      <div class="how-it-works-body">
+        <h3>Book instantly</h3>
+        <p>See real openings and lock in your appointment in seconds — no calls, no waiting on a reply.</p>
+      </div>
+    </div>
+    <div class="how-it-works-step">
+      <div class="how-it-works-num">3</div>
+      <div class="how-it-works-body">
+        <h3>Show up &amp; relax</h3>
+        <p>Your booking, stylist, and details are all saved in one place — just arrive and get started.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-cta-section">
+  <div class="bottom-cta-text">
+    <h2 class="bottom-cta-title">Ready when you are</h2>
+    <p class="bottom-cta-body">Join thousands of customers booking trusted salons across New Zealand, or list your salon and start filling your chairs.</p>
+  </div>
+  <div class="bottom-cta-actions">
+    <a href="/signup" class="bottom-cta-btn primary">Sign up free</a>
+    <a href="/for-business" class="bottom-cta-btn outline">List your salon</a>
+  </div>
+</div>
+</div>
+
+<footer class="home-footer">
+  <div class="wrap">
+    <div class="home-footer-top">
+      <div>
+        <p class="home-footer-logo">Blooma</p>
+        <p class="home-footer-tagline">Book trusted salons across New Zealand, all in one place.</p>
+      </div>
+      <div class="home-footer-links">
+        <div>
+          <p class="home-footer-col-title">Customers</p>
+          <a class="home-footer-link" href="/signup">Sign up</a>
+          <a class="home-footer-link" href="/login">Log in</a>
+        </div>
+        <div>
+          <p class="home-footer-col-title">Business</p>
+          <a class="home-footer-link" href="/for-business">List your salon</a>
+        </div>
+      </div>
+    </div>
+    <div class="home-footer-bottom">
+      <p>© 2026 Blooma. All rights reserved.</p>
+      <p>Privacy · Terms</p>
+    </div>
+  </div>
+</footer>
+
+<div class="sheet-overlay" id="sheetOverlay"></div>
+
+<div class="bottom-sheet" id="locationSheet">
+  <div class="sheet-header">
+    <h2>Choose city</h2>
+    <button class="sheet-close" data-closesheet><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+  </div>
+  <div class="sheet-list" id="citySheetList">
+    <button class="sheet-row is-active" data-city="Hamilton">
+      <span>Hamilton</span>
+      <span class="icon check-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+    </button>
+    <button class="sheet-row" data-city="Auckland">
+      <span>Auckland</span>
+      <span class="icon check-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+    </button>
+    <button class="sheet-row" data-city="Wellington">
+      <span>Wellington</span>
+      <span class="icon check-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+    </button>
+    <button class="sheet-row" data-city="Christchurch">
+      <span>Christchurch</span>
+      <span class="icon check-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+    </button>
+    <button class="sheet-row" data-city="Tauranga">
+      <span>Tauranga</span>
+      <span class="icon check-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+    </button>
+    <button class="sheet-row" data-city="Dunedin">
+      <span>Dunedin</span>
+      <span class="icon check-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+    </button>
+  </div>
+</div>
+
+<div class="bottom-sheet" id="menuSheet">
+  <div class="sheet-header">
+    <h2>Menu</h2>
+    <button class="sheet-close" data-closesheet><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+  </div>
+  <div class="sheet-list">
+    <a class="sheet-row" href="/login">
+      <span>Log in</span>
+      <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+    </a>
+    <a class="sheet-row" href="/signup">
+      <span>Sign up</span>
+      <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+    </a>
+    <a class="sheet-row" href="/for-business">
+      <span>List your salon</span>
+      <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+    </a>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var overlay = document.getElementById('sheetOverlay');
+    var sheets = { locationBtn: document.getElementById('locationSheet'), menuBtn: document.getElementById('menuSheet') };
+    var openSheet = null;
+    function open(sheet){
+      if(openSheet) openSheet.classList.remove('open');
+      sheet.classList.add('open');
+      overlay.classList.add('open');
+      openSheet = sheet;
+    }
+    function closeAll(){
+      if(openSheet) openSheet.classList.remove('open');
+      overlay.classList.remove('open');
+      openSheet = null;
+    }
+    Object.keys(sheets).forEach(function(btnId){
+      var btn = document.getElementById(btnId);
+      if(btn) btn.addEventListener('click', function(){ open(sheets[btnId]); });
+    });
+    overlay.addEventListener('click', closeAll);
+    document.querySelectorAll('[data-closesheet]').forEach(function(btn){ btn.addEventListener('click', closeAll); });
+
+    var locationLabel = document.getElementById('locationLabel');
+    var greetCity = document.getElementById('greetCity');
+
+    var filterState = { category: 'All', city: 'Hamilton' };
+
+    function applyFilters(){
+      var rows = [
+        { rowId: 'recommendedRow', emptyId: 'recommendedEmpty' },
+        { rowId: 'newToBloomaRow', emptyId: 'newToBloomaEmpty' },
+        { rowId: 'featuredRow', emptyId: 'featuredEmpty' },
+      ];
+      rows.forEach(function(cfg){
+        var row = document.getElementById(cfg.rowId);
+        var emptyMsg = document.getElementById(cfg.emptyId);
+        if(!row) return;
+        var visibleCount = 0;
+        row.querySelectorAll('[data-category]').forEach(function(card){
+          var matchesCategory = filterState.category === 'All' || card.getAttribute('data-category') === filterState.category;
+          var matchesCity = card.getAttribute('data-city') === filterState.city;
+          var show = matchesCategory && matchesCity;
+          card.style.display = show ? '' : 'none';
+          if(show) visibleCount++;
+        });
+        if(emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+      });
+    }
+
+    document.querySelectorAll('#citySheetList [data-city]').forEach(function(row){
+      row.addEventListener('click', function(){
+        document.querySelectorAll('#citySheetList .sheet-row').forEach(function(r){ r.classList.remove('is-active'); });
+        row.classList.add('is-active');
+        var city = row.getAttribute('data-city');
+        if(locationLabel) locationLabel.textContent = city;
+        if(greetCity) greetCity.textContent = city;
+        filterState.city = city;
+        applyFilters();
+        closeAll();
+      });
+    });
+
+    document.querySelectorAll('[data-scrollcarousel]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var row = document.getElementById(btn.getAttribute('data-scrollcarousel'));
+        if(!row) return;
+        var dir = Number(btn.getAttribute('data-dir')) || 1;
+        row.scrollBy({ left: dir * row.clientWidth * 0.9, behavior: 'smooth' });
+      });
+    });
+
+    var chipRow = document.getElementById('categoryChipRow');
+    if(chipRow){
+      chipRow.querySelectorAll('.chip').forEach(function(chip){
+        chip.addEventListener('click', function(){
+          chipRow.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+          chip.classList.add('active');
+          filterState.category = chip.textContent.trim();
+          applyFilters();
+        });
+      });
+    }
+  })();
+</script>
+
+<script>
+  (function(){
+    var h = new Date().getHours();
+    var text = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    var el = document.getElementById('greetTitle');
+    if(el) el.textContent = text;
+  })();
+</script>
+
+</body>
+</html>
