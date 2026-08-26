@@ -578,21 +578,16 @@
 
   .hours-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:6px 16px;}
 
-  .location-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .location-card{border-radius:16px;}
   .map-placeholder{
-    position:relative;height:190px;overflow:hidden;background:#f7f8fa;
+    position:relative;height:220px;overflow:hidden;background:#f7f8fa;border-radius:16px;
   }
-  .map-embed{
-    position:absolute;
-    top:-110px;left:-110px;
-    width:calc(100% + 220px);
-    height:calc(100% + 220px);
-    border:0;display:block;pointer-events:none;user-select:none;-webkit-user-select:none;
-    transform:translateZ(0);will-change:width,height;backface-visibility:hidden;
-  }
+  .location-map{width:100%;height:100%;}
+  .venue-map-pin{background:transparent;border:none;}
+  .venue-map-pin-dot{width:18px;height:18px;border-radius:50%;background:#111;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);}
   .location-address{
-    display:flex;align-items:center;gap:12px;padding:13px 16px;font-size:13px;font-weight:600;
-    color:var(--ink);border-top:1px solid var(--border);text-decoration:none;-webkit-tap-highlight-color:transparent;
+    display:flex;align-items:center;gap:12px;padding:13px 0;font-size:13px;font-weight:600;
+    color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent;
   }
   .location-address .venue-info-icon{width:34px;height:34px;border-radius:11px;}
   .location-address span.addr-text{flex:1;min-width:0;font-weight:700;color:var(--ink);text-decoration:none;}
@@ -959,6 +954,7 @@
     .venue-main-col .venue-reviews-wrap,
     .venue-main-col .venue-hours-wrap,
     .venue-main-col .venue-location-wrap{padding-left:0 !important;padding-right:0 !important;}
+    .map-placeholder{height:420px;}
     .venue-side-col{display:block;position:sticky;top:95px;margin-top:24px;}
     .venue-book-panel-desktop{padding:22px;padding-top:18px !important;}
     .venue-book-bar{display:none;}
@@ -1051,6 +1047,8 @@
   })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -1312,6 +1310,21 @@ function venueMapUrl(s, embed){
     : `https://www.google.com/maps?q=${encodeURIComponent([s.address,s.suburb,s.postcode,s.city,s.region,'New Zealand'].filter(Boolean).join(', '))}`;
   return base + `&t=m&z=16` + (embed ? `&output=embed` : ``);
 }
+let leafletMapSeq = 0;
+function venueMapSectionMarkup(salon){
+  const hasPin = venueHasPin(salon);
+  const mapId = `leafletMap${++leafletMapSeq}`;
+  return `
+    <div class="location-card">
+      ${hasPin ? `<div class="map-placeholder"><div class="location-map" id="${mapId}" data-leaflet-map data-lat="${salon.lat}" data-lng="${salon.lng}"></div></div>` : ""}
+      <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
+        <span class="venue-info-icon">${icon('mapPin')}</span>
+        <span class="addr-text">${escapeHtml(venueFullAddress(salon))}</span>
+        <span class="venue-info-chevron">${icon('chevronRight')}</span>
+      </a>
+    </div>
+  `;
+}
 function stylistPreferenceLabel(stylist,lowercase){ return isAnyAvailableStylist(stylist) ? (lowercase?"any available stylist":"Any available stylist") : String(stylist?.name||stylist||""); }
 function stylistAvailabilityPhrase(stylist){ return isAnyAvailableStylist(stylist) ? "with any available stylist" : `with ${String(stylist?.name||stylist||"this stylist")}`; }
 function toggleFavorite(id){
@@ -1567,9 +1580,9 @@ function queueCustomerPrefsSave(){
   return customerPrefsSaveChain;
 }
 function renderAfterCustomerAuth(){
-  // An already-open venue page contains a live Google Maps iframe. Rebuilding the
-  // entire app here would destroy/recreate that iframe, causing a visible flicker.
-  if(state.page==="salon" && document.querySelector(".map-embed")) return;
+  // An already-open venue page contains a live Leaflet map. Rebuilding the
+  // entire app here would destroy/recreate it, causing a visible flicker/tile refetch.
+  if(state.page==="salon" && document.querySelector(".leaflet-container")) return;
   render();
 }
 async function loadCustomerAuth(){
@@ -2833,24 +2846,7 @@ function renderSalon(){
       <div class="venue-location-wrap" style="padding:20px 20px 20px;">
         <div class="venue-location-section">
           <p class="eyebrow" style="margin-bottom:10px;">Location</p>
-          <div class="location-card">
-            <div class="map-placeholder">
-              <iframe
-                class="map-embed"
-                loading="eager"
-                fetchpriority="high"
-                referrerpolicy="no-referrer-when-downgrade"
-                tabindex="-1"
-                src="${venueMapUrl(salon,true)}"
-                aria-label="Google map showing ${escapeAttr(venueFullAddress(salon))}"
-              ></iframe>
-            </div>
-            <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
-              <span class="venue-info-icon">${icon('mapPin')}</span>
-              <span class="addr-text">${escapeHtml(venueFullAddress(salon))}</span>
-              <span class="venue-info-chevron">${icon('chevronRight')}</span>
-            </a>
-          </div>
+          ${venueMapSectionMarkup(salon)}
         </div>
       </div>
       </div>
@@ -3018,16 +3014,7 @@ function renderBookingConfirmed(booking){
 
         ${salon&&salon.address?`
         <div class="section-rule"><span class="lbl">Getting there</span><span class="line"></span></div>
-        <div class="location-card">
-          <div class="map-placeholder">
-            <iframe class="map-embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" src="${venueMapUrl(salon,true)}" aria-label="Google map showing ${escapeAttr(venueFullAddress(salon))}"></iframe>
-          </div>
-          <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
-            <span class="venue-info-icon">${icon('mapPin')}</span>
-            <span class="addr-text">${escapeHtml(venueFullAddress(salon))}</span>
-            <span class="venue-info-chevron">${icon('chevronRight')}</span>
-          </a>
-        </div>
+        ${venueMapSectionMarkup(salon)}
         `:""}
 
         ${bookingRef?`<p class="confirm-booking-ref">Booking ref: ${escapeHtml(bookingRef)}</p>`:""}
@@ -3958,32 +3945,26 @@ function restoreScrollPositions(){
   });
 }
 
-function primeVenueMap(){
-  if(state.page!=="salon") return;
-  const iframe=document.querySelector(".map-embed");
-  if(!iframe) return;
-
-  // Android/Chrome can download an eager off-screen Google Maps iframe but defer
-  // its first proper viewport paint until it nears the screen. Nudging its rendered
-  // dimensions forces Google's internal map to receive resize/paint work now, while
-  // keeping the same iframe and src (so there is no reload or flicker).
-  const nudge=()=>{
-    if(!iframe.isConnected) return;
-    iframe.style.width="calc(100% + 221px)";
-    iframe.style.height="calc(100% + 221px)";
-    void iframe.offsetWidth;
-    requestAnimationFrame(()=>{
-      if(!iframe.isConnected) return;
-      iframe.style.width="calc(100% + 220px)";
-      iframe.style.height="calc(100% + 220px)";
-      void iframe.offsetWidth;
-    });
-  };
-
-  requestAnimationFrame(nudge);
-  setTimeout(nudge,180);
-  setTimeout(nudge,650);
-  setTimeout(nudge,1400);
+let venueMapInstances = [];
+const venueMapPinIcon = (typeof L!=="undefined") ? L.divIcon({
+  className:"venue-map-pin",
+  html:'<div class="venue-map-pin-dot"></div>',
+  iconSize:[26,26],
+  iconAnchor:[13,13],
+}) : null;
+function initVenueMaps(){
+  venueMapInstances.forEach(m=>{ try{ m.remove(); }catch(e){} });
+  venueMapInstances = [];
+  if(typeof L==="undefined") return;
+  document.querySelectorAll("[data-leaflet-map]").forEach(el=>{
+    const lat=parseFloat(el.getAttribute("data-lat"));
+    const lng=parseFloat(el.getAttribute("data-lng"));
+    if(!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const map=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
+    L.marker([lat,lng],{icon:venueMapPinIcon,interactive:false}).addTo(map);
+    venueMapInstances.push(map);
+  });
 }
 
 function render(opts){
@@ -4028,7 +4009,7 @@ function render(opts){
   const newCheckoutBodyEl = document.getElementById("checkoutBody");
   if (newCheckoutBodyEl) newCheckoutBodyEl.scrollTop = opts.samePage ? prevCheckoutScrollTop : 0;
   bindEvents();
-  primeVenueMap();
+  initVenueMaps();
   if((location.protocol==="http:" || location.protocol==="https:") && !history.state?.bloomaUi) replaceCustomerHistoryState();
   if(opts.samePage && activeId){
     const restored=document.getElementById(activeId);
