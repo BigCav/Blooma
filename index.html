@@ -580,7 +580,7 @@
 
   .location-card{border-radius:16px;}
   .map-placeholder{
-    position:relative;height:220px;overflow:hidden;background:#f7f8fa;border-radius:16px;
+    position:relative;height:220px;overflow:hidden;background:#f7f8fa;border-radius:16px 16px 0 0;
   }
   .location-map{width:100%;height:100%;}
   .venue-map-pin-wrap{display:flex;flex-direction:column;align-items:center;}
@@ -598,8 +598,9 @@
     border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111;
   }
   .location-address{
-    display:flex;align-items:center;gap:12px;padding:13px 0;font-size:13px;font-weight:600;
+    display:flex;align-items:center;gap:12px;padding:13px 16px;font-size:13px;font-weight:600;
     color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent;
+    background:var(--white);border:1px solid var(--border);border-top:0;border-radius:0 0 16px 16px;
   }
   .location-address .venue-info-icon{width:34px;height:34px;border-radius:11px;}
   .location-address span.addr-text{flex:1;min-width:0;font-weight:700;color:var(--ink);text-decoration:none;}
@@ -3993,7 +3994,7 @@ function createVenueMap(el, lat, lng, rating){
     container: el,
     style: VENUE_MAPBOX_STYLE,
     center: [lng, lat],
-    zoom: window.innerWidth < 1024 ? 10 : 12,
+    zoom: window.innerWidth < 1024 ? 10 : 13,
     interactive: false,
     accessToken: MAPBOX_ACCESS_TOKEN,
   });
