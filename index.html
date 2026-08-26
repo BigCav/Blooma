@@ -594,7 +594,6 @@
     content:"";position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);
     width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111;
   }
-  .leaflet-control-attribution{font-size:9.5px;padding:0 4px;background:rgba(255,255,255,.75);}
   .location-address{
     display:flex;align-items:center;gap:12px;padding:13px 0;font-size:13px;font-weight:600;
     color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent;
@@ -3954,8 +3953,8 @@ function initVenueMaps(){
     const lng=parseFloat(el.getAttribute("data-lng"));
     if(!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     const rating=el.getAttribute("data-rating");
-    const map=L.map(el,{zoomControl:false,attributionControl:true,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'}).addTo(map);
+    const map=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd"}).addTo(map);
     L.marker([lat,lng],{icon:venueMapPinIcon(rating),interactive:false}).addTo(map);
     venueMapInstances.push(map);
   });
