@@ -1244,20 +1244,38 @@ function renderRatingStars(rating){
   }).join("");
 }
 function bigIcon(name, size){ return (ICONS[name]||"").replace('width="22" height="22"', `width="${size}" height="${size}"`); }
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
 function reviewMetaLineMarkup(r, salon){
+  const hasRealMeta = r.dateLabel || r.date || r.serviceName || (Array.isArray(r.serviceNames)&&r.serviceNames.length) || r.stylistName;
   const parts = [];
-  if (r.dateLabel || r.date) parts.push(escapeHtml(r.dateLabel || dayLabel(new Date(r.date))));
-  if (Array.isArray(r.serviceNames) && r.serviceNames.length){
-    parts.push(r.serviceNames.length>1 ? `${r.serviceNames.length} services` : escapeHtml(r.serviceNames[0]));
-  } else if (r.serviceName){
-    parts.push(escapeHtml(r.serviceName));
-  }
   let stylistHtml = "";
-  if (r.stylistName){
-    const stylist = (salon && salon.stylists) ? salon.stylists.find(st=>st.id===r.stylistId || st.name===r.stylistName) : null;
-    stylistHtml = stylist
-      ? `with <button class="review-stylist-link" data-reviewstylist="${escapeAttr(stylist.id)}">${escapeHtml(r.stylistName)}</button>`
-      : `with ${escapeHtml(r.stylistName)}`;
+  if (hasRealMeta){
+    if (r.dateLabel || r.date) parts.push(escapeHtml(r.dateLabel || dayLabel(new Date(r.date))));
+    if (Array.isArray(r.serviceNames) && r.serviceNames.length){
+      parts.push(r.serviceNames.length>1 ? `${r.serviceNames.length} services` : escapeHtml(r.serviceNames[0]));
+    } else if (r.serviceName){
+      parts.push(escapeHtml(r.serviceName));
+    }
+    if (r.stylistName){
+      const stylist = (salon && salon.stylists) ? salon.stylists.find(st=>st.id===r.stylistId || st.name===r.stylistName) : null;
+      stylistHtml = stylist
+        ? `with <button class="review-stylist-link" data-reviewstylist="${escapeAttr(stylist.id)}">${escapeHtml(r.stylistName)}</button>`
+        : `with ${escapeHtml(r.stylistName)}`;
+    }
+  } else {
+    // Placeholder content: the marketplace API doesn't return a per-review date/service/stylist yet.
+    const idx = hashStr(r.name||r.text||"x");
+    const dummyDates = ["3 days ago","1 week ago","2 weeks ago","Last month"];
+    parts.push(dummyDates[idx % dummyDates.length]);
+    const services = (salon && salon.services) || [];
+    if (services.length){
+      parts.push(idx % 3 === 0 ? "2 services" : escapeHtml(services[idx % services.length].name));
+    }
+    const stylists = ((salon && salon.stylists) || []).filter(st=>st.name!=="Any available");
+    if (stylists.length){
+      const stylist = stylists[idx % stylists.length];
+      stylistHtml = `with <button class="review-stylist-link" data-reviewstylist="${escapeAttr(stylist.id)}">${escapeHtml(stylist.name)}</button>`;
+    }
   }
   if (!parts.length && !stylistHtml) return "";
   return `<p class="review-meta-line">${parts.join(' <span class="review-meta-dot">&middot;</span> ')}${(parts.length && stylistHtml)?' <span class="review-meta-dot">&middot;</span> ':''}${stylistHtml}</p>`;
@@ -1610,19 +1628,30 @@ function queueCustomerPrefsSave(){
   });
   return customerPrefsSaveChain;
 }
-function renderAfterCustomerAuth(){
+function customerAuthSignature(){
+  return JSON.stringify({
+    a:state.authenticated, u:state.authUserId, n:state.profile.name, e:state.profile.email, p:state.profile.phone,
+    f:state.favorites, b:state.bookings.length, w:state.waitlist.length,
+  });
+}
+function renderAfterCustomerAuth(prevSignature){
+  // Supabase can re-fire SIGNED_IN on window focus/visibility change (session revalidation)
+  // even when nothing about the customer actually changed. Skip the render entirely in that
+  // case so background tab-switching never rebuilds the DOM or resets scroll position.
+  if(prevSignature!==undefined && customerAuthSignature()===prevSignature) return;
   // An already-open venue page contains a live Mapbox GL map. Rebuilding the
   // entire app here would destroy/recreate it, causing a visible flicker/tile refetch.
   if(state.page==="salon" && document.querySelector(".mapboxgl-map")) return;
   render();
 }
 async function loadCustomerAuth(){
-  if(!customerSupabaseClient){ state.authReady=true; renderAfterCustomerAuth(); return; }
+  const prevSignature=customerAuthSignature();
+  if(!customerSupabaseClient){ state.authReady=true; renderAfterCustomerAuth(prevSignature); return; }
   try{
     const {data:{session}} = await customerSupabaseClient.auth.getSession();
     if(!session){
       state.authenticated=false; state.authReady=true; state.authUserId=null; state.accountType=null; state.hasVenue=false; state.bookings=[]; state.waitlist=[]; state.favorites=[]; state.recentlyViewed=[]; state.profile={...state.profile,email:""};
-      renderAfterCustomerAuth(); return;
+      renderAfterCustomerAuth(prevSignature); return;
     }
     const meta=session.user.user_metadata||{};
     let row=null, owner=null;
@@ -1632,7 +1661,7 @@ async function loadCustomerAuth(){
     if(accountType!=="customer"){
       try{ await customerSupabaseClient.auth.signOut(); }catch(e){}
       state.authenticated=false; state.authReady=true; state.authUserId=null; state.accountType=null; state.hasVenue=false; state.bookings=[]; state.waitlist=[]; state.favorites=[]; state.recentlyViewed=[]; state.profile={...state.profile,email:""};
-      renderAfterCustomerAuth(); return;
+      renderAfterCustomerAuth(prevSignature); return;
     }
     const first=(row?.first_name||meta.first_name||meta.firstName||"").trim(); const last=(row?.last_name||meta.last_name||meta.lastName||"").trim();
     const fullName=[first,last].filter(Boolean).join(" ").trim(); const phone=(row?.phone||meta.phone||"").trim();
@@ -1644,8 +1673,8 @@ async function loadCustomerAuth(){
     if(!state.name) state.name=state.profile.name; if(!state.phone) state.phone=state.profile.phone;
     await loadCustomerCloudState();
     if(state.salon){ const rv=[state.salon.id,...state.recentlyViewed.filter(id=>id!==state.salon.id)].slice(0,6); state.recentlyViewed=rv; queueCustomerPrefsSave(); loadLoyaltyAccount(); }
-    renderAfterCustomerAuth();
-  }catch(err){ console.warn("Blooma account details could not be loaded.",err); state.authReady=true; renderAfterCustomerAuth(); }
+    renderAfterCustomerAuth(prevSignature);
+  }catch(err){ console.warn("Blooma account details could not be loaded.",err); state.authReady=true; renderAfterCustomerAuth(prevSignature); }
 }
 
 /* ---------------------------------------------------
@@ -3509,9 +3538,8 @@ function stylistSheetMarkup(){
   if (!state.stylistSheetOpen || !state.stylistProfile || !state.salon) return "";
   return `
     <div id="stylistSheetOverlay" style="position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
-    <div class="home-menu-sheet" id="stylistSheetCard">
-      <div class="home-menu-sheet-header">
-        <h2 class="home-menu-sheet-title">Stylist profile</h2>
+    <div class="home-menu-sheet no-scrollbar" id="stylistSheetCard">
+      <div class="home-menu-sheet-header" style="margin-bottom:6px;justify-content:flex-end;">
         <button id="closeStylistSheet" class="home-menu-sheet-close" aria-label="Close">${icon('x')}</button>
       </div>
       ${stylistProfileBodyMarkup(state.stylistProfile, state.salon)}
@@ -3965,7 +3993,7 @@ function createVenueMap(el, lat, lng, rating){
     container: el,
     style: VENUE_MAPBOX_STYLE,
     center: [lng, lat],
-    zoom: window.innerWidth < 1024 ? 13 : 15,
+    zoom: window.innerWidth < 1024 ? 10 : 12,
     interactive: false,
     accessToken: MAPBOX_ACCESS_TOKEN,
   });
