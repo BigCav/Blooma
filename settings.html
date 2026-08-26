@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -694,7 +695,7 @@
 
   <div class="page-head">
     <h1>Settings</h1>
-    <div class="sub">Manage Ivy Salon Loft's profile, hours and preferences</div>
+    <div class="sub" id="pageHeadSub">Manage your venue's profile, hours and preferences</div>
   </div>
 
   <div class="st-tabs">
@@ -722,37 +723,41 @@
       <div class="form-grid cols-2">
         <div class="field">
           <label>Business name</label>
-          <input type="text" value="Ivy Salon Loft">
-        </div>
-        <div class="field">
-          <label>Timezone</label>
-          <select>
-            <option>Eastern Time (ET)</option>
-            <option>Central Time (CT)</option>
-            <option>Pacific Time (PT)</option>
-          </select>
+          <input type="text" id="settingsNameInput" value="">
         </div>
         <div class="field">
           <label>Phone</label>
-          <input type="text" value="(212) 555-0110">
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <input type="text" value="hello@ivysalonloft.com">
+          <input type="text" id="settingsPhoneInput" value="">
         </div>
         <div class="field" style="grid-column:1/-1;">
           <label>Address</label>
-          <input type="text" value="154 Spring St, SoHo, New York, NY 10012">
+          <input type="text" id="settingsAddressInput" value="" placeholder="Street address">
+        </div>
+        <div class="field">
+          <label>Suburb</label>
+          <input type="text" id="settingsSuburbInput" value="">
+        </div>
+        <div class="field">
+          <label>City</label>
+          <input type="text" id="settingsCityInput" value="">
+        </div>
+        <div class="field">
+          <label>Postcode</label>
+          <input type="text" id="settingsPostcodeInput" value="">
+        </div>
+        <div class="field">
+          <label>Region</label>
+          <input type="text" id="settingsRegionInput" value="">
         </div>
         <div class="field" style="grid-column:1/-1;">
           <label>Description</label>
-          <textarea>SoHo's neighborhood loft for color, cuts and blowouts — bright space, calm energy, always on time.</textarea>
+          <textarea id="settingsAboutInput"></textarea>
         </div>
       </div>
 
       <div class="form-actions">
         <div class="btn btn-ghost" onclick="document.getElementById('generalForm').reset(); showToast('Changes discarded')">Cancel</div>
-        <button type="submit" class="btn btn-violet">Save changes</button>
+        <button type="submit" class="btn btn-violet" id="generalSaveBtn">Save changes</button>
       </div>
       </form>
     </div>
@@ -761,73 +766,31 @@
   <div class="st-panel" id="stHours">
     <div class="panel">
       <div class="panel-head"><h2>Opening hours</h2></div>
-      <div class="hrs-row">
-        <div class="hrs-day">Monday</div>
-        <div class="hrs-times">
-          <select><option>10:00 AM</option></select>
-          <span class="field-hint">to</span>
-          <select><option>6:00 PM</option></select>
-        </div>
-        <div class="toggle on"></div>
-      </div>
-      <div class="hrs-row">
-        <div class="hrs-day">Tuesday</div>
-        <div class="hrs-times">
-          <select><option>10:00 AM</option></select>
-          <span class="field-hint">to</span>
-          <select><option>6:00 PM</option></select>
-        </div>
-        <div class="toggle on"></div>
-      </div>
-      <div class="hrs-row">
-        <div class="hrs-day">Wednesday</div>
-        <div class="hrs-times">
-          <select><option>10:00 AM</option></select>
-          <span class="field-hint">to</span>
-          <select><option>8:00 PM</option></select>
-        </div>
-        <div class="toggle on"></div>
-      </div>
-      <div class="hrs-row">
-        <div class="hrs-day">Thursday</div>
-        <div class="hrs-times">
-          <select><option>10:00 AM</option></select>
-          <span class="field-hint">to</span>
-          <select><option>7:00 PM</option></select>
-        </div>
-        <div class="toggle on"></div>
-      </div>
-      <div class="hrs-row">
-        <div class="hrs-day">Friday</div>
-        <div class="hrs-times">
-          <select><option>9:00 AM</option></select>
-          <span class="field-hint">to</span>
-          <select><option>8:00 PM</option></select>
-        </div>
-        <div class="toggle on"></div>
-      </div>
-      <div class="hrs-row">
-        <div class="hrs-day">Saturday</div>
-        <div class="hrs-times">
-          <select><option>9:00 AM</option></select>
-          <span class="field-hint">to</span>
-          <select><option>6:00 PM</option></select>
-        </div>
-        <div class="toggle on"></div>
-      </div>
-      <div class="hrs-row">
-        <div class="hrs-day">Sunday</div>
-        <div class="hrs-closed-label">Closed</div>
-        <div class="toggle"></div>
-      </div>
+      <div id="hoursRowsContainer"></div>
       <div class="form-actions">
-        <div class="btn btn-violet" onclick="showToast('Opening hours saved')">Save hours</div>
+        <button type="button" class="btn btn-violet" id="hoursSaveBtn" onclick="saveHours()">Save hours</button>
       </div>
     </div>
   </div>
 
   <div class="st-panel" id="stBooking">
     <div class="panel">
+      <div class="panel-head"><h2>Booking rules</h2></div>
+      <div class="form-grid cols-2" style="margin-bottom:22px;">
+        <div class="field">
+          <label>Buffer time between bookings (minutes)</label>
+          <input type="number" min="0" max="240" step="5" id="settingsBufferInput" value="15">
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label>Cancellation policy</label>
+          <textarea id="settingsCancellationInput" placeholder="Contact the venue if you need to cancel or reschedule."></textarea>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:0; padding-top:0; border-top:none; margin-bottom:22px;">
+        <button type="button" class="btn btn-violet" id="bookingRulesSaveBtn" onclick="saveBookingRules()">Save booking rules</button>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px;">
       <div class="panel-head"><h2>Online booking</h2></div>
       <div class="setting-row">
         <div>
@@ -1043,6 +1006,213 @@
 </div>
 
 <script>
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Mirrors salon-admin-v3-24-supabase.html's auth/config plumbing.
+     Fields with no backing schema yet (timezone, email, per-toggle
+     booking rules, notifications, billing/plan) are intentionally
+     left as static mock UI below and are NOT wired here.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  let currentConfigVersion = null;
+
+  const DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const DAY_LABELS = {Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday",Sat:"Saturday",Sun:"Sunday"};
+  function buildTimeOptions(){
+    const opts = [];
+    for (let h=6; h<=23; h++){
+      for (let m=0; m<60; m+=30){
+        const period = h>=12 ? "PM" : "AM";
+        let h12 = h % 12; if (h12===0) h12 = 12;
+        opts.push(`${h12}:${String(m).padStart(2,"0")} ${period}`);
+      }
+    }
+    return opts;
+  }
+  const TIME_OPTIONS = buildTimeOptions();
+  function defaultHours(){
+    const hours = {};
+    DAY_NAMES.forEach(d=>{
+      const isWeekend = d==="Sat" || d==="Sun";
+      hours[d] = { open: !isWeekend, start: "8:30 AM", end: "5:00 PM" };
+    });
+    return hours;
+  }
+  function parseTimeMins(t){
+    const m=String(t||"").match(/(\d+):(\d+)\s*(AM|PM)/i); if(!m) return 0;
+    let h=Number(m[1])%12; if(m[3].toUpperCase()==="PM") h+=12; return h*60+Number(m[2]);
+  }
+
+  const salon = {
+    name:"", tag:"", visible:true, mainImage:"", galleryImages:[],
+    hours:defaultHours(), phone:"", address:"", city:"", region:"", bufferTime:15,
+    lat:null, lng:null, addressVerified:false, suburb:"", postcode:"",
+    about:"", cancellationPolicy:"", categories:[], stylists:[], services:[], addons:[], promos:[],
+    loyalty:{enabled:false, pointsPerDollar:1, rewardThreshold:100, rewardText:"$10 off your next visit", rewardValue:10}
+  };
+
+  function applyAdminConfig(cfg){
+    if(!cfg) return;
+    const sc=cfg.salon||{};
+    ["name","tag","phone","address","city","region","about","cancellationPolicy","bufferTime","visible","mainImage","galleryImages"].forEach(k=>{if(sc[k]!==undefined) salon[k]=sc[k];});
+    salon.galleryImages=Array.isArray(salon.galleryImages)?salon.galleryImages:[];
+    if(sc.loyalty && typeof sc.loyalty==="object") salon.loyalty={enabled:!!sc.loyalty.enabled, pointsPerDollar:Number(sc.loyalty.pointsPerDollar)||1, rewardThreshold:Number(sc.loyalty.rewardThreshold)||100, rewardText:sc.loyalty.rewardText||"$10 off your next visit", rewardValue:Number(sc.loyalty.rewardValue)||0};
+    if(sc.hours) salon.hours=sc.hours;
+    if(Array.isArray(sc.categories)) salon.categories=sc.categories.slice();
+    if(Array.isArray(cfg.stylists)) salon.stylists=cfg.stylists.map(x=>({...x}));
+    if(Array.isArray(cfg.services)) salon.services=cfg.services.map(x=>({...x}));
+    if(Array.isArray(cfg.addons)) salon.addons=cfg.addons.map(x=>({...x}));
+    if(Array.isArray(cfg.promos)) salon.promos=cfg.promos.map(x=>({...x}));
+  }
+
+  async function reloadAdminConfigFromCloud(){
+    if(!currentSalonId) return;
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError}]=await Promise.all([
+      supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
+      supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle()
+    ]);
+    if(cfgError) throw cfgError;
+    if(salonError) throw salonError;
+    if(cfgRow){ applyAdminConfig(cfgRow.config); currentConfigVersion=cfgRow.config_version; }
+    if(salonRow){
+      salon.visible=salonRow.active!==false;
+      salon.city=salonRow.city||salon.city||""; salon.region=salonRow.region||salon.region||""; salon.suburb=salonRow.suburb||salon.suburb||""; salon.postcode=salonRow.postcode||salon.postcode||"";
+      salon.lat=salonRow.lat==null?null:Number(salonRow.lat); salon.lng=salonRow.lng==null?null:Number(salonRow.lng);
+      salon.addressVerified=!!salonRow.address_verified;
+      const meta=salonRow.metadata||{};
+      if(meta.main_image!==undefined) salon.mainImage=meta.main_image||"";
+      if(Array.isArray(meta.gallery_images)) salon.galleryImages=meta.gallery_images.slice();
+    }
+  }
+
+  function buildAdminPayload(){
+    const dayIndex={Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7};
+    const openDays=DAY_NAMES.filter(d=>salon.hours[d]?.open).map(d=>dayIndex[d]);
+    const openHours=DAY_NAMES.filter(d=>salon.hours[d]?.open).map(d=>salon.hours[d]);
+    const legacyOpen=openHours.length?Math.min(...openHours.map(h=>parseTimeMins(h.start))):null;
+    const legacyClose=openHours.length?Math.max(...openHours.map(h=>parseTimeMins(h.end))):null;
+    const mins24=(m)=>m==null?"":`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}:00`;
+    return {
+      salon:{name:salon.name,tag:(salon.categories.length?salon.categories.join(" · "):salon.tag),phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
+      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x}))
+    };
+  }
+
+  function normalizeAndValidateSettings(){
+    const invalidDay=DAY_NAMES.find(d=>salon.hours[d]?.open && parseTimeMins(salon.hours[d].end)<=parseTimeMins(salon.hours[d].start));
+    if(invalidDay) throw new Error(`${DAY_LABELS[invalidDay]} closing time must be after opening time.`);
+    salon.name=String(salon.name||"").trim();
+    if(!salon.name) throw new Error("Business name is required.");
+    salon.city=String(salon.city||"").trim(); salon.region=String(salon.region||"").trim();
+    if(salon.visible!==false && !salon.city) throw new Error("Add a city before showing your venue on Blooma.");
+    salon.bufferTime=Math.max(0,Math.min(240,Number(salon.bufferTime)||0));
+  }
+
+  async function saveAdminCloud(){
+    if(!currentSalonId) throw new Error("No venue is connected to this account.");
+    normalizeAndValidateSettings();
+    const payload=buildAdminPayload();
+    const args=currentConfigVersion==null?{payload}:{payload,expected_version:currentConfigVersion};
+    const {data,error}=await supabaseClient.rpc("admin_save_config",args);
+    if(error){
+      try{ await reloadAdminConfigFromCloud(); }catch(reloadErr){ console.warn("Blooma admin reload after failed save",reloadErr); }
+      throw error;
+    }
+    if(data?.config_version!=null) currentConfigVersion=data.config_version;
+    return data;
+  }
+
+  function renderHoursRows(){
+    const container=document.getElementById('hoursRowsContainer');
+    container.innerHTML = DAY_NAMES.map(d=>{
+      const h=salon.hours[d]||{open:false,start:"8:30 AM",end:"5:00 PM"};
+      return `
+        <div class="hrs-row">
+          <div class="hrs-day">${DAY_LABELS[d]}</div>
+          <div class="hrs-times" id="hoursTimes_${d}" style="${h.open?'':'display:none;'}">
+            <select id="hoursStart_${d}">${TIME_OPTIONS.map(t=>`<option value="${t}" ${t===h.start?'selected':''}>${t}</option>`).join("")}</select>
+            <span class="field-hint">to</span>
+            <select id="hoursEnd_${d}">${TIME_OPTIONS.map(t=>`<option value="${t}" ${t===h.end?'selected':''}>${t}</option>`).join("")}</select>
+          </div>
+          <div class="hrs-closed-label" id="hoursClosedLabel_${d}" style="${h.open?'display:none;':''}">Closed</div>
+          <div class="toggle ${h.open?'on':''}" id="hoursToggle_${d}"></div>
+        </div>
+      `;
+    }).join("");
+    DAY_NAMES.forEach(d=>{
+      document.getElementById('hoursToggle_'+d).addEventListener('click', function(){
+        this.classList.toggle('on');
+        const isOpen=this.classList.contains('on');
+        document.getElementById('hoursTimes_'+d).style.display = isOpen?'':'none';
+        document.getElementById('hoursClosedLabel_'+d).style.display = isOpen?'none':'';
+      });
+    });
+  }
+
+  function populateGeneralForm(){
+    document.getElementById('settingsNameInput').value = salon.name||"";
+    document.getElementById('settingsPhoneInput').value = salon.phone||"";
+    document.getElementById('settingsAddressInput').value = salon.address||"";
+    document.getElementById('settingsSuburbInput').value = salon.suburb||"";
+    document.getElementById('settingsCityInput').value = salon.city||"";
+    document.getElementById('settingsPostcodeInput').value = salon.postcode||"";
+    document.getElementById('settingsRegionInput').value = salon.region||"";
+    document.getElementById('settingsAboutInput').value = salon.about||"";
+    document.getElementById('settingsBufferInput').value = salon.bufferTime;
+    document.getElementById('settingsCancellationInput').value = salon.cancellationPolicy||"";
+    document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
+    document.querySelector('.sb-venue-sub').textContent = [salon.suburb,salon.city].filter(Boolean).join(", ") || "Set your address";
+    document.getElementById('pageHeadSub').textContent = salon.name ? `Manage ${salon.name}'s profile, hours and preferences` : "Manage your venue's profile, hours and preferences";
+    document.title = salon.name ? `Settings — ${salon.name}` : "Settings — Blooma Business";
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootSettingsPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Settings.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner,error:ownerError}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    try{
+      await reloadAdminConfigFromCloud();
+    }catch(err){
+      showToast(err.message||"Unable to load venue configuration");
+    }
+    renderHoursRows();
+    populateGeneralForm();
+  }
+
+  bootSettingsPage();
+
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sbOverlay');
   var menuBtn = document.getElementById('menuBtn');
@@ -1081,8 +1251,42 @@
 
   function saveGeneral(evt){
     evt.preventDefault();
-    showToast('Business profile saved');
+    salon.name = document.getElementById('settingsNameInput').value;
+    salon.phone = document.getElementById('settingsPhoneInput').value;
+    salon.address = document.getElementById('settingsAddressInput').value;
+    salon.suburb = document.getElementById('settingsSuburbInput').value;
+    salon.city = document.getElementById('settingsCityInput').value;
+    salon.postcode = document.getElementById('settingsPostcodeInput').value;
+    salon.region = document.getElementById('settingsRegionInput').value;
+    salon.about = document.getElementById('settingsAboutInput').value;
+    salon.addressVerified = false; salon.lat = null; salon.lng = null;
+    persistSalonSettings(document.getElementById('generalSaveBtn'), 'Business profile saved');
     return false;
+  }
+  function saveHours(){
+    DAY_NAMES.forEach(function(d){
+      var toggle = document.getElementById('hoursToggle_'+d);
+      var startSel = document.getElementById('hoursStart_'+d);
+      var endSel = document.getElementById('hoursEnd_'+d);
+      salon.hours[d] = { open: toggle.classList.contains('on'), start: startSel.value, end: endSel.value };
+    });
+    persistSalonSettings(document.getElementById('hoursSaveBtn'), 'Opening hours saved');
+  }
+  function saveBookingRules(){
+    salon.bufferTime = Number(document.getElementById('settingsBufferInput').value) || 0;
+    salon.cancellationPolicy = document.getElementById('settingsCancellationInput').value;
+    persistSalonSettings(document.getElementById('bookingRulesSaveBtn'), 'Booking rules saved');
+  }
+  function persistSalonSettings(btn, successMessage){
+    var original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Saving…';
+    saveAdminCloud().then(function(){
+      showToast(successMessage);
+    }).catch(function(err){
+      showToast(err.message || 'Save failed');
+    }).finally(function(){
+      btn.disabled = false; btn.textContent = original;
+    });
   }
 
   function openPlanModal(){ document.getElementById('planOverlay').classList.add('open'); }
