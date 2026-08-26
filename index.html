@@ -583,8 +583,7 @@
     position:relative;height:220px;overflow:hidden;background:#f7f8fa;border-radius:16px;
   }
   .location-map{width:100%;height:100%;}
-  .venue-map-pin{background:transparent;border:none;}
-  .venue-map-pin-wrap{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);}
+  .venue-map-pin-wrap{display:flex;flex-direction:column;align-items:center;}
   .venue-map-pin-badge{
     display:flex;align-items:center;justify-content:center;gap:3px;
     min-width:34px;height:26px;padding:0 9px;border-radius:13px;white-space:nowrap;
@@ -592,6 +591,8 @@
   }
   .venue-map-pin-badge span{display:block;transform:translateY(1.5px);}
   .venue-map-pin-badge .icon{transform:translateY(1.5px);}
+  .mapboxgl-ctrl-attrib{font-size:9.5px;padding:0 4px;}
+  .mapboxgl-ctrl-bottom-right,.mapboxgl-ctrl-bottom-left{transform:scale(.85);transform-origin:bottom right;}
   .venue-map-pin-tail{
     width:0;height:0;margin-top:-1px;
     border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111;
@@ -1038,8 +1039,8 @@
   })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -1577,9 +1578,9 @@ function queueCustomerPrefsSave(){
   return customerPrefsSaveChain;
 }
 function renderAfterCustomerAuth(){
-  // An already-open venue page contains a live Leaflet map. Rebuilding the
+  // An already-open venue page contains a live Mapbox GL map. Rebuilding the
   // entire app here would destroy/recreate it, causing a visible flicker/tile refetch.
-  if(state.page==="salon" && document.querySelector(".leaflet-container")) return;
+  if(state.page==="salon" && document.querySelector(".mapboxgl-map")) return;
   render();
 }
 async function loadCustomerAuth(){
@@ -3943,26 +3944,31 @@ function restoreScrollPositions(){
 }
 
 let venueMapInstances = [];
-function venueMapPinIcon(rating){
+const VENUE_MAPBOX_STYLE = "mapbox://styles/cavauk/cmt9r64um005201sse4weevll";
+function venueMapPinEl(rating){
   const isNew = (!rating || rating==="New");
   const label = isNew ? "New" : rating;
-  return L.divIcon({
-    className:"venue-map-pin",
-    html:`<div class="venue-map-pin-wrap"><div class="venue-map-pin-badge"><span>${escapeHtml(String(label))}</span>${isNew?"":icon('star','var(--gold)')}</div><div class="venue-map-pin-tail"></div></div>`,
-    iconSize:[0,0],
-    iconAnchor:[0,0],
-  });
+  const el = document.createElement("div");
+  el.className = "venue-map-pin-wrap";
+  el.innerHTML = `<div class="venue-map-pin-badge"><span>${escapeHtml(String(label))}</span>${isNew?"":icon('star','var(--gold)')}</div><div class="venue-map-pin-tail"></div>`;
+  return el;
 }
 function createVenueMap(el, lat, lng, rating){
-  const map=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
-  L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}{r}?access_token=${MAPBOX_ACCESS_TOKEN}`,{maxZoom:19,tileSize:512,zoomOffset:-1}).addTo(map);
-  L.marker([lat,lng],{icon:venueMapPinIcon(rating),interactive:false}).addTo(map);
+  const map = new mapboxgl.Map({
+    container: el,
+    style: VENUE_MAPBOX_STYLE,
+    center: [lng, lat],
+    zoom: 15,
+    interactive: false,
+    accessToken: MAPBOX_ACCESS_TOKEN,
+  });
+  new mapboxgl.Marker({ element: venueMapPinEl(rating), anchor: "bottom" }).setLngLat([lng, lat]).addTo(map);
   venueMapInstances.push(map);
 }
 function initVenueMaps(){
   venueMapInstances.forEach(m=>{ try{ m.remove(); }catch(e){} });
   venueMapInstances = [];
-  if(typeof L==="undefined") return;
+  if(typeof mapboxgl==="undefined") return;
   document.querySelectorAll("[data-leaflet-map]").forEach(el=>{
     const rating=el.getAttribute("data-rating");
     const lat=parseFloat(el.getAttribute("data-lat"));
