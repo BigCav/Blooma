@@ -114,7 +114,7 @@
   .greeting h1{font-size:26px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
   .greeting p{font-size:14px;color:var(--ink-soft);margin:4px 0 0;}
   .search-wrap{padding:16px 20px 6px;}
-  .brand-logo{display:flex;align-items:center;gap:7px;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;-webkit-tap-highlight-color:transparent;}
+  .brand-logo{display:flex;align-items:center;gap:7px;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;-webkit-tap-highlight-color:transparent;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;}
   .brand-mark{width:26px;height:26px;border-radius:9px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .brand-mark .icon svg{width:15px;height:15px;}
   .menu-btn{
@@ -586,11 +586,12 @@
   .venue-map-pin{background:transparent;border:none;}
   .venue-map-pin-wrap{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);}
   .venue-map-pin-badge{
-    display:flex;align-items:center;justify-content:center;
+    display:flex;align-items:center;justify-content:center;gap:3px;
     min-width:34px;height:26px;padding:0 9px;border-radius:13px;white-space:nowrap;
     background:#111;color:#fff;font-size:12.5px;font-weight:700;box-shadow:0 3px 8px rgba(0,0,0,.3);
   }
   .venue-map-pin-badge span{display:block;transform:translateY(1.5px);}
+  .venue-map-pin-badge .icon{transform:translateY(1.5px);}
   .venue-map-pin-tail{
     width:0;height:0;margin-top:-1px;
     border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111;
@@ -1137,7 +1138,7 @@ function topbarMarkup(opts){
   opts = opts || {};
   return `
     <div class="home-topbar">
-      ${opts.backBtn ? `<button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>` : `<span class="brand-logo">Blooma</span>`}
+      ${opts.backBtn ? `<button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>` : `<button class="brand-logo" id="brandLogoBtn" aria-label="Go to home">Blooma</button>`}
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
         ${opts.locationBtn ? `<button id="locationBtn" class="location-pill">${icon('mapPin','var(--purple)')}<span class="loc-name">${escapeHtml(opts.locationBtn.cityName)}</span></button>` : ""}
         ${opts.shareBtn ? `<button class="menu-btn" id="shareVenueBtn" data-sharetitle="${escapeAttr(opts.shareBtn.title)}" data-shareurl="${escapeAttr(opts.shareBtn.url)}" aria-label="Share">${icon('share')}</button>` : ""}
@@ -1305,9 +1306,14 @@ let leafletMapSeq = 0;
 function venueMapSectionMarkup(salon){
   const hasPin = venueHasPin(salon);
   const mapId = `leafletMap${++leafletMapSeq}`;
+  const geocodeQuery = venueMapLabel(salon);
   return `
     <div class="location-card">
-      ${hasPin ? `<div class="map-placeholder"><div class="location-map" id="${mapId}" data-leaflet-map data-lat="${salon.lat}" data-lng="${salon.lng}" data-rating="${escapeAttr(String(salon.rating))}"></div></div>` : ""}
+      <div class="map-placeholder" id="${mapId}Wrap">
+        <div class="location-map" id="${mapId}" data-leaflet-map
+          ${hasPin ? `data-lat="${salon.lat}" data-lng="${salon.lng}"` : `data-geocode="${escapeAttr(geocodeQuery)}"`}
+          data-rating="${escapeAttr(String(salon.rating))}"></div>
+      </div>
       <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
         <span class="venue-info-icon">${icon('mapPin')}</span>
         <span class="addr-text">${escapeHtml(venueFullAddress(salon))}</span>
@@ -2716,7 +2722,7 @@ function renderSalon(){
 
   return `
     <div class="page" style="padding-bottom:86px;position:relative;">
-      ${topbarMarkup({backBtn:true, shareBtn:{title:salon.name, url:`${location.origin}${venuePublicPath(salon)}`}, favBtn:{active:isFav, salonId:salon.id}})}
+      ${topbarMarkup({shareBtn:{title:salon.name, url:`${location.origin}${venuePublicPath(salon)}`}, favBtn:{active:isFav, salonId:salon.id}})}
       ${closingSoon ? `
       <div class="closing-soon-banner closing-soon-banner--attached">
         ${icon('clock')}
@@ -3938,27 +3944,46 @@ function restoreScrollPositions(){
 
 let venueMapInstances = [];
 function venueMapPinIcon(rating){
-  const label = (!rating || rating==="New") ? "New" : rating;
+  const isNew = (!rating || rating==="New");
+  const label = isNew ? "New" : rating;
   return L.divIcon({
     className:"venue-map-pin",
-    html:`<div class="venue-map-pin-wrap"><div class="venue-map-pin-badge"><span>${escapeHtml(String(label))}</span></div><div class="venue-map-pin-tail"></div></div>`,
+    html:`<div class="venue-map-pin-wrap"><div class="venue-map-pin-badge"><span>${escapeHtml(String(label))}</span>${isNew?"":icon('star','var(--gold)')}</div><div class="venue-map-pin-tail"></div></div>`,
     iconSize:[0,0],
     iconAnchor:[0,0],
   });
+}
+function createVenueMap(el, lat, lng, rating){
+  const map=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
+  L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}{r}?access_token=${MAPBOX_ACCESS_TOKEN}`,{maxZoom:19,tileSize:512,zoomOffset:-1}).addTo(map);
+  L.marker([lat,lng],{icon:venueMapPinIcon(rating),interactive:false}).addTo(map);
+  venueMapInstances.push(map);
 }
 function initVenueMaps(){
   venueMapInstances.forEach(m=>{ try{ m.remove(); }catch(e){} });
   venueMapInstances = [];
   if(typeof L==="undefined") return;
   document.querySelectorAll("[data-leaflet-map]").forEach(el=>{
+    const rating=el.getAttribute("data-rating");
     const lat=parseFloat(el.getAttribute("data-lat"));
     const lng=parseFloat(el.getAttribute("data-lng"));
-    if(!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-    const rating=el.getAttribute("data-rating");
-    const map=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([lat,lng],15);
-    L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}{r}?access_token=${MAPBOX_ACCESS_TOKEN}`,{maxZoom:19,tileSize:512,zoomOffset:-1}).addTo(map);
-    L.marker([lat,lng],{icon:venueMapPinIcon(rating),interactive:false}).addTo(map);
-    venueMapInstances.push(map);
+    if(Number.isFinite(lat) && Number.isFinite(lng)){
+      createVenueMap(el, lat, lng, rating);
+      return;
+    }
+    const query=el.getAttribute("data-geocode");
+    const wrap=document.getElementById(el.id+"Wrap");
+    if(!query){ if(wrap) wrap.style.display="none"; return; }
+    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_ACCESS_TOKEN}&limit=1`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(!el.isConnected) return;
+        const feature=(data.features||[])[0];
+        if(!feature){ if(wrap) wrap.style.display="none"; return; }
+        const [lng2,lat2]=feature.center;
+        createVenueMap(el, lat2, lng2, rating);
+      })
+      .catch(()=>{ if(wrap) wrap.style.display="none"; });
   });
 }
 
@@ -4013,6 +4038,8 @@ function render(opts){
 }
 
 function bindEvents(){
+  const brandLogoBtn = document.getElementById("brandLogoBtn");
+  if (brandLogoBtn) brandLogoBtn.addEventListener("click", ()=> goHome());
   const shareVenueBtn = document.getElementById("shareVenueBtn");
   if (shareVenueBtn) shareVenueBtn.addEventListener("click", async ()=>{
     const title = shareVenueBtn.getAttribute("data-sharetitle")||"";
@@ -4293,7 +4320,6 @@ function bindEvents(){
   }
 
   if (state.page === "salon"){
-    document.getElementById("backBtn").addEventListener("click", goHome);
     document.querySelectorAll("[data-fav]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const id = btn.getAttribute("data-fav");
