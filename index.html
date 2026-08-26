@@ -1304,11 +1304,12 @@ function businessDestination(){
 function isLoggedInCustomer(){ return !!state.authenticated; }
 function isAnyAvailableStylist(stylist){ return !stylist || String(stylist.name||stylist).trim().toLowerCase()==="any available"; }
 function venueHasPin(s){ return s && s.lat!=null && s.lng!=null && !Number.isNaN(Number(s.lat)) && !Number.isNaN(Number(s.lng)); }
-function venueMapLabel(s){ return [s.address,s.city,s.region].filter(Boolean).join(', ') || s.name || 'Location'; }
+function venueFullAddress(s){ return [s.address,s.suburb,s.postcode,s.city].filter(Boolean).join(', ') || s.address || ''; }
+function venueMapLabel(s){ return [s.address,s.suburb,s.city,s.region].filter(Boolean).join(', ') || s.name || 'Location'; }
 function venueMapUrl(s, embed){
   const base = venueHasPin(s)
     ? `https://www.google.com/maps?q=${encodeURIComponent(`${s.lat},${s.lng}(${venueMapLabel(s)})`)}`
-    : `https://www.google.com/maps?q=${encodeURIComponent([s.address,s.city,s.region,'New Zealand'].filter(Boolean).join(', '))}`;
+    : `https://www.google.com/maps?q=${encodeURIComponent([s.address,s.suburb,s.postcode,s.city,s.region,'New Zealand'].filter(Boolean).join(', '))}`;
   return base + `&t=m&z=16` + (embed ? `&output=embed` : ``);
 }
 function stylistPreferenceLabel(stylist,lowercase){ return isAnyAvailableStylist(stylist) ? (lowercase?"any available stylist":"Any available stylist") : String(stylist?.name||stylist||""); }
@@ -1978,7 +1979,7 @@ function checkoutVenueCardMarkup(salon){
       <div style="min-width:0;">
         <p class="checkout-sidebar-venue-name">${escapeHtml(salon.name)}</p>
         <p class="checkout-sidebar-venue-rating">${salon.rating!=="New"?`<span>${salon.rating}</span><span class="star-row">${starRowMarkup(salon.rating)}</span><span class="checkout-sidebar-venue-rating-count">(${salon.reviews})</span>`:`${icon('star','var(--gold)')}<span>New</span>`}</p>
-        <p class="checkout-sidebar-venue-address">${escapeHtml(salon.address||salon.distance||"")}</p>
+        <p class="checkout-sidebar-venue-address">${escapeHtml(venueFullAddress(salon)||salon.distance||"")}</p>
       </div>
     </div>`;
 }
@@ -2841,12 +2842,12 @@ function renderSalon(){
                 referrerpolicy="no-referrer-when-downgrade"
                 tabindex="-1"
                 src="${venueMapUrl(salon,true)}"
-                aria-label="Google map showing ${escapeAttr(salon.address)}"
+                aria-label="Google map showing ${escapeAttr(venueFullAddress(salon))}"
               ></iframe>
             </div>
             <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
               <span class="venue-info-icon">${icon('mapPin')}</span>
-              <span class="addr-text">${escapeHtml(salon.address)}</span>
+              <span class="addr-text">${escapeHtml(venueFullAddress(salon))}</span>
               <span class="venue-info-chevron">${icon('chevronRight')}</span>
             </a>
           </div>
@@ -3019,11 +3020,11 @@ function renderBookingConfirmed(booking){
         <div class="section-rule"><span class="lbl">Getting there</span><span class="line"></span></div>
         <div class="location-card">
           <div class="map-placeholder">
-            <iframe class="map-embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" src="${venueMapUrl(salon,true)}" aria-label="Google map showing ${escapeAttr(salon.address)}"></iframe>
+            <iframe class="map-embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" src="${venueMapUrl(salon,true)}" aria-label="Google map showing ${escapeAttr(venueFullAddress(salon))}"></iframe>
           </div>
           <a class="location-address" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">
             <span class="venue-info-icon">${icon('mapPin')}</span>
-            <span class="addr-text">${escapeHtml(salon.address)}</span>
+            <span class="addr-text">${escapeHtml(venueFullAddress(salon))}</span>
             <span class="venue-info-chevron">${icon('chevronRight')}</span>
           </a>
         </div>
