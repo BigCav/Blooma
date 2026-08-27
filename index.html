@@ -1071,6 +1071,7 @@
   .v2-venue-page .review-meta-dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:#c9c2d7;font-size:0;vertical-align:middle;margin:0 5px;}
   .v2-meta .v2-open{color:var(--v2-green);font-weight:700;}
   .v2-meta .v2-closed{color:#C13B3B;font-weight:700;}
+  .v2-meta-break{display:none;}
   .v2-meta .v2-directions-link,
   .v2-meta .v2-directions-link:link,
   .v2-meta .v2-directions-link:visited,
@@ -1159,6 +1160,8 @@
     .v2-mobile-all-images{display:inline-flex;position:absolute;right:16px;bottom:16px;z-index:2;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.96);color:var(--v2-ink);border-radius:999px;padding:10px 13px;box-shadow:0 6px 18px rgba(0,0,0,.14);font-size:12.5px;font-weight:800;cursor:pointer;}
     .v2-venue-head{padding:24px 0 24px;display:block;}
     .v2-venue-title{font-size:34px;letter-spacing:-1.15px;}
+    .v2-meta .v2-meta-dot-1,.v2-meta .v2-meta-dot-2{display:none;}
+    .v2-meta-break{display:block;flex-basis:100%;height:0;}
     .v2-layout{display:block;padding:28px 0;}
     .v2-section{padding-bottom:30px;margin-bottom:30px;}
     .v2-section h2{font-size:25px;}
@@ -1167,6 +1170,11 @@
     .v2-side-outer{display:none;}
     .v2-service{padding:17px;gap:12px;}
     .v2-service-desc{display:none;}
+    .v2-service-meta{flex-wrap:wrap;}
+    .v2-meta-pricesep{display:none;}
+    .v2-meta-addonsep{order:2;}
+    .v2-meta-addons{order:3;}
+    .v2-service-price{order:4;flex-basis:100%;margin-top:2px;}
     .v2-team-grid,.v2-reviews{grid-template-columns:1fr;}
     .v2-mobile-bar{display:block;position:fixed;z-index:50;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--v2-line);padding:12px 18px calc(12px + env(safe-area-inset-bottom));}
     .v2-mobile-bar-inner{display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:650px;margin:0 auto;}
@@ -2892,7 +2900,7 @@ function salonServicesMarkup(salon,category){
         <div>
           <h3 class="v2-service-name">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}</h3>
           <p class="v2-service-desc">${escapeHtml((s.description||"").trim() || fallbackDesc)}</p>
-          <div class="v2-service-meta"><span>${fmtDuration(s.duration)}</span><span class="v2-dot"></span><span class="v2-service-price">$${s.price}</span>${s.addons&&s.addons.length?`<span class="v2-dot"></span><span>add-ons available</span>`:""}</div>
+          <div class="v2-service-meta"><span>${fmtDuration(s.duration)}</span><span class="v2-dot v2-meta-pricesep"></span><span class="v2-service-price">$${s.price}</span>${s.addons&&s.addons.length?`<span class="v2-dot v2-meta-addonsep"></span><span class="v2-meta-addons">add-ons available</span>`:""}</div>
         </div>
         <button class="v2-book-small" data-service="${escapeAttr(s.id)}">Book</button>
       </div>`).join("")}
@@ -3056,9 +3064,11 @@ function renderSalon(){
           <div>
             <h1 class="v2-venue-title">${escapeHtml(salon.name)}</h1>
             <div class="v2-meta">
-              ${salon.rating!=="New"?`<span class="v2-rating">${salon.rating}</span><span class="v2-stars">${v2RatingStars(salon.rating,18)}</span><span>(${salon.reviews} review${salon.reviews===1?"":"s"})</span><span class="v2-dot"></span>`:`<span class="v2-rating">New</span><span class="v2-dot"></span>`}
+              ${salon.rating!=="New"?`<span class="v2-rating">${salon.rating}</span><span class="v2-stars">${v2RatingStars(salon.rating,18)}</span><span>(${salon.reviews} review${salon.reviews===1?"":"s"})</span><span class="v2-dot v2-meta-dot-1"></span>`:`<span class="v2-rating">New</span><span class="v2-dot v2-meta-dot-1"></span>`}
+              <span class="v2-meta-break"></span>
               <span class="${status.isOpenNow?'v2-open':'v2-closed'}">${escapeHtml(venueStatusLine(salon,status))}</span>
-              <span class="v2-dot"></span>
+              <span class="v2-dot v2-meta-dot-2"></span>
+              <span class="v2-meta-break"></span>
               <span>${escapeHtml(locationLine)}</span>
               <span class="v2-dot"></span>
               <a class="v2-directions-link" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">Get directions &rarr;</a>
