@@ -126,6 +126,12 @@
   .menu-btn.has-badge{position:relative;}
   .menu-btn.active-fav{color:#E0466D;border-color:#F6D2DC;background:#FCEEF2;}
   .menu-badge{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--purple);border:2px solid var(--white);}
+  /* Match the home page's topbar logo/icon-button sizing to the venue page's (v2-brand/v2-icon-btn). */
+  body.page-home .brand-logo{font-size:22px;letter-spacing:-.6px;}
+  body.page-home .home-topbar{gap:20px;}
+  body.page-home .home-topbar>div{gap:10px;}
+  body.page-home .menu-btn{width:42px;height:42px;border-radius:50%;}
+  body.page-home .location-pill{height:42px;padding:0 14px;}
 
   .home-menu-sheet{
     position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:480px;margin:0 auto;
@@ -286,7 +292,7 @@
   .bottom-cta-btn.primary:hover{background:var(--purple-dark);}
   .bottom-cta-btn.outline{background:var(--white);color:var(--ink);border:1px solid var(--border-2);}
   .bottom-cta-btn.outline:hover{background:var(--purple-pastel-2);border-color:var(--border-hover);}
-  .home-footer{background:var(--near-black);color:#fff;margin-top:36px;padding:32px 0 24px;}
+  .home-footer{background:var(--near-black);color:#fff;margin-top:36px;padding:32px 0 24px;width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;}
   .home-footer-inner{max-width:1400px;margin:0 auto;padding:0 20px;}
   .home-footer-top{display:flex;flex-direction:column;gap:24px;padding-bottom:20px;border-bottom:1px solid #232323;}
   .home-footer-logo{font-size:18px;font-weight:800;color:#fff;margin:0 0 6px;}
@@ -455,6 +461,12 @@
   .msg-send-btn{width:38px;height:38px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .msg-send-btn:disabled{background:var(--disabled);}
   .profile-rewards-card{background:var(--purple-pastel-2);border-radius:16px;padding:16px;}
+  .v2-reward-card{background:linear-gradient(145deg,#251d35,#15111d);color:#fff;border-radius:22px;padding:22px;}
+  .v2-reward-card .v2-reward-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#cdbcf7;font-weight:800;margin:0 0 8px;}
+  .v2-reward-card .v2-reward-points{font-size:22px;font-weight:800;margin:0;color:#fff;}
+  .v2-reward-bar{height:6px;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:12px;}
+  .v2-reward-bar-fill{height:100%;border-radius:999px;background:#fff;}
+  .v2-reward-card .v2-reward-note{font-size:12.5px;color:#bdb4ca;line-height:1.55;margin:10px 0 0;}
   .section-rule{display:flex;align-items:center;gap:12px;margin:26px 0 12px;}
   .section-rule:first-of-type{margin-top:0;}
   .section-rule .lbl{font-size:12px;font-weight:700;letter-spacing:.6px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;}
@@ -898,6 +910,8 @@
     #app{padding:0;max-width:1400px;margin:0 auto;}
     .shell{max-width:none;height:100dvh;border-radius:0;box-shadow:none;}
     body.page-home #app{max-width:none;margin:0;}
+    body.page-salon #app{max-width:none;margin:0;}
+    body.page-salon .shell{overflow:visible;}
     .cats-wrap .chip-row{padding-left:32px;padding-right:32px;}
     .salon-list{display:none;}
     .salon-count-label{display:none;}
@@ -1020,6 +1034,165 @@
     .address-link{display:none !important;}
     .venue-directions-link{display:inline-block !important;}
   }
+
+  /* ============ V2 VENUE PAGE (desktop-style redesign, scoped/prefixed so it never touches existing pages) ============ */
+  .v2-venue-page{
+    --v2-ink:#201a2e; --v2-muted:#766e8f; --v2-soft:#a39ab9; --v2-purple:#7c5cd9; --v2-purple-dark:#6948c4;
+    --v2-lav:#f4f0fc; --v2-lav2:#ece5fb; --v2-line:#ebe7f3; --v2-bg:#faf9fc; --v2-green:#18874b;
+    --v2-shadow:0 16px 44px rgba(44,31,72,.08); --v2-shadow-sm:0 8px 24px rgba(44,31,72,.06);
+    background:var(--v2-bg);color:var(--v2-ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  .v2-venue-page *{box-sizing:border-box;}
+  .v2-venue-page a{text-decoration:none;color:inherit;}
+  .v2-shell{max-width:1400px;margin:0 auto;padding:0 32px;}
+  .v2-topbar{position:sticky;top:0;z-index:40;background:rgba(250,249,252,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(235,231,243,.9);}
+  .v2-topbar-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .v2-brand{font-size:22px;font-weight:800;letter-spacing:-.6px;background:none;border:none;padding:0;cursor:pointer;color:var(--v2-ink);}
+  .v2-top-actions{display:flex;align-items:center;gap:10px;}
+  .v2-icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--v2-line);background:#fff;color:var(--v2-ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex:none;}
+  .v2-icon-btn.v2-active-fav{color:var(--v2-purple);border-color:#d9cffa;}
+  .v2-menu-badge{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--v2-purple);}
+  .v2-breadcrumbs{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--v2-muted);padding:22px 0 16px;}
+  .v2-breadcrumbs strong{color:var(--v2-ink);}
+  .v2-gallery{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:235px 235px;gap:10px;border-radius:26px;overflow:hidden;}
+  .v2-photo{position:relative;overflow:hidden;background:var(--v2-lav);}
+  .v2-photo:first-child{grid-row:1/3;}
+  .v2-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease;}
+  .v2-photo:hover img{transform:scale(1.025);}
+  .v2-gallery-overlay{position:absolute;right:16px;bottom:16px;background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.75);box-shadow:0 6px 20px rgba(0,0,0,.14);border-radius:999px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;}
+  .v2-mobile-hero{display:none;}
+  .v2-mobile-all-images{display:none;}
+  .v2-venue-head{display:flex;justify-content:space-between;gap:28px;align-items:flex-start;padding:28px 0 26px;border-bottom:1px solid var(--v2-line);}
+  .v2-venue-title{font-size:42px;line-height:1.04;letter-spacing:-1.6px;margin:0;font-weight:800;}
+  .v2-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--v2-muted);line-height:1;}
+  .v2-meta>span,.v2-meta>a{display:inline-flex;align-items:center;}
+  .v2-meta .v2-rating{font-weight:800;font-size:16px;color:var(--v2-ink);}
+  .v2-dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:#c9c2d7;flex:none;}
+  .v2-venue-page .review-meta-dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:#c9c2d7;font-size:0;vertical-align:middle;margin:0 5px;}
+  .v2-meta .v2-open{color:var(--v2-green);font-weight:700;}
+  .v2-meta .v2-closed{color:#C13B3B;font-weight:700;}
+  .v2-meta .v2-directions-link,
+  .v2-meta .v2-directions-link:link,
+  .v2-meta .v2-directions-link:visited,
+  .v2-meta .v2-directions-link:active,
+  .v2-meta .v2-directions-link:focus{color:var(--v2-purple);font-weight:700;}
+  .v2-meta .v2-directions-link:hover{color:var(--v2-purple-dark);}
+  .v2-stars{display:inline-flex;align-items:center;gap:2px;}
+  .v2-star{position:relative;display:inline-block;flex:none;}
+  .v2-star-base,.v2-star-fill{position:absolute;top:0;left:0;bottom:0;overflow:hidden;}
+  .v2-star-base{color:#DED8EC;}
+  .v2-star-fill{color:#f2a51a;}
+  .v2-star svg{display:block;flex-shrink:0;width:var(--v2-star-size);height:var(--v2-star-size);max-width:none;}
+  .v2-team-rating{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:12.5px;color:var(--v2-muted);}
+  .v2-team-rating strong{color:var(--v2-ink);font-weight:800;}
+  .v2-map-attrib-hidden .mapboxgl-ctrl-logo,.v2-map-attrib-hidden .mapboxgl-ctrl-attrib{display:none!important;}
+  .v2-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:42px;align-items:start;padding:34px 0 20px;}
+  .v2-nearby-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+  .v2-nearby-arrows{display:flex;gap:8px;flex-shrink:0;margin-top:6px;}
+  .v2-nearby-row{display:flex;gap:12px;overflow-x:auto;scroll-behavior:smooth;padding:14px 0 4px;margin:0;-ms-overflow-style:none;scrollbar-width:none;}
+  .v2-nearby-row::-webkit-scrollbar{display:none;}
+  .v2-nearby-row .featured-salon-card{width:220px;flex-shrink:0;}
+  .v2-main-col{min-width:0;}
+  .v2-section{padding:0 0 38px;margin-bottom:38px;border-bottom:1px solid var(--v2-line);}
+  .v2-section:last-child{border-bottom:none;}
+  .v2-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--v2-purple);font-weight:800;margin:0 0 8px;}
+  .v2-section h2{font-size:30px;letter-spacing:-.8px;margin:0 0 18px;color:var(--v2-ink);}
+  .v2-section-sub{font-size:15px;color:var(--v2-muted);line-height:1.65;margin:-8px 0 20px;}
+  .v2-chips{display:flex;gap:9px;overflow:auto;padding-bottom:2px;scrollbar-width:none;}
+  .v2-chips::-webkit-scrollbar{display:none;}
+  .v2-chip{flex:none;border:1px solid var(--v2-line);background:#fff;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--v2-ink);cursor:pointer;}
+  .v2-chip.active{background:var(--v2-ink);color:#fff;border-color:var(--v2-ink);}
+  .v2-service-list{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
+  .v2-service{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:20px 20px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;box-shadow:0 1px 0 rgba(30,20,50,.02);transition:.18s ease;cursor:pointer;}
+  .v2-service:hover{border-color:#d9cffa;box-shadow:var(--v2-shadow-sm);transform:translateY(-1px);}
+  .v2-service-name{font-size:17px;font-weight:800;margin:0;display:flex;align-items:center;gap:7px;color:var(--v2-ink);}
+  .v2-service-desc{font-size:13.5px;color:var(--v2-muted);margin:6px 0 0;line-height:1.5;}
+  .v2-service-meta{display:flex;gap:10px;align-items:center;margin-top:9px;font-size:13px;color:var(--v2-muted);}
+  .v2-service-price{font-size:16px;font-weight:800;color:var(--v2-ink);}
+  .v2-book-small{border:none;background:var(--v2-purple);color:#fff;padding:11px 17px;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;}
+  .v2-book-small:hover{background:var(--v2-purple-dark);}
+  .v2-team-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  .v2-team-card{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;width:100%;}
+  .v2-avatar{width:62px;height:62px;border-radius:18px;overflow:hidden;background:var(--v2-lav);flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--v2-purple);}
+  .v2-avatar img{width:100%;height:100%;object-fit:cover;}
+  .v2-team-name{font-size:16px;font-weight:800;color:var(--v2-ink);}
+  .v2-team-role{font-size:13px;color:var(--v2-muted);margin-top:4px;}
+  .v2-section-title-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;}
+  .v2-section-title-row h2{margin:0;}
+  .v2-view-reviews-btn{border:none;background:var(--v2-purple);color:#fff;border-radius:999px;padding:11px 16px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;}
+  .v2-view-reviews-btn:hover{background:var(--v2-purple-dark);}
+  .v2-review-summary{display:flex;align-items:center;gap:22px;background:var(--v2-lav);border:1px solid #e7defa;border-radius:20px;padding:22px;margin-bottom:14px;}
+  .v2-big-rating{font-size:44px;font-weight:800;letter-spacing:-1px;color:var(--v2-ink);}
+  .v2-review-count{font-size:13px;color:var(--v2-muted);margin-top:6px;}
+  .v2-reviews{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  .v2-review{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:18px;}
+  .v2-review-top{display:flex;justify-content:space-between;gap:12px;align-items:center;}
+  .v2-reviewer{font-weight:800;font-size:14px;color:var(--v2-ink);}
+  .v2-review p{font-size:13.5px;color:var(--v2-muted);line-height:1.6;margin:12px 0 0;}
+  .v2-info-card{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:20px;}
+  .v2-hours-row{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid #f1eef6;font-size:13.5px;color:var(--v2-ink);}
+  .v2-hours-row:last-child{border-bottom:none;}
+  .v2-hours-row.istoday{font-weight:800;}
+  .v2-today-tag{font-size:10px;background:var(--v2-lav2);color:var(--v2-purple);border-radius:999px;padding:4px 7px;margin-left:7px;}
+  .v2-about{font-size:15px;line-height:1.75;color:var(--v2-muted);margin:0;}
+  .v2-side-outer{position:relative;}
+  .v2-side{position:sticky;top:102px;}
+  .v2-booking-card{background:#fff;border:1px solid var(--v2-line);border-radius:24px;padding:24px;box-shadow:var(--v2-shadow);}
+  .v2-booking-card h3{font-size:24px;letter-spacing:-.5px;margin:0;color:var(--v2-ink);}
+  .v2-booking-card>p{font-size:13.5px;color:var(--v2-muted);line-height:1.5;margin:8px 0 20px;}
+  .v2-big-book{width:100%;height:52px;border:none;border-radius:999px;background:var(--v2-purple);color:#fff;font-weight:800;font-size:15px;cursor:pointer;}
+  .v2-big-book:hover{background:var(--v2-purple-dark);}
+  .v2-side-divider{height:1px;background:var(--v2-line);margin:22px 0;}
+  .v2-side-row{display:flex;gap:12px;align-items:flex-start;margin-top:16px;}
+  .v2-side-icon{width:38px;height:38px;border-radius:12px;background:var(--v2-lav);display:grid;place-items:center;flex:none;color:var(--v2-purple);}
+  .v2-side-label{font-size:12px;color:var(--v2-soft);font-weight:700;}
+  .v2-side-value{font-size:13.5px;font-weight:700;margin-top:3px;line-height:1.4;color:var(--v2-ink);}
+  .v2-mobile-bar{display:none;}
+  @media(max-width:900px){
+    .v2-shell{padding:0 18px;}
+    .v2-topbar-inner{height:66px;}
+    .v2-breadcrumbs{display:none;}
+    .v2-gallery{display:none;}
+    .v2-mobile-hero{display:block;position:relative;margin:0 -18px;height:330px;background:var(--v2-lav);overflow:hidden;}
+    .v2-mobile-hero img{width:100%;height:100%;object-fit:cover;}
+    .v2-mobile-hero:after{content:"";position:absolute;inset:auto 0 0;height:32%;background:linear-gradient(transparent,rgba(0,0,0,.18));pointer-events:none;}
+    .v2-mobile-all-images{display:inline-flex;position:absolute;right:16px;bottom:16px;z-index:2;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.96);color:var(--v2-ink);border-radius:999px;padding:10px 13px;box-shadow:0 6px 18px rgba(0,0,0,.14);font-size:12.5px;font-weight:800;cursor:pointer;}
+    .v2-venue-head{padding:24px 0 24px;display:block;}
+    .v2-venue-title{font-size:34px;letter-spacing:-1.15px;}
+    .v2-layout{display:block;padding:28px 0;}
+    .v2-section{padding-bottom:30px;margin-bottom:30px;}
+    .v2-section h2{font-size:25px;}
+    .v2-nearby-head h2{font-size:25px;}
+    .v2-nearby-arrows{display:none;}
+    .v2-side-outer{display:none;}
+    .v2-service{padding:17px;gap:12px;}
+    .v2-service-desc{display:none;}
+    .v2-team-grid,.v2-reviews{grid-template-columns:1fr;}
+    .v2-mobile-bar{display:block;position:fixed;z-index:50;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--v2-line);padding:12px 18px calc(12px + env(safe-area-inset-bottom));}
+    .v2-mobile-bar-inner{display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:650px;margin:0 auto;}
+    .v2-mobile-copy strong{display:block;font-size:14px;color:var(--v2-ink);}
+    .v2-mobile-copy span{display:block;font-size:12px;color:var(--v2-muted);margin-top:2px;}
+    .v2-mobile-bar .v2-big-book{width:auto;min-width:138px;height:48px;padding:0 22px;}
+    .v2-venue-page{padding-bottom:86px;}
+    .v2-review-summary{padding:18px;}
+    .v2-big-rating{font-size:38px;}
+  }
+  @media(max-width:520px){
+    .v2-section-title-row{align-items:flex-start;}
+    .v2-view-reviews-btn{padding:10px 13px;font-size:12px;}
+    .v2-shell{padding:0 16px;}
+    .v2-mobile-hero{margin:0 -16px;height:300px;}
+    .v2-venue-title{font-size:31px;}
+    .v2-meta{font-size:13px;gap:7px;}
+    .v2-section h2{font-size:23px;}
+    .v2-service-name{font-size:15.5px;}
+    .v2-book-small{padding:10px 14px;}
+    .v2-team-card{padding:14px;}
+    .v2-avatar{width:56px;height:56px;}
+    .v2-review-summary{gap:16px;}
+    .v2-mobile-copy{max-width:150px;}
+    .v2-mobile-bar .v2-big-book{min-width:128px;}
+  }
 </style>
   <script>
   // If Supabase ever falls back to the customer home URL after a venue email
@@ -1097,13 +1270,13 @@ function venueRewardsShown(){
 function venueRewardsCardMarkup(extraStyle){
   if (!venueRewardsShown()) return "";
   return `
-      <div class="profile-rewards-card" style="${extraStyle||''}">
-        <p style="font-size:11.5px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.02em;margin:0 0 6px;">Rewards at ${escapeHtml(state.salon.name)}</p>
-        <p style="font-size:20px;font-weight:800;color:var(--ink);margin:0;">${state.loyaltyAccount.points} point${state.loyaltyAccount.points===1?"":"s"}</p>
-        <div style="height:6px;border-radius:999px;background:#fff;margin-top:10px;overflow:hidden;">
-          <div style="height:100%;width:${Math.min(100,Math.round((state.loyaltyAccount.points/(state.loyaltyAccount.threshold||1))*100))}%;background:var(--purple);border-radius:999px;"></div>
+      <div class="v2-reward-card" style="${extraStyle||''}">
+        <p class="v2-reward-eyebrow">Rewards at ${escapeHtml(state.salon.name)}</p>
+        <p class="v2-reward-points">${state.loyaltyAccount.points} point${state.loyaltyAccount.points===1?"":"s"}</p>
+        <div class="v2-reward-bar">
+          <div class="v2-reward-bar-fill" style="width:${Math.min(100,Math.round((state.loyaltyAccount.points/(state.loyaltyAccount.threshold||1))*100))}%"></div>
         </div>
-        <p style="font-size:12.5px;color:var(--ink-soft);margin:8px 0 0;">
+        <p class="v2-reward-note">
           ${state.loyaltyAccount.points>=state.loyaltyAccount.threshold
             ? `You've earned: ${escapeHtml(state.loyaltyAccount.rewardText||"a reward")} — mention it at your next visit.`
             : `${Math.max(0,state.loyaltyAccount.threshold-state.loyaltyAccount.points)} more point${(state.loyaltyAccount.threshold-state.loyaltyAccount.points)===1?"":"s"} until ${escapeHtml(state.loyaltyAccount.rewardText||"your reward")}.`}
@@ -1245,6 +1418,20 @@ function renderRatingStars(rating){
   }).join("");
 }
 function bigIcon(name, size){ return (ICONS[name]||"").replace('width="22" height="22"', `width="${size}" height="${size}"`); }
+const V2_STAR_PATH="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z";
+function v2RatingStars(rating, size){
+  // The outline and fill layers share the exact same path (rather than two different star
+  // icon assets with slightly different geometry) so a partial clip lines up perfectly
+  // instead of showing a smaller/offset star underneath — and the fill icon is locked to
+  // its true pixel size (not a flex item) so the clip crops it instead of shrinking it.
+  const value=Math.max(0,Math.min(5,Number(rating)||0));
+  const outline=`<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="${V2_STAR_PATH}"></path></svg>`;
+  const solid=`<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="${V2_STAR_PATH}"></path></svg>`;
+  return [0,1,2,3,4].map(index=>{
+    const fill=Math.max(0,Math.min(100,(value-index)*100));
+    return `<span class="v2-star" style="width:${size}px;height:${size}px;--v2-star-size:${size}px;"><span class="v2-star-base">${outline}</span><span class="v2-star-fill" style="width:${fill}%">${solid}</span></span>`;
+  }).join("");
+}
 function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
 function reviewMetaLineMarkup(r, salon){
   const hasRealMeta = r.dateLabel || r.date || r.serviceName || (Array.isArray(r.serviceNames)&&r.serviceNames.length) || r.stylistName;
@@ -1754,6 +1941,7 @@ function liveVenueToSalon(v){
   const stylists=(Array.isArray(v.stylists)?v.stylists:[]).map(st=>({
     id:String(st.id), name:st.name, specialty:st.specialty||"", bio:"", availableDays:liveOpenDays(v.open_days),
     availableToday:st.available_today!==false, photo:st.image_url||"", portfolio:Array.isArray(st.portfolio)?st.portfolio:[],
+    completedAppointments:Math.max(0,Number(st.completed_appointments||0)),
     serviceIds:Array.isArray(st.service_ids)?st.service_ids.map(String):[]
   }));
   if(!stylists.some(st=>st.name==="Any available")) stylists.unshift({id:`${v.id}-any`,name:"Any available",availableDays:liveOpenDays(v.open_days)});
@@ -2458,6 +2646,24 @@ function venueCarouselSectionMarkup(rowId,title,salons){
     </div>
   `;
 }
+function venueNearbySectionMarkup(rowId,salons,cityName){
+  if (!salons.length) return "";
+  return `
+    <section class="v2-section">
+      <p class="v2-eyebrow">Keep exploring</p>
+      <div class="v2-nearby-head">
+        <h2>Venues nearby${cityName?` in ${escapeHtml(cityName)}`:""}</h2>
+        <div class="v2-nearby-arrows">
+          <button class="carousel-arrow-btn" data-scrollcarousel="${rowId}" data-dir="-1" aria-label="Scroll left">${icon('chevronLeft')}</button>
+          <button class="carousel-arrow-btn" data-scrollcarousel="${rowId}" data-dir="1" aria-label="Scroll right">${icon('chevronRight')}</button>
+        </div>
+      </div>
+      <div class="v2-nearby-row no-scrollbar" id="${rowId}" data-scrollkey="${rowId}">
+        ${salons.map(s=>featuredSalonCardMarkup(s)).join("")}
+      </div>
+    </section>
+  `;
+}
 function venueDarkRowMarkup(rowId,eyebrow,title,salons){
   if (!salons.length) return "";
   return `
@@ -2619,7 +2825,7 @@ function renderHome(){
       </div>
 
       <div class="home-trust-strip">
-        <div class="home-trust-item"><strong>4.7★</strong><span>Avg. rating</span></div>
+        <div class="home-trust-item"><strong style="display:inline-flex;align-items:center;gap:3px;">4.7<span style="display:inline-flex;color:var(--gold);">${ICONS.star.replace('width="13" height="13"','width="16" height="16"')}</span></strong><span>Avg. rating</span></div>
         <div class="home-trust-divider"></div>
         <div class="home-trust-item"><strong>110+</strong><span>Venues on Blooma</span></div>
         <div class="home-trust-divider"></div>
@@ -2678,18 +2884,17 @@ function renderHome(){
 --------------------------------------------------- */
 function salonServicesMarkup(salon,category){
   const services=category==="All"?salon.services:salon.services.filter(s=>s.category===category);
+  const fmtDuration=(d)=>d>=60?`${Math.floor(d/60)} hr${d%60?` ${d%60} min`:''}`:`${d} min`;
+  const fallbackDesc="A relaxing treatment designed to help you unwind, feel refreshed and enjoy a little time for yourself.";
   return `
-    <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:4px 0;">${services.length} ${services.length===1?'service':'services'}</p>
     ${services.map(s=>`
-      <div class="service-card" data-service-row="${escapeAttr(s.id)}" role="button" tabindex="0" aria-label="View ${escapeAttr(s.name)} details">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-          <span style="min-width:0;">
-            <span style="display:flex;align-items:center;gap:7px;font-size:14.5px;font-weight:700;color:var(--ink);">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}</span>
-            <span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${s.duration} min${s.addons&&s.addons.length?' · add-ons available':''}</span>
-            <p style="font-weight:700;color:var(--ink);font-size:15px;margin:9px 0 0;">$${s.price}</p>
-          </span>
-          <button class="book-btn" data-service="${escapeAttr(s.id)}">Book</button>
+      <div class="v2-service" data-service-row="${escapeAttr(s.id)}" role="button" tabindex="0" aria-label="View ${escapeAttr(s.name)} details">
+        <div>
+          <h3 class="v2-service-name">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}</h3>
+          <p class="v2-service-desc">${escapeHtml((s.description||"").trim() || fallbackDesc)}</p>
+          <div class="v2-service-meta"><span>${fmtDuration(s.duration)}</span><span class="v2-dot"></span><span class="v2-service-price">$${s.price}</span>${s.addons&&s.addons.length?`<span class="v2-dot"></span><span>add-ons available</span>`:""}</div>
         </div>
+        <button class="v2-book-small" data-service="${escapeAttr(s.id)}">Book</button>
       </div>`).join("")}
   `;
 }
@@ -2774,6 +2979,15 @@ function bindSalonServiceButtons(scope=document){
     });
   });
 }
+function updateVenueSidebarStick(){
+  // Give the sidebar's own column an explicit height exactly matching the main column, so
+  // native position:sticky (on the child) has a correctly-bounded containing block and stops
+  // itself at exactly the right point — no JS position-toggling needed for the sticking itself.
+  const mainCol = document.querySelector(".v2-main-col");
+  const outer = document.querySelector(".v2-side-outer");
+  if (!mainCol || !outer) return;
+  outer.style.height = mainCol.offsetHeight + "px";
+}
 function updateSalonCategory(category){
   state.salonCategory=category;
   document.querySelectorAll("[data-salcat]").forEach(btn=>btn.classList.toggle("active",btn.getAttribute("data-salcat")===category));
@@ -2781,6 +2995,7 @@ function updateSalonCategory(category){
   if(section&&state.salon){
     section.innerHTML=salonServicesMarkup(state.salon,category);
     bindSalonServiceButtons(section);
+    updateVenueSidebarStick();
   }else render({samePage:true});
 }
 
@@ -2788,159 +3003,165 @@ function renderSalon(){
   const salon = state.salon;
   const status = getSalonOpenStatus(salon);
   const categories = ["All", ...Array.from(new Set(salon.services.map(s=>s.category)))];
-  const services = state.salonCategory==="All" ? salon.services : salon.services.filter(s=>s.category===state.salonCategory);
-
-  const photoSlides = salon.photos && salon.photos.length ? salon.photos : null;
-  const slides = photoSlides || (HERO_THEMES[salon.id] || [["#B79CF0","#7C5CD9"]]);
+  const primaryCategory = categories.length>1 ? categories[1] : (salon.tag||"Services");
   const isFav = state.favorites.includes(salon.id);
-  const closingSoon = status.isOpenNow && status.minutesUntilClose !== null && status.minutesUntilClose <= 60;
+  const rawPhotos = (salon.photos && salon.photos.length) ? salon.photos : [];
+  const theme = HERO_THEMES[salon.id] || [["#B79CF0","#7C5CD9"]];
+  const galleryTile = (i) => {
+    if (rawPhotos.length){
+      const src = rawPhotos[i % rawPhotos.length];
+      return `<img src="${escapeAttr(src)}" alt="${escapeAttr(salon.name)} photo ${i+1}" ${i===0?'fetchpriority="high"':'loading="lazy"'} decoding="async">`;
+    }
+    const pair = theme[i % theme.length];
+    return `<div style="width:100%;height:100%;background:linear-gradient(135deg, ${pair[0]}, ${pair[1]});display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.35);">${bigIcon(salon.icon,72)}</div>`;
+  };
+  const teamStylists = (salon.stylists||[]).filter(st=>!isAnyAvailableStylist(st));
+  const minPrice = salon.services.length ? Math.min(...salon.services.map(s=>s.price)) : null;
+  const nearbySalons = SALONS.filter(s=>s.id!==salon.id && String(s.city||"").toLowerCase()===String(salon.city||"").toLowerCase()).slice(0,12);
+  const stylistStats = (st) => {
+    const matches = (salon.reviewList||[]).filter(r=>r.stylistId===st.id || (r.stylistName && r.stylistName===st.name));
+    if (!matches.length) return null;
+    const avg = matches.reduce((sum,r)=>sum+Number(r.rating||0),0) / matches.length;
+    return { avg: Math.round(avg*10)/10, count: matches.length };
+  };
+  const locationLine = salon.distance || [salon.suburb,salon.city].filter(Boolean).join(", ");
 
   return `
-    <div class="page" style="padding-bottom:86px;position:relative;">
-      ${topbarMarkup({shareBtn:{title:salon.name, url:`${location.origin}${venuePublicPath(salon)}`}, favBtn:{active:isFav, salonId:salon.id}})}
-      ${closingSoon ? `
-      <div class="closing-soon-banner closing-soon-banner--attached">
-        ${icon('clock')}
-        <span>Closing soon · ${status.minutesUntilClose} minute${status.minutesUntilClose===1?"":"s"} left</span>
-      </div>` : ""}
-      <div class="salon-hero">
-        <div class="hero-carousel no-scrollbar" data-scrollkey="hero-carousel">
-          ${slides.map((slide,i)=>`
-            <div class="hero-slide" style="background:${photoSlides ? 'var(--purple-pastel-2)' : `linear-gradient(135deg, ${slide[0]}, ${slide[1]})`};">
-              ${photoSlides ? `<img src="${escapeAttr(slide)}" alt="${escapeAttr(salon.name)} photo ${i+1}" ${i===0?'fetchpriority="high"':'loading="lazy"'} decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="position:absolute;${HERO_ICON_POS[i%HERO_ICON_POS.length]}color:rgba(255,255,255,.24);">${bigIcon(salon.icon,170)}</div>`}
-            </div>
-          `).join("")}
+    <div class="page v2-venue-page" style="position:relative;">
+      <header class="v2-topbar"><div class="v2-shell v2-topbar-inner">
+        <button class="v2-brand" id="brandLogoBtn" aria-label="Go to home">Blooma</button>
+        <div class="v2-top-actions">
+          <button class="v2-icon-btn" id="shareVenueBtn" data-sharetitle="${escapeAttr(salon.name)}" data-shareurl="${escapeAttr(`${location.origin}${venuePublicPath(salon)}`)}" aria-label="Share salon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          </button>
+          <button class="v2-icon-btn ${isFav?'v2-active-fav':''}" data-fav="${escapeAttr(salon.id)}" aria-label="Save salon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="${isFav?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg>
+          </button>
+          <button class="v2-icon-btn" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            ${isLoggedInCustomer()?'<span class="v2-menu-badge"></span>':''}
+          </button>
         </div>
-        <div class="hero-overlay-bar" style="position:absolute;left:0;right:0;bottom:0;padding:14px 14px 38px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;background:linear-gradient(to top, rgba(20,10,40,.4), transparent);pointer-events:none;">
-          ${slides.length>1?`<div class="hero-dots-pill"><div class="hero-dots" id="heroDots">${slides.map((_,i)=>`<span class="hero-dot ${i===0?'active':''}"></span>`).join("")}</div></div>`:'<span></span>'}
-          <button data-gallery="${salon.id}" style="pointer-events:auto;flex-shrink:0;font-size:12px;font-weight:700;color:var(--ink);background:#fff;border:1px solid var(--border-2);border-radius:999px;padding:7px 12px;">See photos</button>
-        </div>
-      </div>
+      </div></header>
 
-      <div class="salon-drawer${closingSoon ? ' salon-drawer--attached' : ''}">
-        <h1 class="salon-title" style="font-size:19px;font-weight:800;color:var(--ink);margin:0;">${escapeHtml(salon.name)}</h1>
-        <div class="venue-rating-row-mobile" style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--ink-soft);">
-          <span style="display:flex;align-items:center;gap:4px;">${icon('star','var(--gold)')} <span style="font-weight:700;color:var(--ink);">${salon.rating}</span> (${salon.reviews})</span>
-          <span style="color:var(--border-hover);">·</span>
-          <span class="status-pill ${status.isOpenNow?'open':'closed'}"><span class="status-dot"></span>${status.isOpenNow?'Open':'Closed'}</span>
-        </div>
-        <div class="venue-rating-row-desktop" style="align-items:center;gap:6px;margin-top:10px;font-size:14px;color:var(--ink-soft);flex-wrap:wrap;">
-          <span style="font-weight:700;color:var(--ink);">${salon.rating}</span>
-          <span style="display:flex;align-items:center;gap:1px;">${starRowMarkup(salon.rating)}</span>
-          <span style="margin-left:2px;">(${salon.reviews})</span>
-          <span class="sep-dot"></span>
-          <span style="color:${status.isOpenNow?'#1E8A4C':'#C13B3B'};font-weight:600;">${escapeHtml(venueStatusLine(salon,status))}</span>
-          ${salon.distance?`<span class="sep-dot"></span><span>${escapeHtml(salon.distance)}</span>`:""}
-          <span class="sep-dot"></span>
-          <a class="venue-directions-link" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--purple);font-weight:600;">Get directions</a>
-        </div>
-        <a class="address-link" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:4px;margin-top:6px;">${icon('mapPin')}<span>${escapeHtml(salon.distance)}</span></a>
-      </div>
+      <main class="v2-shell">
+        <div class="v2-breadcrumbs"><span>${escapeHtml(salon.city||"")}</span><span>&rsaquo;</span><span>${escapeHtml(primaryCategory)}</span><span>&rsaquo;</span><strong>${escapeHtml(salon.name)}</strong></div>
 
-      <div class="venue-body-grid">
-      <div class="venue-main-col">
-      <div class="venue-services-section" style="padding:16px 20px 20px;">
-        <div class="no-scrollbar chip-row" data-scrollkey="salon-category">
-          ${categories.map(c=>`<button class="chip ${state.salonCategory===c?'active':''}" data-salcat="${escapeAttr(c)}">${c}</button>`).join("")}
-        </div>
-        <div id="salonServicesSection" style="display:flex;flex-direction:column;gap:10px;">${salonServicesMarkup(salon,state.salonCategory)}</div>
-      </div>
+        <section class="v2-gallery" aria-label="Venue photos">
+          ${[0,1,2,3,4].map(i=>`<div class="v2-photo">${galleryTile(i)}${i===4?`<button class="v2-gallery-overlay" data-gallery="${escapeAttr(salon.id)}">&#8942;&nbsp;&nbsp;See all photos</button>`:""}</div>`).join("")}
+        </section>
+        <section class="v2-mobile-hero">${galleryTile(0)}<button class="v2-mobile-all-images" type="button" data-gallery="${escapeAttr(salon.id)}" aria-label="View all venue images"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>All images</span></button></section>
 
-      ${salon.stylists && salon.stylists.filter(s=>s.name!=='Any available').length ? `
-      <div class="venue-team-wrap" style="padding:20px;">
-        <div class="venue-team-section">
-          <p class="eyebrow" style="margin-bottom:10px;">Meet the team</p>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            ${salon.stylists.filter(s=>s.name!=='Any available').map(st=>`
-              <button class="stylist-card" data-stylistprofile="${st.id}" style="padding:18px;gap:16px;">
-                <div class="stylist-avatar" style="width:60px;height:60px;font-size:22px;overflow:hidden;${st.photo?'background:var(--purple-pastel-2);':''}">${st.photo?`<img src="${escapeAttr(st.photo)}" alt="${escapeAttr(st.name)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(st.name.charAt(0))}</div>
-                <span style="min-width:0;">
-                  <span style="display:block;font-size:17px;font-weight:700;color:var(--ink);">${escapeHtml(st.name)}</span>
-                  ${st.specialty?`<span style="display:block;font-size:13.5px;color:var(--ink-soft);margin-top:3px;">${escapeHtml(st.specialty)}</span>`:""}
-                </span>
-                <span style="margin-left:auto;color:var(--ink-soft);flex-shrink:0;display:flex;transform:rotate(180deg);">${icon('chevronLeft')}</span>
-              </button>
-            `).join("")}
-          </div>
-        </div>
-      </div>` : ""}
-
-      ${salon.reviewList && salon.reviewList.length ? `
-      <div class="venue-reviews-wrap" style="padding:20px;">
-        <div class="venue-reviews-section">
-        <p class="eyebrow" style="margin-bottom:10px;">What people say</p>
-        <button class="review-summary-card" data-reviews="${salon.id}" style="width:100%;text-align:left;justify-content:space-between;border-radius:16px;cursor:pointer;">
-          <div style="display:flex;align-items:center;gap:16px;min-width:0;">
-            <span class="rs-number">${salon.rating}</span>
-            <div style="min-width:0;">
-              <div class="rs-stars" role="img" aria-label="${salon.rating} out of 5 stars">${renderRatingStars(salon.rating)}</div>
-              <span class="rs-count">${salon.reviews} review${salon.reviews===1?"":"s"}</span>
+        <section class="v2-venue-head">
+          <div>
+            <h1 class="v2-venue-title">${escapeHtml(salon.name)}</h1>
+            <div class="v2-meta">
+              ${salon.rating!=="New"?`<span class="v2-rating">${salon.rating}</span><span class="v2-stars">${v2RatingStars(salon.rating,18)}</span><span>(${salon.reviews} review${salon.reviews===1?"":"s"})</span><span class="v2-dot"></span>`:`<span class="v2-rating">New</span><span class="v2-dot"></span>`}
+              <span class="${status.isOpenNow?'v2-open':'v2-closed'}">${escapeHtml(venueStatusLine(salon,status))}</span>
+              <span class="v2-dot"></span>
+              <span>${escapeHtml(locationLine)}</span>
+              <span class="v2-dot"></span>
+              <a class="v2-directions-link" href="${venueMapUrl(salon,false)}" target="_blank" rel="noopener">Get directions &rarr;</a>
             </div>
           </div>
-          <span style="display:flex;align-items:center;justify-content:center;color:var(--ink-soft);flex-shrink:0;">${icon('chevronRight','var(--ink-soft)')}</span>
-        </button>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
-          ${salon.reviewList.slice(0,3).map(r=>reviewCardMarkup(r, salon)).join("")}
-        </div>
-        </div>
-      </div>` : ""}
+        </section>
 
-      <div class="venue-hours-wrap" style="padding:20px;">
-        <p class="eyebrow" style="margin-bottom:10px;">Opening hours</p>
-        <div class="hours-card">
-          ${DAY_NAMES.map((dname, idx)=>{
-            const isToday=idx===nzDayIndex(new Date());
-            const label=customerDayHoursLabel(salon,idx);
-            const isClosed=label === "Closed";
-            return `
-              <div class="hours-row ${isToday?'istoday':''} ${isClosed?'isclosed':''}">
-                <span class="hday">${dname}${isToday?' <span class="today-tag">Today</span>':''}</span>
-                <span class="htime">${label}</span>
+        <div class="v2-layout">
+          <div class="v2-main-col">
+
+            <section class="v2-section" id="services">
+              <p class="v2-eyebrow">Services</p><h2>Choose your treatment</h2>
+              <p class="v2-section-sub">Browse services, compare times and prices, then choose what works best for you.</p>
+              <div class="v2-chips">${categories.map(c=>`<button class="v2-chip ${state.salonCategory===c?'active':''}" data-salcat="${escapeAttr(c)}">${escapeHtml(c)}</button>`).join("")}</div>
+              <div class="v2-service-list" id="salonServicesSection">${salonServicesMarkup(salon,state.salonCategory)}</div>
+            </section>
+
+            ${teamStylists.length ? `
+            <section class="v2-section">
+              <p class="v2-eyebrow">Team</p><h2>Meet the team</h2>
+              <div class="v2-team-grid">
+                ${teamStylists.map(st=>{
+                  const stats = stylistStats(st);
+                  return `
+                  <button class="v2-team-card" data-stylistprofile="${escapeAttr(st.id)}">
+                    <div class="v2-avatar">${st.photo?`<img src="${escapeAttr(st.photo)}" alt="${escapeAttr(st.name)}" loading="lazy" decoding="async">`:escapeHtml((st.name||"?").charAt(0))}</div>
+                    <div>
+                      <div class="v2-team-name">${escapeHtml(st.name)}</div>
+                      ${st.specialty?`<div class="v2-team-role">${escapeHtml(st.specialty)}</div>`:""}
+                      ${(stats||st.completedAppointments)?`<div class="v2-team-rating">${stats?`${icon('star','var(--gold)')}<strong>${stats.avg}</strong>`:""}${(stats&&st.completedAppointments)?`<span class="v2-dot"></span>`:""}${st.completedAppointments?`<span>${st.completedAppointments} appointment${st.completedAppointments===1?"":"s"}</span>`:""}</div>`:""}
+                    </div>
+                  </button>`;}).join("")}
               </div>
-            `;
-          }).join("")}
-        </div>
-      </div>
+            </section>` : ""}
 
-      ${salon.blurb?`<div class="venue-about-wrap" style="padding:20px;">
-        <p class="eyebrow" style="margin-bottom:8px;">About</p>
-        <p style="font-size:13.5px;color:var(--ink-mute);margin:0;line-height:1.5;">${escapeHtml(salon.blurb)}</p>
-      </div>`:""}
+            ${salon.reviewList && salon.reviewList.length ? `
+            <section class="v2-section">
+              <div class="v2-section-title-row"><h2>Loved by clients</h2><button class="v2-view-reviews-btn" data-reviews="${escapeAttr(salon.id)}">View all reviews</button></div>
+              <div class="v2-review-summary">
+                <div class="v2-big-rating">${salon.rating}</div>
+                <div><div class="v2-stars">${v2RatingStars(salon.rating,26)}</div><div class="v2-review-count">${salon.reviews} verified review${salon.reviews===1?"":"s"} on Blooma</div></div>
+              </div>
+              <div class="v2-reviews">
+                ${salon.reviewList.slice(0,4).map(r=>`
+                  <article class="v2-review">
+                    <div class="v2-review-top"><span class="v2-reviewer">${escapeHtml(r.name)}</span><span class="v2-stars">${v2RatingStars(r.rating,15)}</span></div>
+                    <p>${escapeHtml(r.text)}</p>
+                    ${reviewMetaLineMarkup(r, salon)}
+                  </article>`).join("")}
+              </div>
+            </section>` : ""}
 
-      <div class="venue-location-wrap" style="padding:20px;">
-        <div class="venue-location-section">
-          <p class="eyebrow" style="margin-bottom:10px;">Location</p>
-          ${venueMapSectionMarkup(salon)}
-        </div>
-      </div>
-      </div>
+            <section class="v2-section">
+              <p class="v2-eyebrow">Opening hours</p><h2>When to visit</h2>
+              <div class="v2-info-card">
+                ${DAY_NAMES.map((dname, idx)=>{
+                  const isToday=idx===nzDayIndex(new Date());
+                  const label=customerDayHoursLabel(salon,idx);
+                  return `<div class="v2-hours-row ${isToday?'istoday':''}"><span>${dname}${isToday?' <span class="v2-today-tag">Today</span>':''}</span><span>${escapeHtml(label)}</span></div>`;
+                }).join("")}
+              </div>
+            </section>
 
-      <div class="venue-side-col">
-        <div class="venue-book-panel-desktop">
-          <p class="venue-book-title">Ready to book?</p>
-          <p class="venue-book-sub">${salon.services.length} service${salon.services.length===1?"":"s"} available</p>
-          <button class="venue-book-btn" id="venueBookNowBtnDesktop">Book now</button>
-          <div style="height:1px;background:var(--border);margin:18px 0;"></div>
-          <div class="venue-info-row" style="padding:0 0 12px;">
-            <div class="venue-info-icon">${icon('clock')}</div>
-            <div class="venue-info-body">
-              <span class="venue-info-label">Hours today</span>
-              <span class="venue-info-value">${status.todayHoursLabel}</span>
-            </div>
-            <span class="status-pill ${status.isOpenNow?'open':'closed'}"><span class="status-dot"></span>${status.isOpenNow?'Open':'Closed'}</span>
+            ${salon.blurb ? `
+            <section class="v2-section">
+              <p class="v2-eyebrow">About</p><h2>The venue</h2>
+              <div class="v2-info-card"><p class="v2-about">${escapeHtml(salon.blurb)}</p></div>
+            </section>` : ""}
+
+            <section class="v2-section">
+              <p class="v2-eyebrow">Location</p><h2>Find us in ${escapeHtml(salon.city||"")}</h2>
+              <div class="v2-map-attrib-hidden">${venueMapSectionMarkup(salon)}</div>
+            </section>
+
+            ${venueNearbySectionMarkup('venueNearbyRow',nearbySalons,salon.city)}
+
           </div>
+
+          <aside class="v2-side-outer">
+            <div class="v2-side">
+              <div class="v2-booking-card">
+                <h3>Ready to book?</h3>
+                <p>Choose a service and find a time that suits you.</p>
+                <button class="v2-big-book" id="venueBookNowBtnDesktop">Book now</button>
+                <div class="v2-side-divider"></div>
+                <div class="v2-side-row"><div class="v2-side-icon">${icon('clock')}</div><div><div class="v2-side-label">TODAY</div><div class="v2-side-value">${escapeHtml(status.todayHoursLabel)}</div></div></div>
+                <div class="v2-side-row"><div class="v2-side-icon">${icon('mapPin')}</div><div><div class="v2-side-label">LOCATION</div><div class="v2-side-value">${escapeHtml(locationLine)}</div></div></div>
+                ${salon.rating!=="New"?`<div class="v2-side-row"><div class="v2-side-icon">${icon('star')}</div><div><div class="v2-side-label">RATING</div><div class="v2-side-value">${salon.rating} from ${salon.reviews} review${salon.reviews===1?"":"s"}</div></div></div>`:""}
+              </div>
+              ${venueRewardsCardMarkup('margin-top:16px;')}
+            </div>
+          </aside>
         </div>
-        ${venueRewardsCardMarkup('margin-top:16px;')}
-      </div>
+      </main>
+      ${homeFooterMarkup()}
+      <div class="v2-mobile-bar">
+        <div class="v2-mobile-bar-inner">
+          <div class="v2-mobile-copy"><strong>${salon.services.length} service${salon.services.length===1?"":"s"} available</strong>${minPrice!=null?`<span>From $${minPrice}</span>`:""}</div>
+          <button class="v2-big-book" id="venueBookNowBtn">Book now</button>
+        </div>
       </div>
     </div>
     ${hamburgerMenuMarkup()}
-    <div class="venue-book-bar">
-      <div class="venue-book-bar-inner">
-        <div class="venue-book-copy"><p class="venue-book-title">Ready to book?</p><p class="venue-book-sub">${salon.services.length} service${salon.services.length===1?"":"s"} available</p></div>
-        <button class="venue-book-btn" id="venueBookNowBtn">Book now</button>
-      </div>
-    </div>
   `;
 }
 
@@ -3582,7 +3803,7 @@ function stylistProfileBodyMarkup(stylist, salon){
               <div class="service-select-card" style="cursor:default;">
                 <span style="min-width:0;">
                   <span style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);">${escapeHtml(sv.name)}</span>
-                  <span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${sv.duration} min</span>
+                  <span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${sv.duration} min · $${sv.price}${sv.addons&&sv.addons.length?' · add-ons available':''}</span>
                 </span>
                 <button class="book-btn" data-bookservice="${sv.id}" style="flex-shrink:0;">Book</button>
               </div>
@@ -4000,6 +4221,7 @@ function createVenueMap(el, lat, lng, rating){
     accessToken: MAPBOX_ACCESS_TOKEN,
   });
   new mapboxgl.Marker({ element: venueMapPinEl(rating), anchor: "bottom" }).setLngLat([lng, lat]).addTo(map);
+  map.on("load", ()=>{ if (typeof updateVenueSidebarStick==="function") updateVenueSidebarStick(); });
   venueMapInstances.push(map);
 }
 function initVenueMaps(){
@@ -4048,6 +4270,7 @@ function render(opts){
   }
   document.title = (state.page==="salon" && state.salon) ? `${state.salon.name} — Blooma` : "Blooma";
   document.body.classList.toggle("page-home", state.page==="home");
+  document.body.classList.toggle("page-salon", state.page==="salon");
   let html = "";
   if (state.page === "home") html = renderHome();
   else if (state.page === "salon") html = renderSalon();
@@ -4161,12 +4384,6 @@ function bindEvents(){
     if(bottomCtaSignupBtn) bottomCtaSignupBtn.addEventListener("click",()=>{ window.location.href = customerSignupDestination(); });
     const bottomCtaBusinessBtn=document.getElementById("bottomCtaBusinessBtn");
     if(bottomCtaBusinessBtn) bottomCtaBusinessBtn.addEventListener("click",()=>{ window.location.href = businessDestination(); });
-    const footerSignupBtn=document.getElementById("footerSignupBtn");
-    if(footerSignupBtn) footerSignupBtn.addEventListener("click",()=>{ window.location.href = customerSignupDestination(); });
-    const footerLoginBtn=document.getElementById("footerLoginBtn");
-    if(footerLoginBtn) footerLoginBtn.addEventListener("click",()=>{ window.location.href = customerLoginDestination(); });
-    const footerBusinessBtn=document.getElementById("footerBusinessBtn");
-    if(footerBusinessBtn) footerBusinessBtn.addEventListener("click",()=>{ window.location.href = businessDestination(); });
     const locBtn = document.getElementById("locationBtn");
     if (locBtn) locBtn.addEventListener("click", ()=> setState({ showCityPicker:true, cityQuery:"" }));
     const overlay = document.getElementById("cityPickerOverlay");
@@ -4400,6 +4617,17 @@ function bindEvents(){
         if (stylist) goStylistProfile(stylist);
       });
     });
+    document.querySelectorAll("[data-salon]").forEach(card=>{
+      card.addEventListener("click", ()=>{
+        const salon = SALONS.find(s=>s.id===card.getAttribute("data-salon"));
+        if (salon) goSalon(salon);
+      });
+    });
+    if (document.querySelector(".v2-side-outer")){
+      window.addEventListener("resize", updateVenueSidebarStick);
+      updateVenueSidebarStick();
+      requestAnimationFrame(updateVenueSidebarStick);
+    }
   }
 
   if (state.page === "serviceSelect"){
@@ -4620,6 +4848,14 @@ function bindEvents(){
       if (stylist) goStylistProfile(stylist);
     });
   });
+  {
+    const footerSignupBtn2=document.getElementById("footerSignupBtn");
+    if(footerSignupBtn2 && !footerSignupBtn2.dataset.bound){ footerSignupBtn2.dataset.bound="1"; footerSignupBtn2.addEventListener("click",()=>{ window.location.href = customerSignupDestination(); }); }
+    const footerLoginBtn2=document.getElementById("footerLoginBtn");
+    if(footerLoginBtn2 && !footerLoginBtn2.dataset.bound){ footerLoginBtn2.dataset.bound="1"; footerLoginBtn2.addEventListener("click",()=>{ window.location.href = customerLoginDestination(); }); }
+    const footerBusinessBtn2=document.getElementById("footerBusinessBtn");
+    if(footerBusinessBtn2 && !footerBusinessBtn2.dataset.bound){ footerBusinessBtn2.dataset.bound="1"; footerBusinessBtn2.addEventListener("click",()=>{ window.location.href = businessDestination(); }); }
+  }
 
   if (state.page === "stylistGallery"){
     document.getElementById("backBtn").addEventListener("click", ()=> setState({ page:"salon", stylistSheetOpen:true }, { samePage:true }));

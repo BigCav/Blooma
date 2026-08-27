@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -522,6 +523,16 @@
   .addon-service-option input{accent-color:var(--violet); width:15px; height:15px; flex:none;}
   .addon-service-option .cat{margin-left:auto; font-size:11px; color:var(--text-faint); font-weight:600; flex:none;}
   .addon-service-empty{font-size:12.5px; color:var(--text-faint); padding:8px;}
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:90; opacity:0; pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 
@@ -677,10 +688,6 @@
     <div class="filter-bar">
       <div class="filter-tabs" id="svcFilterTabs">
         <div class="filter-tab active" data-category="all" onclick="setServiceFilter('all')">All</div>
-        <div class="filter-tab" data-category="Haircuts" onclick="setServiceFilter('Haircuts')">Haircuts</div>
-        <div class="filter-tab" data-category="Color" onclick="setServiceFilter('Color')">Color</div>
-        <div class="filter-tab" data-category="Styling" onclick="setServiceFilter('Styling')">Styling</div>
-        <div class="filter-tab" data-category="Treatments" onclick="setServiceFilter('Treatments')">Treatments</div>
         <div class="add-category-btn" onclick="openAddCategory()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
           Add category
@@ -691,7 +698,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="Search services…">
         </div>
-        <div class="btn btn-violet" onclick="openAddService('Haircuts')">
+        <div class="btn btn-violet" id="addServiceTopBtn" onclick="openAddService('')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
           Add service
         </div>
@@ -699,173 +706,19 @@
     </div>
   </div>
 
-  <div class="panel cat-panel" data-category="Haircuts">
-    <div class="cat-panel-head">
-      <h2>Haircuts <span class="count" id="countHaircuts">3 services</span></h2>
-      <div class="cat-add" onclick="openAddService('Haircuts')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
-    </div>
-    <div class="table-wrap">
-      <table class="data">
-        <thead>
-          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody id="tbodyHaircuts">
-          <tr>
-            <td><div class="svc-cell-name">Women's cut &amp; blowout</div><div class="svc-cell-sub">All stylists</div></td>
-            <td>60 min</td>
-            <td>$95</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td><div class="svc-cell-name">Men's cut</div><div class="svc-cell-sub">All stylists</div></td>
-            <td>30 min</td>
-            <td>$55</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td><div class="svc-cell-name">Kids cut (12 &amp; under)</div><div class="svc-cell-sub">All stylists</div></td>
-            <td>30 min</td>
-            <td>$40</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="panel cat-panel" data-category="Color">
-    <div class="cat-panel-head">
-      <h2>Color <span class="count" id="countColor">3 services</span></h2>
-      <div class="cat-add" onclick="openAddService('Color')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
-    </div>
-    <div class="table-wrap">
-      <table class="data">
-        <thead>
-          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody id="tbodyColor">
-          <tr>
-            <td><div class="svc-cell-name">Full balayage</div><div class="svc-cell-sub">Fana R., Jordan M.</div></td>
-            <td>2 hr 30 min</td>
-            <td>$220</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td><div class="svc-cell-name">Root touch-up</div><div class="svc-cell-sub">Fana R., Jordan M.</div></td>
-            <td>1 hr 15 min</td>
-            <td>$110</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td><div class="svc-cell-name">Gloss &amp; toner</div><div class="svc-cell-sub">Fana R., Naomi K.</div></td>
-            <td>45 min</td>
-            <td>$65</td>
-            <td><div class="toggle"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="panel cat-panel" data-category="Styling">
-    <div class="cat-panel-head">
-      <h2>Styling <span class="count" id="countStyling">2 services</span></h2>
-      <div class="cat-add" onclick="openAddService('Styling')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
-    </div>
-    <div class="table-wrap">
-      <table class="data">
-        <thead>
-          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody id="tbodyStyling">
-          <tr>
-            <td><div class="svc-cell-name">Blowout</div><div class="svc-cell-sub">All stylists</div></td>
-            <td>40 min</td>
-            <td>$60</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td><div class="svc-cell-name">Special occasion updo</div><div class="svc-cell-sub">Jordan M., Chris T.</div></td>
-            <td>1 hr</td>
-            <td>$120</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="panel cat-panel" data-category="Treatments">
-    <div class="cat-panel-head">
-      <h2>Treatments <span class="count" id="countTreatments">2 services</span></h2>
-      <div class="cat-add" onclick="openAddService('Treatments')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
-    </div>
-    <div class="table-wrap">
-      <table class="data">
-        <thead>
-          <tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody id="tbodyTreatments">
-          <tr>
-            <td><div class="svc-cell-name">Deep conditioning treatment</div><div class="svc-cell-sub">All stylists</div></td>
-            <td>30 min</td>
-            <td>$45</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td><div class="svc-cell-name">Scalp treatment</div><div class="svc-cell-sub">Naomi K.</div></td>
-            <td>30 min</td>
-            <td>$50</td>
-            <td><div class="toggle"></div></td>
-            <td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <div id="categoriesContainer"></div>
 
   <div class="panel cat-panel" data-category="Add-ons" id="addonsPanel">
     <div class="cat-panel-head">
-      <h2>Add-ons <span class="count" id="countAddons">3 add-ons</span></h2>
+      <h2>Add-ons <span class="count" id="countAddons">0 add-ons</span></h2>
       <div class="cat-add" onclick="openAddAddon()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>
     </div>
     <div class="table-wrap">
       <table class="data">
         <thead>
-          <tr><th>Add-on</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
+          <tr><th>Add-on</th><th>Price</th><th>Status</th><th></th></tr>
         </thead>
-        <tbody id="tbodyAddons">
-          <tr data-services='["Full balayage","Root touch-up","Gloss &amp; toner"]'>
-            <td><div class="svc-cell-name">Deep conditioning</div><div class="svc-cell-sub">Full balayage, Root touch-up, Gloss &amp; toner</div></td>
-            <td>15 min</td>
-            <td>+$15</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr data-services='["Women&#39;s cut &amp; blowout","Men&#39;s cut","Kids cut (12 &amp; under)"]'>
-            <td><div class="svc-cell-name">Scalp massage</div><div class="svc-cell-sub">Women's cut &amp; blowout, Men's cut, Kids cut (12 &amp; under)</div></td>
-            <td>10 min</td>
-            <td>+$10</td>
-            <td><div class="toggle on"></div></td>
-            <td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr data-services='["Full balayage"]'>
-            <td><div class="svc-cell-name">Gloss finish</div><div class="svc-cell-sub">Full balayage</div></td>
-            <td>10 min</td>
-            <td>+$20</td>
-            <td><div class="toggle"></div></td>
-            <td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-        </tbody>
+        <tbody id="tbodyAddons"></tbody>
       </table>
     </div>
   </div>
@@ -890,12 +743,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Category</label>
-        <select class="form-select" id="svcCategory">
-          <option>Haircuts</option>
-          <option>Color</option>
-          <option>Styling</option>
-          <option>Treatments</option>
-        </select>
+        <select class="form-select" id="svcCategory"></select>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -992,15 +840,9 @@
         <label class="form-label">Add-on name</label>
         <input type="text" class="form-input" id="addonName" placeholder="e.g. Deep conditioning" required>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Duration</label>
-          <input type="text" class="form-input" id="addonDuration" placeholder="e.g. 15 min" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Price</label>
-          <input type="text" class="form-input" id="addonPrice" required>
-        </div>
+      <div class="form-group">
+        <label class="form-label">Price</label>
+        <input type="text" class="form-input" id="addonPrice" required>
       </div>
       <div class="form-group">
         <label class="form-label">Applies to</label>
@@ -1027,15 +869,9 @@
         <label class="form-label">Add-on name</label>
         <input type="text" class="form-input" id="editAddonName" required>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Duration</label>
-          <input type="text" class="form-input" id="editAddonDuration" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Price</label>
-          <input type="text" class="form-input" id="editAddonPrice" required>
-        </div>
+      <div class="form-group">
+        <label class="form-label">Price</label>
+        <input type="text" class="form-input" id="editAddonPrice" required>
       </div>
       <div class="form-group">
         <label class="form-label">Applies to</label>
@@ -1062,17 +898,206 @@
   closeBtn.addEventListener('click', closeSb);
   overlay.addEventListener('click', closeSb);
 
-  document.querySelectorAll('.toggle').forEach(function(t){
-    t.addEventListener('click', function(){ t.classList.toggle('on'); });
-  });
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    if(!t){
+      t = document.createElement('div');
+      t.id = 'toast';
+      t.className = 'toast';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
 
-  var svcCounts = { Haircuts:3, Color:3, Styling:2, Treatments:2 };
-  var svcTotal = 10;
-  var svcCategoryCount = 4;
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Mirrors salon-admin-v3-24-supabase.html's auth/config plumbing
+     (see settings.html for the same pattern, commented in full there).
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  let currentConfigVersion = null;
+
+  const salon = {
+    name:"", tag:"", visible:true, mainImage:"", galleryImages:[],
+    hours:{}, phone:"", address:"", city:"", region:"", bufferTime:15,
+    lat:null, lng:null, addressVerified:false, suburb:"", postcode:"",
+    about:"", cancellationPolicy:"", categories:[], stylists:[], services:[], addons:[], promos:[],
+    loyalty:{enabled:false, pointsPerDollar:1, rewardThreshold:100, rewardText:"$10 off your next visit", rewardValue:10}
+  };
+
+  function applyAdminConfig(cfg){
+    if(!cfg) return;
+    const sc=cfg.salon||{};
+    ["name","tag","phone","address","city","region","about","cancellationPolicy","bufferTime","visible","mainImage","galleryImages"].forEach(k=>{if(sc[k]!==undefined) salon[k]=sc[k];});
+    salon.galleryImages=Array.isArray(salon.galleryImages)?salon.galleryImages:[];
+    if(sc.loyalty && typeof sc.loyalty==="object") salon.loyalty={enabled:!!sc.loyalty.enabled, pointsPerDollar:Number(sc.loyalty.pointsPerDollar)||1, rewardThreshold:Number(sc.loyalty.rewardThreshold)||100, rewardText:sc.loyalty.rewardText||"$10 off your next visit", rewardValue:Number(sc.loyalty.rewardValue)||0};
+    if(sc.hours) salon.hours=sc.hours;
+    if(Array.isArray(sc.categories)) salon.categories=sc.categories.slice();
+    if(Array.isArray(cfg.stylists)) salon.stylists=cfg.stylists.map(x=>({...x}));
+    if(Array.isArray(cfg.services)) salon.services=cfg.services.map(x=>({...x}));
+    if(Array.isArray(cfg.addons)) salon.addons=cfg.addons.map(x=>({...x}));
+    if(Array.isArray(cfg.promos)) salon.promos=cfg.promos.map(x=>({...x}));
+  }
+
+  async function reloadAdminConfigFromCloud(){
+    if(!currentSalonId) return;
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError}]=await Promise.all([
+      supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
+      supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle()
+    ]);
+    if(cfgError) throw cfgError;
+    if(salonError) throw salonError;
+    if(cfgRow){ applyAdminConfig(cfgRow.config); currentConfigVersion=cfgRow.config_version; }
+    if(salonRow){
+      salon.visible=salonRow.active!==false;
+      salon.city=salonRow.city||salon.city||""; salon.region=salonRow.region||salon.region||""; salon.suburb=salonRow.suburb||salon.suburb||""; salon.postcode=salonRow.postcode||salon.postcode||"";
+      salon.lat=salonRow.lat==null?null:Number(salonRow.lat); salon.lng=salonRow.lng==null?null:Number(salonRow.lng);
+      salon.addressVerified=!!salonRow.address_verified;
+      const meta=salonRow.metadata||{};
+      if(meta.main_image!==undefined) salon.mainImage=meta.main_image||"";
+      if(Array.isArray(meta.gallery_images)) salon.galleryImages=meta.gallery_images.slice();
+    }
+  }
+
+  function parseTimeMins(t){
+    const m=String(t||"").match(/(\d+):(\d+)\s*(AM|PM)/i); if(!m) return 0;
+    let h=Number(m[1])%12; if(m[3].toUpperCase()==="PM") h+=12; return h*60+Number(m[2]);
+  }
+  function buildAdminPayload(){
+    const DAY_NAMES=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    const dayIndex={Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7};
+    const openDays=DAY_NAMES.filter(d=>salon.hours[d]?.open).map(d=>dayIndex[d]);
+    const openHours=DAY_NAMES.filter(d=>salon.hours[d]?.open).map(d=>salon.hours[d]);
+    const legacyOpen=openHours.length?Math.min(...openHours.map(h=>parseTimeMins(h.start))):null;
+    const legacyClose=openHours.length?Math.max(...openHours.map(h=>parseTimeMins(h.end))):null;
+    const mins24=(m)=>m==null?"":`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}:00`;
+    return {
+      salon:{name:salon.name,tag:(salon.categories.length?salon.categories.join(" · "):salon.tag),phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
+      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x}))
+    };
+  }
+
+  function normalizeAndValidateSettings(){
+    salon.name=String(salon.name||"").trim();
+    if(!salon.name) throw new Error("Business name is required.");
+    salon.services.forEach(s=>{
+      s.name=String(s.name||"").trim(); if(!s.name) throw new Error("Every service needs a name.");
+      s.duration=Math.max(15,Math.min(480,Number(s.duration)||30));
+      s.price=Math.round(Math.max(0,Number(s.price)||0)*100)/100;
+      s.category=String(s.category||"").trim()||"Uncategorized";
+      if(!salon.categories.some(c=>c.toLowerCase()===s.category.toLowerCase())) salon.categories.push(s.category);
+      s.active=s.active!==false;
+    });
+    const serviceIds=new Set(salon.services.map(s=>String(s.id)));
+    salon.addons.forEach(a=>{
+      a.name=String(a.name||"").trim(); if(!a.name) throw new Error("Every add-on needs a name.");
+      a.price=Math.round(Math.max(0,Number(a.price)||0)*100)/100;
+      a.serviceIds=(Array.isArray(a.serviceIds)?a.serviceIds:[]).map(String).filter(id=>serviceIds.has(id));
+      a.active=a.active!==false;
+    });
+  }
+
+  async function saveAdminCloud(){
+    if(!currentSalonId) throw new Error("No venue is connected to this account.");
+    normalizeAndValidateSettings();
+    const payload=buildAdminPayload();
+    const args=currentConfigVersion==null?{payload}:{payload,expected_version:currentConfigVersion};
+    const {data,error}=await supabaseClient.rpc("admin_save_config",args);
+    if(error){
+      try{ await reloadAdminConfigFromCloud(); }catch(reloadErr){ console.warn("Blooma admin reload after failed save",reloadErr); }
+      throw error;
+    }
+    if(data?.config_version!=null) currentConfigVersion=data.config_version;
+    return data;
+  }
+
+  function persist(successMessage){
+    return saveAdminCloud().then(function(){
+      showToast(successMessage);
+      renderServicesUI();
+    }).catch(function(err){
+      showToast(err.message || "Save failed");
+      renderServicesUI();
+    });
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootServicesPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Services.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    try{ await reloadAdminConfigFromCloud(); }catch(err){ showToast(err.message||"Unable to load venue configuration"); }
+    document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
+    document.querySelector('.sb-venue-sub').textContent = [salon.suburb,salon.city].filter(Boolean).join(", ") || "Set your address";
+    document.title = salon.name ? `Services — ${salon.name}` : "Services — Blooma Business";
+    renderServicesUI();
+  }
+
   var currentServiceFilter = 'all';
 
   function slugify(name){
-    return name.replace(/[^a-zA-Z0-9]/g, '');
+    return String(name||"").replace(/[^a-zA-Z0-9]/g, '') || 'cat';
+  }
+
+  function randId(prefix){
+    return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  function formatDurationMinutes(total){
+    total = Number(total)||0;
+    const h = Math.floor(total/60), m = total%60;
+    if(h && m) return h + ' hr ' + m + ' min';
+    if(h) return h + ' hr';
+    return m + ' min';
+  }
+  function parseDurationToMinutes(str){
+    str = String(str||'').toLowerCase();
+    var hMatch = str.match(/(\d+)\s*h/);
+    var mMatch = str.match(/(\d+)\s*m/);
+    if(!hMatch && !mMatch){
+      var num = str.match(/\d+/);
+      return num ? Number(num[0]) : 0;
+    }
+    return (hMatch?Number(hMatch[1])*60:0) + (mMatch?Number(mMatch[1]):0);
+  }
+  function formatPrice(n){ return '$' + (Number(n)||0).toFixed(Number(n)%1===0?0:2); }
+  function parsePriceValue(str){
+    var m = String(str||'').match(/[\d.]+/);
+    return m ? Number(m[0]) : 0;
   }
 
   function lockPricePrefix(input, prefix){
@@ -1110,10 +1135,6 @@
   lockPricePrefix(document.getElementById('addonPrice'), '+$');
   lockPricePrefix(document.getElementById('editAddonPrice'), '+$');
 
-  function updateSvcSub(){
-    document.getElementById('svcSub').textContent = svcTotal + ' services across ' + svcCategoryCount + ' categor' + (svcCategoryCount === 1 ? 'y' : 'ies');
-  }
-
   function setServiceFilter(category){
     currentServiceFilter = category;
     document.querySelectorAll('#svcFilterTabs .filter-tab').forEach(function(tab){
@@ -1126,44 +1147,160 @@
     });
   }
 
+  function renderServicesUI(){
+    var services = salon.services;
+    var categories = salon.categories.length ? salon.categories : Array.from(new Set(services.map(function(s){return s.category;}).filter(Boolean)));
+
+    document.getElementById('svcCountValue').textContent = services.length;
+    document.getElementById('svcSub').textContent = services.length + ' service' + (services.length===1?'':'s') + ' across ' + categories.length + ' categor' + (categories.length===1?'y':'ies');
+    var avgPrice = services.length ? Math.round(services.reduce(function(a,s){return a+(Number(s.price)||0);},0)/services.length) : 0;
+    var avgDuration = services.length ? Math.round(services.reduce(function(a,s){return a+(Number(s.duration)||0);},0)/services.length) : 0;
+    var priceEl = document.querySelectorAll('.stat-card')[1]; if(priceEl) priceEl.querySelector('.stat-value').textContent = '$' + avgPrice;
+    var durEl = document.querySelectorAll('.stat-card')[2]; if(durEl) durEl.querySelector('.stat-value').textContent = avgDuration + ' min';
+
+    var tabsHost = document.getElementById('svcFilterTabs');
+    var addBtn = tabsHost.querySelector('.add-category-btn');
+    tabsHost.innerHTML = '<div class="filter-tab' + (currentServiceFilter==='all'?' active':'') + '" data-category="all" onclick="setServiceFilter(\'all\')">All</div>' +
+      categories.map(function(c){
+        return '<div class="filter-tab' + (currentServiceFilter===c?' active':'') + '" data-category="' + c.replace(/"/g,'&quot;') + '" onclick="setServiceFilter(\'' + c.replace(/'/g,"\\'") + '\')">' + c + '</div>';
+      }).join('');
+    tabsHost.appendChild(addBtn);
+
+    var container = document.getElementById('categoriesContainer');
+    container.innerHTML = categories.map(function(cat){
+      var slug = slugify(cat);
+      var rows = services.filter(function(s){ return s.category === cat; });
+      var display = (currentServiceFilter==='all' || currentServiceFilter===cat) ? '' : 'display:none;';
+      return '<div class="panel cat-panel" data-category="' + cat.replace(/"/g,'&quot;') + '" style="' + display + '">' +
+        '<div class="cat-panel-head"><h2>' + cat + ' <span class="count">' + rows.length + ' service' + (rows.length===1?'':'s') + '</span></h2>' +
+          '<div class="cat-add" onclick="openAddService(\'' + cat.replace(/'/g,"\\'") + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>' +
+        '</div>' +
+        '<div class="table-wrap"><table class="data"><thead><tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>' +
+        rows.map(function(s){
+          var subText = serviceStylistSubText(s.id);
+          return '<tr>' +
+            '<td><div class="svc-cell-name">' + s.name + (s.isNew?' <span class="tag-pill tag-new">New</span>':'') + '</div><div class="svc-cell-sub">' + subText + '</div></td>' +
+            '<td>' + formatDurationMinutes(s.duration) + '</td>' +
+            '<td>' + formatPrice(s.price) + '</td>' +
+            '<td><div class="toggle' + (s.active!==false?' on':'') + '" onclick="toggleServiceActive(\'' + s.id + '\')"></div></td>' +
+            '<td><div class="row-action" onclick="openEditService(\'' + s.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table></div></div>';
+    }).join('');
+
+    var addonsBody = document.getElementById('tbodyAddons');
+    document.getElementById('countAddons').textContent = salon.addons.length + ' add-on' + (salon.addons.length===1?'':'s');
+    addonsBody.innerHTML = salon.addons.map(function(a){
+      var names = (a.serviceIds||[]).map(function(id){ var s=services.find(function(x){return x.id===id;}); return s?s.name:null; }).filter(Boolean);
+      return '<tr>' +
+        '<td><div class="svc-cell-name">' + a.name + '</div><div class="svc-cell-sub">' + (names.length?names.join(', '):'Not linked to a service yet') + '</div></td>' +
+        '<td>+' + formatPrice(a.price) + '</td>' +
+        '<td><div class="toggle' + (a.active!==false?' on':'') + '" onclick="toggleAddonActive(\'' + a.id + '\')"></div></td>' +
+        '<td><div class="row-action" onclick="openEditAddon(\'' + a.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function toggleServiceActive(id){
+    var s = salon.services.find(function(x){return x.id===id;});
+    if(!s) return;
+    s.active = s.active===false;
+    persist(s.active ? 'Service enabled' : 'Service disabled');
+  }
+  function toggleAddonActive(id){
+    var a = salon.addons.find(function(x){return x.id===id;});
+    if(!a) return;
+    a.active = a.active===false;
+    persist(a.active ? 'Add-on enabled' : 'Add-on disabled');
+  }
+
+  function serviceStylistIds(serviceId){
+    return salon.stylists.filter(function(st){ return Array.isArray(st.serviceIds) && st.serviceIds.length && st.serviceIds.indexOf(serviceId)!==-1; }).map(function(st){ return st.id; });
+  }
+  function serviceStylistSubText(serviceId){
+    var restricted = salon.stylists.some(function(st){ return Array.isArray(st.serviceIds) && st.serviceIds.length; });
+    if(!restricted) return 'All stylists';
+    var names = serviceStylistIds(serviceId).map(function(id){ var st=salon.stylists.find(function(x){return x.id===id;}); return st?st.name:null; }).filter(Boolean);
+    return names.length ? names.join(', ') : 'All stylists';
+  }
+  function applyServiceStylistSelection(serviceId, checkedIds){
+    salon.stylists.forEach(function(st){
+      var ids = Array.isArray(st.serviceIds) ? st.serviceIds.slice() : [];
+      var has = ids.indexOf(serviceId)!==-1;
+      var checked = checkedIds.indexOf(st.id)!==-1;
+      if(checked && !has) ids.push(serviceId);
+      if(!checked && has) ids = ids.filter(function(x){return x!==serviceId;});
+      st.serviceIds = ids;
+    });
+  }
+
+  function populateCategorySelect(selectId, current){
+    var select = document.getElementById(selectId);
+    select.innerHTML = salon.categories.map(function(c){ return '<option value="' + c.replace(/"/g,'&quot;') + '">' + c + '</option>'; }).join('');
+    if(current) select.value = current;
+  }
+
+  function populateStylistOptions(containerId, checkedIds){
+    var container = document.getElementById(containerId);
+    if(!salon.stylists.length){
+      container.innerHTML = '<div class="addon-service-empty">No team members yet — every stylist can perform this by default.</div>';
+      return;
+    }
+    container.innerHTML = salon.stylists.map(function(st){
+      var checked = checkedIds.indexOf(st.id) !== -1 ? ' checked' : '';
+      var id = containerId + 'Opt' + st.id;
+      return '<label class="addon-service-option" for="' + id + '">' +
+        '<input type="checkbox" id="' + id + '" value="' + st.id + '"' + checked + '>' +
+        '<span>' + st.name + '</span>' +
+        (st.specialty ? '<span class="cat">' + st.specialty + '</span>' : '') +
+      '</label>';
+    }).join('');
+  }
+  function getCheckedValues(containerId){
+    return Array.from(document.getElementById(containerId).querySelectorAll('input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
+  }
+  function populateAddonServiceOptions(containerId, checkedIds){
+    var container = document.getElementById(containerId);
+    if(!salon.services.length){
+      container.innerHTML = '<div class="addon-service-empty">Add a service first to link add-ons to it.</div>';
+      return;
+    }
+    container.innerHTML = salon.services.map(function(s){
+      var checked = checkedIds.indexOf(s.id) !== -1 ? ' checked' : '';
+      var id = containerId + 'Opt' + s.id;
+      return '<label class="addon-service-option" for="' + id + '">' +
+        '<input type="checkbox" id="' + id + '" value="' + s.id + '"' + checked + '>' +
+        '<span>' + s.name + '</span>' +
+        '<span class="cat">' + s.category + '</span>' +
+      '</label>';
+    }).join('');
+  }
+
   function openAddService(category){
-    document.getElementById('svcCategory').value = category;
+    populateCategorySelect('svcCategory', category || salon.categories[0] || '');
     populateStylistOptions('svcStylistList', []);
-    var priceInput = document.getElementById('svcPrice');
-    if(!priceInput.value) setPriceValue(priceInput, '$', '');
+    document.getElementById('svcDuration').value = '';
+    setPriceValue(document.getElementById('svcPrice'), '$', '');
     document.getElementById('addServiceOverlay').classList.add('open');
   }
   function closeAddService(){
     document.getElementById('addServiceOverlay').classList.remove('open');
     document.getElementById('addServiceForm').reset();
-    setPriceValue(document.getElementById('svcPrice'), '$', '');
   }
   function submitAddService(evt){
     evt.preventDefault();
     var name = document.getElementById('svcName').value.trim();
     var category = document.getElementById('svcCategory').value;
-    var duration = document.getElementById('svcDuration').value.trim();
-    var price = document.getElementById('svcPrice').value.trim();
-    if(!name || !duration || !priceHasValue(price)) return false;
-    var stylists = getCheckedStylistNames('svcStylistList');
-
-    var row = document.createElement('tr');
-    row.setAttribute('data-stylists', JSON.stringify(stylists));
-    row.innerHTML =
-      '<td><div class="svc-cell-name">' + name + '</div><div class="svc-cell-sub">' + svcStylistSubText(stylists) + '</div></td>' +
-      '<td>' + duration + '</td><td>' + price + '</td>' +
-      '<td><div class="toggle on"></div></td>' +
-      '<td><div class="row-action" onclick="openEditService(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>';
-    row.querySelector('.toggle').addEventListener('click', function(){ row.querySelector('.toggle').classList.toggle('on'); });
-    document.getElementById('tbody' + slugify(category)).appendChild(row);
-
-    svcCounts[category] += 1;
-    svcTotal += 1;
-    document.getElementById('count' + slugify(category)).textContent = svcCounts[category] + ' service' + (svcCounts[category] === 1 ? '' : 's');
-    document.getElementById('svcCountValue').textContent = svcTotal;
-    updateSvcSub();
-
+    var duration = parseDurationToMinutes(document.getElementById('svcDuration').value);
+    var price = parsePriceValue(document.getElementById('svcPrice').value);
+    if(!name || !duration) return false;
+    var stylistIds = getCheckedValues('svcStylistList');
+    var id = randId('svc');
+    salon.services.push({ id:id, name:name, category:category, duration:duration, price:price, active:true, isNew:false });
+    applyServiceStylistSelection(id, stylistIds);
     closeAddService();
+    persist('Service added');
   }
   document.getElementById('addServiceOverlay').addEventListener('click', function(e){
     if(e.target === this) closeAddService();
@@ -1180,94 +1317,41 @@
     evt.preventDefault();
     var name = document.getElementById('catName').value.trim();
     if(!name) return false;
-    var slug = slugify(name);
-    if(document.getElementById('tbody' + slug)){
+    if(salon.categories.some(function(c){return c.toLowerCase()===name.toLowerCase();})){
       closeAddCategory();
       setServiceFilter(name);
       return false;
     }
-
-    // Add the filter pill (before the "Add category" trigger)
-    var tab = document.createElement('div');
-    tab.className = 'filter-tab';
-    tab.setAttribute('data-category', name);
-    tab.textContent = name;
-    tab.onclick = function(){ setServiceFilter(name); };
-    document.getElementById('svcFilterTabs').insertBefore(tab, document.querySelector('.add-category-btn'));
-
-    // Add the empty category panel after the last existing one
-    var panel = document.createElement('div');
-    panel.className = 'panel cat-panel';
-    panel.setAttribute('data-category', name);
-    panel.innerHTML =
-      '<div class="cat-panel-head">' +
-        '<h2>' + name + ' <span class="count" id="count' + slug + '">0 services</span></h2>' +
-        '<div class="cat-add" onclick="openAddService(\'' + name + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>' +
-      '</div>' +
-      '<div class="table-wrap">' +
-        '<table class="data">' +
-          '<thead><tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr></thead>' +
-          '<tbody id="tbody' + slug + '"></tbody>' +
-        '</table>' +
-      '</div>';
-    var addonsPanel = document.getElementById('addonsPanel');
-    addonsPanel.parentNode.insertBefore(panel, addonsPanel);
-
-    // Register the new category and add it to the Add Service form's dropdown
-    svcCounts[name] = 0;
-    svcCategoryCount += 1;
-    updateSvcSub();
-    var option = document.createElement('option');
-    option.textContent = name;
-    document.getElementById('svcCategory').appendChild(option);
-
+    salon.categories.push(name);
     closeAddCategory();
+    persist('Category added');
     setServiceFilter(name);
   }
   document.getElementById('addCategoryOverlay').addEventListener('click', function(e){
     if(e.target === this) closeAddCategory();
   });
 
-  var currentEditRow = null;
-  var currentEditOriginalCategory = null;
+  var currentEditServiceId = null;
   var deleteConfirmPending = false;
 
-  function openEditService(el){
-    var row = el.closest('tr');
-    var catPanel = el.closest('.cat-panel');
-    var category = catPanel.getAttribute('data-category');
-    currentEditRow = row;
-    currentEditOriginalCategory = category;
+  function openEditService(id){
+    var s = salon.services.find(function(x){return x.id===id;});
+    if(!s) return;
+    currentEditServiceId = id;
     deleteConfirmPending = false;
     resetDeleteBtn();
 
-    document.getElementById('editSvcName').value = row.querySelector('.svc-cell-name').textContent;
-    document.getElementById('editSvcDuration').value = row.cells[1].textContent;
-    setPriceValue(document.getElementById('editSvcPrice'), '$', row.cells[2].textContent);
-
-    var stylists = [];
-    if(row.hasAttribute('data-stylists')){
-      try{ stylists = JSON.parse(row.getAttribute('data-stylists') || '[]'); }catch(e){}
-    } else {
-      var subText = row.querySelector('.svc-cell-sub').textContent.trim();
-      if(subText && subText !== 'All stylists') stylists = subText.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-    }
-    populateStylistOptions('editSvcStylistList', stylists);
-
-    var select = document.getElementById('editSvcCategory');
-    select.innerHTML = '';
-    document.querySelectorAll('.cat-panel').forEach(function(p){
-      var opt = document.createElement('option');
-      opt.textContent = p.getAttribute('data-category');
-      select.appendChild(opt);
-    });
-    select.value = category;
+    document.getElementById('editSvcName').value = s.name;
+    document.getElementById('editSvcDuration').value = formatDurationMinutes(s.duration);
+    setPriceValue(document.getElementById('editSvcPrice'), '$', String(s.price));
+    populateStylistOptions('editSvcStylistList', serviceStylistIds(id));
+    populateCategorySelect('editSvcCategory', s.category);
 
     document.getElementById('editServiceOverlay').classList.add('open');
   }
   function closeEditService(){
     document.getElementById('editServiceOverlay').classList.remove('open');
-    currentEditRow = null;
+    currentEditServiceId = null;
     deleteConfirmPending = false;
     resetDeleteBtn();
   }
@@ -1277,186 +1361,80 @@
   }
   function submitEditService(evt){
     evt.preventDefault();
-    if(!currentEditRow) return false;
+    if(!currentEditServiceId) return false;
+    var s = salon.services.find(function(x){return x.id===currentEditServiceId;});
+    if(!s) return false;
     var name = document.getElementById('editSvcName').value.trim();
-    var newCategory = document.getElementById('editSvcCategory').value;
-    var duration = document.getElementById('editSvcDuration').value.trim();
-    var price = document.getElementById('editSvcPrice').value.trim();
-    if(!name || !duration || !priceHasValue(price)) return false;
-    var stylists = getCheckedStylistNames('editSvcStylistList');
-
-    currentEditRow.setAttribute('data-stylists', JSON.stringify(stylists));
-    currentEditRow.querySelector('.svc-cell-name').textContent = name;
-    currentEditRow.querySelector('.svc-cell-sub').textContent = svcStylistSubText(stylists);
-    currentEditRow.cells[1].textContent = duration;
-    currentEditRow.cells[2].textContent = price;
-
-    if(newCategory !== currentEditOriginalCategory){
-      svcCounts[currentEditOriginalCategory] -= 1;
-      svcCounts[newCategory] = (svcCounts[newCategory] || 0) + 1;
-      document.getElementById('count' + slugify(currentEditOriginalCategory)).textContent =
-        svcCounts[currentEditOriginalCategory] + ' service' + (svcCounts[currentEditOriginalCategory] === 1 ? '' : 's');
-      document.getElementById('count' + slugify(newCategory)).textContent =
-        svcCounts[newCategory] + ' service' + (svcCounts[newCategory] === 1 ? '' : 's');
-      document.getElementById('tbody' + slugify(newCategory)).appendChild(currentEditRow);
-    }
-
+    var category = document.getElementById('editSvcCategory').value;
+    var duration = parseDurationToMinutes(document.getElementById('editSvcDuration').value);
+    var price = parsePriceValue(document.getElementById('editSvcPrice').value);
+    if(!name || !duration) return false;
+    s.name = name; s.category = category; s.duration = duration; s.price = price;
+    applyServiceStylistSelection(currentEditServiceId, getCheckedValues('editSvcStylistList'));
     closeEditService();
+    persist('Service updated');
   }
   function deleteEditService(){
-    if(!currentEditRow) return;
+    if(!currentEditServiceId) return;
     if(!deleteConfirmPending){
       deleteConfirmPending = true;
       var btn = document.querySelector('#editServiceOverlay .btn-danger');
       btn.textContent = 'Confirm delete?';
       return;
     }
-    var category = currentEditOriginalCategory;
-    currentEditRow.parentNode.removeChild(currentEditRow);
-    svcCounts[category] -= 1;
-    svcTotal -= 1;
-    document.getElementById('count' + slugify(category)).textContent =
-      svcCounts[category] + ' service' + (svcCounts[category] === 1 ? '' : 's');
-    document.getElementById('svcCountValue').textContent = svcTotal;
-    updateSvcSub();
+    var id = currentEditServiceId;
+    salon.services = salon.services.filter(function(s){return s.id!==id;});
+    salon.stylists.forEach(function(st){ if(Array.isArray(st.serviceIds)) st.serviceIds = st.serviceIds.filter(function(x){return x!==id;}); });
+    salon.addons.forEach(function(a){ if(Array.isArray(a.serviceIds)) a.serviceIds = a.serviceIds.filter(function(x){return x!==id;}); });
     closeEditService();
+    persist('Service deleted');
   }
   document.getElementById('editServiceOverlay').addEventListener('click', function(e){
     if(e.target === this) closeEditService();
   });
 
-  var addonCount = 3;
-
-  function updateAddonCount(){
-    document.getElementById('countAddons').textContent = addonCount + ' add-on' + (addonCount === 1 ? '' : 's');
-  }
-
-  function allServiceOptions(){
-    var options = [];
-    document.querySelectorAll('.cat-panel').forEach(function(panel){
-      if(panel.id === 'addonsPanel') return;
-      var category = panel.getAttribute('data-category');
-      panel.querySelectorAll('tbody tr').forEach(function(row){
-        var nameEl = row.querySelector('.svc-cell-name');
-        if(nameEl) options.push({ name: nameEl.textContent, category: category });
-      });
-    });
-    return options;
-  }
-
-  function populateAddonServiceOptions(containerId, checkedNames){
-    var container = document.getElementById(containerId);
-    var options = allServiceOptions();
-    if(!options.length){
-      container.innerHTML = '<div class="addon-service-empty">Add a service first to link add-ons to it.</div>';
-      return;
-    }
-    container.innerHTML = options.map(function(opt, i){
-      var checked = checkedNames.indexOf(opt.name) !== -1 ? ' checked' : '';
-      var id = containerId + 'Opt' + i;
-      return '<label class="addon-service-option" for="' + id + '">' +
-        '<input type="checkbox" id="' + id + '" value="' + opt.name.replace(/"/g,'&quot;') + '"' + checked + '>' +
-        '<span>' + opt.name + '</span>' +
-        '<span class="cat">' + opt.category + '</span>' +
-      '</label>';
-    }).join('');
-  }
-
-  function getCheckedServiceNames(containerId){
-    return Array.from(document.getElementById(containerId).querySelectorAll('input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
-  }
-
-  function addonSubText(names){
-    if(!names.length) return 'Not linked to a service yet';
-    return names.join(', ');
-  }
-
-  var STYLIST_CATALOG = [
-    { name: 'Fana R.', role: 'Senior Colorist' },
-    { name: 'Jordan M.', role: 'Master Stylist' },
-    { name: 'Naomi K.', role: 'Stylist' },
-    { name: 'Chris T.', role: 'Blowout Specialist' }
-  ];
-
-  function populateStylistOptions(containerId, checkedNames){
-    var container = document.getElementById(containerId);
-    container.innerHTML = STYLIST_CATALOG.map(function(st, i){
-      var checked = checkedNames.indexOf(st.name) !== -1 ? ' checked' : '';
-      var id = containerId + 'Opt' + i;
-      return '<label class="addon-service-option" for="' + id + '">' +
-        '<input type="checkbox" id="' + id + '" value="' + st.name.replace(/"/g,'&quot;') + '"' + checked + '>' +
-        '<span>' + st.name + '</span>' +
-        '<span class="cat">' + st.role + '</span>' +
-      '</label>';
-    }).join('');
-  }
-
-  function getCheckedStylistNames(containerId){
-    return Array.from(document.getElementById(containerId).querySelectorAll('input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
-  }
-
-  function svcStylistSubText(names){
-    if(!names.length) return 'All stylists';
-    return names.join(', ');
-  }
-
   function openAddAddon(){
     populateAddonServiceOptions('addonServiceList', []);
-    var priceInput = document.getElementById('addonPrice');
-    if(!priceInput.value) setPriceValue(priceInput, '+$', '');
+    setPriceValue(document.getElementById('addonPrice'), '+$', '');
     document.getElementById('addAddonOverlay').classList.add('open');
   }
   function closeAddAddon(){
     document.getElementById('addAddonOverlay').classList.remove('open');
     document.getElementById('addAddonForm').reset();
-    setPriceValue(document.getElementById('addonPrice'), '+$', '');
   }
   function submitAddAddon(evt){
     evt.preventDefault();
     var name = document.getElementById('addonName').value.trim();
-    var duration = document.getElementById('addonDuration').value.trim();
-    var price = document.getElementById('addonPrice').value.trim();
-    if(!name || !duration || !priceHasValue(price)) return false;
-    var services = getCheckedServiceNames('addonServiceList');
-
-    var row = document.createElement('tr');
-    row.setAttribute('data-services', JSON.stringify(services));
-    row.innerHTML =
-      '<td><div class="svc-cell-name">' + name + '</div><div class="svc-cell-sub">' + addonSubText(services) + '</div></td>' +
-      '<td>' + duration + '</td><td>' + price + '</td>' +
-      '<td><div class="toggle on"></div></td>' +
-      '<td><div class="row-action" onclick="openEditAddon(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>';
-    row.querySelector('.toggle').addEventListener('click', function(){ row.querySelector('.toggle').classList.toggle('on'); });
-    document.getElementById('tbodyAddons').appendChild(row);
-
-    addonCount += 1;
-    updateAddonCount();
+    var price = parsePriceValue(document.getElementById('addonPrice').value);
+    if(!name) return false;
+    var serviceIds = getCheckedValues('addonServiceList');
+    salon.addons.push({ id:randId('addon'), name:name, price:price, active:true, serviceIds:serviceIds });
     closeAddAddon();
+    persist('Add-on added');
   }
   document.getElementById('addAddonOverlay').addEventListener('click', function(e){
     if(e.target === this) closeAddAddon();
   });
 
-  var currentEditAddonRow = null;
+  var currentEditAddonId = null;
   var deleteAddonConfirmPending = false;
 
-  function openEditAddon(el){
-    currentEditAddonRow = el.closest('tr');
+  function openEditAddon(id){
+    var a = salon.addons.find(function(x){return x.id===id;});
+    if(!a) return;
+    currentEditAddonId = id;
     deleteAddonConfirmPending = false;
     resetDeleteAddonBtn();
 
-    document.getElementById('editAddonName').value = currentEditAddonRow.querySelector('.svc-cell-name').textContent;
-    document.getElementById('editAddonDuration').value = currentEditAddonRow.cells[1].textContent;
-    setPriceValue(document.getElementById('editAddonPrice'), '+$', currentEditAddonRow.cells[2].textContent);
-    var linked = [];
-    try{ linked = JSON.parse(currentEditAddonRow.getAttribute('data-services') || '[]'); }catch(e){}
-    populateAddonServiceOptions('editAddonServiceList', linked);
+    document.getElementById('editAddonName').value = a.name;
+    setPriceValue(document.getElementById('editAddonPrice'), '+$', String(a.price));
+    populateAddonServiceOptions('editAddonServiceList', a.serviceIds||[]);
 
     document.getElementById('editAddonOverlay').classList.add('open');
   }
   function closeEditAddon(){
     document.getElementById('editAddonOverlay').classList.remove('open');
-    currentEditAddonRow = null;
+    currentEditAddonId = null;
     deleteAddonConfirmPending = false;
     resetDeleteAddonBtn();
   }
@@ -1466,37 +1444,34 @@
   }
   function submitEditAddon(evt){
     evt.preventDefault();
-    if(!currentEditAddonRow) return false;
+    if(!currentEditAddonId) return false;
+    var a = salon.addons.find(function(x){return x.id===currentEditAddonId;});
+    if(!a) return false;
     var name = document.getElementById('editAddonName').value.trim();
-    var duration = document.getElementById('editAddonDuration').value.trim();
-    var price = document.getElementById('editAddonPrice').value.trim();
-    if(!name || !duration || !priceHasValue(price)) return false;
-    var services = getCheckedServiceNames('editAddonServiceList');
-
-    currentEditAddonRow.setAttribute('data-services', JSON.stringify(services));
-    currentEditAddonRow.querySelector('.svc-cell-name').textContent = name;
-    currentEditAddonRow.querySelector('.svc-cell-sub').textContent = addonSubText(services);
-    currentEditAddonRow.cells[1].textContent = duration;
-    currentEditAddonRow.cells[2].textContent = price;
-
+    var price = parsePriceValue(document.getElementById('editAddonPrice').value);
+    if(!name) return false;
+    a.name = name; a.price = price; a.serviceIds = getCheckedValues('editAddonServiceList');
     closeEditAddon();
+    persist('Add-on updated');
   }
   function deleteEditAddon(){
-    if(!currentEditAddonRow) return;
+    if(!currentEditAddonId) return;
     if(!deleteAddonConfirmPending){
       deleteAddonConfirmPending = true;
       var btn = document.querySelector('#editAddonOverlay .btn-danger');
       btn.textContent = 'Confirm delete?';
       return;
     }
-    currentEditAddonRow.parentNode.removeChild(currentEditAddonRow);
-    addonCount -= 1;
-    updateAddonCount();
+    var id = currentEditAddonId;
+    salon.addons = salon.addons.filter(function(a){return a.id!==id;});
     closeEditAddon();
+    persist('Add-on deleted');
   }
   document.getElementById('editAddonOverlay').addEventListener('click', function(e){
     if(e.target === this) closeEditAddon();
   });
+
+  bootServicesPage();
 </script>
 
 </body>
