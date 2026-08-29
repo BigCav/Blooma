@@ -192,7 +192,11 @@
   .launch-check{
     width:68px;height:68px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;
     justify-content:center;margin-bottom:22px;color:var(--purple);
+    animation:tickPop .4s cubic-bezier(.34,1.56,.64,1) both;
   }
+  .launch-check svg polyline{stroke-dasharray:26;stroke-dashoffset:26;animation:tickDraw .35s ease forwards .25s;}
+  @keyframes tickPop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  @keyframes tickDraw{to{stroke-dashoffset:0;}}
 
   .modal-overlay{
     position:absolute;inset:0;background:rgba(36,31,51,.45);display:flex;align-items:flex-end;justify-content:center;
@@ -405,6 +409,7 @@ let state = {
   address: "",
   city: "",
   region: "",
+  postcode: "",
   phone: "",
   description: "",
   errors: {},
@@ -726,6 +731,7 @@ async function createVenueRecord(){
     p_phone: state.phone.trim(),
     p_description: state.description.trim(),
     p_hours: state.hours,
+    p_postcode: state.postcode.trim(),
   });
   if (error) throw error;
   state.salonId = data;
@@ -840,10 +846,14 @@ function renderBusinessStep(){
         ${e.city?`<p class="hint" style="color:var(--red);">${e.city}</p>`:""}
       </div>
       <div class="field">
-        <label>Region</label>
-        <input id="regionInput" class="${e.region?'error':''}" value="${escapeAttr(state.region)}" />
-        ${e.region?`<p class="hint" style="color:var(--red);">${e.region}</p>`:""}
+        <label>Postcode</label>
+        <input id="postcodeInput" inputmode="numeric" value="${escapeAttr(state.postcode)}" />
       </div>
+    </div>
+    <div class="field">
+      <label>Region</label>
+      <input id="regionInput" class="${e.region?'error':''}" value="${escapeAttr(state.region)}" />
+      ${e.region?`<p class="hint" style="color:var(--red);">${e.region}</p>`:""}
     </div>
     <div class="field">
       <label>Contact phone</label>
@@ -956,7 +966,7 @@ function renderReviewStep(){
         <div class="summary-row"><span class="label">Name</span><span class="value">${escapeHtml(state.name)}</span></div>
         <div class="summary-row"><span class="label">Categories</span><span class="value">${state.categories.map(escapeHtml).join(", ")}</span></div>
         <div class="summary-row"><span class="label">Address</span><span class="value">${escapeHtml(state.address)}</span></div>
-        <div class="summary-row"><span class="label">Location</span><span class="value">${escapeHtml(state.city)}, ${escapeHtml(state.region)}</span></div>
+        <div class="summary-row"><span class="label">Location</span><span class="value">${escapeHtml(state.city)}${state.postcode?` ${escapeHtml(state.postcode)}`:""}, ${escapeHtml(state.region)}</span></div>
         <div class="summary-row"><span class="label">Phone</span><span class="value">${escapeHtml(state.phone)}</span></div>
       </div>
     </div>
@@ -1594,6 +1604,8 @@ function bindEvents(){
   if (addressInput) addressInput.addEventListener("input", e=>{ state.address = e.target.value; syncNextBtn(); });
   const cityInput = document.getElementById("cityInput");
   if (cityInput) cityInput.addEventListener("input", e=>{ state.city = e.target.value; syncNextBtn(); });
+  const postcodeInput = document.getElementById("postcodeInput");
+  if (postcodeInput) postcodeInput.addEventListener("input", e=>{ state.postcode = e.target.value; syncNextBtn(); });
   const regionInput = document.getElementById("regionInput");
   if (regionInput) regionInput.addEventListener("input", e=>{ state.region = e.target.value; syncNextBtn(); });
   const phoneInput = document.getElementById("phoneInput");

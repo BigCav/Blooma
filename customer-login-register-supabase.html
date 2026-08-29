@@ -118,7 +118,11 @@
   .welcome-check{
     width:68px;height:68px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;
     justify-content:center;margin-bottom:22px;color:var(--purple);
+    animation:tickPop .4s cubic-bezier(.34,1.56,.64,1) both;
   }
+  .welcome-check svg polyline{stroke-dasharray:26;stroke-dashoffset:26;animation:tickDraw .35s ease forwards .25s;}
+  @keyframes tickPop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  @keyframes tickDraw{to{stroke-dashoffset:0;}}
 
   .auth-notice{font-size:12.5px;line-height:1.5;color:var(--ink-mute);background:var(--purple-pastel-2);border:1px solid var(--border-2);border-radius:12px;padding:11px 12px;margin:0 0 16px;}
   .auth-notice strong{color:var(--ink);}
@@ -345,7 +349,6 @@ async function finishCustomerRegistration(){
   });
   await applyCustomerSession(result.session);
   state.customerUserId=result.user_id||"";
-  try{ await resendCustomerConfirmationEmail(state.customerUserId); }catch(err){ console.warn("Blooma customer verification email",err); }
   try{
     await supabaseClient.functions.invoke("send-email",{body:{type:"welcome",to:email,data:{firstName:state.firstName.trim(),appUrl:`${location.origin}${customerAppDestination()}`}}});
   }catch(err){ console.warn("Blooma welcome email",err); }
@@ -447,9 +450,9 @@ function renderWelcome(){
         <div class="welcome-check">${icon('check')}</div>
         <h1 class="step-title" style="margin-bottom:8px;">You're all set!</h1>
         <p class="step-sub" style="max-width:330px;margin:0 auto;">
-          We’ve sent a confirmation email to <strong>${escapeHtml(state.email)}</strong>. Your customer login is separate from any Blooma for Business login using the same email. You can continue now and confirm your email when convenient. If you can’t find it, check your spam or junk folder.
+          Your account is ready to use. Want to verify <strong>${escapeHtml(state.email)}</strong>? We can send you a confirmation link anytime.
         </p>
-        <button type="button" id="welcomeResendConfirmationBtn" style="margin-top:14px;border:0;background:transparent;padding:6px;color:var(--purple);font:inherit;font-size:13px;font-weight:750;cursor:pointer;">Resend confirmation email</button>
+        <button type="button" id="welcomeResendConfirmationBtn" style="margin-top:14px;border:0;background:transparent;padding:6px;color:var(--purple);font:inherit;font-size:13px;font-weight:750;cursor:pointer;">Send confirmation email</button>
       </div>
       <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
         <button class="primary-btn" id="customerContinueBtn">Continue to Blooma</button>
@@ -677,7 +680,7 @@ function render(){
     if(resendBtn) resendBtn.addEventListener("click",async ()=>{
       resendBtn.disabled=true; resendBtn.textContent="Sending…";
       try{ await resendCustomerConfirmationEmail(); resendBtn.textContent="Sent — check your email"; }
-      catch(err){ resendBtn.disabled=false; resendBtn.textContent="Try resending confirmation email"; }
+      catch(err){ resendBtn.disabled=false; resendBtn.textContent="Try sending confirmation email"; }
     });
     return;
   }
