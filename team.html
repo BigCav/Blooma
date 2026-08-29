@@ -146,13 +146,14 @@
     .sidebar{
       left:0; right:0; top:auto; bottom:0; width:auto; max-width:480px; margin:0 auto;
       height:auto; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      overflow-anchor:none; will-change:transform;
       border-radius:22px 22px 0 0;
       border-right:none; border-top:1px solid var(--border);
       box-shadow:0 -18px 40px rgba(0,0,0,.55);
-      transform:translateY(100%);
+      transform:translateY(100%) translateZ(0);
       transition:transform .25s ease;
     }
-    .sidebar.open{transform:translateY(0);}
+    .sidebar.open{transform:translateY(0) translateZ(0);}
   }
 
   /* ---------- MAIN ---------- */
@@ -617,7 +618,7 @@
         <div class="sb-user-name" id="sbUserName">—</div>
         <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
   </aside>
 
@@ -822,10 +823,17 @@
   var menuBtn = document.getElementById('menuBtn');
   var closeBtn = document.getElementById('sbClose');
 
-  function openSb(){ sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function openSb(){ sidebar.scrollTop = 0; sidebar.classList.add('open'); overlay.classList.add('open'); }
   function closeSb(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
 
   menuBtn.addEventListener('click', openSb);
+  var sbLogoutBtn = document.getElementById('sbLogoutBtn');
+  if(sbLogoutBtn){
+    sbLogoutBtn.addEventListener('click', async function(){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      location.href = '/business-auth?view=login';
+    });
+  }
   closeBtn.addEventListener('click', closeSb);
   overlay.addEventListener('click', closeSb);
 
