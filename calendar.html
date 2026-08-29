@@ -154,6 +154,10 @@
       transition:transform .25s ease;
     }
     .sidebar.open{transform:translateY(0) translateZ(0);}
+    /* The sidebar doubles as a mobile bottom sheet, so it (not the nav list inside it) owns
+       scrolling here — nav no longer has its own independent scroll container, which was
+       fighting the sheet's during the open transition and causing a one-frame scroll glitch. */
+    .sb-nav{overflow:visible; flex:none;}
   }
 
   /* ---------- MAIN ---------- */
@@ -721,7 +725,7 @@
   var menuBtn = document.getElementById('menuBtn');
   var closeBtn = document.getElementById('sbClose');
 
-  function openSb(){ sidebar.scrollTop = 0; sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function openSb(){ sidebar.scrollTop = 0; var sbNav = sidebar.querySelector('.sb-nav'); if(sbNav) sbNav.scrollTop = 0; sidebar.classList.add('open'); overlay.classList.add('open'); }
   function closeSb(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
 
   menuBtn.addEventListener('click', openSb);
