@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -477,7 +504,9 @@
 
   /* ---------- TWO COL LAYOUT ---------- */
   .rp-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+  .rp-grid > *{min-width:0;}
   @media (min-width:1100px){ .rp-grid{grid-template-columns:1.3fr 1fr;} }
+  .rp-empty{font-size:12.5px; color:var(--text-faint); padding:10px 0;}
 </style>
 </head>
 
@@ -500,8 +529,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -519,14 +548,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -540,7 +570,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -561,10 +598,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -576,7 +613,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -608,143 +646,50 @@
     </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Total revenue</div>
-        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-      </div>
-      <div class="stat-value">$38,420</div>
-      <div class="stat-delta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 19V5M5 12l7-7 7 7"/></svg>+18% <span class="muted">vs July</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Total bookings</div>
-        <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
-      </div>
-      <div class="stat-value">486</div>
-      <div class="stat-delta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 19V5M5 12l7-7 7 7"/></svg>+9% <span class="muted">vs July</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">New clients</div>
-        <div class="stat-icon" style="background:var(--violet-soft); color:var(--violet-text);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M18 4v6M21 7h-6"/></svg></div>
-      </div>
-      <div class="stat-value">38</div>
-      <div class="stat-delta down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>-4% <span class="muted">vs July</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Avg. ticket size</div>
-        <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></div>
-      </div>
-      <div class="stat-value">$79</div>
-      <div class="stat-delta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 19V5M5 12l7-7 7 7"/></svg>+3% <span class="muted">vs July</span></div>
-    </div>
+  <div class="stats-grid" id="rpStatsGrid1">
+    <div class="rp-empty">Loading…</div>
+  </div>
+  <div class="stats-grid" id="rpStatsGrid2" style="margin-top:-10px;">
   </div>
 
   <div class="rp-grid">
     <div class="panel">
       <div class="panel-head">
         <h2>Revenue trend</h2>
-        <span class="link" style="color:var(--text-faint); font-weight:600;">August 2026</span>
+        <span class="link" style="color:var(--text-faint); font-weight:600;" id="rpTrendLabel"></span>
       </div>
-      <div class="big-chart">
-        <div class="big-bar-wrap"><div class="big-bar-value">$7.8k</div><div class="big-bar" style="height:98px;"></div><div class="big-bar-label">Week 1</div></div>
-        <div class="big-bar-wrap"><div class="big-bar-value">$9.1k</div><div class="big-bar" style="height:114px;"></div><div class="big-bar-label">Week 2</div></div>
-        <div class="big-bar-wrap"><div class="big-bar-value">$8.4k</div><div class="big-bar" style="height:105px;"></div><div class="big-bar-label">Week 3</div></div>
-        <div class="big-bar-wrap peak"><div class="big-bar-value">$13.1k</div><div class="big-bar" style="height:164px;"></div><div class="big-bar-label">Week 4</div></div>
-      </div>
+      <div class="big-chart" id="rpTrendChart"></div>
     </div>
 
     <div class="panel">
       <div class="panel-head">
         <h2>Bookings by service</h2>
       </div>
-      <div class="bd-row">
-        <div class="bd-top"><span>Haircuts</span><span class="val">34%</span></div>
-        <div class="bd-track"><div class="bd-fill" style="width:34%; background:#6D5FE8;"></div></div>
-      </div>
-      <div class="bd-row">
-        <div class="bd-top"><span>Color</span><span class="val">28%</span></div>
-        <div class="bd-track"><div class="bd-fill" style="width:28%; background:#5FA8E8;"></div></div>
-      </div>
-      <div class="bd-row">
-        <div class="bd-top"><span>Styling</span><span class="val">18%</span></div>
-        <div class="bd-track"><div class="bd-fill" style="width:18%; background:#E85F9E;"></div></div>
-      </div>
-      <div class="bd-row">
-        <div class="bd-top"><span>Nails</span><span class="val">12%</span></div>
-        <div class="bd-track"><div class="bd-fill" style="width:12%; background:#5FE8A0;"></div></div>
-      </div>
-      <div class="bd-row">
-        <div class="bd-top"><span>Treatments</span><span class="val">8%</span></div>
-        <div class="bd-track"><div class="bd-fill" style="width:8%; background:#E8A23E;"></div></div>
-      </div>
+      <div id="rpServiceBreakdown"></div>
     </div>
   </div>
 
-  <div class="panel" style="margin-top:16px;">
-    <div class="panel-head">
-      <h2>Top performing staff</h2>
-      <a href="/venue/admin/team" class="link">View team</a>
+  <div class="rp-grid" style="margin-top:16px;">
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Top performing staff</h2>
+        <a href="/venue/admin/team" class="link">View team</a>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>Staff</th><th>Bookings</th><th>Revenue</th><th>Avg. rating</th><th>Utilization</th></tr>
+          </thead>
+          <tbody id="rpStaffTbody"></tbody>
+        </table>
+      </div>
     </div>
-    <div class="table-wrap">
-      <table class="data">
-        <thead>
-          <tr><th>Staff</th><th>Bookings</th><th>Revenue</th><th>Avg. rating</th><th>Utilization</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#E4C9A0; color:#131218;">FR</div>
-                <div><div class="cell-name">Fana R.</div><div class="cell-sub">Senior Colorist</div></div>
-              </div>
-            </td>
-            <td>42</td>
-            <td>$4,850</td>
-            <td>4.9</td>
-            <td>86%</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#D9B48F; color:#131218;">JM</div>
-                <div><div class="cell-name">Jordan M.</div><div class="cell-sub">Master Stylist</div></div>
-              </div>
-            </td>
-            <td>51</td>
-            <td>$3,920</td>
-            <td>4.8</td>
-            <td>91%</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#E3C4BE; color:#131218;">NK</div>
-                <div><div class="cell-name">Naomi K.</div><div class="cell-sub">Stylist</div></div>
-              </div>
-            </td>
-            <td>38</td>
-            <td>$2,760</td>
-            <td>4.9</td>
-            <td>74%</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#C9D3C2; color:#131218;">CT</div>
-                <div><div class="cell-name">Chris T.</div><div class="cell-sub">Blowout Specialist</div></div>
-              </div>
-            </td>
-            <td>29</td>
-            <td>$1,750</td>
-            <td>4.7</td>
-            <td>62%</td>
-          </tr>
-        </tbody>
-      </table>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Busiest days</h2>
+      </div>
+      <div class="chart-row" id="rpBusiestDays"></div>
     </div>
   </div>
 
@@ -780,17 +725,486 @@
     window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
   }
 
-  var RP_SUB = { Week:'Business performance for this week', Month:'Business performance for August 2026', Year:'Business performance for 2026' };
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Every number here is computed client-side from the salon's real
+     bookings/reviews/stylists/services (loaded once at boot), filtered
+     to the selected Week/Month/Year window in NZ local time, with a
+     matching prior-period window for the vs-last-period deltas.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  var allBookings = [];
+  var allReviews = [];
+  var stylistsData = [];
+  var servicesData = [];
+  var salonHours = { openDays:[1,2,3,4,5,6], openMin:9*60, closeMin:17*60 };
+  var currentRange = 'Month';
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
+  function colorFor(seed){
+    var hash = 0; var s = String(seed||'?');
+    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
+  }
+  function parseHHMMSS(t){ var p=String(t||'00:00:00').split(':').map(Number); return (p[0]||0)*60+(p[1]||0); }
+
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function addDaysToKey(key,n){ var p=key.split('-').map(Number); var dt=new Date(Date.UTC(p[0],p[1]-1,p[2])); dt.setUTCDate(dt.getUTCDate()+n); return dt.toISOString().slice(0,10); }
+  function weekdayIndexForKey(key){ var p=key.split('-').map(Number); return new Date(Date.UTC(p[0],p[1]-1,p[2])).getUTCDay(); }
+  function addMonthsToKey(key,n){ var p=key.split('-').map(Number); var dt=new Date(Date.UTC(p[0],p[1]-1+n,1)); return dt.toISOString().slice(0,10); }
+  function clientKeyFor(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+b.customer_phone.trim()
+      : b.customer_email ? 'em:'+b.customer_email.trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+  function inRange(dateKey, start, end){ return dateKey>=start && dateKey<end; }
+
+  function rangeBounds(range){
+    var todayKey = nzTodayKey();
+    if(range==='Week'){
+      var dow = weekdayIndexForKey(todayKey);
+      var mondayOffset = dow===0 ? -6 : 1-dow;
+      var start = addDaysToKey(todayKey, mondayOffset);
+      var end = addDaysToKey(start, 7);
+      return { start:start, end:end, prevStart:addDaysToKey(start,-7), prevEnd:start, label:'this week' };
+    }
+    if(range==='Year'){
+      var y = todayKey.slice(0,4);
+      var start = y+'-01-01';
+      var end = (Number(y)+1)+'-01-01';
+      return { start:start, end:end, prevStart:(Number(y)-1)+'-01-01', prevEnd:start, label:y };
+    }
+    var start = todayKey.slice(0,7)+'-01';
+    var end = addMonthsToKey(start,1);
+    var monthLabel = new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric'}).format(new Date(start+'T12:00:00Z'));
+    return { start:start, end:end, prevStart:addMonthsToKey(start,-1), prevEnd:start, label:monthLabel };
+  }
+  function capacityMinutesForRange(bounds){
+    var mins = 0, cur = bounds.start;
+    while(cur < bounds.end){ if(salonHours.openDays.indexOf(weekdayIndexForKey(cur))>-1) mins += Math.max(0, salonHours.closeMin-salonHours.openMin); cur = addDaysToKey(cur,1); }
+    return mins;
+  }
+  function pctDelta(cur, prev){
+    if(!cur && !prev) return null;
+    if(!prev) return { dir:'up', isNew:true };
+    var pct = Math.round(((cur-prev)/prev)*100);
+    return { dir: pct>=0?'up':'down', pct: Math.abs(pct) };
+  }
+  function deltaHtml(delta, prevLabel){
+    if(!delta) return '<div class="stat-delta"><span class="muted">' + escapeHtml(prevLabel) + '</span></div>';
+    var arrow = delta.dir==='up' ? '<path d="M12 19V5M5 12l7-7 7 7"/>' : '<path d="M12 5v14M19 12l-7 7-7-7"/>';
+    var text = delta.isNew ? 'New' : ((delta.dir==='up'?'+':'-') + delta.pct + '%');
+    return '<div class="stat-delta' + (delta.dir==='down'?' down':'') + '"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">' + arrow + '</svg>' + text + ' <span class="muted">' + escapeHtml(prevLabel) + '</span></div>';
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootReportsPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Reports.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    try{
+      const [{data:salonRow},{data:bookings},{data:reviews},{data:stylists},{data:services}] = await Promise.all([
+        supabaseClient.from("salons").select("name,suburb,city,open_days,open_time,close_time").eq("id",currentSalonId).maybeSingle(),
+        supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId),
+        supabaseClient.from("reviews").select("rating,booking_id,created_at").eq("salon_id",currentSalonId).eq("approved",true),
+        supabaseClient.from("stylists").select("*").eq("salon_id",currentSalonId).eq("active",true),
+        supabaseClient.from("services").select("id,name,category_name").eq("salon_id",currentSalonId)
+      ]);
+      if(salonRow){
+        document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+        document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+        document.title = salonRow.name ? `Reports — ${salonRow.name}` : "Reports — Blooma Business";
+        salonHours = {
+          openDays: Array.isArray(salonRow.open_days) ? salonRow.open_days : [1,2,3,4,5,6],
+          openMin: parseHHMMSS(salonRow.open_time||'09:00:00'),
+          closeMin: parseHHMMSS(salonRow.close_time||'17:00:00')
+        };
+      }
+      allBookings = bookings||[];
+      allReviews = reviews||[];
+      stylistsData = stylists||[];
+      servicesData = services||[];
+    }catch(err){ showToast(err.message||"Unable to load report data"); }
+
+    renderReport();
+  }
+
   function setRpRange(el, range){
     document.querySelectorAll('#rpRange .rp-range-btn').forEach(function(b){ b.classList.remove('active'); });
     el.classList.add('active');
-    document.getElementById('rpSub').textContent = RP_SUB[range];
+    currentRange = range;
+    renderReport();
   }
 
-  function exportReport(){
-    showToast('Exporting report as CSV…');
+  var lastReportData = null;
+
+  function renderReport(){
+    var bounds = rangeBounds(currentRange);
+    var curBookings = allBookings.filter(function(b){ return inRange(nzDateKeyForIso(b.starts_at), bounds.start, bounds.end); });
+    var prevBookings = allBookings.filter(function(b){ return inRange(nzDateKeyForIso(b.starts_at), bounds.prevStart, bounds.prevEnd); });
+
+    function statsFor(list){
+      var completed = list.filter(function(b){ return b.status==='completed'; });
+      var nonCancelled = list.filter(function(b){ return b.status!=='cancelled'; });
+      var revenue = completed.reduce(function(s,b){ return s+Number(b.total||0); }, 0);
+      var cancelled = list.filter(function(b){ return b.status==='cancelled'; }).length;
+      var avgDuration = nonCancelled.length ? nonCancelled.reduce(function(s,b){ return s+Number(b.duration_minutes||0); },0)/nonCancelled.length : 0;
+      return { revenue:revenue, bookings:nonCancelled.length, completedCount:completed.length, avgTicket: completed.length?revenue/completed.length:0, cancelled:cancelled, cancelRate: list.length?cancelled/list.length*100:0, avgDuration:avgDuration };
+    }
+    var cur = statsFor(curBookings);
+    var prev = statsFor(prevBookings);
+
+    var clientFirstBooking = {};
+    allBookings.forEach(function(b){
+      var key = clientKeyFor(b);
+      if(!clientFirstBooking[key] || new Date(b.created_at) < new Date(clientFirstBooking[key])) clientFirstBooking[key]=b.created_at;
+    });
+    var newClientsCur = Object.keys(clientFirstBooking).filter(function(k){ return inRange(nzDateKeyForIso(clientFirstBooking[k]), bounds.start, bounds.end); }).length;
+    var newClientsPrev = Object.keys(clientFirstBooking).filter(function(k){ return inRange(nzDateKeyForIso(clientFirstBooking[k]), bounds.prevStart, bounds.prevEnd); }).length;
+
+    var clientsInRange = {}; curBookings.forEach(function(b){ clientsInRange[clientKeyFor(b)]=true; });
+    var clientTotalCompleted = {}; allBookings.forEach(function(b){ if(b.status==='completed'){ var k=clientKeyFor(b); clientTotalCompleted[k]=(clientTotalCompleted[k]||0)+1; } });
+    var activeClientKeys = Object.keys(clientsInRange);
+    var returningActive = activeClientKeys.filter(function(k){ return (clientTotalCompleted[k]||0)>=2; }).length;
+    var repeatRate = activeClientKeys.length ? returningActive/activeClientKeys.length*100 : 0;
+
+    var curReviews = allReviews.filter(function(r){ return inRange(nzDateKeyForIso(r.created_at), bounds.start, bounds.end); });
+    var avgRating = curReviews.length ? curReviews.reduce(function(s,r){ return s+Number(r.rating||0); },0)/curReviews.length : null;
+
+    var prevLabel = currentRange==='Week' ? 'vs last week' : currentRange==='Year' ? 'vs last year' : 'vs last month';
+
+    document.getElementById('rpSub').textContent = 'Business performance for ' + bounds.label;
+
+    document.getElementById('rpStatsGrid1').innerHTML =
+      statCard('Total revenue', '$'+Math.round(cur.revenue).toLocaleString(), pctDelta(cur.revenue,prev.revenue), prevLabel, 'warning', '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
+      statCard('Total bookings', String(cur.bookings), pctDelta(cur.bookings,prev.bookings), prevLabel, null, '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>') +
+      statCard('New clients', String(newClientsCur), pctDelta(newClientsCur,newClientsPrev), prevLabel, 'violet', '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M18 4v6M21 7h-6"/>') +
+      statCard('Avg. ticket size', '$'+Math.round(cur.avgTicket), pctDelta(cur.avgTicket,prev.avgTicket), prevLabel, 'success', '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>');
+
+    document.getElementById('rpStatsGrid2').innerHTML =
+      statCard('Repeat client rate', Math.round(repeatRate)+'%', null, activeClientKeys.length+' active clients', 'violet', '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>') +
+      statCard('Cancellation rate', Math.round(cur.cancelRate)+'%', null, cur.cancelled+' cancelled', 'danger', '<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>') +
+      statCard('Avg. appointment length', Math.round(cur.avgDuration)+' min', null, cur.bookings+' appointments', null, '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>') +
+      statCard('Avg. rating', avgRating!=null?avgRating.toFixed(1):'—', null, curReviews.length+' review'+(curReviews.length===1?'':'s'), 'warning', '<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>');
+
+    renderTrendChart(bounds);
+    renderServiceBreakdown(curBookings);
+    renderStaffTable(curBookings, curReviews, bounds);
+    renderBusiestDays(curBookings);
+
+    lastReportData = { bounds:bounds, cur:cur, newClientsCur:newClientsCur, repeatRate:repeatRate, avgRating:avgRating };
   }
+
+  function statCard(label, value, delta, prevLabel, tint, iconPath){
+    var iconStyle = tint==='warning' ? 'background:rgba(244,201,58,0.16); color:var(--warning);'
+      : tint==='violet' ? 'background:var(--violet-soft); color:var(--violet-text);'
+      : tint==='success' ? 'background:var(--success-soft); color:var(--success);'
+      : tint==='danger' ? 'background:rgba(255,107,129,0.14); color:var(--danger);'
+      : '';
+    return '<div class="stat-card"><div class="stat-top"><div class="stat-label">' + escapeHtml(label) + '</div><div class="stat-icon" style="' + iconStyle + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + iconPath + '</svg></div></div><div class="stat-value">' + value + '</div>' + deltaHtml(delta, prevLabel) + '</div>';
+  }
+
+  function renderTrendChart(bounds){
+    document.getElementById('rpTrendLabel').textContent = bounds.label;
+    var buckets = [];
+    if(currentRange==='Week'){
+      var cur = bounds.start;
+      var i=0;
+      while(cur < bounds.end){
+        buckets.push({ start:cur, end:addDaysToKey(cur,1), label:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][weekdayIndexForKey(cur)] });
+        cur = addDaysToKey(cur,1); i++;
+      }
+    } else if(currentRange==='Year'){
+      for(var m=0;m<12;m++){
+        var mStart = addMonthsToKey(bounds.start,m);
+        buckets.push({ start:mStart, end:addMonthsToKey(mStart,1), label:new Intl.DateTimeFormat('en-US',{month:'short'}).format(new Date(mStart+'T12:00:00Z')) });
+      }
+    } else {
+      var wk = 1, cur2 = bounds.start;
+      while(cur2 < bounds.end){
+        var wEnd = addDaysToKey(cur2,7); if(wEnd>bounds.end) wEnd=bounds.end;
+        buckets.push({ start:cur2, end:wEnd, label:'Week '+wk });
+        cur2 = wEnd; wk++;
+      }
+    }
+    var revenues = buckets.map(function(bk){
+      return allBookings.filter(function(b){ return b.status==='completed' && inRange(nzDateKeyForIso(b.starts_at), bk.start, bk.end); }).reduce(function(s,b){ return s+Number(b.total||0); },0);
+    });
+    var max = Math.max.apply(null, revenues.concat([1]));
+    var peakIdx = revenues.indexOf(max);
+    var chart = document.getElementById('rpTrendChart');
+    if(!revenues.some(function(v){ return v>0; })){
+      chart.innerHTML = '<div class="rp-empty">No completed bookings in ' + escapeHtml(bounds.label) + ' yet.</div>';
+      return;
+    }
+    chart.innerHTML = buckets.map(function(bk,i){
+      var h = Math.max(4, Math.round((revenues[i]/max)*164));
+      var valLabel = revenues[i]>=1000 ? '$'+(revenues[i]/1000).toFixed(1)+'k' : '$'+Math.round(revenues[i]);
+      return '<div class="big-bar-wrap' + (i===peakIdx && revenues[i]>0?' peak':'') + '"><div class="big-bar-value">' + valLabel + '</div><div class="big-bar" style="height:' + h + 'px;"></div><div class="big-bar-label">' + escapeHtml(bk.label) + '</div></div>';
+    }).join('');
+  }
+
+  var BD_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0','#E8A23E','#8C8798'];
+  function renderServiceBreakdown(curBookings){
+    var nonCancelled = curBookings.filter(function(b){ return b.status!=='cancelled'; });
+    var byCategory = {};
+    nonCancelled.forEach(function(b){
+      var svc = servicesData.find(function(s){ return s.id===b.service_id; });
+      var cat = (svc && svc.category_name) || 'Other';
+      byCategory[cat] = (byCategory[cat]||0)+1;
+    });
+    var total = nonCancelled.length;
+    var wrap = document.getElementById('rpServiceBreakdown');
+    if(!total){ wrap.innerHTML = '<div class="rp-empty">No bookings in this period yet.</div>'; return; }
+    var entries = Object.keys(byCategory).map(function(k){ return {name:k, count:byCategory[k]}; }).sort(function(a,b){ return b.count-a.count; });
+    wrap.innerHTML = entries.map(function(e,i){
+      var pct = Math.round((e.count/total)*100);
+      return '<div class="bd-row"><div class="bd-top"><span>' + escapeHtml(e.name) + '</span><span class="val">' + pct + '%</span></div><div class="bd-track"><div class="bd-fill" style="width:' + pct + '%; background:' + BD_COLORS[i%BD_COLORS.length] + ';"></div></div></div>';
+    }).join('');
+  }
+
+  function renderStaffTable(curBookings, curReviews, bounds){
+    var capacity = capacityMinutesForRange(bounds);
+    var rows = stylistsData.map(function(st){
+      var mine = curBookings.filter(function(b){ return b.stylist_id===st.id; });
+      var nonCancelled = mine.filter(function(b){ return b.status!=='cancelled'; });
+      var completed = mine.filter(function(b){ return b.status==='completed'; });
+      var revenue = completed.reduce(function(s,b){ return s+Number(b.total||0); },0);
+      var myBookingIds = mine.map(function(b){ return b.id; });
+      var myReviews = curReviews.filter(function(r){ return myBookingIds.indexOf(r.booking_id)>-1; });
+      var avgRating = myReviews.length ? myReviews.reduce(function(s,r){ return s+Number(r.rating||0); },0)/myReviews.length : null;
+      var bookedMins = nonCancelled.reduce(function(s,b){ return s+Number(b.duration_minutes||0); },0);
+      var utilization = capacity ? Math.min(100, Math.round((bookedMins/capacity)*100)) : 0;
+      return { st:st, bookings:nonCancelled.length, revenue:revenue, avgRating:avgRating, utilization:utilization };
+    }).sort(function(a,b){ return b.revenue-a.revenue; });
+
+    var tbody = document.getElementById('rpStaffTbody');
+    if(!rows.some(function(r){ return r.bookings>0; })){
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5" class="rp-empty">No bookings in this period yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(function(r){
+      var col = colorFor(r.st.name);
+      var avatarInner = r.st.imageUrl ? '<img src="' + escapeHtml(r.st.imageUrl) + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initialsFor(r.st.name);
+      return '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + avatarInner + '</div>' +
+        '<div><div class="cell-name">' + escapeHtml(r.st.name) + '</div><div class="cell-sub">' + escapeHtml(r.st.specialty||'Stylist') + '</div></div></div></td>' +
+        '<td>' + r.bookings + '</td><td>$' + r.revenue.toLocaleString() + '</td><td>' + (r.avgRating!=null?r.avgRating.toFixed(1):'—') + '</td><td>' + r.utilization + '%</td></tr>';
+    }).join('');
+  }
+
+  function renderBusiestDays(curBookings){
+    var counts = [0,0,0,0,0,0,0];
+    curBookings.filter(function(b){ return b.status!=='cancelled'; }).forEach(function(b){
+      counts[weekdayIndexForKey(nzDateKeyForIso(b.starts_at))]++;
+    });
+    var order = [1,2,3,4,5,6,0];
+    var max = Math.max.apply(null, counts.concat([1]));
+    var wrap = document.getElementById('rpBusiestDays');
+    if(!counts.some(function(c){ return c>0; })){ wrap.innerHTML = '<div class="rp-empty">No bookings in this period yet.</div>'; return; }
+    wrap.innerHTML = order.map(function(dow){
+      var c = counts[dow];
+      var h = Math.max(4, Math.round((c/max)*90));
+      return '<div class="chart-bar' + (c===max&&c>0?' today':'') + '"><div class="bar" style="height:' + h + 'px;"></div><span>' + ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow] + '</span></div>';
+    }).join('');
+  }
+
+  function csvEscape(v){ var s = String(v==null?'':v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; }
+  function exportReport(){
+    if(!lastReportData){ showToast('Report not ready yet'); return; }
+    var bounds = lastReportData.bounds, cur = lastReportData.cur;
+    var lines = [];
+    lines.push(['Report period', bounds.label].map(csvEscape).join(','));
+    lines.push(['Total revenue', Math.round(cur.revenue)].map(csvEscape).join(','));
+    lines.push(['Total bookings', cur.bookings].map(csvEscape).join(','));
+    lines.push(['New clients', lastReportData.newClientsCur].map(csvEscape).join(','));
+    lines.push(['Avg ticket size', Math.round(cur.avgTicket)].map(csvEscape).join(','));
+    lines.push(['Repeat client rate %', Math.round(lastReportData.repeatRate)].map(csvEscape).join(','));
+    lines.push(['Cancellation rate %', Math.round(cur.cancelRate)].map(csvEscape).join(','));
+    lines.push(['Avg appointment length (min)', Math.round(cur.avgDuration)].map(csvEscape).join(','));
+    lines.push(['Avg rating', lastReportData.avgRating!=null?lastReportData.avgRating.toFixed(1):''].map(csvEscape).join(','));
+    lines.push([]);
+    lines.push(['Staff','Bookings','Revenue','Avg rating','Utilization %'].map(csvEscape).join(','));
+    Array.from(document.querySelectorAll('#rpStaffTbody tr')).forEach(function(tr){
+      var tds = tr.querySelectorAll('td');
+      if(tds.length!==5) return;
+      var name = tds[0].querySelector('.cell-name');
+      if(!name) return;
+      var cells = [name.textContent.trim()].concat(Array.from(tds).slice(1).map(function(td){ return td.textContent.trim(); }));
+      lines.push(cells.map(csvEscape).join(','));
+    });
+    var csv = lines.join('\n');
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'blooma-report-' + bounds.label.replace(/[^a-z0-9]+/gi,'-').toLowerCase() + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Report exported');
+  }
+
+  bootReportsPage();
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

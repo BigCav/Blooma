@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -545,6 +572,8 @@
     transition:opacity .2s ease, transform .2s ease;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .co-loading{padding:60px 20px; text-align:center; color:var(--text-faint); font-size:13.5px;}
+  .btn[disabled]{opacity:0.4; cursor:not-allowed; pointer-events:none;}
 </style>
 </head>
 
@@ -567,8 +596,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -586,14 +615,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -607,7 +637,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -628,10 +665,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -643,7 +680,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -667,174 +705,9 @@
     <div class="sub">Take payment and complete the appointment</div>
   </div>
 
-  <div class="co-wrap">
-
-    <!-- STEP 1: SUMMARY + PAYMENT METHOD -->
-    <div class="panel" id="ckSummary">
-      <div class="co-client-row">
-        <div class="co-client-avatar">SK</div>
-        <div>
-          <div class="co-client-name">Sarah K.</div>
-          <div class="co-client-sub">Today, 9:30 AM · with Fana R.</div>
-        </div>
-      </div>
-
-      <div class="line-item">
-        <div>
-          <div class="li-name">Full balayage</div>
-          <div class="li-sub">2 hr 30 min · Fana R.</div>
-        </div>
-        <div class="li-price">$220.00</div>
-      </div>
-
-      <div class="tip-label">Add a tip for Fana R.</div>
-      <div class="tip-row">
-        <div class="tip-btn active" id="tipNoTip" onclick="setTip(0, this)">No tip</div>
-        <div class="tip-btn" onclick="setTip(0.15, this)">15%</div>
-        <div class="tip-btn" onclick="setTip(0.18, this)">18%</div>
-        <div class="tip-btn" onclick="setTip(0.20, this)">20%</div>
-      </div>
-
-      <div class="total-row">
-        <div class="t-label">Total due</div>
-        <div class="t-amount" id="totalAmt">$220.00</div>
-      </div>
-
-      <div class="pm-label">Payment method</div>
-      <div class="pm-grid">
-        <div class="pm-card" id="pmCash" onclick="selectPM('cash', this)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
-          <div class="pm-name">Cash</div>
-        </div>
-        <div class="pm-card active" id="pmCard" onclick="selectPM('card', this)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-          <div class="pm-name">Card</div>
-        </div>
-      </div>
-
-      <div class="btn btn-violet co-charge-btn" onclick="goToTerminal()">
-        Charge <span id="chargeBtnAmt">&nbsp;$220.00</span>
-      </div>
-    </div>
-
-    <!-- STEP 2: TRANSACTION TERMINAL -->
-    <div class="panel" id="ckTerminal" style="display:none;">
-      <div class="terminal-card">
-        <div class="terminal-eyebrow">Processing transaction</div>
-        <div class="terminal-amount" id="termAmount">$220.00</div>
-        <div class="terminal-method" id="termMethod">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-          Card payment
-        </div>
-        <div class="terminal-hint">Confirm the outcome once payment has been taken on your card reader.</div>
-        <div class="terminal-actions">
-          <div class="term-btn accept" onclick="txAccept()">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>
-            Accept
-          </div>
-          <div class="term-btn decline" onclick="txDecline()">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            Decline
-          </div>
-          <div class="term-btn cancel" onclick="txCancel()">Cancel transaction</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RESULT: ACCEPTED -->
-    <div class="panel" id="ckResultAccepted" style="display:none;">
-      <div class="result-banner">
-        <div class="result-icon success"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
-        <div class="result-title">Payment accepted</div>
-        <div class="result-sub">Sarah K.'s appointment is marked complete.</div>
-        <div class="receipt-box">
-          <div class="receipt-row"><span>Full balayage</span><span>$220.00</span></div>
-          <div class="receipt-row"><span id="receiptTipLabel">Tip (0%)</span><span id="receiptTip">$0.00</span></div>
-          <div class="receipt-row total"><span>Total paid</span><span id="receiptTotal">$220.00</span></div>
-        </div>
-        <div class="result-actions">
-          <a href="/venue/admin/bookings" class="btn btn-violet">Back to bookings</a>
-          <div class="btn btn-ghost" onclick="showToast('Receipt emailed to sarah.k@email.com')">Email receipt</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RESULT: DECLINED -->
-    <div class="panel" id="ckResultDeclined" style="display:none;">
-      <div class="result-banner">
-        <div class="result-icon declined"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
-        <div class="result-title">Payment declined</div>
-        <div class="result-sub">The card was declined. Try again or switch payment method.</div>
-        <div class="result-actions">
-          <div class="btn btn-violet" onclick="retryPayment()">Try again</div>
-          <div class="btn btn-ghost" onclick="backToSummary()">Switch payment method</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RESULT: CANCELLED -->
-    <div class="panel" id="ckResultCancelled" style="display:none;">
-      <div class="result-banner">
-        <div class="result-icon cancelled"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>
-        <div class="result-title">Transaction cancelled</div>
-        <div class="result-sub">No charge was made. Sarah K.'s appointment is still awaiting checkout.</div>
-        <div class="result-actions">
-          <div class="btn btn-violet" onclick="backToSummary()">Back to checkout</div>
-          <a href="/venue/admin/bookings" class="btn btn-ghost">Back to bookings</a>
-        </div>
-      </div>
-    </div>
-
+  <div class="co-wrap" id="coWrap">
+    <div class="co-loading">Loading booking…</div>
   </div>
-</div>
-
-<script>
-  var SERVICE_PRICE = 220;
-  var ckMethod = 'card';
-
-  function setTip(pct, el){
-    document.querySelectorAll('.tip-btn').forEach(function(b){ b.classList.remove('active'); });
-    el.classList.add('active');
-    var tip = Math.round(SERVICE_PRICE * pct * 100) / 100;
-    var total = SERVICE_PRICE + tip;
-    document.getElementById('totalAmt').textContent = '$' + total.toFixed(2);
-    document.getElementById('chargeBtnAmt').textContent = ' $' + total.toFixed(2);
-    document.getElementById('receiptTipLabel').textContent = 'Tip (' + Math.round(pct * 100) + '%)';
-    document.getElementById('receiptTip').textContent = '$' + tip.toFixed(2);
-    document.getElementById('receiptTotal').textContent = '$' + total.toFixed(2);
-    window.ckTotal = total;
-  }
-
-  setTip(0, document.getElementById('tipNoTip'));
-
-  function selectPM(method, el){
-    document.querySelectorAll('.pm-card').forEach(function(c){ c.classList.remove('active'); });
-    el.classList.add('active');
-    ckMethod = method;
-  }
-
-  function showOnly(id){
-    ['ckSummary','ckTerminal','ckResultAccepted','ckResultDeclined','ckResultCancelled'].forEach(function(pid){
-      document.getElementById(pid).style.display = (pid === id) ? 'block' : 'none';
-    });
-  }
-
-  function goToTerminal(){
-    var total = window.ckTotal || SERVICE_PRICE;
-    document.getElementById('termAmount').textContent = '$' + total.toFixed(2);
-    var methodEl = document.getElementById('termMethod');
-    methodEl.innerHTML = ckMethod === 'cash'
-      ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg> Cash payment'
-      : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card payment';
-    showOnly('ckTerminal');
-  }
-
-  function txAccept(){ showOnly('ckResultAccepted'); }
-  function txDecline(){ showOnly('ckResultDeclined'); }
-  function txCancel(){ showOnly('ckResultCancelled'); }
-  function retryPayment(){ showOnly('ckTerminal'); }
-  function backToSummary(){ showOnly('ckSummary'); }
-</script>
 
   </div>
 </div>
@@ -866,6 +739,439 @@
     window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
   }
 </script>
+
+<script>
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Mirrors booking.html's auth/config plumbing. Loads the booking
+     from ?id=, takes a (simulated terminal) payment, and on Accept
+     marks the booking completed via the same admin_update_booking_status
+     RPC used everywhere else. There is no payments/transactions table
+     in this schema yet, so tip amount and payment method are shown to
+     staff during checkout but are not persisted anywhere — only the
+     booking's own total/status are real, saved data.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  let booking = null;
+  let salonLoyalty = null;
+  let ckMethod = 'card';
+  let ckTipPct = 0;
+
+  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function dateKeyDayDiff(aKey,bKey){ const [ay,am,ad]=aKey.split("-").map(Number),[by,bm,bd]=bKey.split("-").map(Number); return Math.round((Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000); }
+  function whenShortLabel(iso){
+    const diff = dateKeyDayDiff(nzDateKeyForIso(iso), nzTodayKey());
+    const time = localTimeLabel(iso);
+    if(diff===0) return 'Today, ' + time;
+    if(diff===-1) return 'Yesterday, ' + time;
+    if(diff===1) return 'Tomorrow, ' + time;
+    return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",month:"short",day:"numeric"}).format(new Date(iso)) + ' · ' + time;
+  }
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+
+  async function persistBookingStatus(status, paymentMethod, tipAmount){
+    const args = {p_booking_id:booking.id,p_status:status};
+    if(paymentMethod!=null) args.p_payment_method = paymentMethod;
+    if(tipAmount!=null) args.p_tip_amount = tipAmount;
+    const {error} = await supabaseClient.rpc("admin_update_booking_status", args);
+    if(error) throw error;
+  }
+
+  async function awardLoyaltyPoints(){
+    if(!salonLoyalty?.enabled || !booking.customer_user_id) return;
+    const pts = Math.max(0, Math.round(Number(booking.total||0) * Number(salonLoyalty.pointsPerDollar||0)));
+    if(pts<=0) return;
+    try{
+      const {error:txError} = await supabaseClient.from("loyalty_transactions").insert({salon_id:currentSalonId,customer_user_id:booking.customer_user_id,booking_id:booking.id,points_change:pts,reason:"Booking completed"});
+      if(txError){ if(txError.code==="23505") return; throw txError; }
+      const {data:existing} = await supabaseClient.from("loyalty_accounts").select("points").eq("salon_id",currentSalonId).eq("customer_user_id",booking.customer_user_id).maybeSingle();
+      const nextPoints = (existing?.points||0) + pts;
+      await supabaseClient.from("loyalty_accounts").upsert({salon_id:currentSalonId,customer_user_id:booking.customer_user_id,customer_name:booking.customer_name,points:nextPoints,updated_at:new Date().toISOString()},{onConflict:"salon_id,customer_user_id"});
+    }catch(e){ console.warn("Loyalty award failed", e); }
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  function showNotFound(){
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" style="text-align:center;padding:60px 24px;">
+        <h1 style="font-size:18px;margin-bottom:8px;">Booking not found</h1>
+        <p style="font-size:13.5px;color:var(--text-soft);">This booking doesn't exist, or doesn't belong to your venue.</p>
+      </div>
+    `;
+  }
+
+  function lineItemsHtml(){
+    const addonsSum = (booking.addons||[]).reduce((s,a)=>s+Number(a.price||0),0);
+    const rows = [`<div class="line-item"><div><div class="li-name">${escapeHtml(booking.service_name_snapshot||'Service')}</div><div class="li-sub">${(booking.duration_minutes||0)} min · ${escapeHtml(booking.stylist_name_snapshot||'Venue team')}</div></div><div class="li-price">$${(Number(booking.subtotal||0)-addonsSum).toFixed(2)}</div></div>`];
+    (booking.addons||[]).forEach(a=>{
+      rows.push(`<div class="line-item"><div><div class="li-name">${escapeHtml(a.name)}</div></div><div class="li-price">+$${Number(a.price||0).toFixed(2)}</div></div>`);
+    });
+    if(Number(booking.discount||0) > 0){
+      rows.push(`<div class="line-item"><div><div class="li-name">Discount${booking.promo_code?' ('+escapeHtml(booking.promo_code)+')':''}</div></div><div class="li-price">-$${Number(booking.discount).toFixed(2)}</div></div>`);
+    }
+    return rows.join('');
+  }
+
+  function renderSummary(){
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckSummary">
+        <div class="co-client-row">
+          <div class="co-client-avatar">${initialsFor(booking.customer_name)}</div>
+          <div>
+            <div class="co-client-name">${escapeHtml(booking.customer_name)}</div>
+            <div class="co-client-sub">${whenShortLabel(booking.starts_at)} · with ${escapeHtml(booking.stylist_name_snapshot||'Venue team')}</div>
+          </div>
+        </div>
+
+        ${lineItemsHtml()}
+
+        <div class="tip-label">Add a tip for ${escapeHtml(booking.stylist_name_snapshot||'the stylist')}</div>
+        <div class="tip-row">
+          <div class="tip-btn active" onclick="setTip(0, this)">No tip</div>
+          <div class="tip-btn" onclick="setTip(0.15, this)">15%</div>
+          <div class="tip-btn" onclick="setTip(0.18, this)">18%</div>
+          <div class="tip-btn" onclick="setTip(0.20, this)">20%</div>
+        </div>
+
+        <div class="total-row">
+          <div class="t-label">Total due</div>
+          <div class="t-amount" id="totalAmt">$${Number(booking.total||0).toFixed(2)}</div>
+        </div>
+
+        <div class="pm-label">Payment method</div>
+        <div class="pm-grid">
+          <div class="pm-card" id="pmCash" onclick="selectPM('cash', this)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+            <div class="pm-name">Cash</div>
+          </div>
+          <div class="pm-card active" id="pmCard" onclick="selectPM('card', this)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            <div class="pm-name">Card</div>
+          </div>
+        </div>
+
+        <div class="btn btn-violet co-charge-btn" onclick="goToTerminal()">
+          Charge <span id="chargeBtnAmt">&nbsp;$${Number(booking.total||0).toFixed(2)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function ckTotal(){
+    const base = Number(booking.total||0);
+    return Math.round((base + base*ckTipPct) * 100) / 100;
+  }
+
+  function setTip(pct, el){
+    ckTipPct = pct;
+    document.querySelectorAll('.tip-btn').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    const total = ckTotal();
+    document.getElementById('totalAmt').textContent = '$' + total.toFixed(2);
+    document.getElementById('chargeBtnAmt').textContent = ' $' + total.toFixed(2);
+  }
+
+  function selectPM(method, el){
+    document.querySelectorAll('.pm-card').forEach(function(c){ c.classList.remove('active'); });
+    el.classList.add('active');
+    ckMethod = method;
+  }
+
+  function goToTerminal(){
+    const total = ckTotal();
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckTerminal">
+        <div class="terminal-card">
+          <div class="terminal-eyebrow">Processing transaction</div>
+          <div class="terminal-amount">$${total.toFixed(2)}</div>
+          <div class="terminal-method">
+            ${ckMethod==='cash'
+              ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg> Cash payment'
+              : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card payment'}
+          </div>
+          <div class="terminal-hint">Confirm the outcome once payment has been taken${ckMethod==='card'?' on your card reader':''}.</div>
+          <div class="terminal-actions">
+            <div class="term-btn accept" onclick="txAccept()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>
+              Accept
+            </div>
+            <div class="term-btn decline" onclick="txDecline()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              Decline
+            </div>
+            <div class="term-btn cancel" onclick="txCancel()">Cancel transaction</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function txAccept(){
+    const btn = document.querySelector('.term-btn.accept');
+    if(btn){ btn.textContent = 'Processing…'; btn.style.pointerEvents = 'none'; }
+    const tipAmount = Math.round((Number(booking.total||0) * ckTipPct) * 100) / 100;
+    persistBookingStatus('completed', ckMethod, tipAmount).then(function(){
+      booking.status = 'completed';
+      return awardLoyaltyPoints();
+    }).then(function(){
+      renderAccepted();
+    }).catch(function(err){
+      showToast(err.message || 'Could not complete booking');
+      if(btn){ btn.textContent = 'Accept'; btn.style.pointerEvents = ''; }
+    });
+  }
+
+  function renderAccepted(){
+    const total = ckTotal();
+    const tip = Math.round((Number(booking.total||0) * ckTipPct) * 100) / 100;
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckResultAccepted">
+        <div class="result-banner">
+          <div class="result-icon success"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="result-title">Payment accepted</div>
+          <div class="result-sub">${escapeHtml(booking.customer_name)}'s appointment is marked complete.</div>
+          <div class="receipt-box">
+            <div class="receipt-row"><span>${escapeHtml(booking.service_name_snapshot||'Service')}</span><span>$${Number(booking.subtotal||0).toFixed(2)}</span></div>
+            <div class="receipt-row"><span>Tip (${Math.round(ckTipPct*100)}%)</span><span>$${tip.toFixed(2)}</span></div>
+            <div class="receipt-row total"><span>Total paid</span><span>$${total.toFixed(2)}</span></div>
+          </div>
+          <div class="result-actions">
+            <a href="/venue/admin/bookings" class="btn btn-violet">Back to bookings</a>
+            <div class="btn btn-ghost" onclick="showToast('${booking.customer_email ? ('Receipt emailed to ' + escapeHtml(booking.customer_email)) : 'No email on file for this client'}')">Email receipt</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function txDecline(){
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckResultDeclined">
+        <div class="result-banner">
+          <div class="result-icon declined"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="result-title">Payment declined</div>
+          <div class="result-sub">The card was declined. Try again or switch payment method.</div>
+          <div class="result-actions">
+            <div class="btn btn-violet" onclick="goToTerminal()">Try again</div>
+            <div class="btn btn-ghost" onclick="renderSummary()">Switch payment method</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function txCancel(){
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckResultCancelled">
+        <div class="result-banner">
+          <div class="result-icon cancelled"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>
+          <div class="result-title">Transaction cancelled</div>
+          <div class="result-sub">No charge was made. ${escapeHtml(booking.customer_name)}'s appointment is still awaiting checkout.</div>
+          <div class="result-actions">
+            <div class="btn btn-violet" onclick="renderSummary()">Back to checkout</div>
+            <a href="/venue/admin/bookings" class="btn btn-ghost">Back to bookings</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAlreadyDone(){
+    const map = { completed:"This appointment has already been checked out and marked completed.", cancelled:"This appointment was cancelled, so it can't be checked out.", no_show:"This appointment was marked as a no-show, so it can't be checked out." };
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" style="text-align:center;padding:48px 24px;">
+        <h1 style="font-size:18px;margin-bottom:8px;">${escapeHtml(booking.customer_name)} · ${escapeHtml(booking.service_name_snapshot||'Service')}</h1>
+        <p style="font-size:13.5px;color:var(--text-soft);margin-bottom:20px;">${map[booking.status]||'This appointment is not awaiting checkout.'}</p>
+        <a href="/venue/admin/booking?id=${booking.id}" class="btn btn-violet">View booking</a>
+      </div>
+    `;
+  }
+
+  async function bootCheckoutPage(){
+    const bookingId = new URLSearchParams(window.location.search).get('id');
+    if(!bookingId){ showNotFound(); return; }
+
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Checkout.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+
+    const {data:row,error} = await supabaseClient.from("bookings").select("*").eq("id",bookingId).eq("salon_id",currentSalonId).maybeSingle();
+    if(error || !row){ showNotFound(); return; }
+    booking = row;
+
+    const [{data:salonRow},{data:cfgRow}] = await Promise.all([
+      supabaseClient.from("salons").select("name,city,suburb").eq("id",currentSalonId).maybeSingle(),
+      supabaseClient.from("app_config").select("config").eq("salon_id",currentSalonId).maybeSingle()
+    ]);
+    if(salonRow){
+      document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+      document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+      document.title = salonRow.name ? `Checkout — ${salonRow.name}` : "Checkout — Blooma Business";
+    }
+    salonLoyalty = cfgRow?.config?.salon?.loyalty || null;
+
+    if(booking.status !== 'upcoming'){ renderAlreadyDone(); return; }
+    renderSummary();
+  }
+
+  bootCheckoutPage();
+</script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

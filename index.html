@@ -123,15 +123,18 @@
     transition:background .15s,border-color .15s;
   }
   .menu-btn:hover{background:var(--purple-pastel-2);}
-  .menu-btn.has-badge{position:relative;}
   .menu-btn.active-fav{color:#E0466D;border-color:#F6D2DC;background:#FCEEF2;}
-  .menu-badge{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--purple);border:2px solid var(--white);}
   /* Match the home page's topbar logo/icon-button sizing to the venue page's (v2-brand/v2-icon-btn). */
   body.page-home .brand-logo{font-size:22px;letter-spacing:-.6px;}
   body.page-home .home-topbar{gap:20px;}
   body.page-home .home-topbar>div{gap:10px;}
   body.page-home .menu-btn{width:42px;height:42px;border-radius:50%;}
   body.page-home .location-pill{height:42px;padding:0 14px;}
+  /* Match the topbar's height AND horizontal padding to the venue/activity pages, which both
+     switch to their desktop layout at 900px (the whole home page's desktop breakpoint below
+     was also moved from 1024px to 900px to match, so this lines up with that same cutoff). */
+  @media(max-width:899px){ .home-topbar{padding:12px 18px;} }
+  @media(min-width:900px){ .home-topbar{padding:18px 32px;} }
 
   .home-menu-sheet{
     position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:480px;margin:0 auto;
@@ -142,7 +145,7 @@
     will-change:transform;
   }
   .home-menu-sheet.closing{animation:homeMenuSheetDown .22s ease forwards;pointer-events:none;}
-  #homeMenuOverlay{animation:homeMenuOverlayIn .22s ease;}
+  #homeMenuOverlay{background:rgba(20,10,40,.4);animation:homeMenuOverlayIn .22s ease;}
   #homeMenuOverlay.closing{animation:homeMenuOverlayOut .22s ease forwards;pointer-events:none;}
   @keyframes homeMenuSheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
   @keyframes homeMenuSheetDown{from{transform:translateY(0);}to{transform:translateY(100%);}}
@@ -171,6 +174,25 @@
   .home-menu-row.danger:active{background:var(--purple);color:#fff;}
   .home-menu-row.danger:active .icon{color:#fff!important;}
   .home-menu-divider{height:1px;background:var(--border);margin:6px 4px;}
+  /* On wide screens, open the menu as a small dropdown anchored under the hamburger button instead
+     of a full-width bottom sheet — matches the Activity page's PC menu treatment. */
+  @media(min-width:900px){
+    #homeMenuOverlay{background:transparent;}
+    .home-menu-sheet{
+      left:auto;bottom:auto;right:max(32px,calc((100vw - 1400px)/2 + 32px));top:88px;
+      max-width:288px;width:288px;border-radius:18px;padding:10px;
+      box-shadow:0 16px 44px rgba(44,31,72,.16),0 2px 8px rgba(44,31,72,.06);
+      border:1px solid var(--border-2);
+      animation:homeMenuDropdownIn .14s ease;
+      transform-origin:top right;
+    }
+    .home-menu-sheet.closing{animation:homeMenuDropdownOut .12s ease forwards;}
+    .home-menu-sheet-header{display:none;}
+    .home-menu-list{border:none;padding:0;margin-bottom:0;}
+    .home-menu-row{padding:11px 12px;font-size:14px;}
+  }
+  @keyframes homeMenuDropdownIn{from{transform:scale(.96) translateY(-4px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+  @keyframes homeMenuDropdownOut{from{transform:scale(1) translateY(0);opacity:1;}to{transform:scale(.96) translateY(-4px);opacity:0;}}
 
   .location-pill{
     display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;max-width:150px;
@@ -188,6 +210,13 @@
     mask-image:linear-gradient(to right, black calc(100% - 28px), transparent);
   }
   .cats-wrap .chip-row::after{content:none;}
+  @media(max-width:899px){
+    .cats-wrap{padding:8px 0 2px;}
+    .cats-wrap .chip-row{padding-top:4px;padding-bottom:4px;}
+    /* Match the gap below the pills to the gap above them (search bar -> pills is 14px total;
+       .venue-featured-section's own 34px margin-top made the gap below the pills much bigger). */
+    .upcoming-bookings-section{margin-top:12px!important;}
+  }
 
   .home-promo-banner{display:none;position:relative;background:var(--near-black);border-radius:24px;padding:22px 20px;margin:18px 20px 4px;color:#fff;overflow:hidden;flex-shrink:0;}
   .home-promo-banner::before{
@@ -603,8 +632,7 @@
   }
   .venue-map-pin-badge span{display:block;line-height:1;}
   .venue-map-pin-badge .icon-star{top:0;}
-  .mapboxgl-ctrl-attrib{font-size:9.5px;padding:0 4px;}
-  .mapboxgl-ctrl-bottom-right,.mapboxgl-ctrl-bottom-left{transform:scale(.85);transform-origin:bottom right;}
+  .mapboxgl-ctrl-logo,.mapboxgl-ctrl-attrib,.mapboxgl-ctrl-bottom-right,.mapboxgl-ctrl-bottom-left{display:none!important;}
   .venue-map-pin-tail{
     width:0;height:0;margin-top:-1px;
     border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111;
@@ -654,21 +682,28 @@
     display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;
   }
 
-  .hist-panel{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;}
-  .hist-card-simple{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background-color .15s;}
-  .hist-card-simple:last-child{margin-bottom:0;}
-  .hist-card-simple:hover{border-color:var(--border-hover);}
-  .hist-card-simple.expanded{background:var(--white);border-color:var(--border-hover);cursor:default;}
-  .hcs-thumb{width:100%;height:130px;border-radius:12px;overflow:hidden;margin:-14px -16px 12px;width:calc(100% + 32px);background:var(--purple-pastel-2);position:relative;}
-  .hcs-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-  .hcs-thumb-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--purple);}
-  .hcs-salon{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .hcs-service{font-size:13.5px;color:var(--ink-mute);margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .act-list{display:flex;flex-direction:column;gap:12px;}
+  .act-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+  .act-card:hover{border-color:var(--border-hover);box-shadow:0 8px 20px rgba(36,31,51,.06);}
+  .act-card.expanded{border-color:var(--border-hover);cursor:default;}
+  .act-row{display:flex;gap:12px;align-items:flex-start;}
+  .act-thumb{width:64px;height:64px;border-radius:16px;overflow:hidden;background:var(--purple-pastel-2);flex-shrink:0;position:relative;}
+  .act-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .act-thumb-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--purple);}
+  .act-info{min-width:0;flex:1;}
+  .act-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+  .act-venue{font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.04em;margin:2px 0 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .act-service{font-size:15.5px;font-weight:700;color:var(--ink);margin:3px 0 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .hcs-addons{font-size:12px;color:var(--ink-soft);margin:3px 0 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .hcs-price{font-size:14px;font-weight:700;color:var(--ink);margin:0;flex-shrink:0;text-align:right;white-space:nowrap;}
-  .hcs-price-sub{display:block;font-size:10.5px;font-weight:600;color:var(--ink-soft);margin-top:1px;}
-  .hcs-datetime{font-size:12.5px;color:var(--purple);font-weight:600;margin:0;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-  .hcs-datetime .icon svg{width:12px;height:12px;}
+  .act-meta{font-size:12px;color:var(--ink-mute);font-weight:600;margin:7px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .act-meta .icon svg{width:12px;height:12px;}
+  .act-dot{width:3px;height:3px;border-radius:50%;background:var(--border-hover);flex-shrink:0;}
+  .act-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+  .act-pill{font-size:11px;font-weight:700;color:var(--ink-mute);background:var(--purple-pastel-2);padding:6px 10px;border-radius:999px;}
+  .act-total{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .act-total strong{font-size:15px;font-weight:800;color:var(--ink);}
+  .act-price-sub{display:block;font-size:10.5px;font-weight:600;color:var(--ink-soft);margin-top:1px;}
+  .act-chev{color:var(--purple);display:flex;flex-shrink:0;}
   .hcs-actions-row{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
   .hcs-icon-btn{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;font-size:11px;font-weight:700;color:var(--ink-mute);}
   .hcs-icon-circle{width:38px;height:38px;border-radius:12px;background:var(--purple-pastel-2);color:var(--purple);display:flex;align-items:center;justify-content:center;transition:background .15s;}
@@ -906,7 +941,7 @@
 
   /* Desktop overrides — placed last on purpose so they win the cascade
      regardless of where other same-specificity rules appear above. */
-  @media (min-width:1024px){
+  @media (min-width:900px){
     #app{padding:0;max-width:1400px;margin:0 auto;}
     .shell{max-width:none;height:100dvh;border-radius:0;box-shadow:none;}
     body.page-home #app{max-width:none;margin:0;}
@@ -1051,7 +1086,6 @@
   .v2-top-actions{display:flex;align-items:center;gap:10px;}
   .v2-icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--v2-line);background:#fff;color:var(--v2-ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex:none;}
   .v2-icon-btn.v2-active-fav{color:var(--v2-purple);border-color:#d9cffa;}
-  .v2-menu-badge{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--v2-purple);}
   .v2-breadcrumbs{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--v2-muted);padding:22px 0 16px;}
   .v2-breadcrumbs strong{color:var(--v2-ink);}
   .v2-gallery{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:235px 235px;gap:10px;border-radius:26px;overflow:hidden;}
@@ -1086,8 +1120,7 @@
   .v2-star svg{display:block;flex-shrink:0;width:var(--v2-star-size);height:var(--v2-star-size);max-width:none;}
   .v2-team-rating{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:12.5px;color:var(--v2-muted);}
   .v2-team-rating strong{color:var(--v2-ink);font-weight:800;}
-  .v2-map-attrib-hidden .mapboxgl-ctrl-logo,.v2-map-attrib-hidden .mapboxgl-ctrl-attrib{display:none!important;}
-  .v2-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:42px;align-items:start;padding:34px 0 20px;}
+  .v2-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:42px;align-items:start;padding:34px 0 0;}
   .v2-nearby-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
   .v2-nearby-arrows{display:flex;gap:8px;flex-shrink:0;margin-top:6px;}
   .v2-nearby-row{display:flex;gap:12px;overflow-x:auto;scroll-behavior:smooth;padding:14px 0 4px;margin:0;-ms-overflow-style:none;scrollbar-width:none;}
@@ -1095,7 +1128,7 @@
   .v2-nearby-row .featured-salon-card{width:220px;flex-shrink:0;}
   .v2-main-col{min-width:0;}
   .v2-section{padding:0 0 38px;margin-bottom:38px;border-bottom:1px solid var(--v2-line);}
-  .v2-section:last-child{border-bottom:none;}
+  .v2-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
   .v2-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--v2-purple);font-weight:800;margin:0 0 8px;}
   .v2-section h2{font-size:30px;letter-spacing:-.8px;margin:0 0 18px;color:var(--v2-ink);}
   .v2-section-sub{font-size:15px;color:var(--v2-muted);line-height:1.65;margin:-8px 0 20px;}
@@ -1162,7 +1195,7 @@
     .v2-venue-title{font-size:34px;letter-spacing:-1.15px;}
     .v2-meta .v2-meta-dot-1,.v2-meta .v2-meta-dot-2{display:none;}
     .v2-meta-break{display:block;flex-basis:100%;height:0;}
-    .v2-layout{display:block;padding:28px 0;}
+    .v2-layout{display:block;padding:28px 0 0;}
     .v2-section{padding-bottom:30px;margin-bottom:30px;}
     .v2-section h2{font-size:25px;}
     .v2-nearby-head h2{font-size:25px;}
@@ -1181,7 +1214,8 @@
     .v2-mobile-copy strong{display:block;font-size:14px;color:var(--v2-ink);}
     .v2-mobile-copy span{display:block;font-size:12px;color:var(--v2-muted);margin-top:2px;}
     .v2-mobile-bar .v2-big-book{width:auto;min-width:138px;height:48px;padding:0 22px;}
-    .v2-venue-page{padding-bottom:86px;}
+    .v2-venue-page{padding-bottom:0;}
+    .v2-venue-page .home-footer{padding-bottom:110px;}
     .v2-review-summary{padding:18px;}
     .v2-big-rating{font-size:38px;}
   }
@@ -1296,7 +1330,7 @@ function hamburgerMenuMarkup(){
   if(!state.showHomeMenu) return "";
   const loggedIn = isLoggedInCustomer();
   return `
-    <div id="homeMenuOverlay" style="position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
+    <div id="homeMenuOverlay" style="position:fixed;inset:0;z-index:49;"></div>
     <div class="home-menu-sheet" id="homeMenuCard">
       <div class="home-menu-sheet-header">
         <h2 class="home-menu-sheet-title">Menu</h2>
@@ -1329,7 +1363,7 @@ function topbarMarkup(opts){
         ${opts.locationBtn ? `<button id="locationBtn" class="location-pill">${icon('mapPin','var(--purple)')}<span class="loc-name">${escapeHtml(opts.locationBtn.cityName)}</span></button>` : ""}
         ${opts.shareBtn ? `<button class="menu-btn" id="shareVenueBtn" data-sharetitle="${escapeAttr(opts.shareBtn.title)}" data-shareurl="${escapeAttr(opts.shareBtn.url)}" aria-label="Share">${icon('share')}</button>` : ""}
         ${opts.favBtn ? `<button class="menu-btn ${opts.favBtn.active?'active-fav':''}" data-fav="${opts.favBtn.salonId}" aria-label="Save salon">${icon(opts.favBtn.active?'heartFill':'heart')}</button>` : ""}
-        <button class="menu-btn ${isLoggedInCustomer()?'has-badge':''}" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">${icon('menu')}${isLoggedInCustomer()?'<span class="menu-badge"></span>':''}</button>
+        <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">${icon('menu')}</button>
       </div>
     </div>
   `;
@@ -2048,7 +2082,12 @@ async function loadMarketplaceVenues(applyRouteAfterLoad=false){
         if(location.protocol!=="file:") history.replaceState({blooma:true},"","/");
         Object.assign(state,{page:"home",salon:null,salonCategory:"All"});
       }
-      if(found && state.page==="salon") loadLoyaltyAccount();
+      if(found && state.page==="salon"){ loadLoyaltyAccount(); loadMyGiftCardsAndPackages(); }
+      const purchaseResult = new URLSearchParams(location.search).get("purchase");
+      if(purchaseResult==="giftcard-success" || purchaseResult==="package-success"){
+        showBloomaToast(purchaseResult==="giftcard-success" ? "Gift card purchased! Check your Profile to see it." : "Package purchased! It'll be ready to use next time you book this service.");
+        const cleanUrl=location.pathname; if(location.protocol!=="file:") history.replaceState({blooma:true},"",cleanUrl);
+      }
     }
     render({samePage:!applyRouteAfterLoad});
   }catch(err){
@@ -2066,6 +2105,19 @@ async function loadMarketplaceVenues(applyRouteAfterLoad=false){
 }
 
 
+function showBloomaToast(msg){
+  let el = document.getElementById("bloomaToast");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "bloomaToast";
+    el.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#241F33;color:#fff;padding:13px 20px;border-radius:12px;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:9999;opacity:0;transition:opacity .2s ease, transform .2s ease;max-width:min(90vw,360px);text-align:center;pointer-events:none;";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  requestAnimationFrame(()=>{ el.style.opacity="1"; el.style.transform="translateX(-50%) translateY(0)"; });
+  clearTimeout(window._bloomaToastTimer);
+  window._bloomaToastTimer = setTimeout(()=>{ el.style.opacity="0"; el.style.transform="translateX(-50%) translateY(20px)"; }, 4000);
+}
 const QUICK_NOTES = ["First time here","Sensitive skin","Please call before arrival","No small talk please"];
 const DAYS = Array.from({length:21},(_,i)=>dateFromNzKey(addDaysToDateKey(nzTodayKey(),i)));
 function dayShort(d){ return d.toLocaleDateString(undefined,{weekday:"short",timeZone:NZ_TIME_ZONE}); }
@@ -2171,8 +2223,18 @@ function loyaltyDiscount(){
   const remaining = Math.max(0, baseTotal() - promoDiscount());
   return Math.max(0, Math.min(Number(state.appliedLoyaltyReward.value||0), remaining));
 }
+function packageDiscount(){
+  if (!state.myPackage || !state.packageApplied || !state.service) return 0;
+  if (String(state.myPackage.service_id) !== String(state.service.id)) return 0;
+  return Math.min(state.service.price, baseTotal());
+}
+function giftCardDiscount(){
+  if (!state.appliedGiftCard) return 0;
+  const remaining = Math.max(0, baseTotal() - promoDiscount() - loyaltyDiscount() - packageDiscount());
+  return Math.max(0, Math.min(Number(state.appliedGiftCard.remaining_balance||0), remaining));
+}
 function finalTotal(){
-  return baseTotal() - promoDiscount() - loyaltyDiscount();
+  return Math.max(0, baseTotal() - promoDiscount() - loyaltyDiscount() - packageDiscount() - giftCardDiscount());
 }
 function loyaltyPointsForThisBooking(){
   if (!state.loyaltyAccount || !state.loyaltyAccount.pointsPerDollar) return 0;
@@ -2304,6 +2366,27 @@ let state = {
   venueReturnScrollTop: 0,
   loyaltyAccount: null,
   loyaltyLoading: false,
+  giftCardCode: "",
+  appliedGiftCard: null,
+  giftCardError: "",
+  giftCardChecking: false,
+  myPackage: null,
+  packageApplied: false,
+  showGiftCardSheet: false,
+  showPackagesSheet: false,
+  venuePackages: [],
+  packagesLoading: false,
+  myGiftCards: [],
+  myPackages: [],
+  purchaseAmount: null,
+  purchaseCustomAmount: "",
+  purchaseRecipientName: "",
+  purchaseRecipientEmail: "",
+  purchaseSaving: false,
+  purchaseError: "",
+  venueIntakeQuestions: {},
+  intakeAnswers: {},
+  intakeError: "",
   confirmDialog: null,
   stylistSheetOpen: false,
   waitlist: [],
@@ -2328,8 +2411,12 @@ let state = {
   viewBookingId: null,
   bookingDetailReturnPage: "history",
   messageSalon: null,
+  messageBooking: null,
   messageThread: [],
   messageDraft: "",
+  messageLoading: false,
+  messageSending: false,
+  messageError: "",
   showHomeMenu: false,
 };
 let bookingCounter = 2;
@@ -2394,7 +2481,7 @@ function restoreCustomerHistoryState(entry){
   const page=entry.page||"home";
   const salon=entry.salonId?SALONS.find(s=>s.id===entry.salonId):state.salon;
   if(page==="home"){ Object.assign(state,{page:"home",salon:null,service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null,step:0,done:false}); render(); return true; }
-  if(page==="history"||page==="profile"){ Object.assign(state,{page}); render(); if(page==="profile") loadLoyaltyAccount(); return true; }
+  if(page==="history"||page==="profile"){ Object.assign(state,{page}); render(); if(page==="profile"){ loadLoyaltyAccount(); loadMyGiftCardsAndPackages(); } return true; }
   if(!salon){ Object.assign(state,{page:"home",salon:null,service:null,step:0}); render(); return true; }
   state.salon=salon;
   if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); loadLoyaltyAccount(); return true; }
@@ -2423,9 +2510,41 @@ function goSalon(salon, opts){
   queueCustomerPrefsSave();
   loadLoyaltyAccount();
 }
-function goVenueMessage(salon){
-  setState({ page:"venueMessage", messageSalon:salon, messageDraft:"" });
+function goVenueMessage(salon, booking){
+  setState({ page:"venueMessage", messageSalon:salon, messageBooking:booking||null, messageDraft:"", messageThread:[], messageError:"", messageLoading:!!booking });
   pushCustomerHistoryState();
+  if (booking) loadVenueMessageThread();
+}
+async function loadVenueMessageThread(){
+  const booking = state.messageBooking;
+  if (!customerSupabaseClient || !booking?.publicToken) { state.messageLoading=false; render({samePage:true}); return; }
+  try{
+    const {data,error} = await customerSupabaseClient.rpc("get_booking_messages",{p_token:booking.publicToken});
+    if(error) throw error;
+    state.messageThread = (data||[]).map(m=>({from:m.sender==="venue"?"venue":"me", text:m.body, time:new Date(m.created_at).getTime()}));
+    state.messageError = "";
+  }catch(err){ state.messageError = err?.message||"Couldn't load messages."; }
+  state.messageLoading = false;
+  render({samePage:true});
+}
+async function sendVenueMessageDraft(){
+  const booking = state.messageBooking;
+  const text = state.messageDraft.trim();
+  if (!text || !booking?.publicToken || state.messageSending) return;
+  state.messageSending = true;
+  state.messageThread = [...state.messageThread, { from:"me", text, time:Date.now(), pending:true }];
+  state.messageDraft = "";
+  render({samePage:true});
+  try{
+    const {error} = await customerSupabaseClient.rpc("send_booking_message",{p_token:booking.publicToken, p_body:text});
+    if(error) throw error;
+    await loadVenueMessageThread();
+  }catch(err){
+    state.messageThread = state.messageThread.filter(m=>!m.pending);
+    setState({messageError:err?.message||"We couldn't send that message."},{samePage:true});
+  }
+  state.messageSending = false;
+  render({samePage:true});
 }
 function goBookingDetail(bookingId, opts){
   const historyPage = document.querySelector(".page");
@@ -2448,16 +2567,27 @@ function goServiceSelect(){
   setState({ page:"serviceSelect", salonCategory:"All", selectedServiceId:null });
   pushCustomerHistoryState();
 }
+function intakeQuestionsFor(service){
+  if(!service || !state.venueIntakeQuestions) return [];
+  return state.venueIntakeQuestions[service.id] || [];
+}
 function checkoutStepKeys(service){
-  return (service && service.addons && service.addons.length) ? ["addons","stylist","time","details","confirm"] : ["stylist","time","details","confirm"];
+  const keys=[];
+  if (service && service.addons && service.addons.length) keys.push("addons");
+  keys.push("stylist","time");
+  if (intakeQuestionsFor(service).length) keys.push("intake");
+  keys.push("details","confirm");
+  return keys;
 }
 function goCheckout(service, origin, preferredStylist){
   delete scrollPositions["checkout-day"];
   const contact = bookingContact();
   const anyAvailable = (state.salon?.stylists||[]).find(st=>st.name==="Any available") || null;
-  setState({ page:"checkout", checkoutOrigin:origin||"salon", service, step:0, selectedStylist:preferredStylist||anyAvailable, selectedDay:firstOpenDayIndex(state.salon), selectedTime:null, selectedAddons:[], selectedNotes:[], firstVisitAnswered:false, name:contact.name, phone:contact.phone, guestEmail:contact.email, notes:"", promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"", bookingError:"", bookingSaving:false, pendingBookingRequestId:null, rescheduleBookingId:null, done:false });
+  setState({ page:"checkout", checkoutOrigin:origin||"salon", service, step:0, selectedStylist:preferredStylist||anyAvailable, selectedDay:firstOpenDayIndex(state.salon), selectedTime:null, selectedAddons:[], selectedNotes:[], firstVisitAnswered:false, name:contact.name, phone:contact.phone, guestEmail:contact.email, notes:"", promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"", giftCardCode:"", appliedGiftCard:null, giftCardError:"", myPackage:null, packageApplied:false, intakeAnswers:{}, intakeError:"", bookingError:"", bookingSaving:false, pendingBookingRequestId:null, rescheduleBookingId:null, done:false });
   pushCustomerHistoryState();
   loadLoyaltyAccount();
+  loadMyPackage();
+  if(state.salon?.id && state._venuePackagesLoadedFor!==state.salon.id) loadVenueIntakeQuestions();
 }
 async function applyPromoCode(){
   const raw=(state.promoCode||"").trim().toUpperCase();
@@ -2472,9 +2602,7 @@ async function applyPromoCode(){
 }
 function goHistory(){
   if (!isLoggedInCustomer()){ window.location.href = customerLoginDestination(); return; }
-  setState({ page:"history" });
-  pushCustomerHistoryState();
-  loadCustomerCloudState().then(()=>render({samePage:true})).catch(err=>console.warn("Could not refresh booking history",err));
+  window.location.href = "/activity";
 }
 function goReschedule(booking){
   const salon = SALONS.find(s=>s.id===booking.salonId);
@@ -2488,10 +2616,13 @@ function goReschedule(booking){
     selectedStylist: stylist, selectedDay:firstOpenDayIndex(salon), selectedTime:null, selectedAddons:[], selectedNotes: booking.preferences||[], firstVisitAnswered: !!(booking.preferences||[]).length,
     name: booking.name||"", phone: booking.phone||"", notes: booking.notes||"",
     promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"",
+    giftCardCode:"", appliedGiftCard:null, giftCardError:"", myPackage:null, packageApplied:false, intakeAnswers:{}, intakeError:"",
     done:false, rescheduleBookingId:booking.id, pendingBookingRequestId:null,
   });
   pushCustomerHistoryState();
   loadLoyaltyAccount();
+  loadMyPackage();
+  if(state._venuePackagesLoadedFor!==salon.id) loadVenueIntakeQuestions();
 }
 function goGallery(salon){
   rememberVenueScroll();
@@ -2530,7 +2661,7 @@ function goProfile(){
   if(!state.authenticated){ window.location.href=customerLoginDestination(); return; }
   state.profileOrigin = state.page;
   if(state.page==="salon") rememberVenueScroll();
-  setState({page:"profile"}); pushCustomerHistoryState(); loadLoyaltyAccount();
+  setState({page:"profile"}); pushCustomerHistoryState(); loadLoyaltyAccount(); loadMyGiftCardsAndPackages();
 }
 async function loadLoyaltyAccount(){
   if(!customerSupabaseClient || !state.authUserId || !state.salon?.id || !state.salon?.loyalty?.enabled) { state.loyaltyAccount=null; return; }
@@ -2542,6 +2673,100 @@ async function loadLoyaltyAccount(){
     else state.loyaltyAccount=null;
   }catch(e){ state.loyaltyAccount=null; /* loyalty is a nice-to-have — fail quietly */ }
   state.loyaltyLoading=false; render();
+}
+async function loadMyPackage(){
+  if(!customerSupabaseClient || !state.authUserId || !state.salon?.id || !state.service?.id) { state.myPackage=null; return; }
+  try{
+    const {data,error}=await customerSupabaseClient.rpc("get_my_packages",{p_salon_id:state.salon.id});
+    if(error) throw error;
+    state.myPackage=(data||[]).find(p=>String(p.service_id)===String(state.service.id)) || null;
+  }catch(e){ state.myPackage=null; }
+  render({samePage:true});
+}
+async function loadMyGiftCardsAndPackages(){
+  if(!customerSupabaseClient || !isLoggedInCustomer()) { state.myGiftCards=[]; state.myPackages=[]; return; }
+  try{
+    const [{data:cards},{data:pkgs}] = await Promise.all([
+      customerSupabaseClient.rpc("get_my_gift_cards"),
+      state.salon?.id ? customerSupabaseClient.rpc("get_my_packages",{p_salon_id:state.salon.id}) : Promise.resolve({data:[]})
+    ]);
+    state.myGiftCards=cards||[];
+    state.myPackages=pkgs||[];
+  }catch(e){ /* nice-to-have, fail quietly */ }
+  render({samePage:true});
+}
+async function loadVenuePackages(){
+  if(!state.salon?.id) { state.venuePackages=[]; return; }
+  state.packagesLoading=true; render({samePage:true});
+  try{
+    const {data,error}=await customerSupabaseClient.rpc("get_public_packages",{p_salon_id:state.salon.id});
+    if(error) throw error;
+    state.venuePackages=data||[];
+  }catch(e){ state.venuePackages=[]; }
+  state.packagesLoading=false; render({samePage:true});
+}
+async function loadVenueIntakeQuestions(){
+  if(!state.salon?.id) { state.venueIntakeQuestions={}; return; }
+  try{
+    const {data,error}=await customerSupabaseClient.rpc("get_public_intake_questions",{p_salon_id:state.salon.id});
+    if(error) throw error;
+    state.venueIntakeQuestions=data||{};
+  }catch(e){ state.venueIntakeQuestions={}; }
+  render({samePage:true});
+}
+async function applyGiftCardCode(){
+  const raw=(state.giftCardCode||"").trim().toUpperCase();
+  if(!raw){ setState({giftCardError:"Enter a gift card code"},{samePage:true}); return; }
+  if(!state.salon?.id) return;
+  setState({giftCardChecking:true, giftCardError:""},{samePage:true});
+  try{
+    const {data,error}=await customerSupabaseClient.rpc("get_gift_card_by_code",{p_salon_id:state.salon.id,p_code:raw});
+    if(error) throw error;
+    setState({appliedGiftCard:data, giftCardCode:"", giftCardError:"", giftCardChecking:false},{samePage:true});
+  }catch(err){
+    setState({giftCardError:err?.message||"That gift card code isn't valid",appliedGiftCard:null, giftCardChecking:false},{samePage:true});
+  }
+}
+async function buyGiftCard(){
+  if(!isLoggedInCustomer()){ window.location.href = customerLoginDestination(); return; }
+  const amount = state.purchaseAmount==="custom" ? Number(state.purchaseCustomAmount) : Number(state.purchaseAmount);
+  if(!(amount>=10 && amount<=500)){ setState({purchaseError:"Choose an amount between $10 and $500"},{samePage:true}); return; }
+  setState({purchaseSaving:true, purchaseError:""},{samePage:true});
+  try{
+    const {data:{session}} = await customerSupabaseClient.auth.getSession();
+    const res = await fetch("/api/stripe/create-gift-card-checkout", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},
+      body: JSON.stringify({
+        salon_id: state.salon.id, amount,
+        recipient_name: state.purchaseRecipientName.trim(),
+        recipient_email: state.purchaseRecipientEmail.trim(),
+        purchaser_name: state.profile.name || bookingContact().name || "",
+      })
+    });
+    const data = await res.json().catch(()=>null);
+    if(!res.ok) throw new Error(data?.error||"Could not start checkout");
+    window.location.href = data.url;
+  }catch(err){
+    setState({purchaseError:err?.message||"Could not start checkout", purchaseSaving:false},{samePage:true});
+  }
+}
+async function buyPackage(offerId){
+  if(!isLoggedInCustomer()){ window.location.href = customerLoginDestination(); return; }
+  setState({purchaseSaving:true, purchaseError:""},{samePage:true});
+  try{
+    const {data:{session}} = await customerSupabaseClient.auth.getSession();
+    const res = await fetch("/api/stripe/create-package-checkout", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},
+      body: JSON.stringify({ salon_id: state.salon.id, package_offer_id: offerId })
+    });
+    const data = await res.json().catch(()=>null);
+    if(!res.ok) throw new Error(data?.error||"Could not start checkout");
+    window.location.href = data.url;
+  }catch(err){
+    setState({purchaseError:err?.message||"Could not start checkout", purchaseSaving:false},{samePage:true});
+  }
 }
 function openReview(id){ setState({activeReviewBookingId:id,reviewDraftRating:0,reviewDraftNote:""},{samePage:true}); }
 function closeReview(){ setState({activeReviewBookingId:null,reviewDraftRating:0,reviewDraftNote:""},{samePage:true}); }
@@ -3047,7 +3272,6 @@ function renderSalon(){
           </button>
           <button class="v2-icon-btn" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-            ${isLoggedInCustomer()?'<span class="v2-menu-badge"></span>':''}
           </button>
         </div>
       </div></header>
@@ -3086,6 +3310,27 @@ function renderSalon(){
               <div class="v2-service-list" id="salonServicesSection">${salonServicesMarkup(salon,state.salonCategory)}</div>
             </section>
 
+            <section class="v2-section" id="giftpkg">
+              <p class="v2-eyebrow">Gift cards & packages</p><h2>Buy ahead and save</h2>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div class="v2-info-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+                  <div style="min-width:0;">
+                    <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">Gift card</p>
+                    <p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;">Give the gift of a treatment at ${escapeHtml(salon.name)}.</p>
+                  </div>
+                  <button class="v2-book-small" id="giftCardCtaBtn" style="flex-shrink:0;">Buy a gift card</button>
+                </div>
+                ${state.venuePackages.length ? state.venuePackages.map(p=>`
+                <div class="v2-info-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+                  <div style="min-width:0;">
+                    <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(p.name)}</p>
+                    <p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;">${p.sessions} sessions${p.service_name?` · ${escapeHtml(p.service_name)}`:""} · $${p.price}</p>
+                  </div>
+                  <button class="v2-book-small" data-buypackage="${escapeAttr(p.id)}" style="flex-shrink:0;">Buy package</button>
+                </div>`).join("") : ""}
+              </div>
+            </section>
+
             ${teamStylists.length ? `
             <section class="v2-section">
               <p class="v2-eyebrow">Team</p><h2>Meet the team</h2>
@@ -3106,6 +3351,7 @@ function renderSalon(){
 
             ${salon.reviewList && salon.reviewList.length ? `
             <section class="v2-section">
+              <p class="v2-eyebrow">Reviews</p>
               <div class="v2-section-title-row"><h2>Loved by clients</h2><button class="v2-view-reviews-btn" data-reviews="${escapeAttr(salon.id)}">View all reviews</button></div>
               <div class="v2-review-summary">
                 <div class="v2-big-rating">${salon.rating}</div>
@@ -3170,6 +3416,7 @@ function renderSalon(){
           <button class="v2-big-book" id="venueBookNowBtn">Book now</button>
         </div>
       </div>
+      ${renderGiftCardSheet()}
     </div>
     ${hamburgerMenuMarkup()}
   `;
@@ -3339,7 +3586,7 @@ function bindBookingConfirmedEvents(booking, onBack){
     window.open(venueMapUrl(salon,false), "_blank", "noopener");
   });
   const doneMessageBtn = document.getElementById("doneMessageBtn");
-  if (doneMessageBtn && salon) doneMessageBtn.addEventListener("click", ()=> goVenueMessage(salon));
+  if (doneMessageBtn && salon) doneMessageBtn.addEventListener("click", ()=> goVenueMessage(salon, booking));
   const doneVenueBtn = document.getElementById("doneVenueBtn");
   if (doneVenueBtn && salon) doneVenueBtn.addEventListener("click", ()=> goSalon(salon));
   const doneRescheduleBtn = document.getElementById("doneRescheduleBtn");
@@ -3367,7 +3614,8 @@ function renderCheckout(){
   const canContinueTime = state.selectedTime !== null && !isTimeBlocked(salon, state.selectedDay, state.selectedStylist, state.selectedTime, service.duration);
   const contact = bookingContact();
   const canContinueDetails = state.firstVisitAnswered && (isLoggedInCustomer() ? (contact.name.length > 1 && contact.phone.length > 5) : (state.name.trim().length > 1 && state.phone.trim().length > 5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.guestEmail.trim())));
-  const disabled = state.bookingSaving || (stepKey==="stylist" && !canContinueStylist) || (stepKey==="time" && !canContinueTime) || (stepKey==="details" && !canContinueDetails);
+  const canContinueIntake = intakeQuestionsFor(service).every(q=> !q.required || String(state.intakeAnswers[q.id]||"").trim().length>0);
+  const disabled = state.bookingSaving || (stepKey==="stylist" && !canContinueStylist) || (stepKey==="time" && !canContinueTime) || (stepKey==="intake" && !canContinueIntake) || (stepKey==="details" && !canContinueDetails);
 
   let body = "";
   if (stepKey==="addons"){
@@ -3387,10 +3635,14 @@ function renderCheckout(){
       <p style="font-size:12.5px;color:var(--ink-soft);margin:16px 2px 0;line-height:1.5;">You can skip this step if you don't need any add-ons.</p>
     `;
   } else if (stepKey==="stylist"){
+    const assignedStylists = salon.stylists.filter(st=>Array.isArray(st.serviceIds) && st.serviceIds.length && st.serviceIds.includes(service.id));
+    const eligibleStylists = assignedStylists.length
+      ? salon.stylists.filter(st=>isAnyAvailableStylist(st) || assignedStylists.includes(st))
+      : salon.stylists;
     body = `
       <p class="checkout-step-label">Stylist</p>
       <div style="display:flex;flex-direction:column;gap:10px;">
-        ${salon.stylists.map(st=>`
+        ${eligibleStylists.map(st=>`
           <button class="stylist-card ${state.selectedStylist && state.selectedStylist.id===st.id?'active':''}" data-stylist="${st.id}">
             <div class="stylist-avatar">${isAnyAvailableStylist(st) ? icon('sparkles') : escapeHtml(st.name.charAt(0))}</div>
             <span style="min-width:0;">
@@ -3427,6 +3679,31 @@ function renderCheckout(){
       ` : `
       <button class="text-link-btn" id="joinWaitlistLink" style="margin-top:16px;">Can't find a time that works? Join the waitlist</button>
       `}
+    `;
+  } else if (stepKey==="intake"){
+    body = `
+      <p class="checkout-step-label">A few questions from ${escapeHtml(salon.name)}</p>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        ${intakeQuestionsFor(service).map(q=>`
+        <div class="field" data-intakefield="${escapeAttr(q.id)}">
+          <label>${escapeHtml(q.label)}${q.required?' *':''}</label>
+          ${q.type==="yesno" ? `
+          <div style="display:flex;gap:10px;">
+            <button type="button" class="addon-row intake-yesno-btn ${state.intakeAnswers[q.id]==='Yes'?'active':''}" data-intakeyesno="${escapeAttr(q.id)}|Yes" style="flex:1;justify-content:center;"><span style="font-size:13.5px;font-weight:600;color:var(--ink);">Yes</span></button>
+            <button type="button" class="addon-row intake-yesno-btn ${state.intakeAnswers[q.id]==='No'?'active':''}" data-intakeyesno="${escapeAttr(q.id)}|No" style="flex:1;justify-content:center;"><span style="font-size:13.5px;font-weight:600;color:var(--ink);">No</span></button>
+          </div>
+          ` : q.type==="choice" ? `
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${(q.options||[]).map(opt=>`
+            <button type="button" class="addon-row intake-choice-btn ${state.intakeAnswers[q.id]===opt?'active':''}" data-intakechoice="${escapeAttr(q.id)}|${escapeAttr(opt)}"><span style="font-size:13.5px;font-weight:600;color:var(--ink);">${escapeHtml(opt)}</span></button>
+            `).join("")}
+          </div>
+          ` : `
+          <input type="text" data-intaketext="${escapeAttr(q.id)}" value="${escapeAttr(state.intakeAnswers[q.id]||"")}" />
+          `}
+        </div>
+        `).join("")}
+      </div>
     `;
   } else if (stepKey==="details"){
     body = `
@@ -3547,6 +3824,46 @@ function renderCheckout(){
         ` : ""}
       </div>
       ` : ""}
+
+      ${(isLoggedInCustomer() && state.myPackage && String(state.myPackage.service_id)===String(service.id)) ? `
+      <div class="section-rule"><span class="lbl">Your package</span><span class="line"></span></div>
+      <div class="summary-card" style="padding:12px 14px;">
+        <div class="promo-applied-row">
+          <span style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;">${icon('checkSmall')}</span>
+            <span style="min-width:0;">
+              <span style="display:block;font-size:13.5px;font-weight:700;color:var(--ink);">Use a session from your package</span>
+              <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;">${state.myPackage.sessions_remaining} session${state.myPackage.sessions_remaining===1?'':'s'} remaining</span>
+            </span>
+          </span>
+          <button class="promo-remove-btn" id="togglePackageBtn" data-active="${state.packageApplied?'1':'0'}">${state.packageApplied?'Remove':'Apply'}</button>
+        </div>
+      </div>
+      ` : ""}
+
+      <div class="section-rule"><span class="lbl">Gift card</span><span class="line"></span></div>
+      ${state.appliedGiftCard ? `
+      <div class="summary-card" style="padding:12px 14px;">
+        <div class="promo-applied-row">
+          <span style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;">${icon('checkSmall')}</span>
+            <span style="min-width:0;">
+              <span style="display:block;font-size:13.5px;font-weight:700;color:var(--ink);">Gift card ${escapeHtml(state.appliedGiftCard.code)}</span>
+              <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;">$${state.appliedGiftCard.remaining_balance} balance available</span>
+            </span>
+          </span>
+          <button class="promo-remove-btn" id="removeGiftCardBtn">Remove</button>
+        </div>
+      </div>
+      ` : `
+      <div class="summary-card" style="padding:12px 14px;">
+        <div style="display:flex;gap:8px;">
+          <input class="promo-input ${state.giftCardError?'error':''}" id="giftCardInput" placeholder="Gift card code" value="${escapeAttr(state.giftCardCode)}" style="flex:1;" />
+          <button class="promo-apply-btn" id="applyGiftCardBtn" ${state.giftCardChecking?'disabled':''}>${state.giftCardChecking?'Checking…':'Apply'}</button>
+        </div>
+        ${state.giftCardError?`<p style="font-size:12px;color:#C13B3B;margin:8px 0 0;">${escapeHtml(state.giftCardError)}</p>`:""}
+      </div>
+      `}
     `;
   }
 
@@ -3555,7 +3872,7 @@ function renderCheckout(){
     return `<div class="dot ${cls}"></div>`;
   }).join("");
 
-  const stepTitles = { addons:'Add-ons', stylist:'Stylist', time:'Time', details: isLoggedInCustomer()?'Notes':'Details', confirm:'Summary' };
+  const stepTitles = { addons:'Add-ons', stylist:'Stylist', time:'Time', intake:'A few questions', details: isLoggedInCustomer()?'Notes':'Details', confirm:'Summary' };
   const stepBtnLabels = { addons:'Continue', stylist:'Continue', time:'Continue', details:'Review booking', confirm: state.bookingSaving?'Confirming…':'Confirm booking' };
 
   return `
@@ -3573,7 +3890,7 @@ function renderCheckout(){
           <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
           <div style="min-width:0;">
             <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(service.name)}</p>
-            <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;" >${escapeHtml(salon.name)} · ${service.duration} min · ${(state.appliedPromo||state.appliedLoyaltyReward)?`<span style="text-decoration:line-through;color:var(--placeholder);">$${baseTotal()}</span> $${finalTotal()}`:`$${baseTotal()}`}</p>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;" >${escapeHtml(salon.name)} · ${service.duration} min · ${(state.appliedPromo||state.appliedLoyaltyReward||state.appliedGiftCard||packageDiscount()>0)?`<span style="text-decoration:line-through;color:var(--placeholder);">$${baseTotal()}</span> $${finalTotal()}`:`$${baseTotal()}`}</p>
             ${state.selectedTime?`<p class="checkout-summary-strip-time">${dayLabel(DAYS[state.selectedDay])} · ${escapeHtml(state.selectedTime)}</p>`:""}
           </div>
         </div>
@@ -3742,6 +4059,7 @@ function renderVenueMessage(){
   }
   const coverImage = (salon.photos && salon.photos.length) ? salon.photos[0] : (salon.homeImage||"");
   const thread = state.messageThread||[];
+  const canMessage = !!state.messageBooking?.publicToken;
   return `
     <div class="page checkout-shell">
       <div class="topbar">
@@ -3755,13 +4073,16 @@ function renderVenueMessage(){
         <p class="msg-venue-sub">${escapeHtml(salon.tag||"Salon")}${salon.distance?` · ${escapeHtml(salon.distance)}`:""}</p>
       </div>
       <div style="flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;padding:10px 0;">
-        ${thread.length ? thread.map(m=>`
+        ${!canMessage ? `<div class="msg-thread-empty">Open Messages from one of your bookings to chat with ${escapeHtml(salon.name)}.</div>`
+          : state.messageLoading ? `<div class="msg-thread-empty">Loading conversation…</div>`
+          : thread.length ? thread.map(m=>`
           <div class="msg-bubble-row ${m.from==='me'?'me':''}"><div class="msg-bubble">${escapeHtml(m.text)}</div></div>
         `).join("") : `<div class="msg-thread-empty">Send ${escapeHtml(salon.name)} a message and they'll reply here.</div>`}
+        ${state.messageError?`<p style="text-align:center;font-size:12.5px;color:var(--danger,#E5484D);padding:0 20px;">${escapeHtml(state.messageError)}</p>`:""}
       </div>
       <div class="msg-compose">
-        <input type="text" id="msgComposeInput" placeholder="Type a message" value="${escapeAttr(state.messageDraft)}" autocomplete="off" />
-        <button class="msg-send-btn" id="msgSendBtn" ${state.messageDraft.trim()?"":"disabled"} aria-label="Send">${icon('send')}</button>
+        <input type="text" id="msgComposeInput" placeholder="Type a message" value="${escapeAttr(state.messageDraft)}" autocomplete="off" ${canMessage?"":"disabled"} />
+        <button class="msg-send-btn" id="msgSendBtn" ${(canMessage && state.messageDraft.trim() && !state.messageSending)?"":"disabled"} aria-label="Send">${icon('send')}</button>
       </div>
     </div>
   `;
@@ -3947,70 +4268,82 @@ function renderHistory(){
       </div>
       <div style="flex:1;overflow-y:auto;min-height:0;padding:16px 20px 32px;">
         ${state.bookingError?`<p style="font-size:12.5px;color:#C13B3B;text-align:center;margin:0 0 14px;line-height:1.4;">${escapeHtml(state.bookingError)}</p>`:""}
-        <div class="hist-panel">
-          <div style="display:flex;gap:8px;margin-bottom:16px;">
-            <button class="chip ${filter==='upcoming'?'active':''}" data-historyfilter="upcoming" style="flex:1;">Upcoming${upcoming.length?` (${upcoming.length})`:""}</button>
-            <button class="chip ${filter==='past'?'active':''}" data-historyfilter="past" style="flex:1;">Past${past.length?` (${past.length})`:""}</button>
-          </div>
 
-          ${(filter==="upcoming" && waitlist.length) ? `
-            <p class="eyebrow" style="margin:0 0 10px;">On the waitlist</p>
-            ${waitlist.map(w=>`
-              <div class="waitlist-card" style="margin-bottom:10px;">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-                  <div style="min-width:0;">
-                    <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(w.serviceName)}</p>
-                    <p style="font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;">${escapeHtml(w.salonName)} · ${escapeHtml(w.stylistName)}</p>
-                  </div>
-                  <span class="tag-pill" style="background:var(--purple-pastel-2);color:var(--purple);flex-shrink:0;">${icon('bell')}<span>${w.status==="notified"?"Contacted":"Waiting"}</span></span>
+        <div style="display:flex;gap:8px;margin-bottom:18px;">
+          <button class="chip ${filter==='upcoming'?'active':''}" data-historyfilter="upcoming" style="flex:1;">Upcoming${upcoming.length?` (${upcoming.length})`:""}</button>
+          <button class="chip ${filter==='past'?'active':''}" data-historyfilter="past" style="flex:1;">Past${past.length?` (${past.length})`:""}</button>
+        </div>
+
+        ${(filter==="upcoming" && waitlist.length) ? `
+          <p class="eyebrow" style="margin:0 0 10px;">On the waitlist</p>
+          ${waitlist.map(w=>`
+            <div class="waitlist-card" style="margin-bottom:10px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+                <div style="min-width:0;">
+                  <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(w.serviceName)}</p>
+                  <p style="font-size:12.5px;color:var(--ink-soft);margin:3px 0 0;">${escapeHtml(w.salonName)} · ${escapeHtml(w.stylistName)}</p>
                 </div>
-                <div class="hist-divider"></div>
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-                  <div style="min-width:0;">
-                    <p style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.4px;margin:0 0 4px;">Day</p>
-                    <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(w.dayLabel)}</p>
-                  </div>
-                  <div style="min-width:0;text-align:right;">
-                    <p style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.4px;margin:0 0 4px;">Time preference</p>
-                    <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(w.timePref)}</p>
-                  </div>
-                </div>
-                <button class="hist-action-btn cancel" style="margin-top:12px;" data-leavewaitlist="${w.id}">${icon('trash')}&nbsp;Leave waitlist</button>
+                <span class="tag-pill" style="background:var(--purple-pastel-2);color:var(--purple);flex-shrink:0;">${icon('bell')}<span>${w.status==="notified"?"Contacted":"Waiting"}</span></span>
               </div>
-            `).join("")}
-          ` : ""}
-
-          ${bookings.length===0 && !(filter==="upcoming" && waitlist.length) ? `
-            <div class="empty-state" style="padding:40px 20px;">
-              ${filter==="upcoming" ? `No upcoming bookings.<br/>Book a service and it'll show up here.` : `No past bookings yet.`}
+              <div class="hist-divider"></div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+                <div style="min-width:0;">
+                  <p style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.4px;margin:0 0 4px;">Day</p>
+                  <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(w.dayLabel)}</p>
+                </div>
+                <div style="min-width:0;text-align:right;">
+                  <p style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.4px;margin:0 0 4px;">Time preference</p>
+                  <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(w.timePref)}</p>
+                </div>
+              </div>
+              <button class="hist-action-btn cancel" style="margin-top:12px;" data-leavewaitlist="${w.id}">${icon('trash')}&nbsp;Leave waitlist</button>
             </div>
-          ` : bookings.map(b=>{
+          `).join("")}
+        ` : ""}
+
+        ${bookings.length===0 && !(filter==="upcoming" && waitlist.length) ? `
+          <div class="empty-state" style="padding:40px 20px;">
+            ${filter==="upcoming" ? `No upcoming bookings.<br/>Book a service and it'll show up here.` : `No past bookings yet.`}
+          </div>
+        ` : `<div class="act-list">${bookings.map(b=>{
             const salon = SALONS.find(s=>s.id===b.salonId);
             const addonsTotal = (b.addons||[]).reduce((sum,a)=>sum+(Number(a.price)||0),0);
             const expanded = state.expandedBookingId===b.id;
             const isUpcoming = b.status==="upcoming" && b.id;
+            const thumb=(salon&&salon.photos&&salon.photos.length)?salon.photos[0]:(salon&&salon.homeImage||"");
             return `
-            <div class="hist-card-simple ${expanded?'expanded':''}" ${isUpcoming?`data-bookingview="${b.id}"`:(b.id?`data-bookingtoggle="${b.id}"`:'')}>
-              ${(()=>{ const thumb=(salon&&salon.photos&&salon.photos.length)?salon.photos[0]:(salon&&salon.homeImage||""); return `
-              <div class="hcs-thumb">
-                ${thumb?`<img src="${escapeAttr(thumb)}" alt="${escapeAttr(b.salonName)}" loading="lazy" decoding="async">`:`<div class="hcs-thumb-fallback">${icon('store')}</div>`}
-              </div>`; })()}
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
-                <p class="hcs-salon">${escapeHtml(b.salonName)}</p>
-                <span class="hist-status-badge ${b.status}">${bookingStatusLabel(b.status)}</span>
+            <div class="act-card ${expanded?'expanded':''}" ${isUpcoming?`data-bookingview="${b.id}"`:(b.id?`data-bookingtoggle="${b.id}"`:'')}>
+              <div class="act-row">
+                <div class="act-thumb">
+                  ${thumb?`<img src="${escapeAttr(thumb)}" alt="${escapeAttr(b.salonName)}" loading="lazy" decoding="async">`:`<div class="act-thumb-fallback">${icon('store')}</div>`}
+                </div>
+                <div class="act-info">
+                  <div class="act-top">
+                    <div style="min-width:0;">
+                      <p class="act-venue">${escapeHtml(b.salonName)}</p>
+                      <p class="act-service">${escapeHtml(b.serviceName)}</p>
+                    </div>
+                    <span class="hist-status-badge ${b.status}">${bookingStatusLabel(b.status)}</span>
+                  </div>
+                  ${b.addons && b.addons.length ? `<p class="hcs-addons">+ ${b.addons.map(a=>escapeHtml(a.name)).join(", ")}</p>` : ""}
+                  <p class="act-meta">${icon('calendar')}<span>${escapeHtml(b.dateLabel)}</span><span class="act-dot"></span>${icon('clock')}<span>${escapeHtml(b.time)}</span><span class="act-dot"></span><span>${escapeHtml(b.stylistName)}</span></p>
+                </div>
               </div>
-              <p class="hcs-service">${escapeHtml(b.serviceName)}</p>
-              ${b.addons && b.addons.length ? `<p class="hcs-addons">+ ${b.addons.map(a=>escapeHtml(a.name)).join(", ")}</p>` : ""}
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;">
-                <p class="hcs-datetime">${icon('calendar')}<span>${escapeHtml(b.dateLabel)}</span><span style="color:var(--border-hover);">·</span>${icon('clock')}<span>${escapeHtml(b.time)}</span></p>
-                <p class="hcs-price">$${b.price}${addonsTotal ? `<span class="hcs-price-sub">incl. $${addonsTotal} add-ons</span>` : ""}</p>
+              <div class="act-foot">
+                <span class="act-pill">${b.duration} min</span>
+                <div class="act-total">
+                  <div>
+                    <strong>$${b.price}</strong>
+                    ${addonsTotal ? `<span class="act-price-sub">incl. $${addonsTotal} add-ons</span>` : ""}
+                  </div>
+                  <span class="act-chev">${isUpcoming?icon('chevronRight'):icon('chevronDown')}</span>
+                </div>
               </div>
               ${b.status==="completed" ? `
                 <div style="margin-top:12px;">${renderReviewBlock(b)}</div>
               ` : ""}
             </div>
-          `;}).join("")}
-        </div>
+          `;}).join("")}</div>`}
       </div>
     </div>
     ${calendarSheetMarkup()}
@@ -4033,18 +4366,18 @@ function renderProfile(){
         </div>
       </div>
 
-      <div style="flex:1;overflow-y:auto;min-height:0;">
-      <div style="padding:24px 20px 20px;display:flex;align-items:center;gap:14px;">
+      <div style="flex:1;overflow-y:auto;min-height:0;padding:20px 20px 28px;display:flex;flex-direction:column;gap:18px;">
+
+      <div class="summary-card" style="display:flex;align-items:center;gap:14px;padding:18px 16px;">
         <div class="avatar-lg">${escapeHtml(initials)}</div>
         <div style="min-width:0;">
-          <p style="font-size:17px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</p>
+          <p style="font-size:16.5px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</p>
           ${p.email?`<p style="font-size:13px;color:var(--ink-soft);margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.email)}</p>`:""}
-          <p style="font-size:13px;color:var(--ink-soft);margin:2px 0 0;">${escapeHtml(p.phone)}</p>
         </div>
       </div>
 
       ${state.salon && (state.loyaltyAccount || state.loyaltyLoading) ? `
-      <div style="padding:0 20px 20px;">
+      <div>
         ${state.loyaltyLoading && !state.loyaltyAccount ? `
         <div class="profile-rewards-card"><p style="font-size:12.5px;color:var(--ink-soft);margin:0;">Loading your rewards…</p></div>
         ` : state.loyaltyAccount ? `
@@ -4062,16 +4395,57 @@ function renderProfile(){
         </div>` : ""}
       </div>` : ""}
 
-      <div style="padding:0 20px 8px;">
-        <div class="field">
-          <label>Phone</label>
-          <input id="profilePhoneInput" value="${escapeAttr(p.phone)}" placeholder="Your phone number" inputmode="tel" autocomplete="tel" />
+      ${isLoggedInCustomer() && (state.myGiftCards.length || state.myPackages.length) ? `
+      <div>
+        <p class="profile-section-title">Gift cards</p>
+        <div class="settings-card" style="padding:2px 16px;">
+          ${state.myGiftCards.length ? state.myGiftCards.map(g=>`
+          <div class="settings-row" style="cursor:default;">
+            <div class="srow-icon">${icon('sparkles')}</div>
+            <div class="srow-text">
+              <p class="srow-title">$${g.remaining_balance} <span style="font-weight:500;color:var(--ink-soft);font-size:12.5px;">of $${g.initial_value}</span></p>
+              <p class="srow-sub">Code ${escapeHtml(g.code)} · ${g.status==='active'?'Active':g.status==='depleted'?'Used up':'Cancelled'}</p>
+            </div>
+          </div>`).join("") : `<div class="settings-row" style="cursor:default;"><div class="srow-text"><p class="srow-sub">No gift cards yet.</p></div></div>`}
         </div>
       </div>
 
-      <div style="padding:8px 20px 32px;">
-        <button class="logout-btn" id="profileLogoutBtn">Log out</button>
+      ${state.myPackages.length ? `
+      <div>
+        <p class="profile-section-title">Packages</p>
+        <div class="settings-card" style="padding:2px 16px;">
+          ${state.myPackages.map(p=>`
+          <div class="settings-row" style="cursor:default;">
+            <div class="srow-icon">${icon('sparkles')}</div>
+            <div class="srow-text">
+              <p class="srow-title">${escapeHtml(p.service_name_snapshot||'Package')}</p>
+              <p class="srow-sub">${p.sessions_remaining} of ${p.sessions_total} sessions left</p>
+            </div>
+          </div>`).join("")}
+        </div>
+      </div>` : ""}
+      ` : ""}
+
+      <div>
+        <p class="profile-section-title">Contact details</p>
+        <div class="settings-card" style="padding:14px 16px;">
+          <div class="field">
+            <label>Phone</label>
+            <input id="profilePhoneInput" value="${escapeAttr(p.phone)}" placeholder="Your phone number" inputmode="tel" autocomplete="tel" />
+          </div>
+        </div>
       </div>
+
+      <div>
+        <p class="profile-section-title">Account</p>
+        <div class="settings-card" style="padding:2px 16px;">
+          <button class="settings-row" id="profileLogoutBtn" style="width:100%;background:none;border:0;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;">
+            <div class="srow-icon" style="background:#FBEAEA;color:#C13B3B;">${icon('logOut')}</div>
+            <div class="srow-text"><p class="srow-title" style="color:#C13B3B;">Log out</p></div>
+          </button>
+        </div>
+      </div>
+
       </div>
 
       <div class="app-bottom-bar" style="padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:#fff;flex-shrink:0;">
@@ -4165,6 +4539,51 @@ function renderLoyaltySheet(){
     </div>
   `;
 }
+function openGiftCardSheet(){
+  setState({ showGiftCardSheet:true, purchaseAmount:50, purchaseCustomAmount:"", purchaseRecipientName:"", purchaseRecipientEmail:"", purchaseError:"" }, { samePage:true });
+}
+function closeGiftCardSheetEl(afterClose){
+  const sheet=document.getElementById("giftCardSheetCard");
+  const overlay=document.getElementById("giftCardSheetOverlay");
+  const finish=()=>{
+    state.showGiftCardSheet=false;
+    if(typeof afterClose==="function") afterClose(); else render({samePage:true});
+  };
+  if(!sheet){ finish(); return; }
+  sheet.classList.add("closing"); overlay?.classList.add("closing");
+  setTimeout(finish,220);
+}
+function renderGiftCardSheet(){
+  if (!state.showGiftCardSheet || !state.salon) return "";
+  const amounts=[25,50,100,150];
+  return `
+    <div id="giftCardSheetOverlay" style="position:absolute;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
+    <div class="home-menu-sheet" id="giftCardSheetCard">
+      <div class="home-menu-sheet-header">
+        <h2 class="home-menu-sheet-title">Buy a gift card</h2>
+        <button id="closeGiftCardSheet" class="home-menu-sheet-close" aria-label="Close">${icon('x')}</button>
+      </div>
+      <p style="font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0 0 14px;">Redeemable at ${escapeHtml(state.salon.name)}. Valid for 3 years.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        ${amounts.map(a=>`<button class="addon-row gc-amount-btn ${state.purchaseAmount===a?'active':''}" data-gcamount="${a}" style="justify-content:center;"><span style="font-size:14px;font-weight:700;color:var(--ink);">$${a}</span></button>`).join("")}
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>Or enter a custom amount ($10–$500)</label>
+        <input id="gcCustomAmount" type="number" min="10" max="500" placeholder="e.g. 75" value="${escapeAttr(state.purchaseAmount==='custom'?state.purchaseCustomAmount:'')}" />
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>Recipient name <span style="color:var(--ink-soft);font-weight:500;">(optional)</span></label>
+        <input id="gcRecipientName" value="${escapeAttr(state.purchaseRecipientName)}" placeholder="Buying for yourself? Leave blank" />
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label>Recipient email <span style="color:var(--ink-soft);font-weight:500;">(optional)</span></label>
+        <input id="gcRecipientEmail" type="email" value="${escapeAttr(state.purchaseRecipientEmail)}" placeholder="So they can find it in their account" />
+      </div>
+      ${state.purchaseError?`<p style="font-size:12.5px;color:#C13B3B;margin:0 0 10px;">${escapeHtml(state.purchaseError)}</p>`:""}
+      <button class="primary-btn" id="buyGiftCardBtn" ${state.purchaseSaving?'disabled':''}>${state.purchaseSaving?'Starting checkout…':'Continue to payment'}</button>
+    </div>
+  `;
+}
 function closeLoyaltySheetEl(afterClose){
   const sheet=document.getElementById("loyaltySheetCard");
   const overlay=document.getElementById("loyaltySheetOverlay");
@@ -4226,7 +4645,7 @@ function createVenueMap(el, lat, lng, rating){
     container: el,
     style: VENUE_MAPBOX_STYLE,
     center: [lng, lat],
-    zoom: window.innerWidth < 1024 ? 10 : 13,
+    zoom: window.innerWidth < 1024 ? 11 : 13,
     interactive: false,
     accessToken: MAPBOX_ACCESS_TOKEN,
   });
@@ -4638,6 +5057,33 @@ function bindEvents(){
       updateVenueSidebarStick();
       requestAnimationFrame(updateVenueSidebarStick);
     }
+    if (state.salon?.id && state._venuePackagesLoadedFor !== state.salon.id){
+      state._venuePackagesLoadedFor = state.salon.id;
+      loadVenuePackages();
+      loadVenueIntakeQuestions();
+    }
+    const giftCardCta = document.getElementById("giftCardCtaBtn");
+    if (giftCardCta) giftCardCta.addEventListener("click", ()=> openGiftCardSheet());
+    document.querySelectorAll("[data-buypackage]").forEach(btn=>{
+      btn.addEventListener("click", ()=> buyPackage(btn.getAttribute("data-buypackage")));
+    });
+    if (state.showGiftCardSheet){
+      const gcOverlay = document.getElementById("giftCardSheetOverlay");
+      if (gcOverlay) gcOverlay.addEventListener("click", ()=>closeGiftCardSheetEl());
+      const gcClose = document.getElementById("closeGiftCardSheet");
+      if (gcClose) gcClose.addEventListener("click", ()=>closeGiftCardSheetEl());
+      document.querySelectorAll("[data-gcamount]").forEach(btn=>{
+        btn.addEventListener("click", ()=> setState({ purchaseAmount:Number(btn.getAttribute("data-gcamount")), purchaseError:"" }, { samePage:true }));
+      });
+      const gcCustom = document.getElementById("gcCustomAmount");
+      if (gcCustom) gcCustom.addEventListener("input", (e)=>{ state.purchaseAmount="custom"; state.purchaseCustomAmount=e.target.value; });
+      const gcRecipName = document.getElementById("gcRecipientName");
+      if (gcRecipName) gcRecipName.addEventListener("input", (e)=>{ state.purchaseRecipientName=e.target.value; });
+      const gcRecipEmail = document.getElementById("gcRecipientEmail");
+      if (gcRecipEmail) gcRecipEmail.addEventListener("input", (e)=>{ state.purchaseRecipientEmail=e.target.value; });
+      const buyGcBtn = document.getElementById("buyGiftCardBtn");
+      if (buyGcBtn) buyGcBtn.addEventListener("click", buyGiftCard);
+    }
   }
 
   if (state.page === "serviceSelect"){
@@ -4724,6 +5170,26 @@ function bindEvents(){
       });
     }
 
+    if (stepKey==="intake"){
+      document.querySelectorAll("[data-intaketext]").forEach(el=>{
+        el.addEventListener("input", (e)=>{ state.intakeAnswers[el.getAttribute("data-intaketext")] = e.target.value; syncIntakeContinueBtn(); });
+      });
+      document.querySelectorAll("[data-intakeyesno]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const [qid,val] = btn.getAttribute("data-intakeyesno").split("|");
+          setState({ intakeAnswers: Object.assign({}, state.intakeAnswers, { [qid]: val }) }, { samePage:true });
+        });
+      });
+      document.querySelectorAll("[data-intakechoice]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const idx = btn.getAttribute("data-intakechoice").indexOf("|");
+          const qid = btn.getAttribute("data-intakechoice").slice(0,idx);
+          const val = btn.getAttribute("data-intakechoice").slice(idx+1);
+          setState({ intakeAnswers: Object.assign({}, state.intakeAnswers, { [qid]: val }) }, { samePage:true });
+        });
+      });
+    }
+
     if (stepKey==="confirm"){
       const promoInput = document.getElementById("promoInput");
       if (promoInput){
@@ -4737,6 +5203,21 @@ function bindEvents(){
       const removeBtn = document.getElementById("removePromoBtn");
       if (removeBtn) removeBtn.addEventListener("click", ()=>{
         setState({ appliedPromo:null, promoCode:"", promoError:"" }, { samePage:true });
+      });
+      const giftCardInput = document.getElementById("giftCardInput");
+      if (giftCardInput){
+        giftCardInput.addEventListener("input", (e)=>{ state.giftCardCode = e.target.value; });
+        giftCardInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter"){ e.preventDefault(); applyGiftCardCode(); } });
+      }
+      const applyGiftCardBtn = document.getElementById("applyGiftCardBtn");
+      if (applyGiftCardBtn) applyGiftCardBtn.addEventListener("click", applyGiftCardCode);
+      const removeGiftCardBtn = document.getElementById("removeGiftCardBtn");
+      if (removeGiftCardBtn) removeGiftCardBtn.addEventListener("click", ()=>{
+        setState({ appliedGiftCard:null, giftCardCode:"", giftCardError:"" }, { samePage:true });
+      });
+      const togglePackageBtn = document.getElementById("togglePackageBtn");
+      if (togglePackageBtn) togglePackageBtn.addEventListener("click", ()=>{
+        setState({ packageApplied: togglePackageBtn.getAttribute("data-active")!=="1" }, { samePage:true });
       });
       const openLoyaltyBtn = document.getElementById("openLoyaltySheet");
       if (openLoyaltyBtn) openLoyaltyBtn.addEventListener("click", ()=>{ setState({ showLoyaltySheet:true }, { samePage:true }); });
@@ -4800,12 +5281,17 @@ function bindEvents(){
           price: finalTotal(),
           subtotal: baseTotal(),
           promoCode: state.appliedPromo ? state.appliedPromo.code : null,
-          discount: promoDiscount() + loyaltyDiscount(),
+          discount: promoDiscount() + loyaltyDiscount() + packageDiscount() + giftCardDiscount(),
           addons: selectedAddonsList(),
           name: contact.name,
           phone: contact.phone,
           email: contact.email,
-          notes: state.appliedLoyaltyReward ? `${state.notes ? state.notes+" " : ""}[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]`.trim() : state.notes,
+          notes: [
+            state.notes,
+            state.appliedLoyaltyReward ? `[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]` : "",
+            packageDiscount() ? `[Package session redeemed]` : "",
+            state.appliedGiftCard ? `[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]` : "",
+          ].filter(Boolean).join(" ").trim(),
           preferences: state.selectedNotes,
           status: "upcoming",
         };
@@ -4828,6 +5314,22 @@ function bindEvents(){
           if(state.appliedLoyaltyReward && customerSupabaseClient){
             try{ await customerSupabaseClient.rpc("redeem_loyalty_reward",{p_salon_id:state.salon.id}); }
             catch(redeemErr){ console.warn("Loyalty redemption could not be recorded",redeemErr); }
+          }
+          if(state.appliedGiftCard && giftCardDiscount()>0 && customerSupabaseClient){
+            try{ await customerSupabaseClient.rpc("redeem_gift_card",{p_gift_card_id:state.appliedGiftCard.id, p_amount:giftCardDiscount(), p_booking_id:booking.dbId||null}); }
+            catch(redeemErr){ console.warn("Gift card redemption could not be recorded",redeemErr); }
+          }
+          if(state.myPackage && state.packageApplied && customerSupabaseClient){
+            try{ await customerSupabaseClient.rpc("redeem_package_session",{p_customer_package_id:state.myPackage.id, p_booking_id:booking.dbId||null}); }
+            catch(redeemErr){ console.warn("Package redemption could not be recorded",redeemErr); }
+          }
+          const intakeQs = intakeQuestionsFor(state.service);
+          if(intakeQs.length && booking.publicToken && customerSupabaseClient){
+            const answersPayload = intakeQs.filter(q=>state.intakeAnswers[q.id]!==undefined && String(state.intakeAnswers[q.id]).trim()!=="").map(q=>({question_id:q.id, label:q.label, answer:state.intakeAnswers[q.id]}));
+            if(answersPayload.length){
+              try{ await customerSupabaseClient.rpc("submit_public_intake_form",{token:booking.publicToken, answers:answersPayload}); }
+              catch(intakeErr){ console.warn("Intake form could not be recorded",intakeErr); }
+            }
           }
           state.bookingSaving=false; setState({done:true,bookingError:""}); await loadMarketplaceVenues();
         }catch(err){ state.bookingSaving=false; setState({bookingError:err?.message||"We couldn't save this booking. Please try again."},{samePage:true}); }
@@ -4897,21 +5399,15 @@ function bindEvents(){
       state.messageDraft = e.target.value;
       if (sendBtn) sendBtn.disabled = !state.messageDraft.trim();
     });
-    const doSend = ()=>{
-      const text = state.messageDraft.trim();
-      if (!text) return;
-      state.messageThread = [...state.messageThread, { from:"me", text, time:Date.now() }];
-      state.messageDraft = "";
-      render({samePage:true});
-    };
-    if (sendBtn) sendBtn.addEventListener("click", doSend);
-    if (input) input.addEventListener("keydown", e=>{ if (e.key==="Enter"){ e.preventDefault(); doSend(); } });
+    if (sendBtn) sendBtn.addEventListener("click", sendVenueMessageDraft);
+    if (input) input.addEventListener("keydown", e=>{ if (e.key==="Enter"){ e.preventDefault(); sendVenueMessageDraft(); } });
   }
 
   if (state.page === "bookingDetail"){
     const booking = state.bookings.find(b=>b.id===state.viewBookingId) || null;
     const returnPage = state.bookingDetailReturnPage || "history";
     bindBookingConfirmedEvents(booking, ()=>{
+      if (returnPage === "activityExternal"){ window.location.href = "/activity"; return; }
       setState({ page:returnPage, viewBookingId:null }, { restoreScrollTop: state.historyReturnScrollTop || 0 });
     });
   }
@@ -4924,11 +5420,26 @@ function syncContinueBtn(){
   if (btn) btn.disabled = !canContinueDetails;
 }
 
+function syncIntakeContinueBtn(){
+  const canContinueIntake = intakeQuestionsFor(state.service).every(q=> !q.required || String(state.intakeAnswers[q.id]||"").trim().length>0);
+  const btn = document.getElementById("continueBtn");
+  if (btn) btn.disabled = !canContinueIntake;
+}
 function syncWaitlistBtn(){ const c=bookingContact(); const btn=document.getElementById("submitWaitlistBtn"); if(btn) btn.disabled=!(c.name.length>1&&c.phone.length>5); }
 
 render();
 loadMarketplaceVenues(true);
-loadCustomerAuth();
+loadCustomerAuth().then(()=>{
+  if (!state.authenticated) return;
+  const params = new URLSearchParams(location.search);
+  const openId = params.get("openBooking");
+  if (openId){
+    const match = state.bookings.find(b=> String(b.dbId)===openId || String(b.publicToken)===openId);
+    if (match) goBookingDetail(match.id, { returnPage:"activityExternal" });
+    return;
+  }
+  if (params.get("openProfile")) goProfile();
+});
 let marketplaceRefreshBusy=false;
 async function refreshMarketplaceData(){
   // Only refresh silently on the home listing — re-rendering while someone is mid-checkout,

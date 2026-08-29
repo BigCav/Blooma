@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -408,10 +435,10 @@
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
     padding:4px 9px; border-radius:99px; display:inline-block; white-space:nowrap;
   }
-  .status-confirmed{background:var(--success-soft); color:var(--success);}
-  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .status-upcoming{background:var(--success-soft); color:var(--success);}
   .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
   .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
+  .status-noshow{background:rgba(244,201,58,0.16); color:var(--warning);}
   .row-action{
     width:30px; height:30px; border-radius:8px; background:var(--surface-2);
     border:1px solid var(--border);
@@ -464,6 +491,50 @@
     font-size:10px; font-weight:700; background:var(--violet); color:#fff;
     padding:1px 6px; border-radius:99px; margin-left:6px;
   }
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:90; opacity:0; pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .row-status-actions{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
+  .row-icon-btn{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-faint); cursor:pointer; flex:none;
+  }
+  .row-icon-btn:hover{background:var(--surface-hover); color:var(--text);}
+  .row-icon-btn.complete:hover{color:var(--success); border-color:var(--success);}
+  .row-icon-btn.noshow:hover{color:var(--warning); border-color:var(--warning);}
+  .row-icon-btn.cancel:hover{color:var(--danger); border-color:var(--danger);}
+  .row-icon-btn.receipt{color:#fff; background:var(--violet); border-color:var(--violet);}
+  .row-icon-btn.receipt:hover{background:#5C4EDB; border-color:#5C4EDB;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:80;
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:22px; width:100%; max-width:420px;
+  }
+  .modal-close{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-soft); flex:none;
+  }
+  .info-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; gap:10px;}
+  .info-row:last-child{border-bottom:none; padding-bottom:0;}
+  .info-row .info-label{color:var(--text-faint); font-weight:600; flex:none;}
+  .info-row .info-value{font-weight:700; text-align:right;}
+  .info-row.total{padding-top:14px; margin-top:4px; border-top:none; border-bottom:none;}
+  .info-row.total .info-label{color:var(--text); font-size:14px;}
+  .info-row.total .info-value{font-size:19px;}
 </style>
 </head>
 
@@ -484,8 +555,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -503,14 +574,15 @@
       <a href="/venue/admin/bookings" class="sb-link active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -524,7 +596,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -545,10 +624,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -560,7 +639,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -576,7 +656,7 @@
 
   <div class="page-head">
     <h1>Bookings</h1>
-    <div class="sub">156 appointments this month across your team</div>
+    <div class="sub" id="bookingsSub">Loading bookings…</div>
   </div>
 
   <div class="stats-grid">
@@ -585,15 +665,15 @@
         <div class="stat-label">Today</div>
         <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
       </div>
-      <div class="stat-value">24</div>
-      <div class="stat-delta"><span class="muted">4 pending confirmation</span></div>
+      <div class="stat-value" id="statToday">0</div>
+      <div class="stat-delta"><span class="muted" id="statTodaySub">—</span></div>
     </div>
     <div class="stat-card">
       <div class="stat-top">
         <div class="stat-label">Upcoming</div>
         <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
       </div>
-      <div class="stat-value">156</div>
+      <div class="stat-value" id="statUpcoming">0</div>
       <div class="stat-delta"><span class="muted">Next 7 days</span></div>
     </div>
     <div class="stat-card">
@@ -601,7 +681,7 @@
         <div class="stat-label">Completed</div>
         <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
       </div>
-      <div class="stat-value">412</div>
+      <div class="stat-value" id="statCompleted">0</div>
       <div class="stat-delta"><span class="muted">This month</span></div>
     </div>
     <div class="stat-card">
@@ -609,7 +689,7 @@
         <div class="stat-label">Cancelled</div>
         <div class="stat-icon" style="background:rgba(255,107,129,0.14); color:var(--danger);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
       </div>
-      <div class="stat-value">8</div>
+      <div class="stat-value" id="statCancelled">0</div>
       <div class="stat-delta down"><span class="muted">This month</span></div>
     </div>
   </div>
@@ -622,6 +702,7 @@
         <div class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed</div>
         <div class="filter-tab" data-filter="cancelled" onclick="setFilter('cancelled')">Cancelled</div>
         <div class="filter-tab" data-filter="noshow" onclick="setFilter('noshow')">No-show</div>
+        <div class="filter-tab" data-filter="waitlist" onclick="setFilter('waitlist')">Waitlist<span class="filter-btn-count" id="waitlistTabCount" style="display:none;"></span></div>
       </div>
       <div class="filter-actions">
         <div class="filter-search">
@@ -644,7 +725,7 @@
     <div class="table-wrap">
       <table class="data">
         <thead>
-          <tr>
+          <tr id="bookingsTheadRow">
             <th>Client</th>
             <th>Service</th>
             <th>Staff</th>
@@ -669,6 +750,12 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="receiptOverlay">
+  <div class="modal-box" id="receiptModalBox"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
 <script>
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sbOverlay');
@@ -681,46 +768,284 @@
   menuBtn.addEventListener('click', openSb);
   closeBtn.addEventListener('click', closeSb);
   overlay.addEventListener('click', closeSb);
+
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
 </script>
 
 <script>
-  var bookingsData = [
-    { name:'Sarah K.', initials:'SK', color:'#6D5FE8', email:'sarah.k@email.com', service:'Balayage', staff:'Fana R.', when:'Today, 9:30 AM', price:220, status:'confirmed' },
-    { name:'Alex J.', initials:'AJ', color:'#5FA8E8', email:'alex.j@email.com', service:'Men\'s cut', staff:'Jordan M.', when:'Today, 9:00 AM', price:55, status:'confirmed' },
-    { name:'Jade W.', initials:'JW', color:'#E85F9E', email:'jade.w@email.com', service:'Blowout', staff:'Naomi K.', when:'Today, 9:15 AM', price:60, status:'pending' },
-    { name:'Kim S.', initials:'KS', color:'#5FE8A0', dark:true, email:'kim.s@email.com', service:'Blowout', staff:'Chris T.', when:'Today, 10:30 AM', price:60, status:'confirmed' },
-    { name:'Mia T.', initials:'MT', color:'#6D5FE8', email:'mia.t@email.com', service:'Root touch-up', staff:'Fana R.', when:'Today, 12:00 PM', price:110, status:'confirmed' },
-    { name:'Nina P.', initials:'NP', color:'#5FA8E8', email:'nina.p@email.com', service:'Cut & blowout', staff:'Jordan M.', when:'Yesterday, 2:15 PM', price:95, status:'completed' },
-    { name:'Sam O.', initials:'SO', color:'#E85F9E', email:'sam.o@email.com', service:'Men\'s cut', staff:'Naomi K.', when:'Yesterday, 11:00 AM', price:55, status:'cancelled' },
-    { name:'Dana F.', initials:'DF', color:'#5FE8A0', dark:true, email:'dana.f@email.com', service:'Color gloss', staff:'Naomi K.', when:'Mon, Aug 18 · 3:00 PM', price:65, status:'completed' },
-    { name:'Priya N.', initials:'PN', color:'#6D5FE8', email:'priya.n@email.com', service:'Consult', staff:'Fana R.', when:'Wed, Aug 20 · 4:30 PM', price:0, status:'pending' },
-    { name:'Chris B.', initials:'CB', color:'#5FA8E8', email:'chris.b@email.com', service:'Men\'s cut', staff:'Jordan M.', when:'Tue, Aug 19 · 3:30 PM', price:55, status:'completed' },
-    { name:'Maya L.', initials:'ML', color:'#E85F9E', email:'maya.l@email.com', service:'Cut & style', staff:'Jordan M.', when:'Today, 1:00 PM', price:95, status:'confirmed' },
-    { name:'Rachel P.', initials:'RP', color:'#5FE8A0', dark:true, email:'rachel.p@email.com', service:'Updo', staff:'Jordan M.', when:'Today, 5:00 PM', price:135, status:'confirmed' },
-    { name:'Elena R.', initials:'ER', color:'#6D5FE8', email:'elena.r@email.com', service:'Gloss', staff:'Fana R.', when:'Today, 2:00 PM', price:95, status:'pending' },
-    { name:'Leo & Mia', initials:'LM', color:'#5FA8E8', email:'leo.mia@email.com', service:'Kids cut', staff:'Naomi K.', when:'Today, 12:30 PM', price:40, status:'completed' },
-    { name:'Ana G.', initials:'AG', color:'#E85F9E', email:'ana.g@email.com', service:'Blowout', staff:'Chris T.', when:'Today, 1:30 PM', price:60, status:'completed' },
-    { name:'Jess H.', initials:'JH', color:'#5FE8A0', dark:true, email:'jess.h@email.com', service:'Updo trial', staff:'Chris T.', when:'Today, 4:00 PM', price:85, status:'noshow' },
-    { name:'Priya S.', initials:'PS', color:'#6D5FE8', email:'priya.s@email.com', service:'Full balayage', staff:'Fana R.', when:'Sat, Aug 15 · 1:00 PM', price:210, status:'cancelled' },
-    { name:'Tom W.', initials:'TW', color:'#5FA8E8', email:'tom.w@email.com', service:'Root touch-up', staff:'Fana R.', when:'Fri, Aug 14 · 10:00 AM', price:140, status:'completed' }
-  ];
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Mirrors services.html / team.html's auth/config plumbing.
+     Bookings are read directly from the "bookings" table (each row
+     already snapshots service/stylist name + price at booking time)
+     and status changes go through admin_update_booking_status, the
+     same RPC the old salon-admin-v3-24-supabase.html reference used.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
 
-  var STAFF_LIST = ['Fana R.', 'Jordan M.', 'Naomi K.', 'Chris T.'];
-  var TOTAL_BOOKINGS_LABEL = 156;
-  var PAGE_SIZE = 6;
+  const salon = { name:"", stylists:[], services:[] };
+  var bookingsData = [];
+  var waitlistData = [];
+
+  function applyAdminConfig(cfg){
+    if(!cfg) return;
+    const sc=cfg.salon||{};
+    if(sc.name!==undefined) salon.name=sc.name;
+    if(Array.isArray(cfg.stylists)) salon.stylists=cfg.stylists.map(x=>({...x}));
+    if(Array.isArray(cfg.services)) salon.services=cfg.services.map(x=>({...x}));
+  }
+
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function dateKeyDayDiff(aKey,bKey){ const [ay,am,ad]=aKey.split("-").map(Number),[by,bm,bd]=bKey.split("-").map(Number); return Math.round((Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000); }
+  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
+  function localWeekdayShort(iso){ return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:"short",month:"short",day:"numeric"}).format(new Date(iso)); }
+  function whenLabel(iso){
+    const diff = dateKeyDayDiff(nzDateKeyForIso(iso), nzTodayKey());
+    const time = localTimeLabel(iso);
+    if(diff===0) return 'Today, ' + time;
+    if(diff===-1) return 'Yesterday, ' + time;
+    if(diff===1) return 'Tomorrow, ' + time;
+    return localWeekdayShort(iso) + ' · ' + time;
+  }
+
+  async function loadBookings(){
+    const {data,error} = await supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId).order("starts_at",{ascending:true});
+    if(error) throw error;
+    bookingsData = (data||[]).map(function(r){
+      const svc = salon.services.find(function(s){return s.id===r.service_id;});
+      const st = salon.stylists.find(function(s){return s.id===r.stylist_id;});
+      return {
+        dbId: r.id,
+        name: r.customer_name || 'Customer',
+        email: r.customer_phone || '',
+        service: r.service_name_snapshot || (svc?svc.name:'Service'),
+        staff: r.stylist_name_snapshot || (st?st.name:'Venue team'),
+        startsAt: r.starts_at,
+        when: whenLabel(r.starts_at),
+        price: Number(r.total||0),
+        status: r.status,
+        subtotal: Number(r.subtotal||0),
+        discount: Number(r.discount||0),
+        addons: Array.isArray(r.addons)?r.addons:[],
+        tipAmount: Number(r.tip_amount||0),
+        paymentMethod: r.payment_method||'card'
+      };
+    });
+    bookingsData.sort(function(a,b){
+      var aUp = a.status==='upcoming', bUp = b.status==='upcoming';
+      if(aUp && bUp) return new Date(a.startsAt) - new Date(b.startsAt);
+      if(aUp !== bUp) return aUp ? -1 : 1;
+      return new Date(b.startsAt) - new Date(a.startsAt);
+    });
+  }
+
+  async function persistBookingStatus(dbId,status){
+    const {error} = await supabaseClient.rpc("admin_update_booking_status",{p_booking_id:dbId,p_status:status});
+    if(error) throw error;
+  }
+
+  function waitlistWhenLabel(w){
+    var pref = w.time_preference ? w.time_preference : 'Any time';
+    if(!w.desired_date) return 'Any day · ' + pref;
+    var d = new Date(w.desired_date + 'T12:00:00');
+    var label = new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric'}).format(d);
+    return label + ' · ' + pref;
+  }
+
+  async function loadWaitlist(){
+    const {data,error} = await supabaseClient.from("waitlist").select("*").eq("salon_id",currentSalonId).in("status",["waiting","notified"]).order("created_at",{ascending:true});
+    if(error) throw error;
+    waitlistData = (data||[]).map(function(r){
+      return {
+        id: r.id,
+        name: r.customer_name || 'Customer',
+        phone: r.customer_phone || '',
+        service: r.service_name_snapshot || 'Service',
+        staff: r.stylist_name_snapshot || 'Any available',
+        when: waitlistWhenLabel(r),
+        status: r.status,
+        createdAt: r.created_at
+      };
+    });
+    var countEl = document.getElementById('waitlistTabCount');
+    if(waitlistData.length>0){ countEl.textContent = waitlistData.length; countEl.style.display = 'inline-block'; }
+    else { countEl.style.display = 'none'; }
+  }
+
+  async function handleWaitlistAction(id, action){
+    try{
+      if(action==='remove'){
+        const {error} = await supabaseClient.from('waitlist').update({status:'cancelled'}).eq('id',id);
+        if(error) throw error;
+        waitlistData = waitlistData.filter(function(w){ return w.id!==id; });
+        showToast('Removed from waitlist');
+      } else if(action==='notified'){
+        const {error} = await supabaseClient.from('waitlist').update({status:'notified'}).eq('id',id);
+        if(error) throw error;
+        var w = waitlistData.find(function(x){ return x.id===id; });
+        if(w) w.status='notified';
+        showToast('Marked as notified');
+      }
+      var countEl = document.getElementById('waitlistTabCount');
+      if(waitlistData.length>0){ countEl.textContent = waitlistData.length; countEl.style.display='inline-block'; } else { countEl.style.display='none'; }
+      renderBookings();
+    }catch(err){ showToast(err.message || 'Could not update waitlist entry'); }
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootBookingsPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Bookings.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    try{
+      const [{data:cfgRow},{data:salonRow}] = await Promise.all([
+        supabaseClient.from("app_config").select("config").eq("salon_id",currentSalonId).maybeSingle(),
+        supabaseClient.from("salons").select("suburb,city").eq("id",currentSalonId).maybeSingle()
+      ]);
+      if(cfgRow) applyAdminConfig(cfgRow.config);
+      if(salonRow) document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+      await loadBookings();
+      try{ await loadWaitlist(); }catch(waitErr){ console.warn("Blooma waitlist load failed", waitErr); }
+    }catch(err){ showToast(err.message||"Unable to load bookings"); }
+    document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
+    document.title = salon.name ? `Bookings — ${salon.name}` : "Bookings — Blooma Business";
+    renderStaffFilterList();
+    renderStatsCards();
+    renderBookings();
+  }
+
+  function renderStatsCards(){
+    var todayKey = nzTodayKey();
+    var todayCount = 0, todayDone = 0, upcoming = 0, completed = 0, cancelled = 0;
+    var now = Date.now(), weekMs = 7*24*60*60*1000;
+    var thisMonth = new Date().toISOString().slice(0,7);
+    bookingsData.forEach(function(b){
+      var isToday = nzDateKeyForIso(b.startsAt) === todayKey;
+      if(isToday && (b.status==='upcoming'||b.status==='completed')) todayCount++;
+      if(isToday && b.status==='completed') todayDone++;
+      var t = new Date(b.startsAt).getTime();
+      if(b.status==='upcoming' && t>=now && t<=now+weekMs) upcoming++;
+      if(b.status==='completed' && String(b.startsAt).slice(0,7)===thisMonth) completed++;
+      if(b.status==='cancelled' && String(b.startsAt).slice(0,7)===thisMonth) cancelled++;
+    });
+    document.getElementById('statToday').textContent = todayCount;
+    document.getElementById('statTodaySub').textContent = todayDone + ' completed so far';
+    document.getElementById('statUpcoming').textContent = upcoming;
+    document.getElementById('statCompleted').textContent = completed;
+    document.getElementById('statCancelled').textContent = cancelled;
+    document.getElementById('bookingsSub').textContent = bookingsData.length + ' appointment' + (bookingsData.length===1?'':'s') + ' on record' + (salon.name?' at ' + salon.name:'');
+  }
+
+  var PAGE_SIZE = 8;
   var currentFilter = 'all';
   var currentSearch = '';
   var currentStaff = null;
   var currentPage = 1;
 
   function statusBadge(status){
-    var map = { confirmed:'Confirmed', pending:'Pending', completed:'Completed', cancelled:'Cancelled', noshow:'No-show' };
-    return '<span class="status-badge status-' + status + '">' + map[status] + '</span>';
+    var map = { upcoming:'Upcoming', completed:'Completed', cancelled:'Cancelled', no_show:'No-show' };
+    var cls = status==='no_show' ? 'noshow' : status;
+    return '<span class="status-badge status-' + cls + '">' + (map[status]||status) + '</span>';
   }
+
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
+  function colorFor(seed){
+    var hash = 0; var s = String(seed||'?');
+    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
+  }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function localFullDate(iso){ return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:"long",month:"long",day:"numeric"}).format(new Date(iso)); }
+
+  var FEE_PCT = 0.0149, FEE_FLAT = 0.20;
+  function openReceiptModal(dbId){
+    var b = bookingsData.find(function(x){ return x.dbId===dbId; });
+    if(!b) return;
+    var c = colorFor(b.name);
+    var shortCode = 'BK-' + String(b.dbId).replace(/-/g,'').slice(0,6).toUpperCase();
+    var addonsSum = (b.addons||[]).reduce(function(s,a){ return s+Number(a.price||0); },0);
+    var method = b.paymentMethod||'card';
+    var tip = Number(b.tipAmount||0);
+    var gross = Math.round((b.price+tip)*100)/100;
+    var fee = method==='card' ? Math.round((gross*FEE_PCT+FEE_FLAT)*100)/100 : 0;
+    var net = Math.round((gross-fee)*100)/100;
+    var addonsRows = (b.addons||[]).map(function(a){ return '<div class="info-row"><span class="info-label">'+escapeHtml(a.name)+'</span><span class="info-value">$'+Number(a.price||0).toFixed(2)+'</span></div>'; }).join('');
+    var discountRow = b.discount>0 ? '<div class="info-row"><span class="info-label">Discount</span><span class="info-value" style="color:var(--success);">-$'+b.discount.toFixed(2)+'</span></div>' : '';
+    var tipRow = tip>0 ? '<div class="info-row"><span class="info-label">Tip</span><span class="info-value">$'+tip.toFixed(2)+'</span></div>' : '';
+    var feeRow = method==='card'
+      ? '<div class="info-row"><span class="info-label">Processing fee (1.49% + $0.20)</span><span class="info-value" style="color:var(--danger);">-$'+fee.toFixed(2)+'</span></div>'
+      : '<div class="info-row"><span class="info-label">Processing fee</span><span class="info-value" style="color:var(--success);">$0.00 (cash)</span></div>';
+    document.getElementById('receiptModalBox').innerHTML =
+      '<div class="modal-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><h2 style="margin:0;font-size:16px;font-weight:700;">Receipt</h2><div class="modal-close" onclick="closeReceiptModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">' +
+        '<div style="width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:'+c.text+';background:'+c.color+';">'+initialsFor(b.name)+'</div>' +
+        '<div><div style="font-size:14.5px;font-weight:700;">'+escapeHtml(b.name)+'</div><div style="font-size:12px;color:var(--text-faint);margin-top:1px;">'+escapeHtml(b.service)+' · '+escapeHtml(b.staff)+'</div></div>' +
+      '</div>' +
+      '<div class="info-row"><span class="info-label">Booking</span><span class="info-value"><a href="/venue/admin/booking?id='+encodeURIComponent(b.dbId)+'" style="color:var(--violet-text);text-decoration:underline;">'+shortCode+'</a></span></div>' +
+      '<div class="info-row"><span class="info-label">Date</span><span class="info-value">'+localFullDate(b.startsAt)+' at '+localTimeLabel(b.startsAt)+'</span></div>' +
+      '<div class="info-row"><span class="info-label">Payment method</span><span class="info-value">'+(method==='cash'?'Cash':'Card')+'</span></div>' +
+      '<div class="info-row"><span class="info-label">'+escapeHtml(b.service)+'</span><span class="info-value">$'+(b.subtotal-addonsSum).toFixed(2)+'</span></div>' +
+      addonsRows + discountRow + tipRow + feeRow +
+      '<div class="info-row total"><span class="info-label">Net to you</span><span class="info-value">$'+net.toFixed(2)+'</span></div>';
+    document.getElementById('receiptOverlay').classList.add('open');
+  }
+  function closeReceiptModal(){ document.getElementById('receiptOverlay').classList.remove('open'); }
+  document.getElementById('receiptOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeReceiptModal();
+  });
 
   function matchesFilter(b){
     if(currentFilter === 'all') return true;
-    if(currentFilter === 'upcoming') return b.status === 'confirmed' || b.status === 'pending';
+    if(currentFilter === 'noshow') return b.status === 'no_show';
     return b.status === currentFilter;
   }
 
@@ -736,7 +1061,56 @@
     });
   }
 
+  function handleBookingAction(dbId, status){
+    persistBookingStatus(dbId, status).then(function(){
+      var b = bookingsData.find(function(x){ return x.dbId===dbId; });
+      if(b) b.status = status;
+      showToast(status==='completed'?'Marked completed':status==='cancelled'?'Booking cancelled':'Marked as no-show');
+      renderStatsCards();
+      renderBookings();
+    }).catch(function(err){ showToast(err.message || 'Could not update booking'); });
+  }
+
+  function renderWaitlistTable(){
+    document.getElementById('bookingsTheadRow').innerHTML =
+      '<th>Client</th><th>Service</th><th>Preferred stylist</th><th>Preferred day/time</th><th>Requested</th><th>Status</th><th></th>';
+    var tbody = document.getElementById('bookingsTbody');
+    var list = waitlistData;
+    if(currentSearch){
+      var q = currentSearch.toLowerCase();
+      list = list.filter(function(w){ return w.name.toLowerCase().indexOf(q)!==-1 || w.service.toLowerCase().indexOf(q)!==-1; });
+    }
+    if(list.length === 0){
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No one is on the waitlist right now.</td></tr>';
+    } else {
+      tbody.innerHTML = list.map(function(w){
+        var c = colorFor(w.name);
+        var telLink = w.phone ? '<a href="tel:' + w.phone.replace(/\s+/g,'') + '" class="cell-sub" style="text-decoration:underline;">' + w.phone + '</a>' : '';
+        var statusHtml = w.status==='notified' ? '<span class="status-badge status-confirmed">Notified</span>' : '<span class="status-badge status-pending">Waiting</span>';
+        var actions = '<div class="row-status-actions">' +
+          (w.status!=='notified' ? '<div class="row-icon-btn" title="Mark notified" onclick="handleWaitlistAction(\'' + w.id + '\',\'notified\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>' : '') +
+          '<div class="row-icon-btn cancel" title="Remove from waitlist" onclick="handleWaitlistAction(\'' + w.id + '\',\'remove\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
+        '</div>';
+        return '<tr>' +
+          '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + initialsFor(w.name) + '</div>' +
+          '<div><div class="cell-name">' + w.name + '</div>' + telLink + '</div></div></td>' +
+          '<td>' + w.service + '</td>' +
+          '<td>' + w.staff + '</td>' +
+          '<td>' + w.when + '</td>' +
+          '<td>' + whenLabel(w.createdAt) + '</td>' +
+          '<td>' + statusHtml + '</td>' +
+          '<td>' + actions + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+    document.getElementById('paginationInfo').textContent = 'Showing ' + list.length + ' of ' + waitlistData.length + ' waitlist entries';
+    document.getElementById('paginationBtns').innerHTML = '';
+  }
+
   function renderBookings(){
+    if(currentFilter === 'waitlist'){ renderWaitlistTable(); return; }
+    document.getElementById('bookingsTheadRow').innerHTML =
+      '<th>Client</th><th>Service</th><th>Staff</th><th>Date &amp; time</th><th>Price</th><th>Status</th><th></th>';
     var filtered = getFiltered();
     var totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     if(currentPage > totalPages) currentPage = totalPages;
@@ -748,13 +1122,20 @@
       tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No bookings match this filter.</td></tr>';
     } else {
       tbody.innerHTML = pageItems.map(function(b){
-        var avatarStyle = 'background:' + b.color + ';' + (b.dark ? ' color:#131218;' : '');
-        var actionCell = b.status === 'confirmed'
-          ? '<div class="row-cell-actions"><a href="/venue/admin/checkout" class="row-checkout">Checkout</a><a href="/venue/admin/booking" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></div>'
-          : '<div class="row-cell-actions"><a href="/venue/admin/booking" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></div>';
+        var c = colorFor(b.name);
+        var viewLink = '<a href="/venue/admin/booking?id=' + b.dbId + '" class="row-action" title="View booking"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a>';
+        var receiptBtn = '<div class="row-icon-btn receipt" title="Receipt" onclick="openReceiptModal(\'' + b.dbId + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>';
+        var actionCell = (b.status === 'upcoming')
+          ? '<div class="row-status-actions">' +
+              '<a href="/venue/admin/checkout?id=' + b.dbId + '" class="row-checkout">Checkout</a>' +
+              '<div class="row-icon-btn noshow" title="Mark no-show" onclick="handleBookingAction(\'' + b.dbId + '\',\'no_show\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>' +
+              '<div class="row-icon-btn cancel" title="Cancel booking" onclick="handleBookingAction(\'' + b.dbId + '\',\'cancelled\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
+              viewLink +
+            '</div>'
+          : '<div class="row-status-actions">' + (b.status==='completed' ? receiptBtn : '') + viewLink + '</div>';
         return '<tr>' +
-          '<td><div class="cell-person"><div class="cell-avatar" style="' + avatarStyle + '">' + b.initials + '</div>' +
-          '<div><div class="cell-name">' + b.name + '</div><div class="cell-sub">' + b.email + '</div></div></div></td>' +
+          '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + initialsFor(b.name) + '</div>' +
+          '<div><div class="cell-name">' + b.name + '</div><div class="cell-sub">' + (b.email||'') + '</div></div></div></td>' +
           '<td>' + b.service + '</td>' +
           '<td>' + b.staff + '</td>' +
           '<td>' + b.when + '</td>' +
@@ -768,10 +1149,8 @@
     var infoEl = document.getElementById('paginationInfo');
     if(filtered.length === 0){
       infoEl.textContent = 'Showing 0 of 0 bookings';
-    } else if(currentFilter === 'all' && !currentSearch && !currentStaff){
-      infoEl.textContent = 'Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, filtered.length) + ' of ' + TOTAL_BOOKINGS_LABEL.toLocaleString() + ' bookings';
     } else {
-      infoEl.textContent = 'Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, filtered.length) + ' of ' + filtered.length + ' matching bookings';
+      infoEl.textContent = 'Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, filtered.length) + ' of ' + filtered.length + ' bookings';
     }
 
     var btnsEl = document.getElementById('paginationBtns');
@@ -811,8 +1190,8 @@
   function renderStaffFilterList(){
     var list = document.getElementById('staffFilterList');
     var html = '<div class="filters-popover-item' + (currentStaff === null ? ' active' : '') + '" onclick="setStaffFilter(null)">All staff</div>';
-    STAFF_LIST.forEach(function(name){
-      html += '<div class="filters-popover-item' + (currentStaff === name ? ' active' : '') + '" onclick="setStaffFilter(\'' + name + '\')">' + name + '</div>';
+    salon.stylists.forEach(function(st){
+      html += '<div class="filters-popover-item' + (currentStaff === st.name ? ' active' : '') + '" onclick="setStaffFilter(\'' + st.name + '\')">' + st.name + '</div>';
     });
     list.innerHTML = html;
   }
@@ -837,9 +1216,121 @@
     if(!wrap.contains(e.target)) document.getElementById('filtersPopover').classList.remove('open');
   });
 
-  renderStaffFilterList();
-  renderBookings();
+  bootBookingsPage();
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

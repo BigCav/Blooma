@@ -201,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -603,8 +629,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -622,14 +648,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -643,7 +670,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -664,10 +698,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -679,7 +713,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -847,35 +882,35 @@
           <h4>Booking confirmations</h4>
           <p>Email the client and assigned staff member as soon as a booking is made.</p>
         </div>
-        <div class="toggle on"></div>
+        <div class="toggle on" id="notifToggle_booking_confirmations" onclick="toggleNotifPref('booking_confirmations')"></div>
       </div>
       <div class="setting-row">
         <div>
           <h4>Appointment reminders (SMS)</h4>
           <p>Text clients a reminder 24 hours and 2 hours before their appointment.</p>
         </div>
-        <div class="toggle on"></div>
+        <div class="toggle on" id="notifToggle_appointment_reminders_sms" onclick="toggleNotifPref('appointment_reminders_sms')"></div>
       </div>
       <div class="setting-row">
         <div>
           <h4>New review alerts</h4>
           <p>Get notified the moment a client leaves a new review of your business.</p>
         </div>
-        <div class="toggle on"></div>
+        <div class="toggle on" id="notifToggle_new_review_alerts" onclick="toggleNotifPref('new_review_alerts')"></div>
       </div>
       <div class="setting-row">
         <div>
           <h4>Daily summary email</h4>
           <p>A morning recap of today's schedule, sent to the owner and managers.</p>
         </div>
-        <div class="toggle on"></div>
+        <div class="toggle on" id="notifToggle_daily_summary_email" onclick="toggleNotifPref('daily_summary_email')"></div>
       </div>
       <div class="setting-row">
         <div>
           <h4>Product tips &amp; updates</h4>
           <p>Occasional emails about new Suite features and best practices.</p>
         </div>
-        <div class="toggle"></div>
+        <div class="toggle" id="notifToggle_product_tips" onclick="toggleNotifPref('product_tips')"></div>
       </div>
     </div>
   </div>
@@ -886,108 +921,37 @@
 
       <div class="plan-card">
         <div>
-          <div class="plan-name">Suite Pro <span class="plan-badge">Current plan</span></div>
-          <div class="plan-price">$89/month · billed monthly · renews Sep 1, 2026</div>
+          <div class="plan-name" id="planNameLabel">Loading…</div>
+          <div class="plan-price" id="planPriceLabel">&nbsp;</div>
         </div>
-        <div class="btn btn-ghost" onclick="openPlanModal()">Manage plan</div>
+        <div class="btn btn-violet" id="billingActionBtn" onclick="startCheckout()">Subscribe</div>
       </div>
 
-      <div class="pay-method">
-        <div class="pay-card-icon">VISA</div>
+      <div class="field-hint" id="pendingPlanNotice" style="display:none; margin-top:10px; padding:10px 12px; background:var(--surface-2); border-radius:8px;"></div>
+
+      <div class="pay-method" id="payMethodRow" style="display:none;">
+        <div class="pay-card-icon" id="cardBrandIcon">—</div>
         <div style="flex:1;">
-          <div style="font-size:13.5px; font-weight:700;" id="cardLabel">Visa •••• 4242</div>
-          <div class="field-hint" id="cardExpiry">Expires 08/28</div>
+          <div style="font-size:13.5px; font-weight:700;" id="cardLabel">No card on file</div>
+          <div class="field-hint" id="cardExpiry"></div>
         </div>
-        <div class="btn btn-ghost" onclick="openCardModal()">Update</div>
+        <div class="btn btn-ghost" onclick="openBillingPortal()">Manage billing</div>
       </div>
+      <div class="field-hint" style="margin-top:10px;" id="billingHint">Solo is $29/month for one stylist. Once you add a second stylist, pricing automatically switches to $19/month per stylist — no need to change plans yourself.</div>
 
-      <div class="table-wrap">
+      <div class="table-wrap" id="invoiceTableWrap" style="display:none; margin-top:20px;">
         <table class="data">
           <thead>
             <tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>INV-2026-08</td>
-              <td>Aug 1, 2026</td>
-              <td>$89.00</td>
-              <td><span class="status-badge status-confirmed">Paid</span></td>
-              <td><div class="row-action" onclick="showToast('Downloading invoice…')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div></td>
-            </tr>
-            <tr>
-              <td>INV-2026-07</td>
-              <td>Jul 1, 2026</td>
-              <td>$89.00</td>
-              <td><span class="status-badge status-confirmed">Paid</span></td>
-              <td><div class="row-action" onclick="showToast('Downloading invoice…')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div></td>
-            </tr>
-            <tr>
-              <td>INV-2026-06</td>
-              <td>Jun 1, 2026</td>
-              <td>$89.00</td>
-              <td><span class="status-badge status-confirmed">Paid</span></td>
-              <td><div class="row-action" onclick="showToast('Downloading invoice…')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div></td>
-            </tr>
+          <tbody id="invoiceTableBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:24px;">Manage billing to view invoices, receipts and payment history.</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-</div>
-
-<div class="modal-overlay" id="planOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Manage plan</h2>
-      <div class="modal-close" onclick="closePlanModal()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </div>
-    </div>
-    <div class="plan-option" onclick="choosePlan(this,'Suite Starter','$39/month')">
-      <div><div class="po-name">Suite Starter</div><div class="po-price">$39/month · booking &amp; calendar essentials</div></div>
-    </div>
-    <div class="plan-option current" onclick="choosePlan(this,'Suite Pro','$89/month')">
-      <div><div class="po-name">Suite Pro <span class="plan-badge">Current plan</span></div><div class="po-price">$89/month · reports, add-ons &amp; payments</div></div>
-    </div>
-    <div class="plan-option" onclick="choosePlan(this,'Suite Elite','$149/month')">
-      <div><div class="po-name">Suite Elite</div><div class="po-price">$149/month · multi-location &amp; priority support</div></div>
-    </div>
-    <div class="modal-actions" style="margin-top:6px;">
-      <div class="btn btn-ghost" onclick="closePlanModal()">Close</div>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="cardOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Update payment method</h2>
-      <div class="modal-close" onclick="closeCardModal()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </div>
-    </div>
-    <form id="cardForm" onsubmit="return submitCard(event)">
-      <div class="form-group">
-        <label class="form-label">Card number</label>
-        <input type="text" class="form-input" id="cardNumber" placeholder="4242 4242 4242 4242" required maxlength="19">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Expiry</label>
-          <input type="text" class="form-input" id="cardExp" placeholder="MM/YY" required maxlength="5">
-        </div>
-        <div class="form-group">
-          <label class="form-label">CVC</label>
-          <input type="text" class="form-input" id="cardCvc" placeholder="123" required maxlength="4">
-        </div>
-      </div>
-      <div class="modal-actions">
-        <div class="btn btn-ghost" onclick="closeCardModal()">Cancel</div>
-        <button type="submit" class="btn btn-violet">Save card</button>
-      </div>
-    </form>
-  </div>
 </div>
 
 <script>
@@ -1009,15 +973,23 @@
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
      Mirrors salon-admin-v3-24-supabase.html's auth/config plumbing.
+     Notifications are wired to real tables via SECURITY DEFINER RPCs.
+     Billing is real Stripe: get_venue_billing() reads the venue_billing table
+     (kept in sync by api/stripe/webhook.js), and Subscribe/Manage plan hand
+     off to Stripe Checkout / the Stripe Billing Portal via api/stripe/*.js —
+     no card details ever touch this page directly.
      Fields with no backing schema yet (timezone, email, per-toggle
-     booking rules, notifications, billing/plan) are intentionally
-     left as static mock UI below and are NOT wired here.
+     booking rules) are intentionally left as static mock UI below.
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
   let currentSalonId = null;
   let currentConfigVersion = null;
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
 
   const DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   const DAY_LABELS = {Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday",Sat:"Saturday",Sun:"Sunday"};
@@ -1068,14 +1040,64 @@
     if(Array.isArray(cfg.promos)) salon.promos=cfg.promos.map(x=>({...x}));
   }
 
+  var notifPrefs = {booking_confirmations:true, appointment_reminders_sms:true, new_review_alerts:true, daily_summary_email:true, product_tips:false};
+  var notifPrefKeys = Object.keys(notifPrefs);
+  var notifSaving = {};
+
+  function renderNotifPrefs(){
+    notifPrefKeys.forEach(function(k){
+      var el = document.getElementById('notifToggle_'+k);
+      if(!el) return;
+      el.classList.toggle('on', !!notifPrefs[k]);
+    });
+  }
+
+  async function toggleNotifPref(key){
+    if(notifSaving[key]) return;
+    var el = document.getElementById('notifToggle_'+key);
+    var previous = notifPrefs[key];
+    var next = !previous;
+    notifPrefs[key] = next;
+    el.classList.toggle('on', next);
+    notifSaving[key] = true;
+    try{
+      const {error} = await supabaseClient.rpc('admin_set_notification_pref_gated', {p_key:key, p_value:next});
+      if(error) throw error;
+      showToast('Notification preference saved');
+    }catch(err){
+      notifPrefs[key] = previous;
+      el.classList.toggle('on', previous);
+      showToast(err.message||'Could not save preference');
+    }finally{
+      notifSaving[key] = false;
+    }
+  }
+
   async function reloadAdminConfigFromCloud(){
     if(!currentSalonId) return;
-    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError}]=await Promise.all([
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow}]=await Promise.all([
       supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
-      supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle()
+      supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle(),
+      supabaseClient.rpc("get_notification_prefs"),
+      supabaseClient.rpc("get_venue_billing")
     ]);
     if(cfgError) throw cfgError;
     if(salonError) throw salonError;
+    if(prefsRow){ notifPrefKeys.forEach(function(k){ if(prefsRow[k]!==undefined) notifPrefs[k]=!!prefsRow[k]; }); }
+    renderNotifPrefs();
+    if(billingRow){
+      billing.plan_id = billingRow.plan_id || null;
+      billing.status = billingRow.status || 'inactive';
+      billing.seat_count = Number(billingRow.seat_count)||1;
+      billing.current_period_end = billingRow.current_period_end || null;
+      billing.card_brand = billingRow.card_brand || null;
+      billing.card_last4 = billingRow.card_last4 || null;
+      billing.card_exp = billingRow.card_exp || null;
+      billing.pending_plan_id = billingRow.pending_plan_id || null;
+      billing.pending_seat_count = billingRow.pending_seat_count || null;
+      billing.pending_effective_at = billingRow.pending_effective_at || null;
+    }
+    renderBillingPanel();
     if(cfgRow){ applyAdminConfig(cfgRow.config); currentConfigVersion=cfgRow.config_version; }
     if(salonRow){
       salon.visible=salonRow.active!==false;
@@ -1116,7 +1138,7 @@
     normalizeAndValidateSettings();
     const payload=buildAdminPayload();
     const args=currentConfigVersion==null?{payload}:{payload,expected_version:currentConfigVersion};
-    const {data,error}=await supabaseClient.rpc("admin_save_config",args);
+    const {data,error}=await supabaseClient.rpc("admin_save_config_gated",args);
     if(error){
       try{ await reloadAdminConfigFromCloud(); }catch(reloadErr){ console.warn("Blooma admin reload after failed save",reloadErr); }
       throw error;
@@ -1188,7 +1210,7 @@
       return;
     }
     const [{data:profile},{data:owner,error:ownerError}] = await Promise.all([
-      supabaseClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
       supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
     ]);
     const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
@@ -1202,6 +1224,10 @@
       return;
     }
     currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
     try{
       await reloadAdminConfigFromCloud();
     }catch(err){
@@ -1209,6 +1235,17 @@
     }
     renderHoursRows();
     populateGeneralForm();
+
+    var billingParam = new URLSearchParams(window.location.search).get('billing');
+    if(billingParam === 'success'){
+      showStPanel('billing');
+      showToast('Subscribed! This can take a few seconds to update below.');
+      history.replaceState(null, '', window.location.pathname);
+      setTimeout(function(){ reloadAdminConfigFromCloud().catch(function(){}); }, 3000);
+    } else if(billingParam === 'cancelled'){
+      showStPanel('billing');
+      history.replaceState(null, '', window.location.pathname);
+    }
   }
 
   bootSettingsPage();
@@ -1226,6 +1263,7 @@
   overlay.addEventListener('click', closeSb);
 
   document.querySelectorAll('.toggle').forEach(function(t){
+    if(t.hasAttribute('onclick')) return;
     t.addEventListener('click', function(){ t.classList.toggle('on'); });
   });
 
@@ -1289,45 +1327,218 @@
     });
   }
 
-  function openPlanModal(){ document.getElementById('planOverlay').classList.add('open'); }
-  function closePlanModal(){ document.getElementById('planOverlay').classList.remove('open'); }
-  function choosePlan(el, name, price){
-    if(el.classList.contains('current')) { closePlanModal(); return; }
-    document.querySelectorAll('.plan-option').forEach(function(p){ p.classList.remove('current'); p.querySelector('.po-name').innerHTML = p.querySelector('.po-name').textContent; });
-    el.classList.add('current');
-    el.querySelector('.po-name').innerHTML = name + ' <span class="plan-badge">Current plan</span>';
-    document.querySelector('.plan-name').innerHTML = name + ' <span class="plan-badge">Current plan</span>';
-    document.querySelector('.plan-price').textContent = price + ' · billed monthly · renews Sep 1, 2026';
-    closePlanModal();
-    showToast('Switched to ' + name);
-  }
-  document.getElementById('planOverlay').addEventListener('click', function(e){
-    if(e.target === this) closePlanModal();
-  });
+  var PLAN_CATALOG = {
+    solo: {name:'Solo', price:'$29/month', blurb:'1 stylist'},
+    team: {name:'Team', price:'$19/month per stylist', blurb:'2+ stylists'}
+  };
+  var billing = {plan_id:null, status:'inactive', seat_count:1, current_period_end:null, card_brand:null, card_last4:null, card_exp:null, pending_plan_id:null, pending_seat_count:null, pending_effective_at:null};
 
-  function openCardModal(){ document.getElementById('cardOverlay').classList.add('open'); }
-  function closeCardModal(){
-    document.getElementById('cardOverlay').classList.remove('open');
-    document.getElementById('cardForm').reset();
+  function fmtRenewal(iso){
+    if(!iso) return '';
+    try{ return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return ''; }
   }
-  function submitCard(evt){
-    evt.preventDefault();
-    var num = document.getElementById('cardNumber').value.replace(/\s+/g,'');
-    var exp = document.getElementById('cardExp').value.trim();
-    if(num.length < 4 || !exp) return false;
-    document.getElementById('cardLabel').textContent = 'Card •••• ' + num.slice(-4);
-    document.getElementById('cardExpiry').textContent = 'Expires ' + exp;
-    closeCardModal();
-    showToast('Payment method updated');
-  }
-  document.getElementById('cardOverlay').addEventListener('click', function(e){
-    if(e.target === this) closeCardModal();
-  });
 
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape'){ closePlanModal(); closeCardModal(); }
-  });
+  function renderBillingPanel(){
+    var active = billing.status === 'active' || billing.status === 'trialing';
+    var plan = PLAN_CATALOG[billing.plan_id];
+    var actionBtn = document.getElementById('billingActionBtn');
+
+    if(!active || !plan){
+      document.getElementById('planNameLabel').textContent = 'No active subscription';
+      document.getElementById('planPriceLabel').textContent = 'Solo is $29/month (1 stylist) · Team is $19/month per stylist (2+)';
+      actionBtn.textContent = 'Subscribe';
+      actionBtn.onclick = startCheckout;
+      document.getElementById('payMethodRow').style.display = 'none';
+      document.getElementById('invoiceTableWrap').style.display = 'none';
+      document.getElementById('pendingPlanNotice').style.display = 'none';
+      return;
+    }
+
+    var pendingNotice = document.getElementById('pendingPlanNotice');
+    if(billing.pending_plan_id && billing.pending_plan_id !== billing.plan_id){
+      var pendingPlan = PLAN_CATALOG[billing.pending_plan_id];
+      var pendingCost = billing.pending_plan_id === 'team' ? (19 * billing.pending_seat_count) : 29;
+      pendingNotice.textContent = 'Switching to ' + pendingPlan.name + (billing.pending_plan_id==='team' ? (' (' + billing.pending_seat_count + ' stylists, $' + pendingCost + '/month)') : ' ($29/month)') + ' on ' + fmtRenewal(billing.pending_effective_at) + ' — you keep your current plan until then.';
+      pendingNotice.style.display = 'block';
+    } else {
+      pendingNotice.style.display = 'none';
+    }
+
+    var seatSuffix = plan_id_is_team() ? (' · ' + billing.seat_count + ' stylist' + (billing.seat_count===1?'':'s')) : '';
+    document.getElementById('planNameLabel').innerHTML = plan.name + seatSuffix + ' <span class="plan-badge">Current plan</span>';
+    var renewLabel = billing.current_period_end ? (' · renews ' + fmtRenewal(billing.current_period_end)) : '';
+    var monthlyTotal = plan_id_is_team() ? (19 * billing.seat_count) : 29;
+    document.getElementById('planPriceLabel').textContent = plan.price + (plan_id_is_team() ? (' × ' + billing.seat_count + ' = $' + monthlyTotal + '/month') : '') + renewLabel;
+    if(billing.status === 'past_due'){
+      document.getElementById('planPriceLabel').textContent += ' — payment failed, please update your card';
+    }
+    actionBtn.textContent = 'Manage plan';
+    actionBtn.onclick = openBillingPortal;
+
+    document.getElementById('payMethodRow').style.display = 'flex';
+    document.getElementById('invoiceTableWrap').style.display = 'block';
+    if(billing.card_last4){
+      document.getElementById('cardBrandIcon').textContent = (billing.card_brand||'CARD').toUpperCase();
+      document.getElementById('cardLabel').textContent = (billing.card_brand||'Card') + ' •••• ' + billing.card_last4;
+      document.getElementById('cardExpiry').textContent = 'Expires ' + billing.card_exp;
+    } else {
+      document.getElementById('cardBrandIcon').textContent = '—';
+      document.getElementById('cardLabel').textContent = 'No card on file';
+      document.getElementById('cardExpiry').textContent = '';
+    }
+  }
+  function plan_id_is_team(){ return billing.plan_id === 'team'; }
+
+  async function authedFetch(path, opts){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session) throw new Error('Please log in again.');
+    const res = await fetch(path, Object.assign({method:'POST'}, opts, {
+      headers: Object.assign({'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json'}, (opts&&opts.headers)||{})
+    }));
+    const body = await res.json().catch(function(){ return {}; });
+    if(!res.ok) throw new Error(body.error || 'Request failed');
+    return body;
+  }
+
+  async function startCheckout(){
+    var btn = document.getElementById('billingActionBtn');
+    var original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Loading…';
+    try{
+      const {url} = await authedFetch('/api/stripe/create-checkout-session');
+      window.location.href = url;
+    }catch(err){
+      showToast(err.message||'Could not start checkout');
+      btn.disabled = false; btn.textContent = original;
+    }
+  }
+
+  async function openBillingPortal(){
+    var btn = document.getElementById('billingActionBtn');
+    var original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Loading…';
+    try{
+      const {url} = await authedFetch('/api/stripe/portal-session');
+      window.location.href = url;
+    }catch(err){
+      showToast(err.message||'Could not open billing portal');
+      btn.disabled = false; btn.textContent = original;
+    }
+  }
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -348,6 +375,15 @@
   .addon-service-option:hover{background:var(--surface-hover);}
   .addon-service-option input{accent-color:var(--violet); width:15px; height:15px; flex:none;}
   .addon-service-option .cat{margin-left:auto; font-size:11px; color:var(--text-faint); font-weight:600; flex:none;}
+  .tm-loading{padding:60px 20px; text-align:center; color:var(--text-faint); font-size:13.5px;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:90; opacity:0; pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 
@@ -368,8 +404,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -387,14 +423,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -408,7 +445,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -429,10 +473,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -444,7 +488,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -463,192 +508,8 @@
     Back to team
   </a>
 
-  <div class="panel profile-panel">
-    <div class="profile-head">
-      <div class="profile-avatar"></div>
-      <div>
-        <div class="profile-name-row">
-          <h1>Fana R.</h1>
-          <span class="status-badge status-confirmed" id="memberStatusBadge">Active</span>
-        </div>
-        <div class="profile-meta">Senior Colorist · fana.r@ivysalonloft.com · (917) 555-0161</div>
-      </div>
-      <div class="profile-actions">
-        <div class="btn btn-ghost" onclick="messageMember()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Message
-        </div>
-        <a href="/venue/admin/calendar?staff=fana" class="btn btn-ghost">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-          View schedule
-        </a>
-        <div class="btn btn-violet" id="toggleAvailBtn" onclick="toggleAvailability()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          Mark off today
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Bookings</div>
-        <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
-      </div>
-      <div class="stat-value">42</div>
-      <div class="stat-delta"><span class="muted">This month</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Revenue generated</div>
-        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-      </div>
-      <div class="stat-value">$4,850</div>
-      <div class="stat-delta"><span class="muted">This month</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Avg. rating</div>
-        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z"/></svg></div>
-      </div>
-      <div class="stat-value">4.9</div>
-      <div class="stat-delta"><span class="muted">86 reviews</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Utilization</div>
-        <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
-      </div>
-      <div class="stat-value">85%</div>
-      <div class="stat-delta"><span class="muted">This week</span></div>
-    </div>
-  </div>
-
-  <div class="dash-grid">
-    <div class="side-col">
-
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Today's schedule</h2>
-          <a href="/venue/admin/calendar" class="link">Open calendar</a>
-        </div>
-        <div class="appt-row">
-          <div class="appt-avatar" style="background:#6D5FE8;">SK</div>
-          <div>
-            <div class="appt-name">Sarah K.</div>
-            <div class="appt-service">Full balayage</div>
-          </div>
-          <div class="appt-time">
-            <div class="t">9:30 AM</div>
-            <div class="status-pill status-confirmed">Confirmed</div>
-          </div>
-        </div>
-        <div class="appt-row">
-          <div class="appt-avatar" style="background:#6D5FE8;">MT</div>
-          <div>
-            <div class="appt-name">Mia T.</div>
-            <div class="appt-service">Root touch-up</div>
-          </div>
-          <div class="appt-time">
-            <div class="t">12:00 PM</div>
-            <div class="status-pill status-confirmed">Confirmed</div>
-          </div>
-        </div>
-        <div class="appt-row">
-          <div class="appt-avatar" style="background:#6D5FE8;">ER</div>
-          <div>
-            <div class="appt-name">Elena R.</div>
-            <div class="appt-service">Gloss</div>
-          </div>
-          <div class="appt-time">
-            <div class="t">2:00 PM</div>
-            <div class="status-pill status-confirmed">Confirmed</div>
-          </div>
-        </div>
-        <div class="appt-row">
-          <div class="appt-avatar" style="background:#6D5FE8;">PN</div>
-          <div>
-            <div class="appt-name">Priya N.</div>
-            <div class="appt-service">Consult</div>
-          </div>
-          <div class="appt-time">
-            <div class="t">4:30 PM</div>
-            <div class="status-pill status-confirmed">Confirmed</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Recent bookings</h2>
-          <a href="/venue/admin/bookings" class="link">See all</a>
-        </div>
-        <div class="table-wrap">
-          <table class="data">
-            <thead>
-              <tr>
-                <th>Client</th>
-                <th>Service</th>
-                <th>Date</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Tom W.</td><td>Root touch-up</td><td>Fri, Aug 14</td><td>$140</td></tr>
-              <tr><td>Priya S.</td><td>Full balayage</td><td>Sat, Aug 15</td><td>$210</td></tr>
-              <tr><td>Sarah K.</td><td>Root touch-up</td><td>Jul 22, 2026</td><td>$145</td></tr>
-              <tr><td>Sarah K.</td><td>Full balayage</td><td>Jun 15, 2026</td><td>$220</td></tr>
-              <tr><td>Sarah K.</td><td>Gloss &amp; toner</td><td>May 10, 2026</td><td>$95</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="side-col">
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Details</h2>
-        </div>
-        <div class="info-row"><span class="info-label">Role</span><span class="info-value">Senior Colorist</span></div>
-        <div class="info-row"><span class="info-label">Email</span><span class="info-value">fana.r@ivysalonloft.com</span></div>
-        <div class="info-row"><span class="info-label">Phone</span><span class="info-value">(917) 555-0161</span></div>
-        <div class="info-row"><span class="info-label">Joined</span><span class="info-value">Mar 2021</span></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Working hours</h2>
-        </div>
-        <div class="info-row"><span class="info-label">Mon – Fri</span><span class="info-value">9:00 AM – 5:00 PM</span></div>
-        <div class="info-row"><span class="info-label">Saturday</span><span class="info-value">10:00 AM – 3:00 PM</span></div>
-        <div class="info-row"><span class="info-label">Sunday</span><span class="info-value">Off</span></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Services</h2>
-          <div class="link" id="editMemberServicesBtn" style="cursor:pointer;">Edit</div>
-        </div>
-        <div id="memberServiceTags">
-          <span class="tag-pill tag-service">Full balayage</span>
-          <span class="tag-pill tag-service">Root touch-up</span>
-          <span class="tag-pill tag-service">Gloss &amp; toner</span>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Specialties</h2>
-        </div>
-        <span class="tag-pill tag-specialty">Balayage</span>
-        <span class="tag-pill tag-specialty">Color correction</span>
-        <span class="tag-pill tag-specialty">Root touch-ups</span>
-        <span class="tag-pill tag-specialty">Gloss &amp; toner</span>
-      </div>
-    </div>
+  <div id="memberContent">
+    <div class="tm-loading">Loading team member…</div>
   </div>
 
 </div>
@@ -675,6 +536,8 @@
   </div>
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script>
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sbOverlay');
@@ -692,73 +555,436 @@
     window.location.href = '/venue/admin/messages';
   }
 
-  var TEAM_SERVICE_CATALOG = [
-    { name: "Women's cut & blowout", category: 'Haircuts' },
-    { name: "Men's cut", category: 'Haircuts' },
-    { name: 'Kids cut (12 & under)', category: 'Haircuts' },
-    { name: 'Full balayage', category: 'Color' },
-    { name: 'Root touch-up', category: 'Color' },
-    { name: 'Gloss & toner', category: 'Color' },
-    { name: 'Blowout', category: 'Styling' },
-    { name: 'Special occasion updo', category: 'Styling' },
-    { name: 'Deep conditioning treatment', category: 'Treatments' },
-    { name: 'Scalp treatment', category: 'Treatments' }
-  ];
-  var memberServices = ['Full balayage', 'Root touch-up', 'Gloss & toner'];
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+</script>
 
-  function renderMemberServiceTags(){
-    var container = document.getElementById('memberServiceTags');
-    if(!memberServices.length){
-      container.innerHTML = '<span class="panel-empty">No services assigned yet.</span>';
+<script>
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     "Stylists" (bookable service-catalog profiles, salon.config.stylists)
+     are a different concept from dashboard login accounts (team.html's
+     list_staff_members/create_staff_invite) -- this page is about the
+     former, since that's what has specialty/availability/serviceIds.
+     The full config JSON is round-tripped through admin_save_config
+     unchanged except for the one field being edited (availableToday or
+     serviceIds), same pattern as team.html but without needing to
+     reconstruct the salon/hours subtree, since we never touch it.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  let currentConfigVersion = null;
+  var cfg = null;
+  var stylist = null;
+  var servicesCatalog = [];
+  var salonHours = { openDays:[1,2,3,4,5,6], openMin:9*60, closeMin:17*60 };
+  var bookingsForStylist = [];
+  var reviewsForStylist = [];
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
+  function colorFor(seed){
+    var hash = 0; var s = String(seed||'?');
+    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
+  }
+  function parseHHMMSS(t){ var p=String(t||'00:00:00').split(':').map(Number); return (p[0]||0)*60+(p[1]||0); }
+  function formatMinsAmPm(mins){ var h=Math.floor(mins/60)%24,m=mins%60,period=h>=12?'PM':'AM',h12=h%12||12; return h12+':'+String(m).padStart(2,'0')+' '+period; }
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
+  function shortDateLabel(iso){ return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",month:"short",day:"numeric",year:"numeric"}).format(new Date(iso)); }
+  function statusBadge(status){
+    if(status==='completed') return '<span class="status-badge status-completed">Completed</span>';
+    if(status==='cancelled') return '<span class="status-badge status-completed" style="color:var(--danger);">Cancelled</span>';
+    if(status==='no_show') return '<span class="status-badge status-completed" style="color:var(--danger);">No-show</span>';
+    return '<span class="status-badge status-confirmed">Upcoming</span>';
+  }
+  function statusPill(status){
+    if(status==='completed') return '<span class="status-pill" style="background:rgba(157,152,176,0.16); color:var(--text-soft);">Completed</span>';
+    if(status==='cancelled' || status==='no_show') return '<span class="status-pill" style="background:rgba(255,107,129,0.14); color:var(--danger);">' + (status==='no_show'?'No-show':'Cancelled') + '</span>';
+    return '<span class="status-pill status-confirmed">Upcoming</span>';
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootTeamMemberPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Team.","Log in","/business-auth?view=login");
       return;
     }
-    container.innerHTML = memberServices.map(function(name){
-      return '<span class="tag-pill tag-service">' + name + '</span>';
-    }).join('');
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    const stylistId = new URLSearchParams(window.location.search).get('id');
+
+    try{
+      const [{data:cfgRow},{data:salonRow},{data:bookings}] = await Promise.all([
+        supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
+        supabaseClient.from("salons").select("name,suburb,city,open_days,open_time,close_time").eq("id",currentSalonId).maybeSingle(),
+        supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId)
+      ]);
+      if(salonRow){
+        document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+        document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+        salonHours = {
+          openDays: Array.isArray(salonRow.open_days) ? salonRow.open_days : [1,2,3,4,5,6],
+          openMin: parseHHMMSS(salonRow.open_time||'09:00:00'),
+          closeMin: parseHHMMSS(salonRow.close_time||'17:00:00')
+        };
+      }
+      cfg = cfgRow ? JSON.parse(JSON.stringify(cfgRow.config||{})) : {};
+      currentConfigVersion = cfgRow ? cfgRow.config_version : null;
+      cfg.stylists = Array.isArray(cfg.stylists) ? cfg.stylists : [];
+      servicesCatalog = Array.isArray(cfg.services) ? cfg.services : [];
+      stylist = cfg.stylists.find(function(s){ return s.id===stylistId; }) || null;
+
+      if(!stylist){
+        document.getElementById('memberContent').innerHTML = '<div class="panel"><p style="font-size:13.5px;color:var(--text-soft);">That team member could not be found.</p></div>';
+        return;
+      }
+      document.title = (stylist.name||'Team member') + ' — Blooma Business';
+
+      bookingsForStylist = (bookings||[]).filter(function(b){ return b.stylist_id===stylistId; });
+      var bookingIds = bookingsForStylist.map(function(b){ return b.id; });
+      if(bookingIds.length){
+        const {data:reviews} = await supabaseClient.from("reviews").select("rating,booking_id").eq("salon_id",currentSalonId).eq("approved",true).in("booking_id", bookingIds);
+        reviewsForStylist = reviews||[];
+      }
+    }catch(err){
+      document.getElementById('memberContent').innerHTML = '<div class="panel"><p style="font-size:13.5px;color:var(--text-soft);">' + escapeHtml(err.message||'Unable to load this team member.') + '</p></div>';
+      return;
+    }
+
+    renderMember();
+  }
+
+  function serviceNameFor(id){ var s = servicesCatalog.find(function(x){ return x.id===id; }); return s ? s.name : null; }
+
+  var DAY_ORDER = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var DAY_NAMES_FULL = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
+  function buildHoursRows(){
+    var hours = (cfg.salon && cfg.salon.hours) || {};
+    var rows = [];
+    var i = 0;
+    while(i < DAY_ORDER.length){
+      var h = hours[DAY_ORDER[i]] || {open:false};
+      var j = i;
+      while(j+1 < DAY_ORDER.length){
+        var nh = hours[DAY_ORDER[j+1]] || {open:false};
+        if(nh.open===h.open && (!h.open || (nh.start===h.start && nh.end===h.end))) j++; else break;
+      }
+      var label = (i===j) ? DAY_NAMES_FULL[DAY_ORDER[i]] : (DAY_ORDER[i] + ' – ' + DAY_ORDER[j]);
+      var value = h.open ? ((h.start||'') + ' – ' + (h.end||'')) : 'Closed';
+      rows.push({label:label, value:value});
+      i = j+1;
+    }
+    return rows;
+  }
+
+  function computeStats(){
+    var now = new Date();
+    var monthKey = nzTodayKey().slice(0,7);
+    var bookingsThisMonth = bookingsForStylist.filter(function(b){ return b.status!=='cancelled' && nzDateKeyForIso(b.starts_at).slice(0,7)===monthKey; }).length;
+    var revenueThisMonth = bookingsForStylist.filter(function(b){ return b.status==='completed' && nzDateKeyForIso(b.starts_at).slice(0,7)===monthKey; }).reduce(function(sum,b){ return sum+Number(b.total||0); }, 0);
+    var ratingCount = reviewsForStylist.length;
+    var avgRating = ratingCount ? (reviewsForStylist.reduce(function(sum,r){ return sum+Number(r.rating||0); },0)/ratingCount) : null;
+
+    // Utilization: booked minutes this week (Mon-Sun, NZ) vs the venue's real open capacity that week.
+    var todayKey = nzTodayKey();
+    var dow = new Date(todayKey+'T12:00:00Z').getUTCDay();
+    var mondayOffset = dow===0 ? -6 : 1-dow;
+    var monday = new Date(todayKey+'T12:00:00Z'); monday.setUTCDate(monday.getUTCDate()+mondayOffset);
+    var weekStart = monday.toISOString().slice(0,10);
+    var weekEndDate = new Date(monday); weekEndDate.setUTCDate(weekEndDate.getUTCDate()+7);
+    var weekEnd = weekEndDate.toISOString().slice(0,10);
+    var bookedMins = bookingsForStylist.filter(function(b){
+      var k = nzDateKeyForIso(b.starts_at);
+      return (b.status==='upcoming'||b.status==='completed') && k>=weekStart && k<weekEnd;
+    }).reduce(function(sum,b){ return sum+Number(b.duration_minutes||0); }, 0);
+    var capacityMins = salonHours.openDays.length * Math.max(0, salonHours.closeMin-salonHours.openMin);
+    var utilization = capacityMins ? Math.min(100, Math.round((bookedMins/capacityMins)*100)) : 0;
+
+    return { bookingsThisMonth:bookingsThisMonth, revenueThisMonth:revenueThisMonth, avgRating:avgRating, ratingCount:ratingCount, utilization:utilization };
+  }
+
+  function renderMember(){
+    var col = colorFor(stylist.name);
+    var avatarInner = stylist.imageUrl ? '<img src="' + escapeHtml(stylist.imageUrl) + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : '';
+    var isOff = stylist.availableToday===false;
+    var stats = computeStats();
+    var todayKey = nzTodayKey();
+    var todaysBookings = bookingsForStylist.filter(function(b){ return nzDateKeyForIso(b.starts_at)===todayKey; }).sort(function(a,b){ return new Date(a.starts_at)-new Date(b.starts_at); });
+    var recentBookings = bookingsForStylist.slice().sort(function(a,b){ return new Date(b.starts_at)-new Date(a.starts_at); }).slice(0,8);
+    var serviceIds = Array.isArray(stylist.serviceIds) ? stylist.serviceIds : [];
+    var serviceNames = serviceIds.map(serviceNameFor).filter(Boolean);
+
+    document.getElementById('memberContent').innerHTML =
+      '<div class="panel profile-panel">' +
+        '<div class="profile-head">' +
+          '<div class="profile-avatar" style="background:' + col.color + '; display:flex; align-items:center; justify-content:center; color:' + col.text + '; font-weight:800; font-size:22px;">' + (avatarInner || initialsFor(stylist.name)) + '</div>' +
+          '<div>' +
+            '<div class="profile-name-row"><h1>' + escapeHtml(stylist.name) + '</h1><span class="status-badge ' + (isOff?'status-completed':'status-confirmed') + '" id="memberStatusBadge">' + (isOff?'Off today':'Active') + '</span></div>' +
+            '<div class="profile-meta">' + escapeHtml(stylist.specialty||'Stylist') + '</div>' +
+          '</div>' +
+          '<div class="profile-actions">' +
+            '<div class="btn btn-ghost" onclick="messageMember()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Message</div>' +
+            '<a href="/venue/admin/calendar?staff=' + encodeURIComponent(stylist.id) + '" class="btn btn-ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>View schedule</a>' +
+            '<div class="btn btn-violet" id="toggleAvailBtn" onclick="toggleAvailability()">' + (isOff
+              ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Mark available'
+              : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg>Mark off today') + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="stats-grid">' +
+        '<div class="stat-card"><div class="stat-top"><div class="stat-label">Bookings</div><div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div></div><div class="stat-value">' + stats.bookingsThisMonth + '</div><div class="stat-delta"><span class="muted">This month</span></div></div>' +
+        '<div class="stat-card"><div class="stat-top"><div class="stat-label">Revenue generated</div><div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><div class="stat-value">$' + stats.revenueThisMonth.toLocaleString() + '</div><div class="stat-delta"><span class="muted">This month, completed</span></div></div>' +
+        '<div class="stat-card"><div class="stat-top"><div class="stat-label">Avg. rating</div><div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z"/></svg></div></div><div class="stat-value">' + (stats.avgRating!=null?stats.avgRating.toFixed(1):'—') + '</div><div class="stat-delta"><span class="muted">' + stats.ratingCount + ' review' + (stats.ratingCount===1?'':'s') + '</span></div></div>' +
+        '<div class="stat-card"><div class="stat-top"><div class="stat-label">Utilization</div><div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div></div><div class="stat-value">' + stats.utilization + '%</div><div class="stat-delta"><span class="muted">This week</span></div></div>' +
+      '</div>' +
+
+      '<div class="dash-grid">' +
+        '<div class="side-col">' +
+          '<div class="panel">' +
+            '<div class="panel-head"><h2>Today\'s schedule</h2><a href="/venue/admin/calendar?staff=' + encodeURIComponent(stylist.id) + '" class="link">Open calendar</a></div>' +
+            (todaysBookings.length ? todaysBookings.map(function(b){
+              var c = colorFor(b.customer_name);
+              return '<div class="appt-row"><div class="appt-avatar" style="background:' + c.color + '; color:' + c.text + ';">' + initialsFor(b.customer_name) + '</div>' +
+                '<div><div class="appt-name">' + escapeHtml(b.customer_name||'Customer') + '</div><div class="appt-service">' + escapeHtml(b.service_name_snapshot||'Service') + '</div></div>' +
+                '<div class="appt-time"><div class="t">' + localTimeLabel(b.starts_at) + '</div>' + statusPill(b.status) + '</div></div>';
+            }).join('') : '<p class="panel-empty">No appointments today.</p>') +
+          '</div>' +
+          '<div class="panel">' +
+            '<div class="panel-head"><h2>Recent bookings</h2><a href="/venue/admin/bookings" class="link">See all</a></div>' +
+            (recentBookings.length ? '<div class="table-wrap"><table class="data"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>' +
+              recentBookings.map(function(b){
+                return '<tr><td>' + escapeHtml(b.customer_name||'Customer') + '</td><td>' + escapeHtml(b.service_name_snapshot||'Service') + '</td><td>' + shortDateLabel(b.starts_at) + '</td><td>$' + Number(b.total||0) + '</td><td>' + statusBadge(b.status) + '</td></tr>';
+              }).join('') + '</tbody></table></div>' : '<p class="panel-empty">No bookings yet.</p>') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="side-col">' +
+          '<div class="panel"><div class="panel-head"><h2>Details</h2></div><div class="info-row"><span class="info-label">Role</span><span class="info-value">' + escapeHtml(stylist.specialty||'Stylist') + '</span></div></div>' +
+
+          '<div class="panel"><div class="panel-head"><h2>Venue hours</h2></div>' +
+            buildHoursRows().map(function(r){ return '<div class="info-row"><span class="info-label">' + escapeHtml(r.label) + '</span><span class="info-value">' + escapeHtml(r.value) + '</span></div>'; }).join('') +
+          '</div>' +
+
+          '<div class="panel">' +
+            '<div class="panel-head"><h2>Services</h2><div class="link" id="editMemberServicesBtn" style="cursor:pointer;">Edit</div></div>' +
+            '<div id="memberServiceTags">' + (serviceNames.length ? serviceNames.map(function(n){ return '<span class="tag-pill tag-service">' + escapeHtml(n) + '</span>'; }).join('') : '<span class="panel-empty">No services assigned yet.</span>') + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('editMemberServicesBtn').addEventListener('click', openEditMemberServices);
   }
 
   function openEditMemberServices(){
     var container = document.getElementById('memberServiceList');
-    container.innerHTML = TEAM_SERVICE_CATALOG.map(function(opt, i){
-      var checked = memberServices.indexOf(opt.name) !== -1 ? ' checked' : '';
+    var serviceIds = Array.isArray(stylist.serviceIds) ? stylist.serviceIds : [];
+    var byCategory = {};
+    servicesCatalog.forEach(function(s){ (byCategory[s.category||'Other']=byCategory[s.category||'Other']||[]).push(s); });
+    container.innerHTML = servicesCatalog.length ? servicesCatalog.map(function(s, i){
+      var checked = serviceIds.indexOf(s.id) !== -1 ? ' checked' : '';
       var id = 'memberSvcOpt' + i;
       return '<label class="addon-service-option" for="' + id + '">' +
-        '<input type="checkbox" id="' + id + '" value="' + opt.name.replace(/"/g,'&quot;') + '"' + checked + '>' +
-        '<span>' + opt.name + '</span>' +
-        '<span class="cat">' + opt.category + '</span>' +
+        '<input type="checkbox" id="' + id + '" value="' + escapeHtml(s.id) + '"' + checked + '>' +
+        '<span>' + escapeHtml(s.name) + '</span>' +
+        '<span class="cat">' + escapeHtml(s.category||'') + '</span>' +
       '</label>';
-    }).join('');
+    }).join('') : '<p class="panel-empty" style="padding:8px;">No services configured yet.</p>';
     document.getElementById('editMemberServicesOverlay').classList.add('open');
   }
   function closeEditMemberServices(){
     document.getElementById('editMemberServicesOverlay').classList.remove('open');
   }
-  function saveMemberServices(){
-    memberServices = Array.from(document.querySelectorAll('#memberServiceList input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
-    renderMemberServiceTags();
+  async function saveMemberServices(){
+    var ids = Array.from(document.querySelectorAll('#memberServiceList input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
+    stylist.serviceIds = ids;
     closeEditMemberServices();
+    await persistConfig('Services updated');
   }
-  document.getElementById('editMemberServicesBtn').addEventListener('click', openEditMemberServices);
   document.getElementById('editMemberServicesOverlay').addEventListener('click', function(e){
     if(e.target === this) closeEditMemberServices();
   });
 
-  var isOff = false;
-  function toggleAvailability(){
-    isOff = !isOff;
-    var badge = document.getElementById('memberStatusBadge');
-    var btn = document.getElementById('toggleAvailBtn');
-    if(isOff){
-      badge.textContent = 'Off today';
-      badge.className = 'status-badge status-completed';
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Mark available';
-    } else {
-      badge.textContent = 'Active';
-      badge.className = 'status-badge status-confirmed';
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg> Mark off today';
+  async function toggleAvailability(){
+    stylist.availableToday = stylist.availableToday===false;
+    await persistConfig(stylist.availableToday===false ? 'Marked off today' : 'Marked available today');
+  }
+
+  async function persistConfig(successMessage){
+    try{
+      const args = currentConfigVersion==null ? {payload:cfg} : {payload:cfg, expected_version:currentConfigVersion};
+      const {data,error} = await supabaseClient.rpc('admin_save_config_gated', args);
+      if(error) throw error;
+      if(data?.config_version!=null) currentConfigVersion = data.config_version;
+      showToast(successMessage);
+      renderMember();
+    }catch(err){
+      showToast(err.message || 'Save failed');
+      renderMember();
     }
   }
+
+  bootTeamMemberPage();
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

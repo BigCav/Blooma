@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -609,6 +636,19 @@
   .form-input::placeholder{color:var(--text-faint);}
   .modal-actions{display:flex; gap:10px;}
   .modal-actions .btn{flex:1; justify-content:center;}
+
+  .nb-confirm-btn.disabled{opacity:.5; cursor:not-allowed; pointer-events:none;}
+  .date-pill.closed{opacity:0.35; cursor:not-allowed; pointer-events:none;}
+  .time-slot.taken{opacity:0.3; cursor:not-allowed; text-decoration:line-through; color:var(--text-faint); pointer-events:none;}
+  .nb-empty{font-size:12.5px; color:var(--text-faint); padding:10px 0;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:90; opacity:0; pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 
@@ -632,8 +672,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -651,14 +691,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -672,7 +713,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -693,10 +741,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -708,7 +756,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -742,7 +791,7 @@
         <div class="client-search-row">
           <div class="filter-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" placeholder="Search existing clients…">
+            <input type="text" id="clientSearchInput" placeholder="Search existing clients…">
           </div>
           <div class="btn btn-ghost" onclick="openNewClient()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -750,94 +799,43 @@
           </div>
         </div>
         <div class="client-result-list" id="clientResultList">
-        <div class="client-result selected" onclick="pickClient(this,'Nina P.')">
-          <div class="cr-avatar" style="background:#5FA8E8;">NP</div>
-          <div>
-            <div class="cr-name">Nina P.</div>
-            <div class="cr-sub">Last visit: yesterday</div>
-          </div>
-          <div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
-        </div>
-        <div class="client-result" onclick="pickClient(this,'Dana F.')">
-          <div class="cr-avatar" style="background:#5FE8A0; color:#131218;">DF</div>
-          <div>
-            <div class="cr-name">Dana F.</div>
-            <div class="cr-sub">Last visit: 3 days ago</div>
-          </div>
-          <div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
-        </div>
+          <div class="nb-empty">Loading clients…</div>
         </div>
       </div>
 
       <div class="ci-section">
         <div class="ci-step-label">Step 2</div>
         <h3>Service</h3>
-        <div class="svc-pick-grid">
-          <div class="svc-pick" onclick="pickService(this,'Women\'s cut & blowout',95)"><div class="sp-name">Women's cut &amp; blowout</div><div class="sp-meta">60 min · $95</div></div>
-          <div class="svc-pick" onclick="pickService(this,'Men\'s cut',55)"><div class="sp-name">Men's cut</div><div class="sp-meta">30 min · $55</div></div>
-          <div class="svc-pick active" onclick="pickService(this,'Blowout',60)"><div class="sp-name">Blowout</div><div class="sp-meta">40 min · $60</div></div>
-          <div class="svc-pick" onclick="pickService(this,'Root touch-up',110)"><div class="sp-name">Root touch-up</div><div class="sp-meta">1 hr 15 min · $110</div></div>
-          <div class="svc-pick" onclick="pickService(this,'Gloss & toner',65)"><div class="sp-name">Gloss &amp; toner</div><div class="sp-meta">45 min · $65</div></div>
-          <div class="svc-pick" onclick="pickService(this,'Kids cut',40)"><div class="sp-name">Kids cut</div><div class="sp-meta">30 min · $40</div></div>
+        <div class="svc-pick-grid" id="servicePickGrid">
+          <div class="nb-empty">Loading services…</div>
         </div>
       </div>
 
       <div class="ci-section">
         <div class="ci-step-label">Step 3</div>
         <h3>Stylist</h3>
-        <div class="stylist-grid">
-          <div class="stylist-pick" onclick="pickStaff(this,'Fana R.')">
-            <div class="sp-avatar" style="background:#E4C9A0;"></div>
-            <div class="sp-info"><div class="sp-name">Fana R.</div><div class="sp-status free">Senior Colorist</div></div>
-          </div>
-          <div class="stylist-pick active" onclick="pickStaff(this,'Jordan M.')">
-            <div class="sp-avatar" style="background:#D9B48F;"></div>
-            <div class="sp-info"><div class="sp-name">Jordan M.</div><div class="sp-status free">Master Stylist</div></div>
-          </div>
-          <div class="stylist-pick" onclick="pickStaff(this,'Naomi K.')">
-            <div class="sp-avatar" style="background:#E3C4BE;"></div>
-            <div class="sp-info"><div class="sp-name">Naomi K.</div><div class="sp-status free">Stylist</div></div>
-          </div>
-          <div class="stylist-pick" onclick="pickStaff(this,'Chris T.')">
-            <div class="sp-avatar" style="background:#C9D3C2;"></div>
-            <div class="sp-info"><div class="sp-name">Chris T.</div><div class="sp-status free">Blowout Specialist</div></div>
-          </div>
+        <div class="stylist-grid" id="stylistPickGrid">
+          <div class="nb-empty">Loading team…</div>
         </div>
       </div>
 
       <div class="ci-section">
         <div class="ci-step-label">Step 4</div>
         <h3>Date &amp; time</h3>
-        <div class="date-row">
-          <div class="date-pill" onclick="pickDate(this,'Thu, Aug 20')"><div class="dow">Today</div><div class="dnum">20</div></div>
-          <div class="date-pill active" onclick="pickDate(this,'Fri, Aug 21')"><div class="dow">Fri</div><div class="dnum">21</div></div>
-          <div class="date-pill" onclick="pickDate(this,'Sat, Aug 22')"><div class="dow">Sat</div><div class="dnum">22</div></div>
-          <div class="date-pill disabled"><div class="dow">Sun</div><div class="dnum">23</div></div>
-          <div class="date-pill" onclick="pickDate(this,'Mon, Aug 24')"><div class="dow">Mon</div><div class="dnum">24</div></div>
-          <div class="date-pill" onclick="pickDate(this,'Tue, Aug 25')"><div class="dow">Tue</div><div class="dnum">25</div></div>
+        <div class="date-row" id="datePickRow">
+          <div class="nb-empty">Loading dates…</div>
         </div>
 
-        <div class="time-grid">
-          <div class="time-slot" onclick="pickTime(this,'9:00 AM')">9:00am</div>
-          <div class="time-slot" onclick="pickTime(this,'9:30 AM')">9:30am</div>
-          <div class="time-slot disabled">10:00am</div>
-          <div class="time-slot" onclick="pickTime(this,'10:30 AM')">10:30am</div>
-          <div class="time-slot active" onclick="pickTime(this,'11:00 AM')">11:00am</div>
-          <div class="time-slot" onclick="pickTime(this,'11:30 AM')">11:30am</div>
-          <div class="time-slot disabled">1:00pm</div>
-          <div class="time-slot" onclick="pickTime(this,'1:30 PM')">1:30pm</div>
-          <div class="time-slot" onclick="pickTime(this,'2:00 PM')">2:00pm</div>
-          <div class="time-slot" onclick="pickTime(this,'2:30 PM')">2:30pm</div>
-          <div class="time-slot disabled">3:00pm</div>
-          <div class="time-slot" onclick="pickTime(this,'3:30 PM')">3:30pm</div>
+        <div class="time-grid" id="timeSlotGrid">
+          <div class="nb-empty">Pick a service and date to see available times.</div>
         </div>
       </div>
 
       <div class="nb-summary" id="nbSummaryText">
-        Booking <strong>Nina P.</strong> for <strong>Blowout</strong> with <strong>Jordan M.</strong> on <strong>Fri, Aug 21</strong> at <strong>11:00 AM</strong>.
+        Pick a client, service, stylist, date and time to book an appointment.
       </div>
 
-      <div class="btn btn-violet nb-confirm-btn" onclick="confirmBooking()">Confirm booking</div>
+      <div class="btn btn-violet nb-confirm-btn disabled" id="nbConfirmBtn" onclick="confirmBooking()">Confirm booking</div>
     </div>
 
     <div class="panel" id="nbSuccess" style="display:none;">
@@ -846,12 +844,13 @@
         <div class="result-title">Booking confirmed</div>
         <div class="result-sub">A confirmation has been sent to the client.</div>
         <div class="receipt-box">
-          <div class="receipt-row"><span>Client</span><strong id="rcClient">Nina P.</strong></div>
-          <div class="receipt-row"><span>Service</span><strong id="rcService">Blowout</strong></div>
-          <div class="receipt-row"><span>Stylist</span><strong id="rcStaff">Jordan M.</strong></div>
-          <div class="receipt-row"><span>When</span><strong id="rcWhen">Fri, Aug 21 · 11:00 AM</strong></div>
+          <div class="receipt-row"><span>Client</span><strong id="rcClient">—</strong></div>
+          <div class="receipt-row"><span>Service</span><strong id="rcService">—</strong></div>
+          <div class="receipt-row"><span>Stylist</span><strong id="rcStaff">—</strong></div>
+          <div class="receipt-row"><span>When</span><strong id="rcWhen">—</strong></div>
+          <div class="receipt-row"><span>Total</span><strong id="rcTotal">—</strong></div>
         </div>
-        <div class="result-actions">
+        <div class="result-actions" id="rcActions">
           <a href="/venue/admin" class="btn btn-violet">Back to dashboard</a>
           <div class="btn btn-ghost" onclick="bookAnother()">Book another</div>
         </div>
@@ -874,6 +873,10 @@
         <label class="form-label">Full name</label>
         <input type="text" class="form-input" id="ncName" placeholder="e.g. Taylor R." required>
       </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="tel" class="form-input" id="ncPhone" placeholder="e.g. 021 234 5678" required>
+      </div>
       <div class="modal-actions">
         <div class="btn btn-ghost" onclick="closeNewClient()">Cancel</div>
         <button type="submit" class="btn btn-violet">Add client</button>
@@ -882,19 +885,230 @@
   </div>
 </div>
 
-<script>
-  var nb = { client:'Nina P.', service:'Blowout', staff:'Jordan M.', date:'Fri, Aug 21', time:'11:00 AM' };
+<div id="toast" class="toast"></div>
 
-  function updateSummary(){
-    document.getElementById('nbSummaryText').innerHTML =
-      'Booking <strong>' + nb.client + '</strong> for <strong>' + nb.service + '</strong> with <strong>' + nb.staff +
-      '</strong> on <strong>' + nb.date + '</strong> at <strong>' + nb.time + '</strong>.';
+<script>
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  }
+</script>
+
+<script>
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Services/stylists come from their real tables; clients are grouped
+     from bookings the same way as clients.html (clientKeyFor). Booking
+     creation goes through admin_create_booking, an existing SECURITY
+     DEFINER RPC that validates hours/conflicts/blockouts server-side --
+     the client-side slot picker below mirrors that same logic so the UI
+     doesn't offer times the RPC would reject, but the RPC is the actual
+     source of truth.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  var salonHours = { openDays:[1,2,3,4,5,6], openMin:9*60, closeMin:17*60, bufferMin:0 };
+  var servicesData = [];
+  var stylistsData = [];
+  var clientsData = [];
+  var windowBookings = [];
+  var windowBlockouts = [];
+
+  var nb = { clientKey:null, clientName:'', clientPhone:'', clientEmail:'', customerUserId:null, serviceId:null, stylistId:'any', dateKey:null, timeHHMM:null };
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
+  function colorFor(seed){
+    var hash = 0; var s = String(seed||'?');
+    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
   }
 
-  function pickClient(el, name){
-    document.querySelectorAll('.client-result').forEach(function(e){ e.classList.remove('selected'); });
-    el.classList.add('selected');
-    nb.client = name;
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function addDaysToKey(key,n){ var p=key.split('-').map(Number); var dt=new Date(Date.UTC(p[0],p[1]-1,p[2])); dt.setUTCDate(dt.getUTCDate()+n); return dt.toISOString().slice(0,10); }
+  function weekdayIndexForKey(key){ var p=key.split('-').map(Number); return new Date(Date.UTC(p[0],p[1]-1,p[2])).getUTCDay(); }
+  function dayNumForKey(key){ return Number(key.split('-')[2]); }
+  function dowShort(idx){ return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][idx]; }
+  function parseHHMMSS(t){ var p=String(t||'00:00:00').split(':').map(Number); return (p[0]||0)*60+(p[1]||0); }
+  function formatMinsAmPm(mins){ var h=Math.floor(mins/60)%24,m=mins%60,period=h>=12?'PM':'AM',h12=h%12||12; return h12+':'+String(m).padStart(2,'0')+' '+period; }
+  function minsToHHMM(mins){ var h=Math.floor(mins/60),m=mins%60; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); }
+
+  // Converts an NZ local wall-clock time (dateKey + "HH:MM") to a real UTC instant,
+  // so client-side conflict checks compare against the same instant the RPC will use.
+  function nzLocalToUtcMs(dateKey, hhmm){
+    var guess = new Date(dateKey + 'T' + hhmm + ':00.000Z');
+    var fmt = new Intl.DateTimeFormat('en-US', {timeZone:'Pacific/Auckland', hour12:false, year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var parts = {}; fmt.formatToParts(guess).forEach(function(p){ if(p.type!=='literal') parts[p.type]=p.value; });
+    if(parts.hour==='24') parts.hour='00';
+    var asUTC = Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),Number(parts.hour),Number(parts.minute),Number(parts.second));
+    var offsetMs = asUTC - guess.getTime();
+    return guess.getTime() - offsetMs;
+  }
+
+  function clientKeyFor(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+b.customer_phone.trim()
+      : b.customer_email ? 'em:'+b.customer_email.trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+  function buildClients(bookings){
+    var groups = {};
+    bookings.forEach(function(b){
+      var key = clientKeyFor(b);
+      if(!groups[key]) groups[key] = { key:key, name:b.customer_name||'Customer', email:b.customer_email||'', phone:b.customer_phone||'', customer_user_id:b.customer_user_id||null, bookings:[] };
+      groups[key].bookings.push(b);
+    });
+    return Object.values(groups).map(function(g){
+      g.bookings.sort(function(a,b){ return new Date(b.starts_at) - new Date(a.starts_at); });
+      return { key:g.key, name:g.name, email:g.email, phone:g.phone, customer_user_id:g.customer_user_id, lastVisit:g.bookings[0]?g.bookings[0].starts_at:null };
+    }).sort(function(a,b){ return new Date(b.lastVisit||0) - new Date(a.lastVisit||0); });
+  }
+  function mergeManualClients(derived, manualRows){
+    var byKey = {}; derived.forEach(function(c){ byKey[c.key]=true; });
+    manualRows.forEach(function(r){
+      var key = clientKeyFor({customer_user_id:null, customer_phone:r.phone, customer_email:r.email, customer_name:r.name});
+      if(!byKey[key]){
+        byKey[key]=true;
+        derived.push({ key:key, name:r.name, email:r.email||'', phone:r.phone||'', customer_user_id:null, lastVisit:null });
+      }
+    });
+    return derived;
+  }
+  function relativeLastVisit(iso){
+    if(!iso) return 'No visits yet';
+    var diffDays = Math.round((Date.now() - new Date(iso).getTime())/86400000);
+    if(diffDays<=0) return 'Last visit: today';
+    if(diffDays===1) return 'Last visit: yesterday';
+    if(diffDays<7) return 'Last visit: ' + diffDays + ' days ago';
+    return 'Last visit: ' + new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric'}).format(new Date(iso));
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootNewBookingPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening New booking.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    try{
+      const [{data:salonRow},{data:services},{data:stylists},{data:bookingRows},{data:manualClients}] = await Promise.all([
+        supabaseClient.from("salons").select("name,suburb,city,open_days,open_time,close_time,buffer_minutes").eq("id",currentSalonId).maybeSingle(),
+        supabaseClient.from("services").select("*").eq("salon_id",currentSalonId).eq("active",true).order("name"),
+        supabaseClient.from("stylists").select("*").eq("salon_id",currentSalonId).eq("active",true).order("name"),
+        supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId),
+        supabaseClient.rpc("get_venue_clients")
+      ]);
+      if(salonRow){
+        document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+        document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+        document.title = salonRow.name ? `New booking — ${salonRow.name}` : "New Booking — Blooma Business";
+        salonHours = {
+          openDays: Array.isArray(salonRow.open_days) ? salonRow.open_days : [1,2,3,4,5,6],
+          openMin: parseHHMMSS(salonRow.open_time||'09:00:00'),
+          closeMin: parseHHMMSS(salonRow.close_time||'17:00:00'),
+          bufferMin: Math.max(0, Number(salonRow.buffer_minutes||0))
+        };
+      }
+      servicesData = services||[];
+      stylistsData = stylists||[];
+      clientsData = mergeManualClients(buildClients(bookingRows||[]), manualClients||[]);
+      const todayKey = nzTodayKey();
+      windowBookings = (bookingRows||[]).filter(b=>b.status==='upcoming');
+      const {data:blockouts} = await supabaseClient.from("blockouts").select("*").eq("salon_id",currentSalonId).gte("ends_at", new Date().toISOString());
+      windowBlockouts = blockouts||[];
+    }catch(err){ showToast(err.message||"Unable to load booking data"); }
+
+    renderClientResults('');
+    document.getElementById('clientSearchInput').addEventListener('input', function(e){ renderClientResults(e.target.value); });
+    renderServices();
+    renderStylists();
+    renderDatePills();
+    renderTimeSlots();
+    updateSummary();
+  }
+
+  /* ---------- CLIENT ---------- */
+  function renderClientResults(search){
+    var q = (search||'').trim().toLowerCase();
+    var wrap = document.getElementById('clientResultList');
+    if(!q){
+      var selectedClient = nb.clientKey ? clientsData.find(function(c){ return c.key===nb.clientKey; }) : null;
+      if(selectedClient){
+        var col0 = colorFor(selectedClient.name);
+        wrap.innerHTML = '<div class="client-result selected">' +
+          '<div class="cr-avatar" style="background:' + col0.color + ';color:' + col0.text + ';">' + initialsFor(selectedClient.name) + '</div>' +
+          '<div><div class="cr-name">' + escapeHtml(selectedClient.name) + '</div><div class="cr-sub">' + relativeLastVisit(selectedClient.lastVisit) + '</div></div>' +
+          '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>' +
+        '</div>';
+      } else {
+        wrap.innerHTML = '<div class="nb-empty">Search to find an existing client, or use New client to book a first-timer.</div>';
+      }
+      return;
+    }
+    var filtered = clientsData.filter(function(c){
+      return c.name.toLowerCase().indexOf(q)>-1 || (c.phone||'').toLowerCase().indexOf(q)>-1 || (c.email||'').toLowerCase().indexOf(q)>-1;
+    });
+    if(!filtered.length){
+      wrap.innerHTML = '<div class="nb-empty">No clients match that search.</div>';
+      return;
+    }
+    wrap.innerHTML = filtered.slice(0,25).map(function(c){
+      var col = colorFor(c.name);
+      var selected = c.key === nb.clientKey;
+      return '<div class="client-result' + (selected?' selected':'') + '" onclick="pickClientByKey(\'' + c.key.replace(/'/g,"\\'") + '\')">' +
+        '<div class="cr-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(c.name) + '</div>' +
+        '<div><div class="cr-name">' + escapeHtml(c.name) + '</div><div class="cr-sub">' + relativeLastVisit(c.lastVisit) + '</div></div>' +
+        '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>' +
+      '</div>';
+    }).join('');
+  }
+  function pickClientByKey(key){
+    var c = clientsData.find(function(x){ return x.key===key; });
+    if(!c) return;
+    nb.clientKey = c.key; nb.clientName = c.name; nb.clientPhone = c.phone; nb.clientEmail = c.email; nb.customerUserId = c.customer_user_id;
+    renderClientResults(document.getElementById('clientSearchInput').value);
     updateSummary();
   }
 
@@ -906,61 +1120,234 @@
   function submitNewClient(evt){
     evt.preventDefault();
     var name = document.getElementById('ncName').value.trim();
-    if(!name) return false;
-    var initials = name.split(/\s+/).map(function(p){ return p[0]; }).join('').slice(0,2).toUpperCase();
-    var colors = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
-    var color = colors[document.querySelectorAll('.client-result').length % colors.length];
-    var textColor = color === '#5FE8A0' ? 'color:#131218;' : '';
-    var row = document.createElement('div');
-    row.className = 'client-result';
-    row.innerHTML = '<div class="cr-avatar" style="background:' + color + ';' + textColor + '">' + initials + '</div>' +
-      '<div><div class="cr-name">' + name + '</div><div class="cr-sub">New client</div></div>' +
-      '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>';
-    row.onclick = function(){ pickClient(row, name); };
-    document.getElementById('clientResultList').prepend(row);
-    pickClient(row, name);
+    var phone = document.getElementById('ncPhone').value.trim();
+    if(!name || name.length<2){ showToast('Enter a full name'); return false; }
+    if(phone.replace(/\D/g,'').length<6){ showToast('Enter a valid phone number'); return false; }
+    var key = 'ph:'+phone;
+    var existing = clientsData.find(function(c){ return c.key===key; });
+    if(!existing){
+      existing = { key:key, name:name, email:'', phone:phone, customer_user_id:null, lastVisit:null };
+      clientsData.unshift(existing);
+    } else {
+      existing.name = name;
+    }
+    pickClientByKey(existing.key);
     closeNewClient();
   }
   document.getElementById('newClientOverlay').addEventListener('click', function(e){
     if(e.target === this) closeNewClient();
   });
-  function pickService(el, name, price){
-    document.querySelectorAll('.svc-pick').forEach(function(e){ e.classList.remove('active'); });
-    el.classList.add('active');
-    nb.service = name;
-    updateSummary();
+
+  /* ---------- SERVICE ---------- */
+  function durationLabel(mins){
+    mins = Number(mins||0);
+    if(mins<60) return mins+' min';
+    var h = Math.floor(mins/60), m = mins%60;
+    return h+' hr'+(m?' '+m+' min':'');
   }
-  function pickStaff(el, name){
-    document.querySelectorAll('.stylist-pick').forEach(function(e){ e.classList.remove('active'); });
-    el.classList.add('active');
-    nb.staff = name;
-    updateSummary();
+  function renderServices(){
+    var wrap = document.getElementById('servicePickGrid');
+    if(!servicesData.length){ wrap.innerHTML = '<div class="nb-empty">No active services configured yet.</div>'; return; }
+    wrap.innerHTML = servicesData.map(function(s){
+      var active = s.id === nb.serviceId;
+      return '<div class="svc-pick' + (active?' active':'') + '" onclick="pickServiceById(\'' + s.id + '\')"><div class="sp-name">' + escapeHtml(s.name) + '</div><div class="sp-meta">' + durationLabel(s.duration_minutes) + ' · $' + Number(s.price||0) + '</div></div>';
+    }).join('');
   }
-  function pickDate(el, label){
-    document.querySelectorAll('.date-pill').forEach(function(e){ e.classList.remove('active'); });
-    el.classList.add('active');
-    nb.date = label;
-    updateSummary();
-  }
-  function pickTime(el, label){
-    document.querySelectorAll('.time-slot').forEach(function(e){ e.classList.remove('active'); });
-    el.classList.add('active');
-    nb.time = label;
+  function pickServiceById(id){
+    nb.serviceId = id;
+    renderServices();
+    renderTimeSlots();
     updateSummary();
   }
 
-  function confirmBooking(){
-    document.getElementById('rcClient').textContent = nb.client;
-    document.getElementById('rcService').textContent = nb.service;
-    document.getElementById('rcStaff').textContent = nb.staff;
-    document.getElementById('rcWhen').textContent = nb.date + ' · ' + nb.time;
-    document.getElementById('nbForm').style.display = 'none';
-    document.getElementById('nbSuccess').style.display = 'block';
+  /* ---------- STYLIST ---------- */
+  function renderStylists(){
+    var wrap = document.getElementById('stylistPickGrid');
+    var tiles = [{id:'any', name:'Any available stylist', specialty:'We\'ll assign the first free stylist'}].concat(stylistsData);
+    wrap.innerHTML = tiles.map(function(st){
+      var active = st.id === nb.stylistId;
+      var col = colorFor(st.name);
+      var avatarStyle = st.image_url ? ('background-image:url(' + st.image_url + ');background-size:cover;background-position:center;') : ('background:' + col.color + ';');
+      return '<div class="stylist-pick' + (active?' active':'') + '" onclick="pickStaffById(\'' + st.id + '\')">' +
+        '<div class="sp-avatar" style="' + avatarStyle + '"></div>' +
+        '<div class="sp-info"><div class="sp-name">' + escapeHtml(st.name) + '</div><div class="sp-status free">' + escapeHtml(st.specialty||'') + '</div></div>' +
+      '</div>';
+    }).join('');
+  }
+  function pickStaffById(id){
+    nb.stylistId = id;
+    renderStylists();
+    renderTimeSlots();
+    updateSummary();
+  }
+
+  /* ---------- DATE & TIME ---------- */
+  function renderDatePills(){
+    if(!nb.dateKey) nb.dateKey = nzTodayKey();
+    var todayKey = nzTodayKey();
+    var wrap = document.getElementById('datePickRow');
+    var html = '';
+    for(var i=0;i<14;i++){
+      var key = addDaysToKey(todayKey, i);
+      var dow = weekdayIndexForKey(key);
+      var closed = salonHours.openDays.indexOf(dow) === -1;
+      var label = i===0 ? 'Today' : dowShort(dow);
+      var active = key === nb.dateKey;
+      html += '<div class="date-pill' + (active?' active':'') + (closed?' closed':'') + '"' + (closed?'':' onclick="pickDateKey(\''+key+'\')"') + '><div class="dow">' + label + '</div><div class="dnum">' + dayNumForKey(key) + '</div></div>';
+    }
+    wrap.innerHTML = html;
+  }
+  function pickDateKey(key){
+    nb.dateKey = key;
+    renderDatePills();
+    renderTimeSlots();
+    updateSummary();
+  }
+
+  function stylistBlockedToday(st, dateKey){
+    if(dateKey !== nzTodayKey()) return false;
+    return st.available_today===false && st.available_today_date===dateKey;
+  }
+  function stylistFreeAt(stylistId, slotStartMs, durationMin){
+    var reqEnd = slotStartMs + (durationMin + salonHours.bufferMin)*60000;
+    var bookingConflict = windowBookings.some(function(b){
+      if(String(b.stylist_id||'') !== String(stylistId)) return false;
+      var exStart = new Date(b.starts_at).getTime();
+      var exEnd = exStart + (Number(b.duration_minutes||30)+salonHours.bufferMin)*60000;
+      return exStart < reqEnd && exEnd > slotStartMs;
+    });
+    if(bookingConflict) return false;
+    var slotEnd = slotStartMs + durationMin*60000;
+    var blockoutConflict = windowBlockouts.some(function(bo){
+      if(!bo.all_staff && String(bo.stylist_id||'') !== String(stylistId)) return false;
+      var boStart = new Date(bo.starts_at).getTime(), boEnd = new Date(bo.ends_at).getTime();
+      return boStart < slotEnd && boEnd > slotStartMs;
+    });
+    return !blockoutConflict;
+  }
+  function renderTimeSlots(){
+    var wrap = document.getElementById('timeSlotGrid');
+    var service = servicesData.find(function(s){ return s.id===nb.serviceId; });
+    if(!service || !nb.dateKey){ wrap.innerHTML = '<div class="nb-empty">Pick a service and date to see available times.</div>'; return; }
+    var dow = weekdayIndexForKey(nb.dateKey);
+    if(salonHours.openDays.indexOf(dow) === -1){ wrap.innerHTML = '<div class="nb-empty">Venue is closed that day.</div>'; return; }
+    var duration = Number(service.duration_minutes||30);
+    var isToday = nb.dateKey === nzTodayKey();
+    var eligibleStylists = nb.stylistId==='any'
+      ? stylistsData.filter(function(st){ return !stylistBlockedToday(st, nb.dateKey); })
+      : stylistsData.filter(function(st){ return st.id===nb.stylistId && !stylistBlockedToday(st, nb.dateKey); });
+    if(nb.stylistId!=='any' && !eligibleStylists.length){ wrap.innerHTML = '<div class="nb-empty">That stylist is not available this day.</div>'; return; }
+
+    var slots = [];
+    for(var m=salonHours.openMin; m+duration<=salonHours.closeMin; m+=15) slots.push(m);
+    var nowCutoff = Date.now() + 5*60000;
+    var html = slots.map(function(m){
+      var hhmm = minsToHHMM(m);
+      var slotStartMs = nzLocalToUtcMs(nb.dateKey, hhmm);
+      var taken = false;
+      if(slotStartMs < nowCutoff) taken = true;
+      else if(nb.stylistId==='any') taken = !eligibleStylists.some(function(st){ return stylistFreeAt(st.id, slotStartMs, duration); });
+      else taken = !stylistFreeAt(nb.stylistId, slotStartMs, duration);
+      var active = hhmm === nb.timeHHMM;
+      return '<div class="time-slot' + (active?' active':'') + (taken?' taken':'') + '"' + (taken?'':' onclick="pickTimeHHMM(\''+hhmm+'\')"') + '>' + formatMinsAmPm(m).toLowerCase().replace(' ','') + '</div>';
+    }).join('');
+    wrap.innerHTML = html || '<div class="nb-empty">No time slots that day.</div>';
+  }
+  function pickTimeHHMM(hhmm){
+    nb.timeHHMM = hhmm;
+    renderTimeSlots();
+    updateSummary();
+  }
+
+  /* ---------- SUMMARY / CONFIRM ---------- */
+  function isReady(){
+    return !!(nb.clientKey && nb.serviceId && nb.dateKey && nb.timeHHMM);
+  }
+  function updateSummary(){
+    var btn = document.getElementById('nbConfirmBtn');
+    if(!isReady()){
+      document.getElementById('nbSummaryText').textContent = 'Pick a client, service, stylist, date and time to book an appointment.';
+      btn.classList.add('disabled');
+      return;
+    }
+    var service = servicesData.find(function(s){ return s.id===nb.serviceId; });
+    var stylistLabel = nb.stylistId==='any' ? 'any available stylist' : (stylistsData.find(function(s){ return s.id===nb.stylistId; })||{}).name || 'a stylist';
+    var dow = weekdayIndexForKey(nb.dateKey);
+    var dateLabel = (nb.dateKey===nzTodayKey()?'Today':dowShort(dow)) + ', ' + new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'}).format(new Date(nb.dateKey+'T12:00:00Z'));
+    var timeLabel = formatMinsAmPm(parseHHMMSS(nb.timeHHMM+':00'));
+    document.getElementById('nbSummaryText').innerHTML =
+      'Booking <strong>' + escapeHtml(nb.clientName) + '</strong> for <strong>' + escapeHtml(service?service.name:'') + '</strong> with <strong>' + escapeHtml(stylistLabel) +
+      '</strong> on <strong>' + dateLabel + '</strong> at <strong>' + timeLabel + '</strong>.';
+    btn.classList.remove('disabled');
+  }
+
+  function whenLabel(iso){
+    var dateKey = new Intl.DateTimeFormat('en-CA',{timeZone:'Pacific/Auckland',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso)).replace(/\//g,'-');
+    var todayKey = nzTodayKey();
+    var time = new Date(iso).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',timeZone:'Pacific/Auckland'});
+    if(dateKey===todayKey) return 'Today · ' + time;
+    if(dateKey===addDaysToKey(todayKey,1)) return 'Tomorrow · ' + time;
+    return new Intl.DateTimeFormat('en-US',{timeZone:'Pacific/Auckland',weekday:'short',month:'short',day:'numeric'}).format(new Date(iso)) + ' · ' + time;
+  }
+
+  var submitting = false;
+  async function confirmBooking(){
+    if(!isReady() || submitting) return;
+    submitting = true;
+    var btn = document.getElementById('nbConfirmBtn');
+    btn.classList.add('disabled');
+    btn.textContent = 'Booking…';
+    var service = servicesData.find(function(s){ return s.id===nb.serviceId; });
+    var payload = {
+      service_id: nb.serviceId,
+      stylist_id: nb.stylistId==='any' ? null : nb.stylistId,
+      customer_user_id: nb.customerUserId || null,
+      client_request_id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+'-'+Math.random()),
+      customer_name: nb.clientName,
+      customer_phone: nb.clientPhone,
+      notes: '',
+      addons: [],
+      local_date: nb.dateKey,
+      local_time: nb.timeHHMM,
+      subtotal: Number(service?.price||0),
+      total: Number(service?.price||0)
+    };
+    try{
+      const {data,error} = await supabaseClient.rpc('admin_create_booking',{payload});
+      if(error) throw error;
+      document.getElementById('rcClient').textContent = nb.clientName;
+      document.getElementById('rcService').textContent = data.service_name_snapshot || (service?service.name:'');
+      document.getElementById('rcStaff').textContent = data.stylist_name_snapshot || (nb.stylistId==='any'?'Any available stylist':'');
+      document.getElementById('rcWhen').textContent = whenLabel(data.starts_at);
+      document.getElementById('rcTotal').textContent = '$' + Number(data.total||0);
+      document.getElementById('rcActions').innerHTML =
+        '<a href="/venue/admin" class="btn btn-violet">Back to dashboard</a>' +
+        '<a href="/venue/admin/booking?id=' + data.id + '" class="btn btn-ghost">View booking</a>' +
+        '<div class="btn btn-ghost" onclick="bookAnother()">Book another</div>';
+      document.getElementById('nbForm').style.display = 'none';
+      document.getElementById('nbSuccess').style.display = 'block';
+      windowBookings.push({stylist_id:data.stylist_id, starts_at:data.starts_at, duration_minutes:data.duration_minutes, status:'upcoming'});
+    }catch(err){
+      showToast(err.message || "We couldn't create that booking.");
+    }
+    btn.textContent = 'Confirm booking';
+    submitting = false;
+    updateSummary();
   }
   function bookAnother(){
+    nb = { clientKey:null, clientName:'', clientPhone:'', clientEmail:'', customerUserId:null, serviceId:null, stylistId:'any', dateKey:null, timeHHMM:null };
     document.getElementById('nbSuccess').style.display = 'none';
     document.getElementById('nbForm').style.display = 'block';
+    document.getElementById('clientSearchInput').value = '';
+    renderClientResults('');
+    renderServices();
+    renderStylists();
+    renderDatePills();
+    renderTimeSlots();
+    updateSummary();
   }
+
+  bootNewBookingPage();
 </script>
 
   </div>
@@ -979,6 +1366,119 @@
   closeBtn.addEventListener('click', closeSb);
   overlay.addEventListener('click', closeSb);
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

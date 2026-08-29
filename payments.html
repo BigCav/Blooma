@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -384,6 +411,15 @@
   .schedule-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;}
   .schedule-row:last-child{border-bottom:none; padding-bottom:0;}
   .schedule-row .sr-amt{font-weight:700;}
+  .schedule-row.total .sr-amt{font-size:15px; color:var(--white);}
+  .schedule-row .sr-sub{color:var(--text-faint); font-weight:500;}
+  .pm-empty{font-size:12.5px; color:var(--text-faint); padding:20px 0; text-align:center;}
+  .modal-box.wide{max-width:420px;}
+  .tx-client-row{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
+  .tx-client-avatar{width:42px; height:42px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff;}
+  .tx-client-name{font-size:14.5px; font-weight:700;}
+  .tx-client-sub{font-size:12px; color:var(--text-faint); margin-top:1px;}
+  .tx-ref-link{color:var(--violet-text); text-decoration:underline; font-weight:600;}
 </style>
 </head>
 
@@ -406,8 +442,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -425,14 +461,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -446,7 +483,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -467,10 +511,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -482,7 +526,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -498,77 +543,30 @@
 
   <div class="page-head">
     <h1>Payments</h1>
-    <div class="sub">Transactions, refunds and payouts for Ivy Salon Loft</div>
+    <div class="sub" id="pmSub">Transactions for your venue</div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Processed</div>
-        <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></div>
-      </div>
-      <div class="stat-value">$38,420</div>
-      <div class="stat-delta"><span class="muted">This month</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Pending payout</div>
-        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
-      </div>
-      <div class="stat-value">$2,180</div>
-      <div class="stat-delta"><span class="muted">Arrives Aug 22</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Success rate</div>
-        <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
-      </div>
-      <div class="stat-value">98.4%</div>
-      <div class="stat-delta"><span class="muted">This month</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Refunded</div>
-        <div class="stat-icon" style="background:rgba(255,107,129,0.14); color:var(--danger);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></div>
-      </div>
-      <div class="stat-value">$340</div>
-      <div class="stat-delta down"><span class="muted">3 refunds this month</span></div>
-    </div>
+  <div class="panel" style="margin-bottom:16px; background:linear-gradient(155deg, var(--violet-soft), var(--surface) 65%);">
+    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--violet-text);">How payments work</div>
+    <div style="font-size:13px; color:var(--text-soft); margin-top:6px; line-height:1.55; max-width:640px;">Blooma doesn't hold or move your money — clients pay with cash or your own card terminal at checkout, and funds settle directly to your bank. This page tracks what's been collected and the card-processing fees you're covering, computed at 1.49% + $0.20 per card transaction.</div>
   </div>
 
-  <div class="panel payout-panel">
-    <div class="payout-info">
-      <div class="eyebrow">Next payout</div>
-      <div class="amount">$2,180.40</div>
-      <div class="meta">Arrives Friday, Aug 22 · covers Aug 15–21</div>
-    </div>
-    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-      <div class="payout-account">
-        <div class="payout-account-icon">BANK</div>
-        <div>
-          <div class="pa-name">Chase Business ••••4821</div>
-          <div class="pa-sub">Payouts arrive every Friday</div>
-        </div>
-      </div>
-      <div class="btn btn-ghost" onclick="openPayoutSchedule()">View payout schedule</div>
-    </div>
-  </div>
+  <div class="stats-grid" id="pmStatsGrid1"><div class="pm-empty">Loading…</div></div>
+  <div class="stats-grid" id="pmStatsGrid2" style="margin-top:-4px;"></div>
 
-  <div class="panel">
+  <div class="panel" style="margin-top:16px;">
     <div class="filter-bar">
-      <div class="filter-tabs">
-        <div class="filter-tab active">All</div>
-        <div class="filter-tab">Paid</div>
-        <div class="filter-tab">Pending</div>
-        <div class="filter-tab">Refunded</div>
-        <div class="filter-tab">Failed</div>
+      <div class="filter-tabs" id="pmFilterTabs">
+        <div class="filter-tab active" data-method="all" onclick="setPmFilter(this,'all')">All</div>
+        <div class="filter-tab" data-method="card" onclick="setPmFilter(this,'card')">Card</div>
+        <div class="filter-tab" data-method="cash" onclick="setPmFilter(this,'cash')">Cash</div>
       </div>
       <div class="filter-actions">
         <div class="filter-search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" placeholder="Search transactions…">
+          <input type="text" id="pmSearchInput" placeholder="Search transactions…">
         </div>
-        <div class="btn btn-ghost" onclick="showToast('Exporting transactions as CSV…')">
+        <div class="btn btn-ghost" onclick="exportTransactions()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
           Export
         </div>
@@ -588,136 +586,13 @@
             <th></th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#6D5FE8;">SK</div>
-                <div><div class="cell-name">Sarah K.</div><div class="cell-sub">sarah.k@email.com</div></div>
-              </div>
-            </td>
-            <td>Balayage</td>
-            <td class="cell-amount">$259.60</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div></td>
-            <td><span class="status-badge status-paid">Paid</span></td>
-            <td>Today, 9:41 AM</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#5FA8E8;">AJ</div>
-                <div><div class="cell-name">Alex J.</div><div class="cell-sub">alex.j@email.com</div></div>
-              </div>
-            </td>
-            <td>Men's cut</td>
-            <td class="cell-amount">$55.00</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div></td>
-            <td><span class="status-badge status-paid">Paid</span></td>
-            <td>Today, 9:12 AM</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#5FE8A0; color:#131218;">KS</div>
-                <div><div class="cell-name">Kim S.</div><div class="cell-sub">kim.s@email.com</div></div>
-              </div>
-            </td>
-            <td>Blowout</td>
-            <td class="cell-amount">$60.00</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div></td>
-            <td><span class="status-badge status-paid">Paid</span></td>
-            <td>Today, 10:34 AM</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#6D5FE8;">MT</div>
-                <div><div class="cell-name">Mia T.</div><div class="cell-sub">mia.t@email.com</div></div>
-              </div>
-            </td>
-            <td>Root touch-up</td>
-            <td class="cell-amount">$110.00</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div></td>
-            <td><span class="status-badge status-pending">Pending</span></td>
-            <td>Today, 12:05 PM</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#5FA8E8;">NP</div>
-                <div><div class="cell-name">Nina P.</div><div class="cell-sub">nina.p@email.com</div></div>
-              </div>
-            </td>
-            <td>Cut &amp; blowout</td>
-            <td class="cell-amount">$95.00</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div></td>
-            <td><span class="status-badge status-paid">Paid</span></td>
-            <td>Yesterday, 2:18 PM</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#E85F9E;">SO</div>
-                <div><div class="cell-name">Sam O.</div><div class="cell-sub">sam.o@email.com</div></div>
-              </div>
-            </td>
-            <td>Men's cut</td>
-            <td class="cell-amount">$55.00</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div></td>
-            <td><span class="status-badge status-refunded">Refunded</span></td>
-            <td>Yesterday, 11:04 AM</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#5FE8A0; color:#131218;">DF</div>
-                <div><div class="cell-name">Dana F.</div><div class="cell-sub">dana.f@email.com</div></div>
-              </div>
-            </td>
-            <td>Color gloss</td>
-            <td class="cell-amount">$65.00</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div></td>
-            <td><span class="status-badge status-paid">Paid</span></td>
-            <td>Mon, Aug 18</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#E85F9E;">JW</div>
-                <div><div class="cell-name">Jade W.</div><div class="cell-sub">jade.w@email.com</div></div>
-              </div>
-            </td>
-            <td>Blowout</td>
-            <td class="cell-amount">$60.00</td>
-            <td><div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div></td>
-            <td><span class="status-badge status-failed">Failed</span></td>
-            <td>Mon, Aug 18</td>
-            <td><div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>
-          </tr>
-        </tbody>
+        <tbody id="pmTbody"></tbody>
       </table>
     </div>
 
     <div class="pagination">
-      <div class="info">Showing 1–8 of 214 transactions</div>
-      <div class="pg-btns">
-        <div class="pg-btn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg>
-        </div>
-        <div class="pg-btn active">1</div>
-        <div class="pg-btn">2</div>
-        <div class="pg-btn">3</div>
-        <div class="pg-btn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg>
-        </div>
-      </div>
+      <div class="info" id="pmPaginationInfo"></div>
+      <div class="pg-btns" id="pmPaginationBtns"></div>
     </div>
   </div>
 
@@ -726,20 +601,11 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="payoutOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Payout schedule</h2>
-      <div class="modal-close" onclick="closePayoutSchedule()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </div>
-    </div>
-    <div class="schedule-row"><span>Fri, Aug 22</span><span class="sr-amt">$2,180.40</span></div>
-    <div class="schedule-row"><span>Fri, Aug 29</span><span class="sr-amt">Est. $2,340.00</span></div>
-    <div class="schedule-row"><span>Fri, Sep 5</span><span class="sr-amt">Est. $2,050.00</span></div>
-    <div class="schedule-row"><span>Fri, Sep 12</span><span class="sr-amt">Est. $2,410.00</span></div>
-  </div>
+<div class="modal-overlay" id="txOverlay">
+  <div class="modal-box wide" id="txModalBox"></div>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <script>
   var sidebar = document.getElementById('sidebar');
@@ -756,27 +622,398 @@
 
   function showToast(msg){
     var t = document.getElementById('toast');
-    if(!t){
-      t = document.createElement('div');
-      t.id = 'toast';
-      t.className = 'toast';
-      document.body.appendChild(t);
-    }
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(window._toastTimer);
     window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
   }
 
-  function openPayoutSchedule(){ document.getElementById('payoutOverlay').classList.add('open'); }
-  function closePayoutSchedule(){ document.getElementById('payoutOverlay').classList.remove('open'); }
-  document.getElementById('payoutOverlay').addEventListener('click', function(e){
-    if(e.target === this) closePayoutSchedule();
+  function closeTxModal(){ document.getElementById('txOverlay').classList.remove('open'); }
+  document.getElementById('txOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeTxModal();
   });
   document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape') closePayoutSchedule();
+    if(e.key === 'Escape') closeTxModal();
   });
 </script>
+
+<script>
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     There's no payment-processor integration here (see the banner above) --
+     every "transaction" is a real completed booking, priced at its own
+     total + tip_amount, with the real payment_method recorded at checkout
+     (see checkout.html's txAccept -> admin_update_booking_status). Card
+     transactions carry a processing fee (1.49% + $0.20); cash does not.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  var transactions = [];
+  var currentFilter = 'all';
+  var currentSearch = '';
+  var currentPage = 1;
+  var PAGE_SIZE = 8;
+
+  var FEE_PCT = 0.0149;
+  var FEE_FLAT = 0.20;
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
+  function colorFor(seed){
+    var hash = 0; var s = String(seed||'?');
+    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
+  }
+  function bookingRefFor(id){ return 'BK-' + String(id||'').replace(/-/g,'').slice(0,6).toUpperCase(); }
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function addDaysToKey(key,n){ var p=key.split('-').map(Number); var dt=new Date(Date.UTC(p[0],p[1]-1,p[2])); dt.setUTCDate(dt.getUTCDate()+n); return dt.toISOString().slice(0,10); }
+  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
+  function whenLabel(iso){
+    var dateKey = nzDateKeyForIso(iso), todayKey = nzTodayKey();
+    var time = localTimeLabel(iso);
+    if(dateKey===todayKey) return 'Today, ' + time;
+    if(dateKey===addDaysToKey(todayKey,-1)) return 'Yesterday, ' + time;
+    return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:'short',month:'short',day:'numeric'}).format(new Date(iso)) + ', ' + time;
+  }
+  function fullDateLabel(iso){ return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(new Date(iso)) + ' at ' + localTimeLabel(iso); }
+  function feeFor(gross, method){ return method==='card' ? Math.round((gross*FEE_PCT + FEE_FLAT)*100)/100 : 0; }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootPaymentsPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Payments.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    try{
+      const [{data:salonRow},{data:bookings}] = await Promise.all([
+        supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle(),
+        supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId).eq("status","completed").order("starts_at",{ascending:false})
+      ]);
+      if(salonRow){
+        document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+        document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+        document.title = salonRow.name ? `Payments — ${salonRow.name}` : "Payments — Blooma Business";
+        document.getElementById('pmSub').textContent = 'Transactions for ' + (salonRow.name||'your venue');
+      }
+      transactions = (bookings||[]).map(function(b){
+        var gross = Math.round((Number(b.total||0) + Number(b.tip_amount||0))*100)/100;
+        var method = b.payment_method || 'card';
+        var fee = feeFor(gross, method);
+        return {
+          id: b.id, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
+          service: b.service_name_snapshot||'Service', stylist: b.stylist_name_snapshot||'Venue team',
+          subtotal: Number(b.subtotal||0), discount: Number(b.discount||0), addons: Array.isArray(b.addons)?b.addons:[],
+          tip: Number(b.tip_amount||0), total: Number(b.total||0), gross: gross, method: method, fee: fee, net: Math.round((gross-fee)*100)/100,
+          startsAt: b.starts_at
+        };
+      });
+    }catch(err){ showToast(err.message||"Unable to load payments"); }
+
+    renderStats();
+    renderTransactions();
+    document.getElementById('pmSearchInput').addEventListener('input', function(e){ setPmSearch(e.target.value); });
+  }
+
+  function renderStats(){
+    var monthKey = nzTodayKey().slice(0,7);
+    var monthTx = transactions.filter(function(t){ return nzDateKeyForIso(t.startsAt).slice(0,7)===monthKey; });
+    var cardTx = monthTx.filter(function(t){ return t.method==='card'; });
+    var cashTx = monthTx.filter(function(t){ return t.method==='cash'; });
+    var processed = monthTx.reduce(function(s,t){ return s+t.gross; },0);
+    var cardTotal = cardTx.reduce(function(s,t){ return s+t.gross; },0);
+    var cashTotal = cashTx.reduce(function(s,t){ return s+t.gross; },0);
+    var fees = monthTx.reduce(function(s,t){ return s+t.fee; },0);
+    var net = processed - fees;
+    var tips = monthTx.reduce(function(s,t){ return s+t.tip; },0);
+    var avgTx = monthTx.length ? processed/monthTx.length : 0;
+
+    document.getElementById('pmStatsGrid1').innerHTML =
+      statCard('Total processed','$'+processed.toFixed(2),'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>') +
+      statCard('Card payments','$'+cardTotal.toFixed(2), cardTx.length+' transaction'+(cardTx.length===1?'':'s'),'violet','<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>') +
+      statCard('Cash payments','$'+cashTotal.toFixed(2), cashTx.length+' transaction'+(cashTx.length===1?'':'s'),'success','<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>') +
+      statCard('Processing fees','$'+fees.toFixed(2),'1.49% + $0.20 per card tx','danger','<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>');
+
+    document.getElementById('pmStatsGrid2').innerHTML =
+      statCard('Net revenue','$'+net.toFixed(2),'After processing fees','success','<path d="M20 6 9 17l-5-5"/>') +
+      statCard('Avg. transaction','$'+avgTx.toFixed(2), monthTx.length+' this month',null,'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>') +
+      statCard('Tips collected','$'+tips.toFixed(2),'This month','warning','<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>') +
+      statCard('Transactions','' + monthTx.length,'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>');
+  }
+  function statCard(label, value, subLabel, tint, iconPath){
+    var iconStyle = tint==='warning' ? 'background:rgba(244,201,58,0.16); color:var(--warning);'
+      : tint==='violet' ? 'background:var(--violet-soft); color:var(--violet-text);'
+      : tint==='success' ? 'background:var(--success-soft); color:var(--success);'
+      : tint==='danger' ? 'background:rgba(255,107,129,0.14); color:var(--danger);'
+      : '';
+    return '<div class="stat-card"><div class="stat-top"><div class="stat-label">' + escapeHtml(label) + '</div><div class="stat-icon" style="' + iconStyle + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + iconPath + '</svg></div></div><div class="stat-value">' + value + '</div><div class="stat-delta"><span class="muted">' + escapeHtml(subLabel||'') + '</span></div></div>';
+  }
+
+  function setPmFilter(el, method){
+    document.querySelectorAll('#pmFilterTabs .filter-tab').forEach(function(t){ t.classList.remove('active'); });
+    el.classList.add('active');
+    currentFilter = method;
+    currentPage = 1;
+    renderTransactions();
+  }
+  function setPmSearch(value){
+    currentSearch = value.trim().toLowerCase();
+    currentPage = 1;
+    renderTransactions();
+  }
+  function getFiltered(){
+    return transactions.filter(function(t){
+      if(currentFilter!=='all' && t.method!==currentFilter) return false;
+      if(currentSearch){
+        var q = currentSearch;
+        if(t.name.toLowerCase().indexOf(q)===-1 && t.email.toLowerCase().indexOf(q)===-1 && t.service.toLowerCase().indexOf(q)===-1) return false;
+      }
+      return true;
+    });
+  }
+
+  function methodCellHtml(method){
+    return method==='cash'
+      ? '<div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div>'
+      : '<div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div>';
+  }
+
+  function renderTransactions(){
+    var filtered = getFiltered();
+    var totalPages = Math.max(1, Math.ceil(filtered.length/PAGE_SIZE));
+    if(currentPage>totalPages) currentPage = totalPages;
+    var start = (currentPage-1)*PAGE_SIZE;
+    var pageItems = filtered.slice(start, start+PAGE_SIZE);
+
+    var tbody = document.getElementById('pmTbody');
+    if(!pageItems.length){
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7" class="pm-empty">' + (transactions.length ? 'No transactions match this filter.' : 'No completed transactions yet — they show up here once a booking is checked out.') + '</td></tr>';
+    } else {
+      tbody.innerHTML = pageItems.map(function(t){
+        var col = colorFor(t.name);
+        return '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
+          '<div><div class="cell-name">' + escapeHtml(t.name) + '</div><div class="cell-sub">' + escapeHtml(t.email||t.phone||'') + '</div></div></div></td>' +
+          '<td>' + escapeHtml(t.service) + '</td>' +
+          '<td class="cell-amount">$' + t.gross.toFixed(2) + '</td>' +
+          '<td>' + methodCellHtml(t.method) + '</td>' +
+          '<td><span class="status-badge status-paid">Paid</span></td>' +
+          '<td>' + whenLabel(t.startsAt) + '</td>' +
+          '<td><div class="row-action" onclick="openTxModal(\'' + t.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td></tr>';
+      }).join('');
+    }
+
+    var infoEl = document.getElementById('pmPaginationInfo');
+    infoEl.textContent = filtered.length ? ('Showing ' + (start+1) + '–' + Math.min(start+PAGE_SIZE, filtered.length) + ' of ' + filtered.length + ' transactions') : 'Showing 0 of 0 transactions';
+
+    var btnsEl = document.getElementById('pmPaginationBtns');
+    var html = '<div class="pg-btn' + (currentPage===1?' disabled':'') + '" onclick="goToPmPage(' + (currentPage-1) + ')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></div>';
+    for(var p=1;p<=totalPages;p++){ html += '<div class="pg-btn' + (p===currentPage?' active':'') + '" onclick="goToPmPage(' + p + ')">' + p + '</div>'; }
+    html += '<div class="pg-btn' + (currentPage===totalPages?' disabled':'') + '" onclick="goToPmPage(' + (currentPage+1) + ')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg></div>';
+    btnsEl.innerHTML = html;
+  }
+  function goToPmPage(p){
+    var filtered = getFiltered();
+    var totalPages = Math.max(1, Math.ceil(filtered.length/PAGE_SIZE));
+    if(p<1 || p>totalPages) return;
+    currentPage = p;
+    renderTransactions();
+  }
+
+  function openTxModal(id){
+    var t = transactions.find(function(x){ return x.id===id; });
+    if(!t) return;
+    var col = colorFor(t.name);
+    var addonsRows = t.addons.map(function(a){ return '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(a.name) + '</span><span class="sr-amt">$' + Number(a.price||0).toFixed(2) + '</span></div>'; }).join('');
+    var discountRow = t.discount>0 ? '<div class="schedule-row"><span class="sr-sub">Discount</span><span class="sr-amt" style="color:var(--success);">-$' + t.discount.toFixed(2) + '</span></div>' : '';
+    var tipRow = t.tip>0 ? '<div class="schedule-row"><span class="sr-sub">Tip</span><span class="sr-amt">$' + t.tip.toFixed(2) + '</span></div>' : '';
+    var feeRow = t.method==='card' ? '<div class="schedule-row"><span class="sr-sub">Processing fee (1.49% + $0.20)</span><span class="sr-amt" style="color:var(--danger);">-$' + t.fee.toFixed(2) + '</span></div>' : '<div class="schedule-row"><span class="sr-sub">Processing fee</span><span class="sr-amt" style="color:var(--success);">$0.00 (cash)</span></div>';
+
+    document.getElementById('txModalBox').innerHTML =
+      '<div class="modal-head"><h2>Transaction details</h2><div class="modal-close" onclick="closeTxModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
+      '<div class="tx-client-row"><div class="tx-client-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
+        '<div><div class="tx-client-name">' + escapeHtml(t.name) + '</div><div class="tx-client-sub">' + escapeHtml(t.service) + ' · ' + escapeHtml(t.stylist) + '</div></div></div>' +
+      '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.id) + '</a></span></div>' +
+      '<div class="schedule-row"><span class="sr-sub">Date</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
+      '<div class="schedule-row"><span class="sr-sub">Payment method</span><span class="sr-amt">' + (t.method==='cash'?'Cash':'Card') + '</span></div>' +
+      '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(t.service) + '</span><span class="sr-amt">$' + (t.subtotal - t.addons.reduce(function(s,a){return s+Number(a.price||0);},0)).toFixed(2) + '</span></div>' +
+      addonsRows + discountRow + tipRow +
+      feeRow +
+      '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Net to you</span><span class="sr-amt">$' + t.net.toFixed(2) + '</span></div>';
+    document.getElementById('txOverlay').classList.add('open');
+  }
+
+  function csvEscape(v){ var s = String(v==null?'':v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; }
+  function exportTransactions(){
+    var filtered = getFiltered();
+    if(!filtered.length){ showToast('No transactions to export'); return; }
+    var lines = [['Date','Client','Email','Service','Method','Gross','Tip','Fee','Net','Booking'].map(csvEscape).join(',')];
+    filtered.forEach(function(t){
+      lines.push([fullDateLabel(t.startsAt), t.name, t.email, t.service, t.method, t.gross.toFixed(2), t.tip.toFixed(2), t.fee.toFixed(2), t.net.toFixed(2), bookingRefFor(t.id)].map(csvEscape).join(','));
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'blooma-transactions.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Transactions exported');
+  }
+
+  bootPaymentsPage();
+</script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

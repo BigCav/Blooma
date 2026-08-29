@@ -203,6 +203,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -467,7 +493,6 @@
 
   /* ---------- CATEGORY PANEL ---------- */
   .cat-panel{margin-bottom:16px;}
-  .cat-panel:last-child{margin-bottom:0;}
   .cat-panel-head{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
     margin-bottom:14px;
@@ -480,6 +505,7 @@
   }
   .svc-cell-name{font-weight:700; font-size:13px;}
   .svc-cell-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
+  .svc-cell-desc{font-size:11.5px; color:var(--text-faint); margin-top:2px; max-width:360px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 
   /* ---------- MODAL ---------- */
   .modal-overlay{
@@ -554,8 +580,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -573,14 +599,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -594,7 +621,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -615,10 +649,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -630,7 +664,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -716,7 +751,7 @@
     <div class="table-wrap">
       <table class="data">
         <thead>
-          <tr><th>Add-on</th><th>Price</th><th>Status</th><th></th></tr>
+          <tr><th>Add-on</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr>
         </thead>
         <tbody id="tbodyAddons"></tbody>
       </table>
@@ -754,6 +789,10 @@
           <label class="form-label">Price</label>
           <input type="text" class="form-input" id="svcPrice" required>
         </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="svcDescription" rows="3" placeholder="What's included in this service…" style="resize:vertical;"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Which stylists can perform this?</label>
@@ -795,8 +834,17 @@
         </div>
       </div>
       <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="editSvcDescription" rows="3" placeholder="What's included in this service…" style="resize:vertical;"></textarea>
+      </div>
+      <div class="form-group">
         <label class="form-label">Which stylists can perform this?</label>
         <div class="addon-service-list" id="editSvcStylistList"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Intake form <span style="font-weight:500;color:var(--text-faint);">(optional — asked when a client books this service)</span></label>
+        <div id="intakeQuestionsList"></div>
+        <div class="btn btn-ghost" style="margin-top:8px;" onclick="addIntakeQuestion()">+ Add question</div>
       </div>
       <div class="modal-actions">
         <div class="btn btn-danger" onclick="deleteEditService()">Delete</div>
@@ -840,9 +888,19 @@
         <label class="form-label">Add-on name</label>
         <input type="text" class="form-input" id="addonName" placeholder="e.g. Deep conditioning" required>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration (optional)</label>
+          <input type="text" class="form-input" id="addonDuration" placeholder="e.g. 15 min">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <input type="text" class="form-input" id="addonPrice" required>
+        </div>
+      </div>
       <div class="form-group">
-        <label class="form-label">Price</label>
-        <input type="text" class="form-input" id="addonPrice" required>
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="addonDescription" rows="2" placeholder="What does this add-on include…" style="resize:vertical;"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Applies to</label>
@@ -869,9 +927,19 @@
         <label class="form-label">Add-on name</label>
         <input type="text" class="form-input" id="editAddonName" required>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration (optional)</label>
+          <input type="text" class="form-input" id="editAddonDuration" placeholder="e.g. 15 min">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <input type="text" class="form-input" id="editAddonPrice" required>
+        </div>
+      </div>
       <div class="form-group">
-        <label class="form-label">Price</label>
-        <input type="text" class="form-input" id="editAddonPrice" required>
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="editAddonDescription" rows="2" placeholder="What does this add-on include…" style="resize:vertical;"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Applies to</label>
@@ -922,6 +990,10 @@
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
   let currentSalonId = null;
   let currentConfigVersion = null;
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
 
   const salon = {
     name:"", tag:"", visible:true, mainImage:"", galleryImages:[],
@@ -991,6 +1063,7 @@
       s.duration=Math.max(15,Math.min(480,Number(s.duration)||30));
       s.price=Math.round(Math.max(0,Number(s.price)||0)*100)/100;
       s.category=String(s.category||"").trim()||"Uncategorized";
+      s.description=String(s.description||"").trim();
       if(!salon.categories.some(c=>c.toLowerCase()===s.category.toLowerCase())) salon.categories.push(s.category);
       s.active=s.active!==false;
     });
@@ -998,6 +1071,8 @@
     salon.addons.forEach(a=>{
       a.name=String(a.name||"").trim(); if(!a.name) throw new Error("Every add-on needs a name.");
       a.price=Math.round(Math.max(0,Number(a.price)||0)*100)/100;
+      a.duration=Math.max(0,Math.min(480,Number(a.duration)||0));
+      a.description=String(a.description||"").trim();
       a.serviceIds=(Array.isArray(a.serviceIds)?a.serviceIds:[]).map(String).filter(id=>serviceIds.has(id));
       a.active=a.active!==false;
     });
@@ -1008,7 +1083,7 @@
     normalizeAndValidateSettings();
     const payload=buildAdminPayload();
     const args=currentConfigVersion==null?{payload}:{payload,expected_version:currentConfigVersion};
-    const {data,error}=await supabaseClient.rpc("admin_save_config",args);
+    const {data,error}=await supabaseClient.rpc("admin_save_config_gated",args);
     if(error){
       try{ await reloadAdminConfigFromCloud(); }catch(reloadErr){ console.warn("Blooma admin reload after failed save",reloadErr); }
       throw error;
@@ -1046,7 +1121,7 @@
       return;
     }
     const [{data:profile},{data:owner}] = await Promise.all([
-      supabaseClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
       supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
     ]);
     const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
@@ -1060,6 +1135,10 @@
       return;
     }
     currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
     try{ await reloadAdminConfigFromCloud(); }catch(err){ showToast(err.message||"Unable to load venue configuration"); }
     document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
     document.querySelector('.sb-venue-sub').textContent = [salon.suburb,salon.city].filter(Boolean).join(", ") || "Set your address";
@@ -1095,6 +1174,9 @@
     return (hMatch?Number(hMatch[1])*60:0) + (mMatch?Number(mMatch[1]):0);
   }
   function formatPrice(n){ return '$' + (Number(n)||0).toFixed(Number(n)%1===0?0:2); }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
   function parsePriceValue(str){
     var m = String(str||'').match(/[\d.]+/);
     return m ? Number(m[0]) : 0;
@@ -1178,8 +1260,9 @@
         '<div class="table-wrap"><table class="data"><thead><tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>' +
         rows.map(function(s){
           var subText = serviceStylistSubText(s.id);
+          var descHtml = s.description ? '<div class="svc-cell-desc">' + escapeHtml(s.description) + '</div>' : '';
           return '<tr>' +
-            '<td><div class="svc-cell-name">' + s.name + (s.isNew?' <span class="tag-pill tag-new">New</span>':'') + '</div><div class="svc-cell-sub">' + subText + '</div></td>' +
+            '<td><div class="svc-cell-name">' + s.name + (s.isNew?' <span class="tag-pill tag-new">New</span>':'') + '</div><div class="svc-cell-sub">' + subText + '</div>' + descHtml + '</td>' +
             '<td>' + formatDurationMinutes(s.duration) + '</td>' +
             '<td>' + formatPrice(s.price) + '</td>' +
             '<td><div class="toggle' + (s.active!==false?' on':'') + '" onclick="toggleServiceActive(\'' + s.id + '\')"></div></td>' +
@@ -1193,8 +1276,10 @@
     document.getElementById('countAddons').textContent = salon.addons.length + ' add-on' + (salon.addons.length===1?'':'s');
     addonsBody.innerHTML = salon.addons.map(function(a){
       var names = (a.serviceIds||[]).map(function(id){ var s=services.find(function(x){return x.id===id;}); return s?s.name:null; }).filter(Boolean);
+      var descHtml = a.description ? '<div class="svc-cell-desc">' + escapeHtml(a.description) + '</div>' : '';
       return '<tr>' +
-        '<td><div class="svc-cell-name">' + a.name + '</div><div class="svc-cell-sub">' + (names.length?names.join(', '):'Not linked to a service yet') + '</div></td>' +
+        '<td><div class="svc-cell-name">' + a.name + '</div><div class="svc-cell-sub">' + (names.length?names.join(', '):'Not linked to a service yet') + '</div>' + descHtml + '</td>' +
+        '<td>' + (a.duration ? formatDurationMinutes(a.duration) : '—') + '</td>' +
         '<td>+' + formatPrice(a.price) + '</td>' +
         '<td><div class="toggle' + (a.active!==false?' on':'') + '" onclick="toggleAddonActive(\'' + a.id + '\')"></div></td>' +
         '<td><div class="row-action" onclick="openEditAddon(\'' + a.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
@@ -1281,6 +1366,7 @@
     populateCategorySelect('svcCategory', category || salon.categories[0] || '');
     populateStylistOptions('svcStylistList', []);
     document.getElementById('svcDuration').value = '';
+    document.getElementById('svcDescription').value = '';
     setPriceValue(document.getElementById('svcPrice'), '$', '');
     document.getElementById('addServiceOverlay').classList.add('open');
   }
@@ -1294,10 +1380,11 @@
     var category = document.getElementById('svcCategory').value;
     var duration = parseDurationToMinutes(document.getElementById('svcDuration').value);
     var price = parsePriceValue(document.getElementById('svcPrice').value);
+    var description = document.getElementById('svcDescription').value.trim();
     if(!name || !duration) return false;
     var stylistIds = getCheckedValues('svcStylistList');
     var id = randId('svc');
-    salon.services.push({ id:id, name:name, category:category, duration:duration, price:price, active:true, isNew:false });
+    salon.services.push({ id:id, name:name, category:category, duration:duration, price:price, description:description, active:true, isNew:false });
     applyServiceStylistSelection(id, stylistIds);
     closeAddService();
     persist('Service added');
@@ -1333,6 +1420,48 @@
 
   var currentEditServiceId = null;
   var deleteConfirmPending = false;
+  var editingIntakeQuestions = [];
+
+  function randQuestionId(){ return 'q_' + Math.random().toString(36).slice(2,9); }
+  function addIntakeQuestion(){
+    editingIntakeQuestions.push({ id:randQuestionId(), label:'', type:'text', options:'', required:false });
+    renderIntakeQuestionsEditor();
+  }
+  function removeIntakeQuestion(idx){
+    editingIntakeQuestions.splice(idx,1);
+    renderIntakeQuestionsEditor();
+  }
+  function updateIntakeQuestionField(idx, field, value){
+    if(!editingIntakeQuestions[idx]) return;
+    editingIntakeQuestions[idx][field] = value;
+    if(field==='type') renderIntakeQuestionsEditor();
+  }
+  function renderIntakeQuestionsEditor(){
+    var wrap = document.getElementById('intakeQuestionsList');
+    if(!wrap) return;
+    if(!editingIntakeQuestions.length){
+      wrap.innerHTML = '<p style="font-size:12.5px;color:var(--text-faint);margin:4px 0 0;">No questions yet — clients won\'t see an intake form for this service.</p>';
+      return;
+    }
+    wrap.innerHTML = editingIntakeQuestions.map(function(q,idx){
+      return '<div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px;display:flex;flex-direction:column;gap:8px;">' +
+        '<div style="display:flex;gap:8px;">' +
+          '<input type="text" class="form-input" style="flex:1;" placeholder="Question, e.g. Any allergies?" value="' + escapeAttrLocal(q.label) + '" oninput="updateIntakeQuestionField(' + idx + ',\'label\',this.value)">' +
+          '<div class="btn btn-ghost" style="padding:8px 12px;" onclick="removeIntakeQuestion(' + idx + ')">Remove</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;align-items:center;">' +
+          '<select class="form-select" style="flex:1;" onchange="updateIntakeQuestionField(' + idx + ',\'type\',this.value)">' +
+            '<option value="text"' + (q.type==='text'?' selected':'') + '>Short answer</option>' +
+            '<option value="yesno"' + (q.type==='yesno'?' selected':'') + '>Yes / No</option>' +
+            '<option value="choice"' + (q.type==='choice'?' selected':'') + '>Multiple choice</option>' +
+          '</select>' +
+          '<label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-soft);white-space:nowrap;"><input type="checkbox"' + (q.required?' checked':'') + ' onchange="updateIntakeQuestionField(' + idx + ',\'required\',this.checked)"> Required</label>' +
+        '</div>' +
+        (q.type==='choice' ? '<input type="text" class="form-input" placeholder="Options, comma separated" value="' + escapeAttrLocal(q.options) + '" oninput="updateIntakeQuestionField(' + idx + ',\'options\',this.value)">' : '') +
+      '</div>';
+    }).join('');
+  }
+  function escapeAttrLocal(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
   function openEditService(id){
     var s = salon.services.find(function(x){return x.id===id;});
@@ -1343,9 +1472,12 @@
 
     document.getElementById('editSvcName').value = s.name;
     document.getElementById('editSvcDuration').value = formatDurationMinutes(s.duration);
+    document.getElementById('editSvcDescription').value = s.description || '';
     setPriceValue(document.getElementById('editSvcPrice'), '$', String(s.price));
     populateStylistOptions('editSvcStylistList', serviceStylistIds(id));
     populateCategorySelect('editSvcCategory', s.category);
+    editingIntakeQuestions = Array.isArray(s.intakeQuestions) ? JSON.parse(JSON.stringify(s.intakeQuestions)) : [];
+    renderIntakeQuestionsEditor();
 
     document.getElementById('editServiceOverlay').classList.add('open');
   }
@@ -1368,8 +1500,12 @@
     var category = document.getElementById('editSvcCategory').value;
     var duration = parseDurationToMinutes(document.getElementById('editSvcDuration').value);
     var price = parsePriceValue(document.getElementById('editSvcPrice').value);
+    var description = document.getElementById('editSvcDescription').value.trim();
     if(!name || !duration) return false;
-    s.name = name; s.category = category; s.duration = duration; s.price = price;
+    s.name = name; s.category = category; s.duration = duration; s.price = price; s.description = description;
+    s.intakeQuestions = editingIntakeQuestions
+      .map(function(q){ return { id:q.id, label:String(q.label||'').trim(), type:q.type, required:!!q.required, options: q.type==='choice' ? String(q.options||'').split(',').map(function(o){return o.trim();}).filter(Boolean) : undefined }; })
+      .filter(function(q){ return q.label; });
     applyServiceStylistSelection(currentEditServiceId, getCheckedValues('editSvcStylistList'));
     closeEditService();
     persist('Service updated');
@@ -1395,6 +1531,8 @@
 
   function openAddAddon(){
     populateAddonServiceOptions('addonServiceList', []);
+    document.getElementById('addonDuration').value = '';
+    document.getElementById('addonDescription').value = '';
     setPriceValue(document.getElementById('addonPrice'), '+$', '');
     document.getElementById('addAddonOverlay').classList.add('open');
   }
@@ -1406,9 +1544,11 @@
     evt.preventDefault();
     var name = document.getElementById('addonName').value.trim();
     var price = parsePriceValue(document.getElementById('addonPrice').value);
+    var duration = parseDurationToMinutes(document.getElementById('addonDuration').value);
+    var description = document.getElementById('addonDescription').value.trim();
     if(!name) return false;
     var serviceIds = getCheckedValues('addonServiceList');
-    salon.addons.push({ id:randId('addon'), name:name, price:price, active:true, serviceIds:serviceIds });
+    salon.addons.push({ id:randId('addon'), name:name, price:price, duration:duration, description:description, active:true, serviceIds:serviceIds });
     closeAddAddon();
     persist('Add-on added');
   }
@@ -1427,6 +1567,8 @@
     resetDeleteAddonBtn();
 
     document.getElementById('editAddonName').value = a.name;
+    document.getElementById('editAddonDuration').value = a.duration ? formatDurationMinutes(a.duration) : '';
+    document.getElementById('editAddonDescription').value = a.description || '';
     setPriceValue(document.getElementById('editAddonPrice'), '+$', String(a.price));
     populateAddonServiceOptions('editAddonServiceList', a.serviceIds||[]);
 
@@ -1449,8 +1591,10 @@
     if(!a) return false;
     var name = document.getElementById('editAddonName').value.trim();
     var price = parsePriceValue(document.getElementById('editAddonPrice').value);
+    var duration = parseDurationToMinutes(document.getElementById('editAddonDuration').value);
+    var description = document.getElementById('editAddonDescription').value.trim();
     if(!name) return false;
-    a.name = name; a.price = price; a.serviceIds = getCheckedValues('editAddonServiceList');
+    a.name = name; a.price = price; a.duration = duration; a.description = description; a.serviceIds = getCheckedValues('editAddonServiceList');
     closeEditAddon();
     persist('Add-on updated');
   }
@@ -1473,6 +1617,119 @@
 
   bootServicesPage();
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

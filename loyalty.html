@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sarah K. — Blooma Business</title>
+<title>Loyalty — Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -55,6 +55,7 @@
   }
   .btn-violet{background:var(--violet); color:var(--white);}
   .btn-violet:hover{background:#5C4EDB;}
+  .btn-violet:disabled{opacity:.5; cursor:not-allowed;}
   .btn-ghost{background:var(--surface-2); color:var(--text); border-color:var(--border);}
   .btn-ghost:hover{background:var(--surface-hover);}
 
@@ -194,11 +195,6 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     color:var(--text-soft); position:relative; flex:none;
   }
-  .tb-icon-btn .dot{
-    position:absolute; top:7px; right:7px;
-    width:7px; height:7px; border-radius:50%; background:var(--danger);
-    border:1.5px solid var(--surface);
-  }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
   .tb-search{position:relative;}
@@ -232,126 +228,99 @@
   .content{padding:22px 16px 60px;}
   @media (min-width:900px){ .content{padding:30px 32px 70px;} }
 
-  /* ---------- STAT CARDS ---------- */
-  .stats-grid{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
-    margin-bottom:22px;
-  }
-  @media (min-width:800px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
-  .stat-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:14px;
-    padding:16px 18px;
-  }
-  .stat-top{display:flex; align-items:center; justify-content:space-between;}
-  .stat-label{font-size:12px; color:var(--text-soft); font-weight:600;}
-  .stat-icon{
-    width:28px; height:28px; border-radius:8px; background:var(--violet-soft);
-    display:flex; align-items:center; justify-content:center; color:var(--violet-text);
-  }
-  .stat-value{font-size:26px; font-weight:800; margin-top:12px; letter-spacing:-0.01em;}
-  .stat-delta{
-    display:inline-flex; align-items:center; gap:4px;
-    font-size:11.5px; font-weight:700; margin-top:6px;
-    color:var(--success);
-  }
-  .stat-delta span.muted{color:var(--text-faint); font-weight:500;}
+  .page-head{margin-bottom:20px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .page-head h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
+  .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
+  @media (min-width:900px){ .page-head h1{font-size:26px;} }
 
-  /* ---------- PANELS / GRID LAYOUT ---------- */
-  .dash-grid{display:grid; grid-template-columns:1fr; gap:16px;}
-  @media (min-width:1100px){ .dash-grid{grid-template-columns:2fr 1fr;} }
-  .dash-grid > *{min-width:0;}
+  .grid2{display:grid; grid-template-columns:1fr; gap:18px;}
+  @media (min-width:980px){ .grid2{grid-template-columns:1fr 1fr; align-items:start;} }
 
-  .panel{
+  .card{
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
-    padding:18px;
+    padding:20px;
   }
-  .panel-head{
+  .card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;}
+  .card-title{font-size:15px; font-weight:700;}
+  .card-sub{font-size:12px; color:var(--text-faint); margin-top:2px;}
+
+  /* ---------- LOYALTY SETTINGS ---------- */
+  .lp-toggle-row{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
-    margin-bottom:16px;
+    padding:14px 16px; background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+    margin-bottom:18px;
   }
-  .panel-head h2{font-size:15.5px; font-weight:700;}
-  .panel-head .link{font-size:12.5px; font-weight:700; color:var(--violet-text);}
+  .lp-toggle-row .lbl{font-size:13.5px; font-weight:700;}
+  .lp-toggle-row .hint{font-size:11.5px; color:var(--text-faint); margin-top:2px;}
+  .toggle{
+    width:42px; height:24px; border-radius:99px; background:var(--surface-hover);
+    border:1px solid var(--border); position:relative; cursor:pointer; flex:none; transition:background .15s ease;
+  }
+  .toggle::after{
+    content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%;
+    background:var(--text-soft); transition:transform .15s ease, background .15s ease;
+  }
+  .toggle.on{background:var(--violet);}
+  .toggle.on::after{transform:translateX(18px); background:var(--white);}
 
-  .side-col{display:flex; flex-direction:column; gap:16px;}
-  .appt-row{
-    display:flex; align-items:center; gap:11px;
-    padding:10px 0; border-bottom:1px solid var(--border);
+  .lp-fields{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:520px){ .lp-fields{grid-template-columns:1fr;} }
+  .lp-field{display:flex; flex-direction:column; gap:6px;}
+  .lp-field.full{grid-column:1/-1;}
+  .lp-field label{font-size:11.5px; font-weight:700; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.03em;}
+  .lp-field input{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:11px 13px; color:var(--text); font-family:inherit; font-size:13.5px; outline:none;
   }
-  .appt-row:last-child{border-bottom:none; padding-bottom:0;}
-  .appt-avatar{
-    width:36px; height:36px; border-radius:50%; flex:none;
+  .lp-field input:focus{border-color:var(--violet);}
+  .lp-field input:disabled{opacity:.5;}
+  .lp-preview{
+    margin-top:16px; padding:14px 16px; border-radius:12px;
+    background:linear-gradient(155deg,#1a1a1a,#000); border:1px solid #2a2a2a;
+    font-size:12.5px; color:#D8D6E6; line-height:1.6;
+  }
+  .lp-preview b{color:var(--white);}
+  .lp-save-row{display:flex; justify-content:flex-end; margin-top:18px;}
+
+  /* ---------- MEMBERS ---------- */
+  .lp-member-row{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 4px; border-bottom:1px solid var(--border);
+  }
+  .lp-member-row:last-child{border-bottom:none;}
+  .lp-m-avatar{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    background:var(--violet-soft); color:var(--violet-text);
     display:flex; align-items:center; justify-content:center;
-    font-size:12.5px; font-weight:700; color:var(--white);
+    font-size:12px; font-weight:700;
   }
-  .appt-name{font-size:13px; font-weight:700;}
-  .appt-service{font-size:11.5px; color:var(--text-soft); margin-top:1px;}
-  .appt-time{margin-left:auto; text-align:right; flex:none;}
-  .appt-time .t{font-size:12.5px; font-weight:700;}
-  .status-pill{
-    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:2px 7px; border-radius:99px; margin-top:3px; display:inline-block;
+  .lp-m-info{min-width:0; flex:1;}
+  .lp-m-name{font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lp-m-sub{font-size:11px; color:var(--text-faint); margin-top:1px;}
+  .lp-m-points{font-size:14px; font-weight:800; color:var(--violet-text); flex:none; margin-right:4px;}
+  .lp-m-actions{display:flex; gap:6px; flex:none;}
+  .lp-icon-btn{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-soft);
   }
-  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .lp-icon-btn:hover{background:var(--surface-hover); color:var(--text);}
+  .lp-empty{padding:30px 10px; text-align:center; color:var(--text-faint); font-size:13px;}
+  .lp-search{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 12px; margin-bottom:14px;
+  }
+  .lp-search svg{color:var(--text-faint); flex:none;}
+  .lp-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
+  .lp-search input::placeholder{color:var(--text-faint);}
+  .lp-members-list{max-height:520px; overflow-y:auto;}
 
-  /* ---------- TABLE ---------- */
-  .table-wrap{overflow-x:auto; overflow-y:hidden;}
-  table.data{width:100%; border-collapse:collapse; min-width:560px;}
-  table.data th{
-    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em;
-    color:var(--text-faint); font-weight:700; padding:0 14px 10px;
-    border-bottom:1px solid var(--border);
-  }
-  table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
-  table.data tr:last-child td{border-bottom:none;}
-  table.data tr:hover td{background:var(--surface-hover);}
-  .status-badge{
-    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:4px 9px; border-radius:99px; display:inline-block; white-space:nowrap;
-  }
-  .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
-  .tag-pill{font-size:10px; font-weight:700; padding:3px 8px; border-radius:99px; margin-right:4px; display:inline-block; white-space:nowrap;}
-  .tag-vip{background:rgba(244,201,58,0.16); color:var(--warning);}
-  .tag-new{background:var(--violet-soft); color:var(--violet-text);}
+  .lp-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px;}
+  @media (max-width:560px){ .lp-stats{grid-template-columns:1fr;} }
+  .lp-stat{background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:14px 16px;}
+  .lp-stat-num{font-size:20px; font-weight:800;}
+  .lp-stat-lbl{font-size:11px; color:var(--text-faint); margin-top:2px;}
 
-  /* ---------- BREADCRUMB ---------- */
-  .crumb{
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:12.5px; font-weight:700; color:var(--text-soft);
-    margin-bottom:14px;
-  }
-  .crumb:hover{color:var(--text);}
-
-  /* ---------- PROFILE HEADER ---------- */
-  .profile-panel{margin-bottom:20px;}
-  .profile-head{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
-  .profile-avatar{
-    width:64px; height:64px; border-radius:50%; flex:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:22px; font-weight:700; color:var(--white);
-  }
-  .profile-name-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  .profile-name-row h1{font-size:20px; font-weight:800; letter-spacing:-0.01em;}
-  .profile-meta{font-size:12.5px; color:var(--text-soft); margin-top:4px;}
-  .profile-actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto;}
-
-  /* ---------- INFO ROWS ---------- */
-  .info-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; gap:10px;}
-  .info-row:last-child{border-bottom:none; padding-bottom:0;}
-  .info-row .info-label{color:var(--text-faint); font-weight:600; flex:none;}
-  .info-row .info-value{font-weight:700; text-align:right;}
-
-  .notes-box{
-    background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
-    padding:14px; font-size:12.5px; color:var(--text-soft); line-height:1.6;
-  }
-  .notes-input{
-    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
-    padding:12px 14px; color:var(--text); font-family:inherit; font-size:12.5px; line-height:1.6;
-    resize:vertical; min-height:80px; outline:none;
-  }
-  .notes-input:focus{border-color:var(--violet);}
-  .notes-save-row{display:flex; justify-content:flex-end; margin-top:10px;}
-  .notes-save-row .btn{padding:8px 14px; font-size:12.5px;}
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--surface-2); border:1px solid var(--border); color:var(--text);
@@ -360,9 +329,25 @@
     transition:opacity .2s ease, transform .2s ease;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-  .cl-loading{padding:60px 20px; text-align:center; color:var(--text-faint); font-size:13.5px;}
+
+  /* ---------- ADJUST MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:100;
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:22px; width:100%; max-width:360px;
+  }
+  .modal-card h3{font-size:15px; font-weight:700; margin-bottom:4px;}
+  .modal-card .m-sub{font-size:12px; color:var(--text-faint); margin-bottom:16px;}
+  .modal-actions{display:flex; gap:10px; margin-top:18px;}
+  .modal-actions .btn{flex:1; justify-content:center;}
 </style>
 </head>
+
+
 
 <body>
 
@@ -410,7 +395,7 @@
         Team Chat
       </a>
       <div class="sb-section-label">Manage</div>
-      <a href="/venue/admin/clients" class="sb-link active">
+      <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
         Clients
       </a>
@@ -422,7 +407,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-      <a href="/venue/admin/loyalty" class="sb-link">
+      <a href="/venue/admin/loyalty" class="sb-link active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
         Loyalty
       </a>
@@ -468,7 +453,8 @@
         <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
         <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
-      <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
+      <div class="tb-right">
+        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
           New booking
         </a>
@@ -480,21 +466,108 @@
 
     <div class="content">
 
-  <a href="/venue/admin/clients" class="crumb">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
-    Back to clients
-  </a>
-
-  <div id="clientContent">
-    <div class="cl-loading">Loading client…</div>
+  <div class="page-head">
+    <div>
+      <h1>Loyalty</h1>
+      <div class="sub">Reward repeat clients with points they can redeem for perks</div>
+    </div>
   </div>
 
+  <div class="lp-stats">
+    <div class="lp-stat"><div class="lp-stat-num" id="statMembers">—</div><div class="lp-stat-lbl">Members</div></div>
+    <div class="lp-stat"><div class="lp-stat-num" id="statPoints">—</div><div class="lp-stat-lbl">Points outstanding</div></div>
+    <div class="lp-stat"><div class="lp-stat-num" id="statEligible">—</div><div class="lp-stat-lbl">Eligible to redeem</div></div>
+  </div>
+
+  <div class="grid2">
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Program settings</div>
+          <div class="card-sub">Applies to every booking made at your venue</div>
+        </div>
+      </div>
+
+      <div class="lp-toggle-row">
+        <div>
+          <div class="lbl">Loyalty program</div>
+          <div class="hint" id="loyaltyStatusHint">Off — clients won't earn or see points</div>
+        </div>
+        <div class="toggle" id="loyaltyToggle"></div>
+      </div>
+
+      <div class="lp-fields">
+        <div class="lp-field">
+          <label>Points per $1 spent</label>
+          <input type="number" id="fldPointsPerDollar" min="0" step="0.1" inputmode="decimal">
+        </div>
+        <div class="lp-field">
+          <label>Points needed to redeem</label>
+          <input type="number" id="fldRewardThreshold" min="1" step="1" inputmode="numeric">
+        </div>
+        <div class="lp-field full">
+          <label>Reward description</label>
+          <input type="text" id="fldRewardText" maxlength="80" placeholder="$10 off your next visit">
+        </div>
+        <div class="lp-field full">
+          <label>Reward value ($)</label>
+          <input type="number" id="fldRewardValue" min="0" step="1" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="lp-preview" id="lpPreview">Loading preview…</div>
+
+      <div class="lp-save-row">
+        <button class="btn btn-violet" id="saveLoyaltyBtn" onclick="saveLoyaltySettings()">Save changes</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Members</div>
+          <div class="card-sub" id="membersSub">Loading…</div>
+        </div>
+      </div>
+
+      <div class="lp-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="memberSearchInput" placeholder="Search members…" autocomplete="off">
+      </div>
+
+      <div class="lp-members-list" id="membersList">
+        <div class="lp-empty">Loading members…</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="adjustModal">
+  <div class="modal-card">
+    <h3 id="adjustModalName">Adjust points</h3>
+    <div class="m-sub" id="adjustModalCurrent">Current balance: —</div>
+    <div class="lp-field">
+      <label>Points change (use − for a deduction)</label>
+      <input type="number" id="adjustDeltaInput" step="1" placeholder="e.g. 10 or -10">
+    </div>
+    <div class="lp-field" style="margin-top:12px;">
+      <label>Reason</label>
+      <input type="text" id="adjustReasonInput" maxlength="120" placeholder="e.g. Goodwill credit">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAdjustModal()">Cancel</button>
+      <button class="btn btn-violet" id="adjustConfirmBtn" onclick="confirmAdjust()">Save</button>
+    </div>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
-
-  </div>
-</div>
 
 <script>
   var sidebar = document.getElementById('sidebar');
@@ -521,87 +594,35 @@
 <script>
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
-     Mirrors clients.html's grouping logic exactly (no clients table —
-     a "client" is just bookings grouped by customer identity). Loads
-     ALL of the salon's bookings, regroups, and finds the one group
-     matching ?key=. Staff notes read/write client_notes, keyed by
-     customer_name (matches the reference admin's saveClientNote).
+     Loyalty settings live inside the shared app_config.config.salon.loyalty
+     blob (same table/RPC used by settings.html, services.html, team.html —
+     we fetch the config as-is and only mutate .salon.loyalty before
+     resaving through admin_save_config, so we never touch fields owned by
+     other admin pages). Member balances/adjustments go through dedicated
+     SECURITY DEFINER RPCs that check owner_profiles membership, matching
+     the pattern used by get_team_messages/send_team_message.
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
   let currentSalonId = null;
-  let client = null;
-
-  function clientKeyFor(b){
-    return b.customer_user_id ? 'uid:'+b.customer_user_id
-      : b.customer_phone ? 'ph:'+b.customer_phone.trim()
-      : b.customer_email ? 'em:'+b.customer_email.trim().toLowerCase()
-      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
-  }
-
-  function buildClients(bookings){
-    var groups = {};
-    bookings.forEach(function(b){
-      var key = clientKeyFor(b);
-      if(!groups[key]) groups[key] = { key:key, name:b.customer_name||'Customer', email:b.customer_email||'', phone:b.customer_phone||'', bookings:[] };
-      groups[key].bookings.push(b);
-    });
-    var now = Date.now();
-    return Object.values(groups).map(function(g){
-      g.bookings.sort(function(a,b){ return new Date(b.starts_at) - new Date(a.starts_at); });
-      var completed = g.bookings.filter(function(b){ return b.status==='completed'; });
-      var visits = completed.length;
-      var spent = completed.reduce(function(sum,b){ return sum + Number(b.total||0); }, 0);
-      var lastCompletedVisit = completed[0] ? completed[0].starts_at : null;
-      var firstCreated = g.bookings.reduce(function(min,b){ return (!min || new Date(b.created_at)<new Date(min)) ? b.created_at : min; }, null);
-      var hasUpcoming = g.bookings.some(function(b){ return b.status==='upcoming'; });
-      var daysSinceLast = lastCompletedVisit ? (now - new Date(lastCompletedVisit).getTime())/86400000 : Infinity;
-      var tag = null;
-      if(visits>=10 || spent>=1000) tag = 'vip';
-      else if(visits<=1 && !hasUpcoming) tag = 'new';
-      else if(!hasUpcoming && daysSinceLast>90) tag = 'inactive';
-      var stylistCounts = {}, serviceCounts = {};
-      completed.forEach(function(b){
-        if(b.stylist_name_snapshot) stylistCounts[b.stylist_name_snapshot] = (stylistCounts[b.stylist_name_snapshot]||0)+1;
-        if(b.service_name_snapshot) serviceCounts[b.service_name_snapshot] = (serviceCounts[b.service_name_snapshot]||0)+1;
-      });
-      function topOf(counts){ var best=null,bestN=0; for(var k in counts){ if(counts[k]>bestN){ best=k; bestN=counts[k]; } } return best; }
-      return {
-        key:g.key, name:g.name, email:g.email, phone:g.phone,
-        visits:visits, spent:spent, lastVisit:lastCompletedVisit, firstCreated:firstCreated,
-        tag:tag, favoriteStylist:topOf(stylistCounts), favoriteService:topOf(serviceCounts),
-        upcoming: g.bookings.filter(function(b){return b.status==='upcoming';}),
-        allBookings: g.bookings
-      };
-    });
-  }
+  let currentUserId = null;
+  let currentConfigVersion = null;
+  let rawConfig = null;
+  let loyalty = {enabled:false, pointsPerDollar:1, rewardThreshold:100, rewardText:"$10 off your next visit", rewardValue:10};
+  let members = [];
+  let adjustTargetId = null;
 
   function initialsFor(name){
     var parts = String(name||'').trim().split(/\s+/);
     return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
   }
-  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
-  function colorFor(seed){
-    var hash = 0; var s = String(seed||'?');
-    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
-    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
-    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
-  }
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
-  function tagPill(tag){
-    if(tag === 'vip') return '<span class="tag-pill tag-vip">VIP</span>';
-    if(tag === 'new') return '<span class="tag-pill tag-new">New</span>';
-    if(tag === 'inactive') return '<span class="tag-pill tag-inactive">Inactive</span>';
-    return '';
+  function fmtDate(iso){
+    try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return ''; }
   }
-  function monthYear(iso){ return iso ? new Intl.DateTimeFormat("en-US",{month:"short",year:"numeric"}).format(new Date(iso)) : '—'; }
-  function fullDate(iso){ return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(iso)); }
-  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
-  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
-  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
 
   function showLoginRequired(title, message, ctaLabel, ctaHref){
     document.querySelector('.shell').innerHTML = `
@@ -614,170 +635,11 @@
       </div>
     `;
   }
-  function showNotFound(){
-    document.getElementById('clientContent').innerHTML = `
-      <div class="panel" style="text-align:center;padding:60px 24px;">
-        <h1 style="font-size:18px;margin-bottom:8px;">Client not found</h1>
-        <p style="font-size:13.5px;color:var(--text-soft);">This client doesn't have any bookings at your venue.</p>
-      </div>
-    `;
-  }
 
-  function statusBadge(status){
-    var map = { upcoming:'Upcoming', completed:'Completed', cancelled:'Cancelled', no_show:'No-show' };
-    var cls = status==='no_show' ? 'noshow' : status;
-    return '<span class="status-badge status-' + cls + '">' + (map[status]||status) + '</span>';
-  }
-
-  function renderClient(noteText){
-    const c = client;
-    const col = colorFor(c.name);
-    const upcoming = c.upcoming[0];
-
-    document.getElementById('clientContent').innerHTML = `
-      <div class="panel profile-panel">
-        <div class="profile-head">
-          <div class="profile-avatar" style="background:${col.color};color:${col.text};">${initialsFor(c.name)}</div>
-          <div>
-            <div class="profile-name-row">
-              <h1>${escapeHtml(c.name)}</h1>
-              ${tagPill(c.tag)}
-            </div>
-            <div class="profile-meta">Client since ${monthYear(c.firstCreated)} · ${escapeHtml(c.email||'No email on file')} · ${escapeHtml(c.phone||'No phone on file')}</div>
-          </div>
-          <div class="profile-actions">
-            <a href="/venue/admin/messages" class="btn btn-ghost">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Message
-            </a>
-            <a href="/venue/admin/new-booking" class="btn btn-violet">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-              New booking
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Total visits</div>
-            <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
-          </div>
-          <div class="stat-value">${c.visits}</div>
-          <div class="stat-delta"><span class="muted">Since ${monthYear(c.firstCreated)}</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Total spent</div>
-            <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          </div>
-          <div class="stat-value">$${c.spent.toLocaleString()}</div>
-          <div class="stat-delta"><span class="muted">Lifetime</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Avg. per visit</div>
-            <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></div>
-          </div>
-          <div class="stat-value">$${c.visits ? Math.round(c.spent/c.visits) : 0}</div>
-          <div class="stat-delta"><span class="muted">${c.visits} visit${c.visits===1?'':'s'}</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Last visit</div>
-            <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-          </div>
-          <div class="stat-value">${c.lastVisit ? (nzDateKeyForIso(c.lastVisit)===nzTodayKey()?'Today':fullDate(c.lastVisit)) : '—'}</div>
-          <div class="stat-delta"><span class="muted">${c.lastVisit ? localTimeLabel(c.lastVisit) : ''}</span></div>
-        </div>
-      </div>
-
-      <div class="dash-grid">
-        <div class="side-col">
-
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Upcoming</h2>
-              <a href="/venue/admin/bookings" class="link">See all</a>
-            </div>
-            ${upcoming ? `
-            <div class="appt-row">
-              <div class="appt-avatar" style="background:${col.color};color:${col.text};">${initialsFor(c.name)}</div>
-              <div>
-                <div class="appt-name">${escapeHtml(upcoming.service_name_snapshot||'Service')}</div>
-                <div class="appt-service">${fullDate(upcoming.starts_at)} · ${escapeHtml(upcoming.stylist_name_snapshot||'Venue team')}</div>
-              </div>
-              <div class="appt-time">
-                <div class="t">${localTimeLabel(upcoming.starts_at)}</div>
-                <div class="status-pill status-confirmed">Upcoming</div>
-              </div>
-            </div>` : `<p style="font-size:12.5px;color:var(--text-faint);">No upcoming appointments.</p>`}
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Visit history</h2>
-            </div>
-            <div class="table-wrap">
-              <table class="data">
-                <thead><tr><th>Date</th><th>Service</th><th>Stylist</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody>
-                  ${c.allBookings.length ? c.allBookings.map(function(b){
-                    return '<tr><td>' + fullDate(b.starts_at) + '</td><td>' + escapeHtml(b.service_name_snapshot||'Service') + '</td><td>' + escapeHtml(b.stylist_name_snapshot||'Venue team') + '</td><td>$' + Number(b.total||0).toFixed(0) + '</td><td>' + statusBadge(b.status) + '</td></tr>';
-                  }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:24px;">No bookings yet.</td></tr>'}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="side-col">
-          <div class="panel">
-            <div class="panel-head"><h2>Contact info</h2></div>
-            <div class="info-row"><span class="info-label">Email</span><span class="info-value">${escapeHtml(c.email||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${escapeHtml(c.phone||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Client since</span><span class="info-value">${monthYear(c.firstCreated)}</span></div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head"><h2>Preferences</h2></div>
-            <div class="info-row"><span class="info-label">Favorite stylist</span><span class="info-value">${escapeHtml(c.favoriteStylist||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Favorite service</span><span class="info-value">${escapeHtml(c.favoriteService||'—')}</span></div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head"><h2>Staff notes</h2></div>
-            <textarea class="notes-input" id="clientNoteInput" placeholder="Add notes for other staff — allergies, preferences, anything worth knowing before their next visit…">${escapeHtml(noteText||'')}</textarea>
-            <div class="notes-save-row">
-              <div class="btn btn-violet" onclick="saveClientNote()">Save note</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  async function saveClientNote(){
-    const text = document.getElementById('clientNoteInput').value.trim();
-    try{
-      if(!text){
-        await supabaseClient.from("client_notes").delete().eq("salon_id",currentSalonId).eq("customer_name",client.name);
-      } else {
-        await supabaseClient.from("client_notes").upsert({salon_id:currentSalonId,customer_name:client.name,note:text,updated_at:new Date().toISOString()},{onConflict:"salon_id,customer_name"});
-      }
-      showToast('Note saved');
-    }catch(err){ showToast(err.message||'Could not save note'); }
-  }
-
-  async function bootClientPage(){
-    const key = new URLSearchParams(window.location.search).get('key');
-    if(!key){ showNotFound(); return; }
-
+  async function bootLoyaltyPage(){
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(!session){
-      showLoginRequired("Log in to your venue","Use your venue account before opening this client.","Log in","/business-auth?view=login");
+      showLoginRequired("Log in to your venue","Use your venue account before opening Loyalty.","Log in","/business-auth?view=login");
       return;
     }
     const [{data:profile},{data:owner}] = await Promise.all([
@@ -795,45 +657,187 @@
       return;
     }
     currentSalonId=owner.salon_id;
+    currentUserId=session.user.id;
     var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
     document.getElementById('sbAvatar').textContent = initialsFor(displayName);
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
 
-    const [{data:bookings,error},{data:manualClients}] = await Promise.all([
-      supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId),
-      supabaseClient.rpc("get_venue_clients")
-    ]);
-    if(error){ showToast(error.message); showNotFound(); return; }
-    const clients = buildClients(bookings||[]);
-    client = clients.find(function(c){ return c.key===key; });
-    if(!client){
-      var manualRow = (manualClients||[]).find(function(r){
-        return clientKeyFor({customer_user_id:null, customer_phone:r.phone, customer_email:r.email, customer_name:r.name}) === key;
-      });
-      if(manualRow){
-        client = {
-          key:key, name:manualRow.name, email:manualRow.email||'', phone:manualRow.phone||'',
-          visits:0, spent:0, lastVisit:null, firstCreated:manualRow.created_at,
-          tag:'new', favoriteStylist:null, favoriteService:null,
-          upcoming:[], allBookings:[]
+    try{
+      const [{data:salonRow},{data:cfgRow,error:cfgError},{data:accounts,error:acctError}] = await Promise.all([
+        supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle(),
+        supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
+        supabaseClient.rpc("get_venue_loyalty_accounts")
+      ]);
+      if(salonRow){
+        document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+        document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+        document.title = salonRow.name ? `Loyalty — ${salonRow.name}` : "Loyalty — Blooma Business";
+      }
+      if(cfgError) throw cfgError;
+      rawConfig = cfgRow?.config || {salon:{}, stylists:[], services:[], addons:[], promos:[]};
+      currentConfigVersion = cfgRow?.config_version ?? null;
+      var sc = rawConfig.salon || {};
+      if(sc.loyalty && typeof sc.loyalty==="object"){
+        loyalty = {
+          enabled: !!sc.loyalty.enabled,
+          pointsPerDollar: Number(sc.loyalty.pointsPerDollar)||1,
+          rewardThreshold: Number(sc.loyalty.rewardThreshold)||100,
+          rewardText: sc.loyalty.rewardText || "$10 off your next visit",
+          rewardValue: Number(sc.loyalty.rewardValue)||0
         };
       }
-    }
-    if(!client){ showNotFound(); return; }
+      renderLoyaltyForm();
 
-    const {data:salonRow} = await supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle();
-    if(salonRow){
-      document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
-      document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-      document.title = `${client.name} — ${salonRow.name || 'Blooma Business'}`;
-    }
+      if(acctError) throw acctError;
+      members = accounts || [];
+      renderMembers();
+      renderStats();
+    }catch(err){ showToast(err.message||"Unable to load loyalty data"); }
 
-    const {data:noteRow} = await supabaseClient.from("client_notes").select("note").eq("salon_id",currentSalonId).eq("customer_name",client.name).maybeSingle();
-    renderClient(noteRow?.note || '');
+    document.getElementById('memberSearchInput').addEventListener('input', renderMembers);
   }
 
-  bootClientPage();
+  function renderLoyaltyForm(){
+    document.getElementById('loyaltyToggle').classList.toggle('on', loyalty.enabled);
+    document.getElementById('loyaltyStatusHint').textContent = loyalty.enabled
+      ? "On — clients earn points and see the rewards card"
+      : "Off — clients won't earn or see points";
+    document.getElementById('fldPointsPerDollar').value = loyalty.pointsPerDollar;
+    document.getElementById('fldRewardThreshold').value = loyalty.rewardThreshold;
+    document.getElementById('fldRewardText').value = loyalty.rewardText;
+    document.getElementById('fldRewardValue').value = loyalty.rewardValue;
+    renderPreview();
+  }
+
+  function renderPreview(){
+    var ppd = Number(document.getElementById('fldPointsPerDollar').value)||0;
+    var threshold = Number(document.getElementById('fldRewardThreshold').value)||0;
+    var text = document.getElementById('fldRewardText').value || 'a reward';
+    document.getElementById('lpPreview').innerHTML =
+      'A client spending <b>$100</b> earns <b>' + Math.round(ppd*100) + ' pts</b>. ' +
+      'At <b>' + threshold + ' pts</b> they can redeem <b>' + escapeHtml(text) + '</b>.';
+  }
+  ['fldPointsPerDollar','fldRewardThreshold','fldRewardText','fldRewardValue'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderPreview);
+  });
+
+  document.getElementById('loyaltyToggle').addEventListener('click', function(){
+    loyalty.enabled = !loyalty.enabled;
+    renderLoyaltyForm();
+  });
+
+  async function saveLoyaltySettings(){
+    if(!currentSalonId) return;
+    var btn = document.getElementById('saveLoyaltyBtn');
+    var ppd = Number(document.getElementById('fldPointsPerDollar').value);
+    var threshold = Number(document.getElementById('fldRewardThreshold').value);
+    var text = document.getElementById('fldRewardText').value.trim();
+    var value = Number(document.getElementById('fldRewardValue').value);
+    if(!(ppd>=0)){ showToast('Points per $1 must be 0 or more'); return; }
+    if(!(threshold>0)){ showToast('Points needed to redeem must be greater than 0'); return; }
+    if(!text){ showToast('Add a reward description'); return; }
+    if(!(value>=0)){ showToast('Reward value must be 0 or more'); return; }
+
+    loyalty = {enabled:loyalty.enabled, pointsPerDollar:ppd, rewardThreshold:threshold, rewardText:text, rewardValue:value};
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try{
+      var payload = JSON.parse(JSON.stringify(rawConfig || {salon:{}, stylists:[], services:[], addons:[], promos:[]}));
+      payload.salon = payload.salon || {};
+      payload.salon.loyalty = loyalty;
+      const args = currentConfigVersion==null ? {payload} : {payload, expected_version:currentConfigVersion};
+      const {data,error} = await supabaseClient.rpc("admin_save_config_gated", args);
+      if(error) throw error;
+      if(data?.config_version!=null) currentConfigVersion = data.config_version;
+      rawConfig = payload;
+      showToast('Loyalty settings saved');
+    }catch(err){
+      showToast(err.message||'Could not save loyalty settings');
+    }finally{
+      btn.disabled = false; btn.textContent = 'Save changes';
+    }
+  }
+
+  function renderStats(){
+    document.getElementById('statMembers').textContent = members.length;
+    var totalPoints = members.reduce(function(sum,m){ return sum + (Number(m.points)||0); }, 0);
+    document.getElementById('statPoints').textContent = totalPoints.toLocaleString();
+    var eligible = members.filter(function(m){ return (Number(m.points)||0) >= loyalty.rewardThreshold; }).length;
+    document.getElementById('statEligible').textContent = eligible;
+  }
+
+  function renderMembers(){
+    var q = (document.getElementById('memberSearchInput').value||'').trim().toLowerCase();
+    var list = members.filter(function(m){
+      if(!q) return true;
+      return String(m.customer_name||'').toLowerCase().indexOf(q) !== -1;
+    });
+    document.getElementById('membersSub').textContent = members.length + ' member' + (members.length===1?'':'s') + ' earning points';
+    var wrap = document.getElementById('membersList');
+    if(!list.length){
+      wrap.innerHTML = '<div class="lp-empty">' + (members.length ? 'No members match your search.' : 'No members yet — points are earned automatically when a booking is completed.') + '</div>';
+      return;
+    }
+    list.sort(function(a,b){ return (Number(b.points)||0) - (Number(a.points)||0); });
+    wrap.innerHTML = list.map(function(m){
+      var name = m.customer_name || 'Client';
+      var eligible = (Number(m.points)||0) >= loyalty.rewardThreshold;
+      return '<div class="lp-member-row">' +
+        '<div class="lp-m-avatar">' + escapeHtml(initialsFor(name)) + '</div>' +
+        '<div class="lp-m-info">' +
+          '<div class="lp-m-name">' + escapeHtml(name) + '</div>' +
+          '<div class="lp-m-sub">' + (eligible ? 'Eligible to redeem · ' : '') + 'Updated ' + fmtDate(m.updated_at) + '</div>' +
+        '</div>' +
+        '<div class="lp-m-points">' + (Number(m.points)||0) + '</div>' +
+        '<div class="lp-m-actions">' +
+          '<div class="lp-icon-btn" title="Adjust points" onclick="openAdjustModal(\'' + m.customer_user_id + '\',' + JSON.stringify(name).replace(/'/g,"&#39;") + ',' + (Number(m.points)||0) + ')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function openAdjustModal(customerUserId, name, points){
+    adjustTargetId = customerUserId;
+    document.getElementById('adjustModalName').textContent = 'Adjust points — ' + name;
+    document.getElementById('adjustModalCurrent').textContent = 'Current balance: ' + points + ' pts';
+    document.getElementById('adjustDeltaInput').value = '';
+    document.getElementById('adjustReasonInput').value = '';
+    document.getElementById('adjustModal').classList.add('open');
+  }
+  function closeAdjustModal(){
+    document.getElementById('adjustModal').classList.remove('open');
+    adjustTargetId = null;
+  }
+
+  async function confirmAdjust(){
+    if(!adjustTargetId) return;
+    var delta = Number(document.getElementById('adjustDeltaInput').value);
+    var reason = document.getElementById('adjustReasonInput').value.trim();
+    if(!delta){ showToast('Enter a non-zero points change'); return; }
+    if(reason.length<2){ showToast('Add a short reason'); return; }
+    var btn = document.getElementById('adjustConfirmBtn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try{
+      const {data,error} = await supabaseClient.rpc('admin_adjust_loyalty_points_gated', {p_customer_user_id:adjustTargetId, p_delta:delta, p_reason:reason});
+      if(error) throw error;
+      var m = members.find(function(x){ return x.customer_user_id===adjustTargetId; });
+      if(m) m.points = data.points;
+      renderMembers();
+      renderStats();
+      closeAdjustModal();
+      showToast('Points updated');
+    }catch(err){
+      showToast(err.message||'Could not adjust points');
+    }finally{
+      btn.disabled = false; btn.textContent = 'Save';
+    }
+  }
+
+  bootLoyaltyPage();
 </script>
 
 <script>

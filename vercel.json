@@ -52,6 +52,18 @@
       "destination": "/messages"
     },
     {
+      "source": "/venue/admin/team-chat",
+      "destination": "/team-chat"
+    },
+    {
+      "source": "/venue/admin/loyalty",
+      "destination": "/loyalty"
+    },
+    {
+      "source": "/venue/admin/gift-cards",
+      "destination": "/gift-cards"
+    },
+    {
       "source": "/venue/admin/addons",
       "destination": "/addons"
     },

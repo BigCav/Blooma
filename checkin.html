@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,25 +201,43 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
   @media (min-width:900px){ .content{padding:30px 32px 70px;} }
-
-  .greet-row{
-    display:flex; align-items:flex-end; justify-content:space-between;
-    flex-wrap:wrap; gap:14px; margin-bottom:22px;
-  }
-  .greet-row h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
-  .greet-row .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
-  @media (min-width:900px){ .greet-row h1{font-size:26px;} }
 
   /* ---------- STAT CARDS ---------- */
   .stats-grid{
     display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
     margin-bottom:22px;
   }
-  @media (min-width:800px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
+  @media (min-width:700px){ .stats-grid{grid-template-columns:repeat(3,1fr);} }
   .stat-card{
     background:var(--surface); border:1px solid var(--border); border-radius:14px;
     padding:16px 18px;
@@ -235,13 +254,9 @@
     font-size:11.5px; font-weight:700; margin-top:6px;
     color:var(--success);
   }
-  .stat-delta.down{color:var(--danger);}
   .stat-delta span.muted{color:var(--text-faint); font-weight:500;}
 
-  /* ---------- PANELS / GRID LAYOUT ---------- */
-  .dash-grid{display:grid; grid-template-columns:1fr; gap:16px;}
-  @media (min-width:1100px){ .dash-grid{grid-template-columns:2fr 1fr;} }
-
+  /* ---------- PANELS ---------- */
   .panel{
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
     padding:18px;
@@ -251,102 +266,26 @@
     margin-bottom:16px;
   }
   .panel-head h2{font-size:15.5px; font-weight:700;}
-  .panel-head .link{font-size:12.5px; font-weight:700; color:var(--violet-text);}
-  .panel-tabs{display:flex; gap:6px;}
-  .panel-tab{
-    font-size:12px; font-weight:700; padding:6px 12px; border-radius:99px;
-    background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+  .attn-count{
+    font-size:11px; font-weight:700; background:var(--violet-soft); color:var(--violet-text);
+    padding:3px 9px; border-radius:99px;
   }
-  .panel-tab.active{background:var(--violet); color:var(--white);}
-
-  /* ---------- TIMELINE ---------- */
-  .timeline-wrap{overflow-x:auto; overflow-y:hidden; scrollbar-width:none;}
-  .timeline-wrap::-webkit-scrollbar{display:none;}
-  .timeline{
-    display:flex; min-width:560px;
-  }
-  .tl-times{
-    flex:none; width:52px; position:relative; height:600px;
-  }
-  .tl-times span{
-    position:absolute; left:0; transform:translateY(-50%);
-    font-size:10.5px; color:var(--text-faint); font-weight:600;
-  }
-  .tl-staff{flex:1; display:flex; gap:10px;}
-  .tl-col{
-    flex:1; position:relative; height:600px; min-width:118px;
-    background-image:repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent 60px);
-    border-left:1px solid var(--border);
-  }
-  .tl-col-head{
-    text-align:center; font-size:11.5px; font-weight:700; color:var(--text-soft);
-    margin-bottom:8px;
-  }
-  .tl-appt{
-    position:absolute; left:3px; right:3px;
-    border-radius:8px; padding:6px 8px;
-    border-left:3px solid; overflow:hidden;
-  }
-  .tl-appt .t1{font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .tl-appt .t2{font-size:10px; opacity:0.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .tl-c-violet{background:rgba(109,95,232,0.18); border-color:var(--violet);}
-  .tl-c-blue{background:rgba(95,168,232,0.18); border-color:#5FA8E8;}
-  .tl-c-pink{background:rgba(232,95,158,0.18); border-color:#E85F9E;}
-  .tl-c-green{background:rgba(95,232,160,0.18); border-color:#5FE8A0;}
-
-  .tl-heads{display:flex; gap:10px; padding-left:52px; min-width:560px;}
-  .tl-heads .tl-col-head{flex:1; min-width:118px;}
-
-  /* ---------- UPCOMING LIST ---------- */
-  .side-col{display:flex; flex-direction:column; gap:16px;}
-  .appt-row{
-    display:flex; align-items:center; gap:11px;
-    padding:10px 0; border-bottom:1px solid var(--border);
-  }
-  .appt-row:last-child{border-bottom:none; padding-bottom:0;}
-  .appt-avatar{
-    width:36px; height:36px; border-radius:50%; flex:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:12.5px; font-weight:700; color:var(--white);
-  }
-  .appt-name{font-size:13px; font-weight:700;}
-  .appt-service{font-size:11.5px; color:var(--text-soft); margin-top:1px;}
-  .appt-time{margin-left:auto; text-align:right; flex:none;}
-  .appt-time .t{font-size:12.5px; font-weight:700;}
-  .status-pill{
-    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:2px 7px; border-radius:99px; margin-top:3px; display:inline-block;
-  }
-  .status-confirmed{background:var(--success-soft); color:var(--success);}
-  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
-
-  /* ---------- MINI CHART ---------- */
-  .chart-row{
-    display:flex; align-items:flex-end; gap:8px; height:120px; margin-top:6px;
-  }
-  .chart-bar{
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
-  }
-  .chart-bar .bar{
-    width:100%; border-radius:5px 5px 0 0; background:var(--surface-2);
-  }
-  .chart-bar.today .bar{background:var(--violet);}
-  .chart-bar span{font-size:10px; color:var(--text-faint); font-weight:600;}
 
   /* ---------- TEAM MINI LIST ---------- */
   .team-row{
-    display:flex; align-items:center; gap:10px; padding:9px 0;
+    display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border);
   }
+  .team-row:last-child{border-bottom:none; padding-bottom:0;}
   .team-avatar{
     width:32px; height:32px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:#fff;
   }
   .team-name{font-size:12.5px; font-weight:700;}
   .team-meta{font-size:11px; color:var(--text-faint);}
   .team-status{
     margin-left:auto; font-size:10.5px; font-weight:700; flex:none;
   }
-  .team-status.busy{color:var(--warning);}
-  .team-status.free{color:var(--success);}
 
   /* ---------- PAGE HEAD ---------- */
   .page-head{margin-bottom:20px;}
@@ -354,88 +293,13 @@
   .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
   @media (min-width:900px){ .page-head h1{font-size:26px;} }
 
-  /* ---------- FILTER BAR ---------- */
-  .filter-bar{
-    display:flex; flex-direction:column; gap:12px;
-    margin-bottom:18px;
-  }
-  .filter-tabs{
-    display:flex; gap:6px; flex-wrap:nowrap;
-    overflow-x:auto; overflow-y:hidden; scrollbar-width:none;
-  }
-  .filter-tabs::-webkit-scrollbar{display:none;}
-  .filter-tab{
-    flex:none;
-    font-size:12.5px; font-weight:700; padding:8px 14px; border-radius:99px;
-    background:var(--surface-2); color:var(--text-soft); cursor:pointer;
-    border:1px solid var(--border); white-space:nowrap;
-  }
-  .filter-tab.active{background:var(--violet); color:var(--white); border-color:var(--violet);}
-  .filter-actions{display:flex; align-items:center; gap:10px;}
   .filter-search{
     display:flex; align-items:center; gap:8px;
     background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
-    padding:9px 13px; flex:1; min-width:0; max-width:280px;
+    padding:9px 13px; flex:1; min-width:0;
   }
   .filter-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
   .filter-search input::placeholder{color:var(--text-faint);}
-  @media (min-width:900px){
-    .filter-bar{flex-direction:row; align-items:center;}
-    .filter-tabs{flex:none;}
-    .filter-actions{margin-left:auto; flex:none;}
-  }
-
-  /* ---------- TABLE ---------- */
-  .table-wrap{overflow-x:auto; overflow-y:hidden;}
-  table.data{width:100%; border-collapse:collapse; min-width:760px;}
-  table.data th{
-    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em;
-    color:var(--text-faint); font-weight:700; padding:0 14px 10px;
-    border-bottom:1px solid var(--border);
-  }
-  table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
-  table.data tr:last-child td{border-bottom:none;}
-  table.data tr:hover td{background:var(--surface-hover);}
-  .cell-person{display:flex; align-items:center; gap:10px;}
-  .cell-avatar{
-    width:32px; height:32px; border-radius:50%; flex:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:11.5px; font-weight:700; color:#fff;
-  }
-  .cell-name{font-weight:700; font-size:13px;}
-  .cell-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
-  .status-badge{
-    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:4px 9px; border-radius:99px; display:inline-block; white-space:nowrap;
-  }
-  .status-confirmed{background:var(--success-soft); color:var(--success);}
-  .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
-  .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
-  .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
-  .row-action{
-    width:30px; height:30px; border-radius:8px; background:var(--surface-2);
-    border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center;
-    color:var(--text-faint); cursor:pointer; flex:none;
-  }
-  .tag-pill{font-size:10px; font-weight:700; padding:3px 8px; border-radius:99px; margin-right:4px; display:inline-block; white-space:nowrap;}
-  .tag-vip{background:rgba(244,201,58,0.16); color:var(--warning);}
-  .tag-new{background:var(--violet-soft); color:var(--violet-text);}
-  .tag-inactive{background:rgba(157,152,176,0.14); color:var(--text-soft);}
-
-  /* ---------- PAGINATION ---------- */
-  .pagination{
-    display:flex; align-items:center; justify-content:space-between;
-    padding-top:16px; margin-top:2px; flex-wrap:wrap; gap:10px;
-  }
-  .pagination .info{font-size:12px; color:var(--text-faint);}
-  .pg-btns{display:flex; gap:8px;}
-  .pg-btn{
-    width:32px; height:32px; border-radius:8px; background:var(--surface-2);
-    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
-    color:var(--text-soft); cursor:pointer; font-size:12px; font-weight:700;
-  }
-  .pg-btn.active{background:var(--violet); color:#fff; border-color:var(--violet);}
 
   /* ---------- BREADCRUMB ---------- */
   .crumb{
@@ -458,7 +322,6 @@
   .ci-section h3{font-size:14.5px; font-weight:700; margin-bottom:12px;}
 
   .client-search-row{display:flex; gap:10px; margin-bottom:12px;}
-  .client-search-row .filter-search{max-width:none; flex:1;}
 
   .client-result{
     display:flex; align-items:center; gap:11px;
@@ -476,6 +339,7 @@
   .client-result .cr-sub{font-size:11.5px; color:var(--text-faint);}
   .client-result .cr-check{margin-left:auto; color:var(--violet-text); display:none;}
   .client-result.selected .cr-check{display:block;}
+  .ci-empty{font-size:12.5px; color:var(--text-faint); padding:10px 0;}
 
   .svc-pick-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
   @media (min-width:600px){ .svc-pick-grid{grid-template-columns:repeat(3,1fr);} }
@@ -510,11 +374,11 @@
   .ci-summary{
     background:var(--surface-2); border:1px solid var(--border); border-radius:14px;
     padding:16px 18px; margin-top:22px; margin-bottom:16px;
-    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    font-size:13px; color:var(--text-soft);
   }
-  .ci-summary-text{font-size:13px; color:var(--text-soft);}
-  .ci-summary-text strong{color:var(--text);}
+  .ci-summary strong{color:var(--text);}
   .ci-confirm-btn{width:100%; justify-content:center; padding:14px; font-size:14.5px;}
+  .ci-confirm-btn.disabled{opacity:.5; cursor:not-allowed; pointer-events:none;}
 
   /* ---------- WAITING QUEUE ---------- */
   .queue-row{
@@ -535,6 +399,14 @@
     background:rgba(244,201,58,0.14); padding:3px 8px; border-radius:99px; flex:none;
   }
   .queue-empty{font-size:12.5px; color:var(--text-faint); text-align:center; padding:20px 0;}
+
+  /* ---------- RESULT ---------- */
+  .result-banner{text-align:center; padding:36px 20px 8px;}
+  .result-icon{width:60px; height:60px; border-radius:50%; margin:0 auto 18px; display:flex; align-items:center; justify-content:center;}
+  .result-icon.success{background:var(--success-soft); color:var(--success);}
+  .result-title{font-size:19px; font-weight:800; margin-bottom:6px;}
+  .result-sub{font-size:13px; color:var(--text-soft); margin-bottom:24px;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
 
   /* ---------- MODAL ---------- */
   .modal-overlay{
@@ -565,12 +437,14 @@
   .modal-actions{display:flex; gap:10px;}
   .modal-actions .btn{flex:1; justify-content:center;}
 
-  .result-banner{text-align:center; padding:36px 20px 8px;}
-  .result-icon{width:60px; height:60px; border-radius:50%; margin:0 auto 18px; display:flex; align-items:center; justify-content:center;}
-  .result-icon.success{background:var(--success-soft); color:var(--success);}
-  .result-title{font-size:19px; font-weight:800; margin-bottom:6px;}
-  .result-sub{font-size:13px; color:var(--text-soft); margin-bottom:24px;}
-  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:90; opacity:0; pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 
@@ -593,8 +467,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -612,14 +486,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -633,7 +508,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -654,10 +536,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -669,9 +551,11 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
-      <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
+      <div class="tb-right">
+        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
           New booking
         </a>
@@ -690,26 +574,11 @@
 
   <div class="page-head">
     <h1>Check in a walk-in</h1>
-    <div class="sub">Get a walk-in client on the books in a few taps</div>
+    <div class="sub">Get a walk-in client on the books in a few taps — starts right away, no scheduled time needed</div>
   </div>
 
-  <div class="stats-grid" style="grid-template-columns:repeat(2,1fr); margin-bottom:22px;">
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Walk-ins today</div>
-        <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
-      </div>
-      <div class="stat-value">5</div>
-      <div class="stat-delta"><span class="muted">2 currently waiting</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Avg. wait time</div>
-        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
-      </div>
-      <div class="stat-value">12 min</div>
-      <div class="stat-delta"><span class="muted">Today</span></div>
-    </div>
+  <div class="stats-grid" id="ciStatsGrid">
+    <div class="stat-card"><div class="ci-empty">Loading…</div></div>
   </div>
 
   <div class="ci-grid">
@@ -721,7 +590,7 @@
         <div class="client-search-row">
           <div class="filter-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" placeholder="Search existing clients…">
+            <input type="text" id="clientSearchInput" placeholder="Search existing clients…">
           </div>
           <div class="btn btn-ghost" onclick="openNewWalkin()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -729,80 +598,31 @@
           </div>
         </div>
         <div class="client-result-list" id="ciClientList">
-        <div class="client-result selected" onclick="ciPickClient(this,'Emma A.')">
-          <div class="cr-avatar" style="background:#6D5FE8;">EA</div>
-          <div>
-            <div class="cr-name">Emma A.</div>
-            <div class="cr-sub">Last visit: 6 weeks ago</div>
-          </div>
-          <div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
-        </div>
-        <div class="client-result" onclick="ciPickClient(this,'David K.')">
-          <div class="cr-avatar" style="background:#5FA8E8;">DK</div>
-          <div>
-            <div class="cr-name">David K.</div>
-            <div class="cr-sub">New to Ivy Salon Loft</div>
-          </div>
-          <div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
-        </div>
+          <div class="ci-empty">Loading clients…</div>
         </div>
       </div>
 
       <div class="ci-section">
         <div class="ci-step-label">Step 2</div>
         <h3>Service</h3>
-        <div class="svc-pick-grid">
-          <div class="svc-pick active" onclick="ciPickService(this,'Women\'s cut & blowout')"><div class="sp-name">Women's cut &amp; blowout</div><div class="sp-meta">60 min · $95</div></div>
-          <div class="svc-pick" onclick="ciPickService(this,'Men\'s cut')"><div class="sp-name">Men's cut</div><div class="sp-meta">30 min · $55</div></div>
-          <div class="svc-pick" onclick="ciPickService(this,'Blowout')"><div class="sp-name">Blowout</div><div class="sp-meta">40 min · $60</div></div>
-          <div class="svc-pick" onclick="ciPickService(this,'Root touch-up')"><div class="sp-name">Root touch-up</div><div class="sp-meta">1 hr 15 min · $110</div></div>
-          <div class="svc-pick" onclick="ciPickService(this,'Gloss & toner')"><div class="sp-name">Gloss &amp; toner</div><div class="sp-meta">45 min · $65</div></div>
-          <div class="svc-pick" onclick="ciPickService(this,'Kids cut')"><div class="sp-name">Kids cut</div><div class="sp-meta">30 min · $40</div></div>
+        <div class="svc-pick-grid" id="ciServiceGrid">
+          <div class="ci-empty">Loading services…</div>
         </div>
       </div>
 
       <div class="ci-section">
         <div class="ci-step-label">Step 3</div>
         <h3>Stylist</h3>
-        <div class="stylist-grid">
-          <div class="stylist-pick active" onclick="ciPickStaff(this,'Jordan M.')">
-            <div class="sp-avatar" style="background:#D9B48F;"></div>
-            <div class="sp-info">
-              <div class="sp-name">Jordan M. <span class="sp-recommend">Next available</span></div>
-              <div class="sp-status free">Free now</div>
-            </div>
-          </div>
-          <div class="stylist-pick" onclick="ciPickStaff(this,'Chris T.')">
-            <div class="sp-avatar" style="background:#C9D3C2;"></div>
-            <div class="sp-info">
-              <div class="sp-name">Chris T.</div>
-              <div class="sp-status free">Free now</div>
-            </div>
-          </div>
-          <div class="stylist-pick" onclick="ciPickStaff(this,'Fana R.')">
-            <div class="sp-avatar" style="background:#E4C9A0;"></div>
-            <div class="sp-info">
-              <div class="sp-name">Fana R.</div>
-              <div class="sp-status busy">Busy until 11:00 AM</div>
-            </div>
-          </div>
-          <div class="stylist-pick" onclick="ciPickStaff(this,'Naomi K.')">
-            <div class="sp-avatar" style="background:#E3C4BE;"></div>
-            <div class="sp-info">
-              <div class="sp-name">Naomi K.</div>
-              <div class="sp-status busy">Busy until 9:45 AM</div>
-            </div>
-          </div>
+        <div class="stylist-grid" id="ciStylistGrid">
+          <div class="ci-empty">Loading team…</div>
         </div>
       </div>
 
-      <div class="ci-summary">
-        <div class="ci-summary-text" id="ciSummaryText">Checking in <strong>Emma A.</strong> for <strong>Women's cut &amp; blowout</strong> with <strong>Jordan M.</strong> — starts now.</div>
-      </div>
+      <div class="ci-summary" id="ciSummaryText">Pick a client, service and stylist to check them in.</div>
 
-      <div class="btn btn-violet ci-confirm-btn" onclick="confirmCheckin()">
+      <div class="btn btn-violet ci-confirm-btn disabled" id="ciConfirmBtn" onclick="confirmCheckin()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
-        <span id="ciConfirmLabel">Check in Emma A.</span>
+        <span id="ciConfirmLabel">Check in</span>
       </div>
     </div>
 
@@ -810,7 +630,7 @@
       <div class="result-banner">
         <div class="result-icon success"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
         <div class="result-title">Checked in</div>
-        <div class="result-sub" id="ciSuccessSub">Emma A. is in the queue for Jordan M.</div>
+        <div class="result-sub" id="ciSuccessSub">—</div>
         <div class="result-actions">
           <a href="/venue/admin" class="btn btn-violet">Back to dashboard</a>
           <div class="btn btn-ghost" onclick="checkInAnother()">Check in another</div>
@@ -821,42 +641,16 @@
     <div class="panel">
       <div class="panel-head">
         <h2>Currently waiting</h2>
-        <span class="attn-count">2</span>
+        <span class="attn-count" id="ciWaitingCount">0</span>
       </div>
-      <div class="queue-row">
-        <div class="queue-avatar" style="background:#E85F9E;">RT</div>
-        <div class="queue-info">
-          <div class="queue-name">Ruth T.</div>
-          <div class="queue-meta">Haircut · Requested Fana R.</div>
-        </div>
-        <div class="queue-wait">Waiting 8m</div>
-      </div>
-      <div class="queue-row">
-        <div class="queue-avatar" style="background:#5FE8A0; color:#131218;">BL</div>
-        <div class="queue-info">
-          <div class="queue-name">Ben L.</div>
-          <div class="queue-meta">Blowout · Any stylist</div>
-        </div>
-        <div class="queue-wait">Waiting 3m</div>
+      <div id="ciWaitingList">
+        <div class="queue-empty">Loading…</div>
       </div>
 
       <div class="ci-section" style="margin-top:22px;">
         <h3 style="font-size:13px; color:var(--text-soft);">Today's walk-in log</h3>
-        <div class="team-row">
-          <div class="team-avatar" style="background:#6D5FE8;"></div>
-          <div>
-            <div class="team-name">Priya M.</div>
-            <div class="team-meta">Seen by Chris T. · 8:50 AM</div>
-          </div>
-          <div class="team-status" style="color:var(--success);">Complete</div>
-        </div>
-        <div class="team-row">
-          <div class="team-avatar" style="background:#5FA8E8;"></div>
-          <div>
-            <div class="team-name">Owen S.</div>
-            <div class="team-meta">Seen by Jordan M. · 8:20 AM</div>
-          </div>
-          <div class="team-status" style="color:var(--success);">Complete</div>
+        <div id="ciWalkinLog">
+          <div class="ci-empty">Loading…</div>
         </div>
       </div>
     </div>
@@ -880,6 +674,10 @@
         <label class="form-label">Full name</label>
         <input type="text" class="form-input" id="wiName" placeholder="e.g. Taylor R." required>
       </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="tel" class="form-input" id="wiPhone" placeholder="e.g. 021 234 5678" required>
+      </div>
       <div class="modal-actions">
         <div class="btn btn-ghost" onclick="closeNewWalkin()">Cancel</div>
         <button type="submit" class="btn btn-violet">Add walk-in</button>
@@ -887,6 +685,8 @@
     </form>
   </div>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <script>
   var sidebar = document.getElementById('sidebar');
@@ -901,31 +701,222 @@
   closeBtn.addEventListener('click', closeSb);
   overlay.addEventListener('click', closeSb);
 
-  var ci = { client:'Emma A.', service:"Women's cut & blowout", staff:'Jordan M.' };
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  }
+</script>
 
-  function ciUpdateSummary(){
-    document.getElementById('ciSummaryText').innerHTML =
-      'Checking in <strong>' + ci.client + '</strong> for <strong>' + ci.service + '</strong> with <strong>' + ci.staff + '</strong> — starts now.';
-    document.getElementById('ciConfirmLabel').textContent = 'Check in ' + ci.client;
+<script>
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Mirrors new-booking.html's client/service/stylist loading.
+     A walk-in is a real booking (via admin_create_booking) whose
+     starts_at is "now" instead of a picked future slot, flagged
+     is_walk_in=true so it can be told apart from scheduled bookings
+     for the queue, stats and log below.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  var servicesData = [];
+  var stylistsData = [];
+  var clientsData = [];
+  var allBookings = [];
+  var windowBookings = [];
+  var walkinColSupported = true;
+
+  var ci = { clientKey:null, clientName:'', clientPhone:'', clientEmail:'', customerUserId:null, serviceId:null, stylistId:'any' };
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
+  function colorFor(seed){
+    var hash = 0; var s = String(seed||'?');
+    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
   }
 
-  function ciPickClient(el, name){
-    document.querySelectorAll('.client-result').forEach(function(e){ e.classList.remove('selected'); });
-    el.classList.add('selected');
-    ci.client = name;
-    ciUpdateSummary();
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function nzDateKeyFor(iso){ return new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(iso)).replace(/\//g,'-'); }
+  function nzNowHHMM(addMin){
+    var fmt = new Intl.DateTimeFormat('en-US',{timeZone:'Pacific/Auckland',hour12:false,hour:'2-digit',minute:'2-digit'});
+    var parts = {}; fmt.formatToParts(new Date(Date.now()+(addMin||0)*60000)).forEach(function(p){ if(p.type!=='literal') parts[p.type]=p.value; });
+    var h = Number(parts.hour); if(h===24) h=0;
+    return String(h).padStart(2,'0') + ':' + parts.minute;
   }
-  function ciPickService(el, name){
-    document.querySelectorAll('.svc-pick').forEach(function(e){ e.classList.remove('active'); });
-    el.classList.add('active');
-    ci.service = name;
-    ciUpdateSummary();
+  function durationLabel(mins){
+    mins = Number(mins||0);
+    if(mins<60) return mins+' min';
+    var h = Math.floor(mins/60), m = mins%60;
+    return h+' hr'+(m?' '+m+' min':'');
   }
-  function ciPickStaff(el, name){
-    document.querySelectorAll('.stylist-pick').forEach(function(e){ e.classList.remove('active'); });
-    el.classList.add('active');
-    ci.staff = name;
-    ciUpdateSummary();
+  function timeLabel(iso){
+    return new Date(iso).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',timeZone:'Pacific/Auckland'});
+  }
+  function waitLabel(ms){
+    var mins = Math.max(0, Math.round(ms/60000));
+    if(mins<1) return 'Just now';
+    return mins + ' min';
+  }
+
+  function clientKeyFor(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+b.customer_phone.trim()
+      : b.customer_email ? 'em:'+b.customer_email.trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+  function buildClients(bookings){
+    var groups = {};
+    bookings.forEach(function(b){
+      var key = clientKeyFor(b);
+      if(!groups[key]) groups[key] = { key:key, name:b.customer_name||'Customer', email:b.customer_email||'', phone:b.customer_phone||'', customer_user_id:b.customer_user_id||null, bookings:[] };
+      groups[key].bookings.push(b);
+    });
+    return Object.values(groups).map(function(g){
+      g.bookings.sort(function(a,b){ return new Date(b.starts_at) - new Date(a.starts_at); });
+      return { key:g.key, name:g.name, email:g.email, phone:g.phone, customer_user_id:g.customer_user_id, lastVisit:g.bookings[0]?g.bookings[0].starts_at:null };
+    }).sort(function(a,b){ return new Date(b.lastVisit||0) - new Date(a.lastVisit||0); });
+  }
+  function mergeManualClients(derived, manualRows){
+    var byKey = {}; derived.forEach(function(c){ byKey[c.key]=true; });
+    manualRows.forEach(function(r){
+      var key = clientKeyFor({customer_user_id:null, customer_phone:r.phone, customer_email:r.email, customer_name:r.name});
+      if(!byKey[key]){
+        byKey[key]=true;
+        derived.push({ key:key, name:r.name, email:r.email||'', phone:r.phone||'', customer_user_id:null, lastVisit:null });
+      }
+    });
+    return derived;
+  }
+  function relativeLastVisit(iso){
+    if(!iso) return 'No visits yet';
+    var diffDays = Math.round((Date.now() - new Date(iso).getTime())/86400000);
+    if(diffDays<=0) return 'Last visit: today';
+    if(diffDays===1) return 'Last visit: yesterday';
+    if(diffDays<7) return 'Last visit: ' + diffDays + ' days ago';
+    return 'Last visit: ' + new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric'}).format(new Date(iso));
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootCheckinPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before checking in a walk-in.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+
+    try{
+      const [{data:salonRow},{data:services},{data:stylists},{data:bookingRows},{data:manualClients}] = await Promise.all([
+        supabaseClient.from("salons").select("name,city,suburb").eq("id",currentSalonId).maybeSingle(),
+        supabaseClient.from("services").select("*").eq("salon_id",currentSalonId).eq("active",true).order("name"),
+        supabaseClient.from("stylists").select("*").eq("salon_id",currentSalonId).eq("active",true).order("name"),
+        supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId),
+        supabaseClient.rpc("get_venue_clients")
+      ]);
+      if(salonRow){
+        document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+        document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(', ') || ' ';
+        document.title = salonRow.name ? `Check in — ${salonRow.name}` : "Check in — Blooma Business";
+      }
+      servicesData = services||[];
+      stylistsData = stylists||[];
+      allBookings = bookingRows||[];
+      clientsData = mergeManualClients(buildClients(allBookings), manualClients||[]);
+      windowBookings = allBookings.filter(function(b){ return b.status==='upcoming' && nzDateKeyFor(b.starts_at)===nzTodayKey(); });
+      walkinColSupported = allBookings.length===0 || Object.prototype.hasOwnProperty.call(allBookings[0], 'is_walk_in');
+    }catch(err){ showToast(err.message||"Unable to load check-in data"); }
+
+    renderClientResults('');
+    document.getElementById('clientSearchInput').addEventListener('input', function(e){ renderClientResults(e.target.value); });
+    renderServices();
+    renderStylists();
+    updateSummary();
+    renderQueueAndStats();
+    setInterval(renderQueueAndStats, 30000);
+  }
+
+  /* ---------- CLIENT ---------- */
+  function renderClientResults(search){
+    var q = (search||'').trim().toLowerCase();
+    var wrap = document.getElementById('ciClientList');
+    if(!q){
+      var selected = ci.clientKey ? clientsData.find(function(c){ return c.key===ci.clientKey; }) : null;
+      if(selected){
+        var col0 = colorFor(selected.name);
+        wrap.innerHTML = '<div class="client-result selected">' +
+          '<div class="cr-avatar" style="background:' + col0.color + ';color:' + col0.text + ';">' + initialsFor(selected.name) + '</div>' +
+          '<div><div class="cr-name">' + escapeHtml(selected.name) + '</div><div class="cr-sub">' + relativeLastVisit(selected.lastVisit) + '</div></div>' +
+          '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>' +
+        '</div>';
+      } else {
+        wrap.innerHTML = '<div class="ci-empty">Search to find an existing client, or use New walk-in for a first-timer.</div>';
+      }
+      return;
+    }
+    var filtered = clientsData.filter(function(c){
+      return c.name.toLowerCase().indexOf(q)>-1 || (c.phone||'').toLowerCase().indexOf(q)>-1 || (c.email||'').toLowerCase().indexOf(q)>-1;
+    });
+    if(!filtered.length){
+      wrap.innerHTML = '<div class="ci-empty">No clients match that search.</div>';
+      return;
+    }
+    wrap.innerHTML = filtered.slice(0,25).map(function(c){
+      var col = colorFor(c.name);
+      var selected = c.key === ci.clientKey;
+      return '<div class="client-result' + (selected?' selected':'') + '" onclick="pickClientByKey(\'' + c.key.replace(/'/g,"\\'") + '\')">' +
+        '<div class="cr-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(c.name) + '</div>' +
+        '<div><div class="cr-name">' + escapeHtml(c.name) + '</div><div class="cr-sub">' + relativeLastVisit(c.lastVisit) + '</div></div>' +
+        '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>' +
+      '</div>';
+    }).join('');
+  }
+  function pickClientByKey(key){
+    var c = clientsData.find(function(x){ return x.key===key; });
+    if(!c) return;
+    ci.clientKey = c.key; ci.clientName = c.name; ci.clientPhone = c.phone; ci.clientEmail = c.email; ci.customerUserId = c.customer_user_id;
+    renderClientResults(document.getElementById('clientSearchInput').value);
+    updateSummary();
   }
 
   function openNewWalkin(){ document.getElementById('newWalkinOverlay').classList.add('open'); }
@@ -936,35 +927,325 @@
   function submitNewWalkin(evt){
     evt.preventDefault();
     var name = document.getElementById('wiName').value.trim();
-    if(!name) return false;
-    var initials = name.split(/\s+/).map(function(p){ return p[0]; }).join('').slice(0,2).toUpperCase();
-    var colors = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
-    var color = colors[document.querySelectorAll('.client-result').length % colors.length];
-    var textColor = color === '#5FE8A0' ? 'color:#131218;' : '';
-    var row = document.createElement('div');
-    row.className = 'client-result';
-    row.innerHTML = '<div class="cr-avatar" style="background:' + color + ';' + textColor + '">' + initials + '</div>' +
-      '<div><div class="cr-name">' + name + '</div><div class="cr-sub">New walk-in</div></div>' +
-      '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>';
-    row.onclick = function(){ ciPickClient(row, name); };
-    document.getElementById('ciClientList').prepend(row);
-    ciPickClient(row, name);
+    var phone = document.getElementById('wiPhone').value.trim();
+    if(!name || name.length<2){ showToast('Enter a full name'); return false; }
+    if(phone.replace(/\D/g,'').length<6){ showToast('Enter a valid phone number'); return false; }
+    var key = 'ph:'+phone;
+    var existing = clientsData.find(function(c){ return c.key===key; });
+    if(!existing){
+      existing = { key:key, name:name, email:'', phone:phone, customer_user_id:null, lastVisit:null };
+      clientsData.unshift(existing);
+    } else {
+      existing.name = name;
+    }
+    pickClientByKey(existing.key);
     closeNewWalkin();
+    return false;
   }
   document.getElementById('newWalkinOverlay').addEventListener('click', function(e){
     if(e.target === this) closeNewWalkin();
   });
 
-  function confirmCheckin(){
-    document.getElementById('ciSuccessSub').textContent = ci.client + ' is in the queue for ' + ci.staff + '.';
-    document.getElementById('ciForm').style.display = 'none';
-    document.getElementById('ciSuccess').style.display = 'block';
+  /* ---------- SERVICE ---------- */
+  function renderServices(){
+    var wrap = document.getElementById('ciServiceGrid');
+    if(!servicesData.length){ wrap.innerHTML = '<div class="ci-empty">No active services configured yet.</div>'; return; }
+    wrap.innerHTML = servicesData.map(function(s){
+      var active = s.id === ci.serviceId;
+      return '<div class="svc-pick' + (active?' active':'') + '" onclick="pickServiceById(\'' + s.id + '\')"><div class="sp-name">' + escapeHtml(s.name) + '</div><div class="sp-meta">' + durationLabel(s.duration_minutes) + ' · $' + Number(s.price||0) + '</div></div>';
+    }).join('');
+  }
+  function pickServiceById(id){
+    ci.serviceId = id;
+    renderServices();
+    updateSummary();
+  }
+
+  /* ---------- STYLIST ---------- */
+  function stylistStatusNow(stylistId){
+    var now = Date.now();
+    var current = windowBookings.find(function(b){
+      if(String(b.stylist_id||'')!==String(stylistId)) return false;
+      var start = new Date(b.starts_at).getTime();
+      var end = start + Number(b.duration_minutes||30)*60000;
+      return start<=now && end>now;
+    });
+    if(!current) return {free:true};
+    var end = new Date(current.starts_at).getTime() + Number(current.duration_minutes||30)*60000;
+    return {free:false, until:end};
+  }
+  function recommendedStylistId(){
+    var free = stylistsData.filter(function(st){ return stylistStatusNow(st.id).free; });
+    if(free.length) return free[0].id;
+    return null;
+  }
+  function renderStylists(){
+    var wrap = document.getElementById('ciStylistGrid');
+    var recId = recommendedStylistId();
+    var tiles = [{id:'any', name:'Any available stylist', __any:true}].concat(stylistsData);
+    wrap.innerHTML = tiles.map(function(st){
+      var active = st.id === ci.stylistId;
+      var col = colorFor(st.name);
+      var avatarStyle = st.image_url ? ('background-image:url(' + st.image_url + ');background-size:cover;background-position:center;') : ('background:' + col.color + ';');
+      var statusHtml;
+      if(st.__any){
+        statusHtml = '<div class="sp-status free">We\'ll assign the first free stylist</div>';
+      } else {
+        var status = stylistStatusNow(st.id);
+        statusHtml = status.free
+          ? '<div class="sp-status free">Free now' + (st.id===recId?' <span class="sp-recommend">Next available</span>':'') + '</div>'
+          : '<div class="sp-status busy">Busy until ' + timeLabel(new Date(status.until).toISOString()) + '</div>';
+      }
+      return '<div class="stylist-pick' + (active?' active':'') + '" onclick="pickStaffById(\'' + st.id + '\')">' +
+        '<div class="sp-avatar" style="' + avatarStyle + '"></div>' +
+        '<div class="sp-info"><div class="sp-name">' + escapeHtml(st.name) + '</div>' + statusHtml + '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function pickStaffById(id){
+    ci.stylistId = id;
+    renderStylists();
+    updateSummary();
+  }
+
+  /* ---------- SUMMARY / CONFIRM ---------- */
+  function isReady(){
+    return !!(ci.clientKey && ci.serviceId);
+  }
+  function updateSummary(){
+    var btn = document.getElementById('ciConfirmBtn');
+    var label = document.getElementById('ciConfirmLabel');
+    if(!isReady()){
+      document.getElementById('ciSummaryText').textContent = 'Pick a client, service and stylist to check them in.';
+      label.textContent = 'Check in';
+      btn.classList.add('disabled');
+      return;
+    }
+    var service = servicesData.find(function(s){ return s.id===ci.serviceId; });
+    var stylistLabel = ci.stylistId==='any' ? 'any available stylist' : (stylistsData.find(function(s){ return s.id===ci.stylistId; })||{}).name || 'a stylist';
+    document.getElementById('ciSummaryText').innerHTML =
+      'Checking in <strong>' + escapeHtml(ci.clientName) + '</strong> for <strong>' + escapeHtml(service?service.name:'') + '</strong> with <strong>' + escapeHtml(stylistLabel) + '</strong> — starts now.';
+    label.textContent = 'Check in ' + ci.clientName;
+    btn.classList.remove('disabled');
+  }
+
+  var submitting = false;
+  async function confirmCheckin(){
+    if(!isReady() || submitting) return;
+    submitting = true;
+    var btn = document.getElementById('ciConfirmBtn');
+    btn.classList.add('disabled');
+    document.getElementById('ciConfirmLabel').textContent = 'Checking in…';
+    var service = servicesData.find(function(s){ return s.id===ci.serviceId; });
+    var payload = {
+      service_id: ci.serviceId,
+      stylist_id: ci.stylistId==='any' ? null : ci.stylistId,
+      customer_user_id: ci.customerUserId || null,
+      client_request_id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+'-'+Math.random()),
+      customer_name: ci.clientName,
+      customer_phone: ci.clientPhone||'',
+      notes: '',
+      addons: [],
+      local_date: nzTodayKey(),
+      local_time: nzNowHHMM(5),
+      subtotal: Number(service?.price||0),
+      total: Number(service?.price||0),
+      is_walk_in: true
+    };
+    try{
+      const {data,error} = await supabaseClient.rpc('admin_create_booking',{payload});
+      if(error) throw error;
+      document.getElementById('ciSuccessSub').textContent = ci.clientName + ' is checked in for ' + (data.service_name_snapshot||(service?service.name:'')) + (data.stylist_name_snapshot ? (' with ' + data.stylist_name_snapshot) : '') + '.';
+      document.getElementById('ciForm').style.display = 'none';
+      document.getElementById('ciSuccess').style.display = 'block';
+      try{
+        const {data:freshBookings} = await supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId);
+        allBookings = freshBookings||allBookings;
+        windowBookings = allBookings.filter(function(b){ return b.status==='upcoming' && nzDateKeyFor(b.starts_at)===nzTodayKey(); });
+        walkinColSupported = allBookings.length===0 || Object.prototype.hasOwnProperty.call(allBookings[0], 'is_walk_in');
+      }catch(e){}
+      renderQueueAndStats();
+    }catch(err){
+      showToast(err.message || "We couldn't check that client in.");
+    }
+    btn.classList.remove('disabled');
+    document.getElementById('ciConfirmLabel').textContent = 'Check in ' + ci.clientName;
+    submitting = false;
   }
   function checkInAnother(){
+    ci = { clientKey:null, clientName:'', clientPhone:'', clientEmail:'', customerUserId:null, serviceId:null, stylistId:'any' };
+    document.getElementById('clientSearchInput').value = '';
+    renderClientResults('');
+    renderServices();
+    renderStylists();
+    updateSummary();
     document.getElementById('ciSuccess').style.display = 'none';
     document.getElementById('ciForm').style.display = 'block';
   }
+
+  /* ---------- QUEUE / STATS / LOG ---------- */
+  function todaysWalkins(){
+    var todayKey = nzTodayKey();
+    return allBookings.filter(function(b){
+      return b.is_walk_in && b.status!=='cancelled' && nzDateKeyFor(b.starts_at)===todayKey;
+    });
+  }
+  function renderQueueAndStats(){
+    if(!walkinColSupported){
+      document.getElementById('ciStatsGrid').innerHTML = '<div class="stat-card" style="grid-column:1/-1;"><div class="ci-empty">Walk-in tracking isn\'t set up on this database yet — check-ins still create real bookings, but the queue and stats below need a small schema update.</div></div>';
+      document.getElementById('ciWaitingList').innerHTML = '<div class="queue-empty">—</div>';
+      document.getElementById('ciWalkinLog').innerHTML = '<div class="ci-empty">—</div>';
+      return;
+    }
+    var now = Date.now();
+    var today = todaysWalkins();
+    var waiting = today.filter(function(b){ return b.status==='upcoming' && new Date(b.starts_at).getTime()<=now; }).sort(function(a,b){ return new Date(a.starts_at)-new Date(b.starts_at); });
+    var completed = today.filter(function(b){ return b.status==='completed'; });
+    var avgWaitMs = waiting.length ? waiting.reduce(function(s,b){ return s + (now - new Date(b.starts_at).getTime()); },0) / waiting.length : null;
+
+    document.getElementById('ciStatsGrid').innerHTML =
+      '<div class="stat-card"><div class="stat-top"><div class="stat-label">Walk-ins today</div><div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div></div><div class="stat-value">' + today.length + '</div><div class="stat-delta"><span class="muted">' + waiting.length + ' currently waiting</span></div></div>' +
+      '<div class="stat-card"><div class="stat-top"><div class="stat-label">Avg. wait time</div><div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div></div><div class="stat-value">' + (avgWaitMs==null ? '—' : waitLabel(avgWaitMs)) + '</div><div class="stat-delta"><span class="muted">' + (waiting.length ? 'Right now' : 'No one waiting') + '</span></div></div>' +
+      '<div class="stat-card"><div class="stat-top"><div class="stat-label">Seen today</div><div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div></div><div class="stat-value">' + completed.length + '</div><div class="stat-delta"><span class="muted">Completed</span></div></div>';
+
+    document.getElementById('ciWaitingCount').textContent = waiting.length;
+    document.getElementById('ciWaitingList').innerHTML = waiting.length ? waiting.map(function(b){
+      var col = colorFor(b.customer_name);
+      return '<div class="queue-row">' +
+        '<div class="queue-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(b.customer_name) + '</div>' +
+        '<div class="queue-info"><div class="queue-name">' + escapeHtml(b.customer_name||'Customer') + '</div><div class="queue-meta">' + escapeHtml(b.service_name_snapshot||'Service') + ' · ' + escapeHtml(b.stylist_name_snapshot||'Any stylist') + '</div></div>' +
+        '<div class="queue-wait">Waiting ' + waitLabel(now - new Date(b.starts_at).getTime()) + '</div>' +
+      '</div>';
+    }).join('') : '<div class="queue-empty">No one is currently waiting.</div>';
+
+    var log = today.slice().sort(function(a,b){ return new Date(b.starts_at)-new Date(a.starts_at); });
+    document.getElementById('ciWalkinLog').innerHTML = log.length ? log.map(function(b){
+      var col = colorFor(b.customer_name);
+      var statusLabel = b.status==='completed' ? 'Complete' : (b.status==='no_show' ? 'No-show' : 'Waiting');
+      var statusColor = b.status==='completed' ? 'var(--success)' : (b.status==='no_show' ? 'var(--danger)' : 'var(--warning)');
+      return '<div class="team-row">' +
+        '<div class="team-avatar" style="background:' + col.color + ';"></div>' +
+        '<div><div class="team-name">' + escapeHtml(b.customer_name||'Customer') + '</div><div class="team-meta">Seen by ' + escapeHtml(b.stylist_name_snapshot||'Venue team') + ' · ' + timeLabel(b.starts_at) + '</div></div>' +
+        '<div class="team-status" style="color:' + statusColor + ';">' + statusLabel + '</div>' +
+      '</div>';
+    }).join('') : '<div class="ci-empty">No walk-ins yet today.</div>';
+  }
+
+  bootCheckinPage();
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

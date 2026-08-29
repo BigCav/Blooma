@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -465,6 +492,36 @@
   .form-input::placeholder{color:var(--text-faint);}
   .modal-actions{display:flex; gap:10px;}
   .modal-actions .btn{flex:1; justify-content:center;}
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:90; opacity:0; pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .switch{
+    width:36px; height:20px; border-radius:99px; background:var(--surface-2);
+    border:1px solid var(--border); position:relative; cursor:pointer; flex:none; padding:0;
+  }
+  .switch .knob{
+    position:absolute; top:1px; left:1px; width:16px; height:16px; border-radius:50%;
+    background:var(--text-faint); transition:left .15s ease, background .15s ease;
+  }
+  .switch.on{background:var(--violet); border-color:var(--violet);}
+  .switch.on .knob{left:17px; background:#fff;}
+  .team-empty{font-size:12.5px; color:var(--text-faint); padding:14px 2px;}
+  .stylist-photo-preview{
+    width:56px; height:56px; border-radius:50%; flex:none; overflow:hidden;
+    background:var(--violet); color:#fff; font-size:18px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stylist-photo-preview img{width:100%; height:100%; object-fit:cover; display:block;}
+  .text-action{font-size:12.5px; font-weight:700; color:var(--violet-text); cursor:pointer; background:none; border:none; padding:0; font-family:inherit;}
+  .text-action.danger{color:var(--danger);}
+  .cell-avatar img{width:100%; height:100%; object-fit:cover; display:block;}
 </style>
 </head>
 
@@ -486,8 +543,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -505,14 +562,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -526,7 +584,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -547,10 +612,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -562,7 +627,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -578,7 +644,7 @@
 
   <div class="page-head">
     <h1>Team</h1>
-    <div class="sub" id="teamSub">6 team members at Ivy Salon Loft</div>
+    <div class="sub" id="teamSub">Loading team…</div>
   </div>
 
   <div class="stats-grid">
@@ -587,47 +653,47 @@
         <div class="stat-label">Team members</div>
         <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg></div>
       </div>
-      <div class="stat-value" id="teamCountValue">6</div>
-      <div class="stat-delta"><span class="muted" id="teamCountDelta">5 active, 1 invited</span></div>
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-delta"><span class="muted" id="statTotalSub">—</span></div>
     </div>
     <div class="stat-card">
       <div class="stat-top">
-        <div class="stat-label">Avg. utilization</div>
-        <div class="stat-icon" style="background:var(--violet-soft); color:var(--violet-text);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
-      </div>
-      <div class="stat-value">78%</div>
-      <div class="stat-delta"><span class="muted">This week</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Revenue generated</div>
-        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-      </div>
-      <div class="stat-value">$14,280</div>
-      <div class="stat-delta"><span class="muted">This month</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-top">
-        <div class="stat-label">Open shifts today</div>
+        <div class="stat-label">Available today</div>
         <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
       </div>
-      <div class="stat-value">1</div>
-      <div class="stat-delta"><span class="muted">Chris T. — off today</span></div>
+      <div class="stat-value" id="statAvailable">0</div>
+      <div class="stat-delta"><span class="muted">Of your stylists</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Dashboard access</div>
+        <div class="stat-icon" style="background:var(--violet-soft); color:var(--violet-text);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+      </div>
+      <div class="stat-value" id="statAccounts">0</div>
+      <div class="stat-delta"><span class="muted">Owner + staff logins</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-label">Pending invites</div>
+        <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg></div>
+      </div>
+      <div class="stat-value" id="statInvites">0</div>
+      <div class="stat-delta"><span class="muted">Awaiting sign-up</span></div>
     </div>
   </div>
 
   <div class="panel">
     <div class="filter-bar">
       <div class="filter-tabs">
-        <div class="filter-tab active">All</div>
-        <div class="filter-tab">Active</div>
-        <div class="filter-tab">Invited</div>
-        <div class="filter-tab">Inactive</div>
+        <div class="filter-tab active" data-teamfilter="all">All</div>
+        <div class="filter-tab" data-teamfilter="stylists">Stylists</div>
+        <div class="filter-tab" data-teamfilter="accounts">Dashboard access</div>
+        <div class="filter-tab" data-teamfilter="invited">Invited</div>
       </div>
       <div class="filter-actions">
-        <div class="filter-search">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" placeholder="Search team…">
+        <div class="btn btn-ghost" onclick="openAddStylist()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          Add stylist
         </div>
         <div class="btn btn-violet" onclick="openInviteModal()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -642,97 +708,18 @@
           <tr>
             <th>Team member</th>
             <th>Role</th>
-            <th>Bookings</th>
-            <th>Revenue</th>
+            <th>Available today</th>
             <th>Status</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="teamTbody">
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#6D5FE8;">MJ</div>
-                <div><div class="cell-name">Maria J.</div><div class="cell-sub">maria.j@ivysalonloft.com</div></div>
-              </div>
-            </td>
-            <td>Owner</td>
-            <td>—</td>
-            <td>—</td>
-            <td><span class="status-badge status-confirmed">Active</span></td>
-            <td><a href="/venue/admin/team-member" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#E4C9A0; color:#131218;">FR</div>
-                <div><div class="cell-name">Fana R.</div><div class="cell-sub">fana.r@ivysalonloft.com</div></div>
-              </div>
-            </td>
-            <td>Senior Colorist</td>
-            <td>42</td>
-            <td>$4,850</td>
-            <td><span class="status-badge status-confirmed">Active</span></td>
-            <td><a href="/venue/admin/team-member" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#D9B48F; color:#131218;">JM</div>
-                <div><div class="cell-name">Jordan M.</div><div class="cell-sub">jordan.m@ivysalonloft.com</div></div>
-              </div>
-            </td>
-            <td>Master Stylist</td>
-            <td>51</td>
-            <td>$3,920</td>
-            <td><span class="status-badge status-confirmed">Active</span></td>
-            <td><a href="/venue/admin/team-member" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#E3C4BE; color:#131218;">NK</div>
-                <div><div class="cell-name">Naomi K.</div><div class="cell-sub">naomi.k@ivysalonloft.com</div></div>
-              </div>
-            </td>
-            <td>Stylist</td>
-            <td>38</td>
-            <td>$2,760</td>
-            <td><span class="status-badge status-confirmed">Active</span></td>
-            <td><a href="/venue/admin/team-member" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#C9D3C2; color:#131218;">CT</div>
-                <div><div class="cell-name">Chris T.</div><div class="cell-sub">chris.t@ivysalonloft.com</div></div>
-              </div>
-            </td>
-            <td>Blowout Specialist</td>
-            <td>29</td>
-            <td>$1,750</td>
-            <td><span class="status-badge status-completed">Off today</span></td>
-            <td><a href="/venue/admin/team-member" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="cell-person">
-                <div class="cell-avatar" style="background:#5FA8E8;">PS</div>
-                <div><div class="cell-name">Priya S.</div><div class="cell-sub">priya.s@email.com</div></div>
-              </div>
-            </td>
-            <td>Front Desk</td>
-            <td>—</td>
-            <td>—</td>
-            <td><span class="status-badge status-pending">Invited</span></td>
-            <td><a href="/venue/admin/team-member" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></td>
-          </tr>
         </tbody>
       </table>
     </div>
 
     <div class="pagination">
-      <div class="info" id="teamPaginationInfo">Showing 6 of 6 team members</div>
+      <div class="info" id="teamPaginationInfo">Showing 0 of 0 team members</div>
     </div>
   </div>
 
@@ -750,31 +737,84 @@
       </div>
     </div>
     <form id="inviteForm" onsubmit="return submitInvite(event)">
-      <div class="form-group">
-        <label class="form-label">Full name</label>
-        <input type="text" class="form-input" id="ivName" placeholder="e.g. Taylor R." required>
-      </div>
+      <p style="font-size:12.5px; color:var(--text-soft); margin:-4px 0 14px; line-height:1.5;">They'll get an email invite to create a login with full dashboard access.</p>
       <div class="form-group">
         <label class="form-label">Email</label>
         <input type="email" class="form-input" id="ivEmail" placeholder="taylor.r@ivysalonloft.com" required>
       </div>
-      <div class="form-group">
-        <label class="form-label">Role</label>
-        <select class="form-select" id="ivRole">
-          <option>Stylist</option>
-          <option>Senior Colorist</option>
-          <option>Master Stylist</option>
-          <option>Blowout Specialist</option>
-          <option>Front Desk</option>
-        </select>
-      </div>
       <div class="modal-actions">
         <div class="btn btn-ghost" onclick="closeInviteModal()">Cancel</div>
-        <button type="submit" class="btn btn-violet">Send invite</button>
+        <button type="submit" class="btn btn-violet" id="ivSubmitBtn">Send invite</button>
       </div>
     </form>
   </div>
 </div>
+
+<div class="modal-overlay" id="editNameOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Edit your name</h2>
+      <div class="modal-close" onclick="closeEditNameModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <form id="editNameForm" onsubmit="return submitEditName(event)">
+      <p style="font-size:12.5px; color:var(--text-soft); margin:-4px 0 14px; line-height:1.5;">This is how you'll show up on the Team page instead of your email.</p>
+      <div class="form-group">
+        <label class="form-label">First name</label>
+        <input type="text" class="form-input" id="enFirstName" placeholder="e.g. Cav" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last name</label>
+        <input type="text" class="form-input" id="enLastName" placeholder="e.g. Vietmeyer">
+      </div>
+      <div class="modal-actions">
+        <div class="btn btn-ghost" onclick="closeEditNameModal()">Cancel</div>
+        <button type="submit" class="btn btn-violet" id="enSubmitBtn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="stylistOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="stylistModalTitle">Add stylist</h2>
+      <div class="modal-close" onclick="closeStylistModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <form id="stylistForm" onsubmit="return submitStylist(event)">
+      <input type="hidden" id="stId">
+      <input type="hidden" id="stImageUrl">
+      <div class="form-group">
+        <label class="form-label">Profile picture</label>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="stylist-photo-preview" id="stPhotoPreview">?</div>
+          <div style="display:flex; flex-direction:column; align-items:flex-start; gap:8px;">
+            <button type="button" class="text-action" id="stUploadBtn">Upload photo</button>
+            <button type="button" class="text-action danger" id="stRemovePhotoBtn" style="display:none;">Remove photo</button>
+          </div>
+        </div>
+        <input type="file" id="stImageInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full name</label>
+        <input type="text" class="form-input" id="stName" placeholder="e.g. Taylor R." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Specialty / role</label>
+        <input type="text" class="form-input" id="stSpecialty" placeholder="e.g. Senior Colorist">
+      </div>
+      <div class="modal-actions">
+        <div class="btn btn-ghost" onclick="closeStylistModal()">Cancel</div>
+        <button type="submit" class="btn btn-violet" id="stSubmitBtn">Save stylist</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
   var sidebar = document.getElementById('sidebar');
@@ -789,8 +829,397 @@
   closeBtn.addEventListener('click', closeSb);
   overlay.addEventListener('click', closeSb);
 
-  var teamCount = 6;
-  var invitedCount = 1;
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     Mirrors services.html's auth/config plumbing (see settings.html
+     for the same pattern, commented in full there). Stylists live in
+     salon.stylists (service-catalog profiles, saved via admin_save_config).
+     Owner/staff dashboard logins live in teamMembers/pendingInvites,
+     managed via the list/create/revoke staff RPCs.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  let currentConfigVersion = null;
+  let currentUserId = null;
+
+  const salon = {
+    name:"", tag:"", visible:true, mainImage:"", galleryImages:[],
+    hours:{}, phone:"", address:"", city:"", region:"", bufferTime:15,
+    lat:null, lng:null, addressVerified:false, suburb:"", postcode:"",
+    about:"", cancellationPolicy:"", categories:[], stylists:[], services:[], addons:[], promos:[],
+    loyalty:{enabled:false, pointsPerDollar:1, rewardThreshold:100, rewardText:"$10 off your next visit", rewardValue:10}
+  };
+  let teamMembers = [];
+  let pendingInvites = [];
+
+  const MEDIA_BUCKET = "blooma-media";
+  function mediaObjectPath(url){
+    if(!url) return null;
+    const marker=`/storage/v1/object/public/${MEDIA_BUCKET}/`;
+    const idx=String(url).indexOf(marker);
+    if(idx<0) return null;
+    try{return decodeURIComponent(String(url).slice(idx+marker.length).split("?")[0]);}catch(e){return String(url).slice(idx+marker.length).split("?")[0];}
+  }
+  async function deleteMediaUrl(url){
+    const path=mediaObjectPath(url);
+    if(!path || !currentSalonId || !path.startsWith(currentSalonId+"/")) return;
+    const {error}=await supabaseClient.storage.from(MEDIA_BUCKET).remove([path]);
+    if(error) console.warn("Unable to remove old media",error);
+  }
+  async function uploadMediaFile(file,folder){
+    if(!file) throw new Error("Choose an image first.");
+    const allowed=["image/jpeg","image/png","image/webp","image/gif"];
+    if(!allowed.includes(file.type)) throw new Error("Please use a JPG, PNG, WEBP or GIF image.");
+    if(file.size>8*1024*1024) throw new Error("Images must be 8 MB or smaller.");
+    if(!currentSalonId) throw new Error("Venue not loaded.");
+    const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+    const rand=(globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID().slice(0,8):Math.random().toString(36).slice(2,10);
+    const path=`${currentSalonId}/${folder}/${Date.now()}-${rand}.${ext}`;
+    const {error}=await supabaseClient.storage.from(MEDIA_BUCKET).upload(path,file,{cacheControl:"31536000",upsert:false,contentType:file.type});
+    if(error) throw error;
+    const {data}=supabaseClient.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+    if(!data?.publicUrl) throw new Error("Image uploaded but its public URL could not be created.");
+    return data.publicUrl;
+  }
+
+  function applyAdminConfig(cfg){
+    if(!cfg) return;
+    const sc=cfg.salon||{};
+    ["name","tag","phone","address","city","region","about","cancellationPolicy","bufferTime","visible","mainImage","galleryImages"].forEach(k=>{if(sc[k]!==undefined) salon[k]=sc[k];});
+    salon.galleryImages=Array.isArray(salon.galleryImages)?salon.galleryImages:[];
+    if(sc.loyalty && typeof sc.loyalty==="object") salon.loyalty={enabled:!!sc.loyalty.enabled, pointsPerDollar:Number(sc.loyalty.pointsPerDollar)||1, rewardThreshold:Number(sc.loyalty.rewardThreshold)||100, rewardText:sc.loyalty.rewardText||"$10 off your next visit", rewardValue:Number(sc.loyalty.rewardValue)||0};
+    if(sc.hours) salon.hours=sc.hours;
+    if(Array.isArray(sc.categories)) salon.categories=sc.categories.slice();
+    if(Array.isArray(cfg.stylists)) salon.stylists=cfg.stylists.map(x=>({...x}));
+    if(Array.isArray(cfg.services)) salon.services=cfg.services.map(x=>({...x}));
+    if(Array.isArray(cfg.addons)) salon.addons=cfg.addons.map(x=>({...x}));
+    if(Array.isArray(cfg.promos)) salon.promos=cfg.promos.map(x=>({...x}));
+  }
+
+  async function reloadAdminConfigFromCloud(){
+    if(!currentSalonId) return;
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError}]=await Promise.all([
+      supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
+      supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle()
+    ]);
+    if(cfgError) throw cfgError;
+    if(salonError) throw salonError;
+    if(cfgRow){ applyAdminConfig(cfgRow.config); currentConfigVersion=cfgRow.config_version; }
+    if(salonRow){
+      salon.visible=salonRow.active!==false;
+      salon.city=salonRow.city||salon.city||""; salon.region=salonRow.region||salon.region||""; salon.suburb=salonRow.suburb||salon.suburb||""; salon.postcode=salonRow.postcode||salon.postcode||"";
+      salon.lat=salonRow.lat==null?null:Number(salonRow.lat); salon.lng=salonRow.lng==null?null:Number(salonRow.lng);
+      salon.addressVerified=!!salonRow.address_verified;
+      const meta=salonRow.metadata||{};
+      if(meta.main_image!==undefined) salon.mainImage=meta.main_image||"";
+      if(Array.isArray(meta.gallery_images)) salon.galleryImages=meta.gallery_images.slice();
+    }
+  }
+
+  function parseTimeMins(t){
+    const m=String(t||"").match(/(\d+):(\d+)\s*(AM|PM)/i); if(!m) return 0;
+    let h=Number(m[1])%12; if(m[3].toUpperCase()==="PM") h+=12; return h*60+Number(m[2]);
+  }
+  function buildAdminPayload(){
+    const DAY_NAMES=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    const dayIndex={Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7};
+    const openDays=DAY_NAMES.filter(d=>salon.hours[d]?.open).map(d=>dayIndex[d]);
+    const openHours=DAY_NAMES.filter(d=>salon.hours[d]?.open).map(d=>salon.hours[d]);
+    const legacyOpen=openHours.length?Math.min(...openHours.map(h=>parseTimeMins(h.start))):null;
+    const legacyClose=openHours.length?Math.max(...openHours.map(h=>parseTimeMins(h.end))):null;
+    const mins24=(m)=>m==null?"":`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}:00`;
+    return {
+      salon:{name:salon.name,tag:(salon.categories.length?salon.categories.join(" · "):salon.tag),phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
+      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x}))
+    };
+  }
+
+  function normalizeAndValidateStylists(){
+    salon.name=String(salon.name||"").trim();
+    if(!salon.name) throw new Error("Business name is required.");
+    salon.stylists.forEach(function(st){
+      st.name=String(st.name||"").trim();
+      if(!st.name) throw new Error("Every stylist needs a name.");
+      st.specialty=String(st.specialty||"").trim();
+      st.availableToday=st.availableToday!==false;
+    });
+  }
+
+  async function saveAdminCloud(){
+    if(!currentSalonId) throw new Error("No venue is connected to this account.");
+    normalizeAndValidateStylists();
+    const payload=buildAdminPayload();
+    const args=currentConfigVersion==null?{payload}:{payload,expected_version:currentConfigVersion};
+    const {data,error}=await supabaseClient.rpc("admin_save_config_gated",args);
+    if(error){
+      try{ await reloadAdminConfigFromCloud(); }catch(reloadErr){ console.warn("Blooma admin reload after failed save",reloadErr); }
+      throw error;
+    }
+    if(data?.config_version!=null) currentConfigVersion=data.config_version;
+    return data;
+  }
+
+  function syncStripeSeats(){
+    // Keeps an existing Stripe subscription's price/quantity in step with the real
+    // stylist roster (hiring a 2nd stylist moves Solo $29/mo -> Team $19/mo/seat
+    // immediately; dropping back down defers to the next renewal, no proration).
+    // No-ops server-side if this venue hasn't subscribed yet. Resolves to a short
+    // human-readable note about what changed (or null if there's nothing to say),
+    // so callers can fold the billing impact into their own toast instead of firing
+    // a second, disconnected one.
+    return supabaseClient.auth.getSession().then(function(res){
+      var session = res && res.data && res.data.session;
+      if(!session) return null;
+      return fetch('/api/stripe/sync-seats', {
+        method: 'POST',
+        headers: {'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json'}
+      }).then(function(r){ return r.json(); }).then(function(data){
+        if(!data || !data.synced) return null;
+        var planLabel = data.planId === 'team' ? 'Team' : 'Solo';
+        if(data.effective === 'immediate'){
+          var cost = data.planId === 'team' ? ('$' + (19*data.quantity) + '/month (' + data.quantity + ' stylists)') : '$29/month';
+          return 'now on ' + planLabel + ', ' + cost;
+        }
+        if(data.effective === 'next_renewal'){
+          var when = data.effectiveAt ? new Date(data.effectiveAt*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'your next renewal';
+          return 'moving to ' + planLabel + ' on ' + when;
+        }
+        if(data.effective === 'cancelled_pending'){
+          return 'staying on ' + planLabel + ', scheduled change cancelled';
+        }
+        return null;
+      }).catch(function(){ return null; });
+    }).catch(function(){ return null; });
+  }
+
+  function persist(successMessage){
+    return saveAdminCloud().then(function(){
+      renderTeamUI();
+      return syncStripeSeats().then(function(billingNote){
+        showToast(billingNote ? (successMessage + ' — ' + billingNote) : successMessage);
+      });
+    }).catch(function(err){
+      showToast(err.message || "Save failed");
+      renderTeamUI();
+    });
+  }
+
+  async function loadTeamData(){
+    if(!currentSalonId) return;
+    const [{data:members,error:membersError},{data:invites,error:invitesError}]=await Promise.all([
+      supabaseClient.rpc("list_staff_members",{p_salon_id:currentSalonId}),
+      supabaseClient.rpc("list_staff_invites",{p_salon_id:currentSalonId})
+    ]);
+    if(membersError) throw membersError;
+    if(invitesError) throw invitesError;
+    teamMembers = members || [];
+    pendingInvites = invites || [];
+  }
+  async function inviteTeamMember(email){
+    const {data,error}=await supabaseClient.rpc("create_staff_invite",{p_salon_id:currentSalonId,p_email:email});
+    if(error) throw error;
+    try{
+      const inviteUrl=`${location.origin}/business-auth?staff_invite=${data.token}`;
+      await supabaseClient.functions.invoke("send-email",{body:{type:"staff_invite",to:data.email,data:{salonName:salon.name,inviteUrl}}});
+    }catch(emailErr){ console.warn("Staff invite email failed",emailErr); }
+    await loadTeamData();
+  }
+  async function revokeInvite(inviteId){
+    const {error}=await supabaseClient.rpc("revoke_staff_invite",{p_invite_id:inviteId});
+    if(error) throw error;
+    await loadTeamData();
+  }
+  async function removeTeamMember(userId){
+    const {error}=await supabaseClient.rpc("revoke_staff_member",{p_salon_id:currentSalonId,p_user_id:userId});
+    if(error) throw error;
+    await loadTeamData();
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootTeamPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Team.","Log in","/business-auth?view=login");
+      return;
+    }
+    currentUserId = session.user.id;
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    try{
+      await reloadAdminConfigFromCloud();
+      await loadTeamData();
+    }catch(err){ showToast(err.message||"Unable to load venue configuration"); }
+    document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
+    document.querySelector('.sb-venue-sub').textContent = [salon.suburb,salon.city].filter(Boolean).join(", ") || "Set your address";
+    document.title = salon.name ? `Team — ${salon.name}` : "Team — Blooma Business";
+    renderTeamUI();
+  }
+
+  function randId(prefix){
+    return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0','#E4C9A0','#D9B48F','#E3C4BE','#C9D3C2'];
+  function colorFor(seed){
+    var hash = 0;
+    for(var i=0;i<seed.length;i++){ hash = (hash*31 + seed.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    var dark = ['#E4C9A0','#D9B48F','#E3C4BE','#C9D3C2','#5FE8A0'].indexOf(color)!==-1;
+    return {color:color, text: dark ? '#131218' : '#fff'};
+  }
+
+  var currentTeamFilter = 'all';
+
+  function renderTeamUI(){
+    var stylistCount = salon.stylists.length;
+    var accountCount = teamMembers.length;
+    var inviteCount = pendingInvites.length;
+    var availableCount = salon.stylists.filter(function(st){ return st.availableToday!==false; }).length;
+    var total = stylistCount + accountCount + inviteCount;
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statTotalSub').textContent = stylistCount + ' stylist' + (stylistCount===1?'':'s') + ', ' + accountCount + ' account' + (accountCount===1?'':'s');
+    document.getElementById('statAvailable').textContent = availableCount;
+    document.getElementById('statAccounts').textContent = accountCount;
+    document.getElementById('statInvites').textContent = inviteCount;
+    document.getElementById('teamSub').textContent = total + ' team member' + (total===1?'':'s') + (salon.name ? ' at ' + salon.name : '');
+
+    var rows = [];
+
+    if(currentTeamFilter==='all' || currentTeamFilter==='accounts'){
+      teamMembers.forEach(function(m){
+        var displayName = [m.first_name,m.last_name].filter(Boolean).join(' ').trim() || m.email || '?';
+        var c = colorFor(displayName);
+        var isYou = m.user_id === currentUserId;
+        rows.push(
+          '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + displayName.charAt(0).toUpperCase() + '</div>' +
+          '<div><div class="cell-name">' + escapeHtml(displayName) + (isYou?' <span style="color:var(--text-faint);font-weight:600;">(you)</span>':'') + '</div><div class="cell-sub">' + (displayName!==m.email ? escapeHtml(m.email||'') : 'Dashboard login') + '</div></div></div></td>' +
+          '<td style="text-transform:capitalize;">' + escapeHtml(m.role||'staff') + '</td>' +
+          '<td>—</td>' +
+          '<td><span class="status-badge status-confirmed">Active</span></td>' +
+          '<td><div style="display:flex; gap:6px; justify-content:flex-end;">' +
+            (isYou ? '<div class="row-action" onclick="openEditNameModal()" title="Edit your name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>' : '') +
+            ((m.role==='staff' && !isYou) ? '<div class="row-action" onclick="handleRemoveTeamMember(\'' + m.user_id + '\')" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></div>' : '') +
+          '</div></td></tr>'
+        );
+      });
+    }
+
+    if(currentTeamFilter==='all' || currentTeamFilter==='stylists'){
+      salon.stylists.forEach(function(st){
+        var c = colorFor(st.name||st.id);
+        var avatarInner = st.imageUrl ? '<img src="' + escapeHtml(st.imageUrl) + '" alt="' + escapeHtml(st.name) + '">' : initialsFor(st.name);
+        rows.push(
+          '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + avatarInner + '</div>' +
+          '<div><div class="cell-name">' + escapeHtml(st.name) + '</div><div class="cell-sub">Service profile</div></div></div></td>' +
+          '<td>' + escapeHtml(st.specialty||'Stylist') + '</td>' +
+          '<td><button type="button" class="switch ' + (st.availableToday!==false?'on':'') + '" onclick="toggleStylistAvailable(\'' + st.id + '\')" aria-label="Toggle available today"><span class="knob"></span></button></td>' +
+          '<td>' + (st.availableToday!==false ? '<span class="status-badge status-confirmed">Active</span>' : '<span class="status-badge status-completed">Off today</span>') + '</td>' +
+          '<td><div style="display:flex; gap:6px; justify-content:flex-end;">' +
+            '<div class="row-action" onclick="openEditStylist(\'' + st.id + '\')" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>' +
+            '<a href="/venue/admin/team-member?id=' + encodeURIComponent(st.id) + '" class="row-action" title="View profile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a>' +
+            '<div class="row-action" onclick="removeStylist(\'' + st.id + '\')" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></div>' +
+          '</div></td></tr>'
+        );
+      });
+    }
+
+    if(currentTeamFilter==='all' || currentTeamFilter==='invited'){
+      pendingInvites.forEach(function(inv){
+        var c = colorFor(inv.email||String(inv.id));
+        rows.push(
+          '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + (inv.email||'?').charAt(0).toUpperCase() + '</div>' +
+          '<div><div class="cell-name">' + escapeHtml(inv.email||'') + '</div><div class="cell-sub">Invited</div></div></div></td>' +
+          '<td>Staff</td><td>—</td>' +
+          '<td><span class="status-badge status-pending">Invited</span></td>' +
+          '<td><div class="row-action" onclick="handleRevokeInvite(' + inv.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></td></tr>'
+        );
+      });
+    }
+
+    document.getElementById('teamTbody').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="5" class="team-empty">No team members in this view yet.</td></tr>';
+    document.getElementById('teamPaginationInfo').textContent = 'Showing ' + rows.length + ' of ' + total + ' team members';
+  }
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+
+  document.querySelectorAll('[data-teamfilter]').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('[data-teamfilter]').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentTeamFilter = tab.getAttribute('data-teamfilter');
+      renderTeamUI();
+    });
+  });
+
+  function toggleStylistAvailable(id){
+    var st = salon.stylists.find(function(x){ return x.id===id; });
+    if(!st) return;
+    st.availableToday = st.availableToday===false;
+    persist(st.availableToday ? 'Marked available today' : 'Marked off today');
+  }
+
+  async function removeStylist(id){
+    var st = salon.stylists.find(function(x){ return x.id===id; });
+    if(!st) return;
+    var upcomingCount = 0;
+    try{
+      const {count} = await supabaseClient.from('bookings').select('id',{count:'exact',head:true})
+        .eq('salon_id',currentSalonId).eq('stylist_id',id).gte('starts_at',new Date().toISOString());
+      upcomingCount = count||0;
+    }catch(e){ /* if this check fails, fall through and still let the owner remove them */ }
+
+    var msg = 'Remove ' + st.name + ' from your team?';
+    if(upcomingCount>0) msg += ' They have ' + upcomingCount + ' upcoming booking' + (upcomingCount===1?'':'s') + ' — those won\'t be cancelled, but won\'t be reassigned automatically.';
+    if(salon.stylists.length<=1) msg += ' This is your only stylist — removing them will drop your account to 0.';
+    if(!confirm(msg)) return;
+
+    salon.stylists = salon.stylists.filter(function(x){ return x.id!==id; });
+    persist(st.name + ' removed');
+  }
 
   function openInviteModal(){ document.getElementById('inviteOverlay').classList.add('open'); }
   function closeInviteModal(){
@@ -799,35 +1228,267 @@
   }
   function submitInvite(evt){
     evt.preventDefault();
-    var name = document.getElementById('ivName').value.trim();
     var email = document.getElementById('ivEmail').value.trim();
-    var role = document.getElementById('ivRole').value;
-    if(!name || !email) return false;
-    var parts = name.split(/\s+/);
-    var initials = (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
-    var colors = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
-    var color = colors[teamCount % colors.length];
-    var textColor = color === '#5FE8A0' ? ' color:#131218;' : '';
-    var row = document.createElement('tr');
-    row.innerHTML =
-      '<td><div class="cell-person"><div class="cell-avatar" style="background:' + color + ';' + textColor + '">' + initials + '</div>' +
-      '<div><div class="cell-name">' + name + '</div><div class="cell-sub">' + email + '</div></div></div></td>' +
-      '<td>' + role + '</td><td>—</td><td>—</td>' +
-      '<td><span class="status-badge status-pending">Invited</span></td>' +
-      '<td><a href="/venue/admin/team-member" class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a></td>';
-    document.getElementById('teamTbody').appendChild(row);
-    teamCount += 1;
-    invitedCount += 1;
-    document.getElementById('teamCountValue').textContent = teamCount;
-    document.getElementById('teamCountDelta').textContent = (teamCount - invitedCount) + ' active, ' + invitedCount + ' invited';
-    document.getElementById('teamSub').textContent = teamCount + ' team members at Ivy Salon Loft';
-    document.getElementById('teamPaginationInfo').textContent = 'Showing ' + teamCount + ' of ' + teamCount + ' team members';
-    closeInviteModal();
+    if(!email) return false;
+    var btn = document.getElementById('ivSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    inviteTeamMember(email).then(function(){
+      showToast('Invite sent');
+      closeInviteModal();
+      renderTeamUI();
+    }).catch(function(err){
+      showToast(err.message || 'Could not send invite');
+    }).finally(function(){
+      btn.disabled = false; btn.textContent = 'Send invite';
+    });
+    return false;
   }
+  function openEditNameModal(){
+    var me = teamMembers.find(function(m){ return m.user_id===currentUserId; });
+    document.getElementById('enFirstName').value = me?.first_name || '';
+    document.getElementById('enLastName').value = me?.last_name || '';
+    document.getElementById('editNameOverlay').classList.add('open');
+  }
+  function closeEditNameModal(){
+    document.getElementById('editNameOverlay').classList.remove('open');
+  }
+  function submitEditName(evt){
+    evt.preventDefault();
+    var firstName = document.getElementById('enFirstName').value.trim();
+    var lastName = document.getElementById('enLastName').value.trim();
+    if(!firstName){ showToast('First name is required'); return false; }
+    var btn = document.getElementById('enSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    supabaseClient.from("user_profiles").update({first_name:firstName,last_name:lastName||null,updated_at:new Date().toISOString()}).eq("user_id",currentUserId)
+      .then(function(res){
+        if(res.error) throw res.error;
+        return loadTeamData();
+      }).then(function(){
+        showToast('Name updated');
+        closeEditNameModal();
+        renderTeamUI();
+      }).catch(function(err){
+        showToast(err.message || 'Could not update name');
+      }).finally(function(){
+        btn.disabled = false; btn.textContent = 'Save';
+      });
+    return false;
+  }
+  document.getElementById('editNameOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeEditNameModal();
+  });
+
+  function handleRevokeInvite(inviteId){
+    revokeInvite(inviteId).then(function(){
+      showToast('Invite revoked');
+      renderTeamUI();
+    }).catch(function(err){ showToast(err.message || 'Could not revoke invite'); });
+  }
+  function handleRemoveTeamMember(userId){
+    removeTeamMember(userId).then(function(){
+      showToast('Team member removed');
+      renderTeamUI();
+    }).catch(function(err){ showToast(err.message || 'Could not remove team member'); });
+  }
+
+  function renderStylistPhotoPreview(name, imageUrl){
+    var preview = document.getElementById('stPhotoPreview');
+    preview.innerHTML = imageUrl ? '<img src="' + escapeHtml(imageUrl) + '" alt="">' : escapeHtml((name||'?').charAt(0).toUpperCase() || '?');
+    document.getElementById('stRemovePhotoBtn').style.display = imageUrl ? '' : 'none';
+    document.getElementById('stUploadBtn').textContent = imageUrl ? 'Change photo' : 'Upload photo';
+  }
+  function openAddStylist(){
+    document.getElementById('stylistModalTitle').textContent = 'Add stylist';
+    document.getElementById('stId').value = '';
+    document.getElementById('stImageUrl').value = '';
+    document.getElementById('stName').value = '';
+    document.getElementById('stSpecialty').value = '';
+    renderStylistPhotoPreview('', '');
+    document.getElementById('stylistOverlay').classList.add('open');
+  }
+  function openEditStylist(id){
+    var st = salon.stylists.find(function(x){ return x.id===id; });
+    if(!st) return;
+    document.getElementById('stylistModalTitle').textContent = 'Edit stylist';
+    document.getElementById('stId').value = st.id;
+    document.getElementById('stImageUrl').value = st.imageUrl || '';
+    document.getElementById('stName').value = st.name || '';
+    document.getElementById('stSpecialty').value = st.specialty || '';
+    renderStylistPhotoPreview(st.name, st.imageUrl || '');
+    document.getElementById('stylistOverlay').classList.add('open');
+  }
+  function closeStylistModal(){
+    document.getElementById('stylistOverlay').classList.remove('open');
+    document.getElementById('stylistForm').reset();
+  }
+  function submitStylist(evt){
+    evt.preventDefault();
+    var id = document.getElementById('stId').value;
+    var name = document.getElementById('stName').value.trim();
+    var specialty = document.getElementById('stSpecialty').value.trim();
+    var imageUrl = document.getElementById('stImageUrl').value;
+    if(!name) return false;
+    if(id){
+      var st = salon.stylists.find(function(x){ return x.id===id; });
+      if(st){ st.name = name; st.specialty = specialty; st.imageUrl = imageUrl; }
+    } else {
+      salon.stylists.push({ id: randId('sty'), name: name, specialty: specialty, availableToday: true, imageUrl: imageUrl });
+    }
+    closeStylistModal();
+    persist(id ? 'Stylist updated' : 'Stylist added');
+    return false;
+  }
+
+  document.getElementById('stUploadBtn').addEventListener('click', function(){
+    document.getElementById('stImageInput').click();
+  });
+  document.getElementById('stImageInput').addEventListener('change', function(evt){
+    var file = evt.target.files && evt.target.files[0];
+    evt.target.value = '';
+    if(!file) return;
+    var id = document.getElementById('stId').value;
+    var oldUrl = document.getElementById('stImageUrl').value;
+    var btn = document.getElementById('stUploadBtn');
+    btn.disabled = true; btn.textContent = 'Uploading…';
+    uploadMediaFile(file, 'stylists/' + (id || 'new').replace(/[^a-zA-Z0-9_-]/g,'_')).then(function(url){
+      document.getElementById('stImageUrl').value = url;
+      renderStylistPhotoPreview(document.getElementById('stName').value, url);
+      if(oldUrl) deleteMediaUrl(oldUrl);
+    }).catch(function(err){
+      showToast(err.message || 'Photo upload failed');
+    }).finally(function(){
+      btn.disabled = false;
+    });
+  });
+  document.getElementById('stRemovePhotoBtn').addEventListener('click', function(){
+    var oldUrl = document.getElementById('stImageUrl').value;
+    document.getElementById('stImageUrl').value = '';
+    renderStylistPhotoPreview(document.getElementById('stName').value, '');
+    if(oldUrl) deleteMediaUrl(oldUrl);
+  });
+
   document.getElementById('inviteOverlay').addEventListener('click', function(e){
     if(e.target === this) closeInviteModal();
   });
+  document.getElementById('stylistOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeStylistModal();
+  });
+
+  bootTeamPage();
 </script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

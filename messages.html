@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#131218;
@@ -200,6 +201,32 @@
   }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
+  .tb-search{position:relative;}
+  .tb-search-results{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
+    padding:6px;
+  }
+  .tb-search-results.open{display:block;}
+  .tb-sr-heading{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:8px 10px 4px;
+  }
+  .tb-sr-row{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
+    text-decoration:none; color:var(--text);
+  }
+  .tb-sr-row:hover{background:var(--surface-2);}
+  .tb-sr-avatar{
+    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:var(--text-soft); flex:none;
+  }
+  .tb-sr-info{min-width:0;}
+  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -535,6 +562,19 @@
     .msg-shell.show-chat .msg-list{display:none;}
     .msg-shell.show-chat .msg-chat{display:flex;}
   }
+
+  .msg-empty-pane{flex:1; display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:13.5px; text-align:center; padding:20px;}
+  .msg-list-empty{padding:40px 20px; text-align:center; color:var(--text-faint); font-size:13px;}
+  .msg-composer input:disabled{opacity:.5;}
+  .msg-send:disabled{opacity:.5; cursor:default;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:90; opacity:0; pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 
@@ -557,8 +597,8 @@
     <div class="sb-venue">
       <div class="sb-venue-avatar"></div>
       <div>
-        <div class="sb-venue-name">Ivy Salon Loft</div>
-        <div class="sb-venue-sub">SoHo, New York</div>
+        <div class="sb-venue-name">Your venue</div>
+        <div class="sb-venue-sub">&nbsp;</div>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
     </div>
@@ -576,14 +616,15 @@
       <a href="/venue/admin/bookings" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg>
         Bookings
-        <span class="sb-badge">24</span>
       </a>
       <a href="/venue/admin/messages" class="sb-link active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
-        <span class="sb-badge">3</span>
       </a>
-
+      <a href="/venue/admin/team-chat" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+        Team Chat
+      </a>
       <div class="sb-section-label">Manage</div>
       <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -597,7 +638,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
         Services
       </a>
-
+      <a href="/venue/admin/loyalty" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8Z"/></svg>
+        Loyalty
+      </a>
+      <a href="/venue/admin/gift-cards" class="sb-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M12 6v14M2 11h20"/><path d="M7.5 6a2.5 2.5 0 0 1 0-5C10 1 12 6 12 6S14 1 16.5 1a2.5 2.5 0 0 1 0 5"/></svg>
+        Gift Cards & Packages
+      </a>
       <div class="sb-section-label">Insights</div>
       <a href="/venue/admin/reports" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 16v-4M12 16V8m4 8v-6"/></svg>
@@ -618,10 +666,10 @@
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-avatar">MJ</div>
+      <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name">Maria J.</div>
-        <div class="sb-user-role">Owner</div>
+        <div class="sb-user-name" id="sbUserName">—</div>
+        <div class="sb-user-role" id="sbUserRole">—</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -633,7 +681,8 @@
       <div class="tb-logo-mobile">Blooma</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search clients, bookings, services…">
+        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
+        <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
       <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -658,162 +707,26 @@
       <div class="msg-list-head">
         <div class="msg-search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" placeholder="Search conversations…">
+          <input type="text" id="msgSearchInput" placeholder="Search conversations…">
         </div>
       </div>
 
-      <div class="msg-items">
-        <div class="msg-item active unread" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#6D5FE8;">SK</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Sarah K.</span><span class="msg-item-time">9:41 AM</span></div>
-            <div class="msg-item-preview">Could I push my balayage to 10:30 instead?</div>
-          </div>
-          <div class="msg-unread-dot"></div>
-        </div>
-
-        <div class="msg-item unread" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#5FA8E8;">AJ</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Alex J.</span><span class="msg-item-time">9:12 AM</span></div>
-            <div class="msg-item-preview">Perfect, see you at 9!</div>
-          </div>
-          <div class="msg-unread-dot"></div>
-        </div>
-
-        <div class="msg-item" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#E85F9E;">JW</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Jade W.</span><span class="msg-item-time">Yesterday</span></div>
-            <div class="msg-item-preview">Thank you so much, loved the blowout ✨</div>
-          </div>
-        </div>
-
-        <div class="msg-item" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#5FE8A0; color:#131218;">KS</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Kim S.</span><span class="msg-item-time">Yesterday</span></div>
-            <div class="msg-item-preview">Is Chris available Thursday afternoon?</div>
-          </div>
-        </div>
-
-        <div class="msg-item unread" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#6D5FE8;">MT</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Mia T.</span><span class="msg-item-time">Mon</span></div>
-            <div class="msg-item-preview">Running 5 minutes late, so sorry!</div>
-          </div>
-          <div class="msg-unread-dot"></div>
-        </div>
-
-        <div class="msg-item" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#5FA8E8;">NP</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Nina P.</span><span class="msg-item-time">Fri</span></div>
-            <div class="msg-item-preview">Can you send over the price list for color?</div>
-          </div>
-        </div>
-
-        <div class="msg-item" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#E85F9E;">SO</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Sam O.</span><span class="msg-item-time">Last week</span></div>
-            <div class="msg-item-preview">Thanks for fitting me in today!</div>
-          </div>
-        </div>
-
-        <div class="msg-item" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#5FE8A0; color:#131218;">DF</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Dana F.</span><span class="msg-item-time">Last week</span></div>
-            <div class="msg-item-preview">See you at the same time next month!</div>
-          </div>
-        </div>
-
-        <div class="msg-item" onclick="openThread(this)">
-          <div class="msg-item-avatar" style="background:#6D5FE8;">PN</div>
-          <div class="msg-item-body">
-            <div class="msg-item-top"><span class="msg-item-name">Priya N.</span><span class="msg-item-time">2 weeks ago</span></div>
-            <div class="msg-item-preview">Do you have anything free this weekend?</div>
-          </div>
-        </div>
+      <div class="msg-items" id="msgItems">
+        <div class="msg-list-empty">Loading conversations…</div>
       </div>
     </div>
 
-    <div class="msg-chat">
-      <div class="msg-chat-head">
-        <div class="msg-back" onclick="closeThread()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
-        </div>
-        <div class="msg-chat-avatar" style="background:#6D5FE8;">SK</div>
-        <div>
-          <div class="msg-chat-name">Sarah K.</div>
-          <div class="msg-chat-sub">Next appt: Today, 9:30 AM · Balayage</div>
-        </div>
-        <div class="msg-chat-actions">
-          <div class="row-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
-        </div>
-      </div>
-
-      <div class="msg-thread">
-        <div class="msg-date-sep">Today</div>
-
-        <div class="bubble-row in">
-          <div>
-            <div class="bubble">Hi! Quick one — could I push my balayage to 10:30 instead of 9:30 today?</div>
-            <div class="bubble-time">9:38 AM</div>
-          </div>
-        </div>
-
-        <div class="bubble-row out">
-          <div>
-            <div class="bubble">Of course, let me check with Fana. One sec!</div>
-            <div class="bubble-time">9:39 AM</div>
-          </div>
-        </div>
-
-        <div class="bubble-row out">
-          <div>
-            <div class="bubble">You're all set for 10:30 AM with Fana today. See you then 🙂</div>
-            <div class="bubble-time">9:40 AM</div>
-          </div>
-        </div>
-
-        <div class="bubble-row in">
-          <div>
-            <div class="bubble">Amazing, thank you so much!</div>
-            <div class="bubble-time">9:41 AM</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="msg-composer">
-        <input type="text" placeholder="Write a message…">
-        <button class="msg-send">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
-        </button>
-      </div>
+    <div class="msg-chat" id="msgChatPane">
+      <div class="msg-empty-pane">Select a conversation to view messages.</div>
     </div>
 
   </div>
 </div>
 
-<script>
-  function openThread(el){
-    document.querySelectorAll('.msg-item').forEach(function(i){ i.classList.remove('active'); });
-    el.classList.add('active');
-    el.classList.remove('unread');
-    var dot = el.querySelector('.msg-unread-dot');
-    if(dot) dot.remove();
-    document.getElementById('msgShell').classList.add('show-chat');
-  }
-  function closeThread(){
-    document.getElementById('msgShell').classList.remove('show-chat');
-  }
-</script>
-
   </div>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <script>
   var sidebar = document.getElementById('sidebar');
@@ -827,7 +740,388 @@
   menuBtn.addEventListener('click', openSb);
   closeBtn.addEventListener('click', closeSb);
   overlay.addEventListener('click', closeSb);
+
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
 </script>
+
+<script>
+  /* ---------------------------------------------------
+     LIVE DATA — Supabase wiring
+     There's no conversations table split by customer; every row in
+     "messages" carries a customer_key (same uid/phone/email/name priority
+     as clients.html's clientKeyFor()) computed server-side by the
+     send_booking_message / send_venue_message RPCs, so a customer's
+     conversation with this venue stays one continuous thread across all
+     of their bookings. get_venue_messages() returns the raw rows for this
+     salon; conversations are grouped from that client-side, same approach
+     as clients.html grouping raw bookings into clients.
+  --------------------------------------------------- */
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let currentSalonId = null;
+  var conversations = [];
+  var activeKey = null;
+  var pollTimer = null;
+
+  function buildConversations(messages){
+    var groups = {};
+    messages.forEach(function(m){
+      var key = m.customer_key;
+      if(!groups[key]) groups[key] = { key:key, name:'Customer', phone:'', email:'', customer_user_id:null, messages:[] };
+      var g = groups[key];
+      g.messages.push(m);
+      if(m.customer_name) g.name = m.customer_name;
+      if(m.customer_phone) g.phone = m.customer_phone;
+      if(m.customer_email) g.email = m.customer_email;
+      if(m.customer_user_id) g.customer_user_id = m.customer_user_id;
+    });
+    return Object.values(groups).map(function(g){
+      g.messages.sort(function(a,b){ return new Date(a.created_at) - new Date(b.created_at); });
+      g.last = g.messages[g.messages.length - 1];
+      g.unread = g.messages.filter(function(m){ return m.sender === 'customer' && !m.read_by_venue; }).length;
+      var withBooking = g.messages.filter(function(m){ return m.booking_id; });
+      g.bookingId = withBooking.length ? withBooking[withBooking.length-1].booking_id : null;
+      return g;
+    }).sort(function(a,b){ return new Date(b.last.created_at) - new Date(a.last.created_at); });
+  }
+
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
+  function colorFor(seed){
+    var hash = 0; var s = String(seed||'?');
+    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
+    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
+  }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function bookingRefFor(id){
+    return 'BK-' + String(id||'').replace(/-/g,'').slice(0,6).toUpperCase();
+  }
+
+  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function dateKeyDayDiff(aKey,bKey){ const [ay,am,ad]=aKey.split("-").map(Number),[by,bm,bd]=bKey.split("-").map(Number); return Math.round((Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000); }
+  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
+  function listTimeLabel(iso){
+    var diff = dateKeyDayDiff(nzDateKeyForIso(iso), nzTodayKey());
+    if(diff===0) return localTimeLabel(iso);
+    if(diff===-1) return 'Yesterday';
+    if(diff>-7) return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:"short"}).format(new Date(iso));
+    return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",month:"short",day:"numeric"}).format(new Date(iso));
+  }
+
+  function showLoginRequired(title, message, ctaLabel, ctaHref){
+    document.querySelector('.shell').innerHTML = `
+      <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="max-width:360px;text-align:center;">
+          <h1 style="font-size:22px;margin:0 0 8px;color:var(--text);">${title}</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.5;margin:0 0 18px;">${message}</p>
+          <a href="${ctaHref}" class="btn btn-violet" style="justify-content:center;">${ctaLabel}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function bootMessagesPage(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showLoginRequired("Log in to your venue","Use your venue account before opening Messages.","Log in","/business-auth?view=login");
+      return;
+    }
+    const [{data:profile},{data:owner}] = await Promise.all([
+      supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
+      supabaseClient.from("owner_profiles").select("salon_id,role").eq("user_id",session.user.id).maybeSingle()
+    ]);
+    const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
+    if(accountType!=="venue"){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
+      return;
+    }
+    if(!owner?.salon_id){
+      showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
+      return;
+    }
+    currentSalonId=owner.salon_id;
+    var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
+    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbUserName').textContent = displayName;
+    document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    const {data:salonRow} = await supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle();
+    if(salonRow){
+      document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+      document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+      document.title = salonRow.name ? `Messages — ${salonRow.name}` : "Messages — Blooma Business";
+    }
+    await reloadConversations();
+    document.getElementById('msgSearchInput').addEventListener('input', function(e){ setSearch(e.target.value); });
+    pollTimer = setInterval(function(){ reloadConversations(true); }, 20000);
+  }
+
+  var currentSearch = '';
+  function setSearch(value){ currentSearch = value.trim().toLowerCase(); renderList(); }
+
+  async function reloadConversations(silent){
+    try{
+      const {data,error} = await supabaseClient.rpc("get_venue_messages");
+      if(error) throw error;
+      conversations = buildConversations(data||[]);
+      renderList();
+      if(activeKey) renderChat();
+    }catch(err){ if(!silent) showToast(err.message||"Unable to load messages"); }
+  }
+
+  function totalUnread(){ return conversations.reduce(function(sum,c){ return sum + (c.unread>0?1:0); }, 0); }
+
+  function renderList(){
+    var unreadConvos = totalUnread();
+
+    var filtered = conversations.filter(function(c){
+      if(!currentSearch) return true;
+      return c.name.toLowerCase().indexOf(currentSearch)>-1 || (c.phone||'').toLowerCase().indexOf(currentSearch)>-1 || (c.email||'').toLowerCase().indexOf(currentSearch)>-1;
+    });
+
+    var wrap = document.getElementById('msgItems');
+    if(!filtered.length){
+      wrap.innerHTML = '<div class="msg-list-empty">' + (conversations.length ? 'No conversations match your search.' : 'No conversations yet. Messages customers send from a booking will show up here.') + '</div>';
+      return;
+    }
+    wrap.innerHTML = filtered.map(function(c){
+      var col = colorFor(c.name);
+      return '<div class="msg-item' + (c.key===activeKey?' active':'') + (c.unread>0?' unread':'') + '" onclick="openThread(\'' + c.key.replace(/'/g,"\\'") + '\')">' +
+        '<div class="msg-item-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(c.name) + '</div>' +
+        '<div class="msg-item-body">' +
+          '<div class="msg-item-top"><span class="msg-item-name">' + escapeHtml(c.name) + '</span><span class="msg-item-time">' + listTimeLabel(c.last.created_at) + '</span></div>' +
+          '<div class="msg-item-preview">' + (c.last.sender==='venue'?'You: ':'') + escapeHtml(c.last.body) + '</div>' +
+        '</div>' +
+        (c.unread>0?'<div class="msg-unread-dot"></div>':'') +
+      '</div>';
+    }).join('');
+  }
+
+  async function openThread(key){
+    activeKey = key;
+    document.getElementById('msgShell').classList.add('show-chat');
+    renderList();
+    renderChat();
+    var convo = conversations.find(function(c){ return c.key===key; });
+    if(convo && convo.unread>0){
+      try{
+        await supabaseClient.rpc("mark_venue_messages_read",{p_customer_key:key});
+        convo.messages.forEach(function(m){ m.read_by_venue = true; });
+        convo.unread = 0;
+        renderList();
+      }catch(err){}
+    }
+  }
+  function closeThread(){
+    document.getElementById('msgShell').classList.remove('show-chat');
+  }
+
+  function renderChat(){
+    var pane = document.getElementById('msgChatPane');
+    var convo = conversations.find(function(c){ return c.key===activeKey; });
+    if(!convo){
+      pane.innerHTML = '<div class="msg-empty-pane">Select a conversation to view messages.</div>';
+      return;
+    }
+    var col = colorFor(convo.name);
+    var sub = convo.phone || convo.email || '';
+    var groupedByDay = [];
+    var lastDay = null;
+    convo.messages.forEach(function(m){
+      var dayKey = nzDateKeyForIso(m.created_at);
+      if(dayKey !== lastDay){ groupedByDay.push({day:dayKey, items:[]}); lastDay = dayKey; }
+      groupedByDay[groupedByDay.length-1].items.push(m);
+    });
+    function dayLabel(dayKey){
+      var diff = dateKeyDayDiff(dayKey, nzTodayKey());
+      if(diff===0) return 'Today';
+      if(diff===-1) return 'Yesterday';
+      return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",month:"short",day:"numeric",year:"numeric"}).format(new Date(dayKey+"T12:00:00Z"));
+    }
+    var subHtml = escapeHtml(sub) + (convo.bookingId ? (sub?' · ':'') + '<a href="/venue/admin/booking?id=' + encodeURIComponent(convo.bookingId) + '" style="color:var(--violet-text); text-decoration:underline;">Booking ' + bookingRefFor(convo.bookingId) + '</a>' : '');
+    pane.innerHTML =
+      '<div class="msg-chat-head">' +
+        '<div class="msg-back" onclick="closeThread()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></div>' +
+        '<div class="msg-chat-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(convo.name) + '</div>' +
+        '<div><div class="msg-chat-name">' + escapeHtml(convo.name) + '</div><div class="msg-chat-sub">' + subHtml + '</div></div>' +
+        (convo.key.indexOf('uid:')===0 ? '<div class="msg-chat-actions"><a href="/venue/admin/client?key=' + encodeURIComponent(convo.key) + '" class="row-action" title="View client"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/></svg></a></div>' : '') +
+      '</div>' +
+      '<div class="msg-thread" id="msgThreadScroll">' +
+        groupedByDay.map(function(grp){
+          return '<div class="msg-date-sep">' + dayLabel(grp.day) + '</div>' +
+            grp.items.map(function(m){
+              return '<div class="bubble-row ' + (m.sender==='venue'?'out':'in') + '"><div><div class="bubble">' + escapeHtml(m.body) + '</div><div class="bubble-time">' + localTimeLabel(m.created_at) + '</div></div></div>';
+            }).join('');
+        }).join('') +
+      '</div>' +
+      '<div class="msg-composer">' +
+        '<input type="text" id="msgComposeInput" placeholder="Write a message…" autocomplete="off">' +
+        '<button class="msg-send" id="msgSendBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></button>' +
+      '</div>';
+    var scrollEl = document.getElementById('msgThreadScroll');
+    if(scrollEl) scrollEl.scrollTop = scrollEl.scrollHeight;
+    var input = document.getElementById('msgComposeInput');
+    var sendBtn = document.getElementById('msgSendBtn');
+    var doSend = function(){ sendMessage(convo); };
+    sendBtn.addEventListener('click', doSend);
+    input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSend(); } });
+    input.focus();
+  }
+
+  async function sendMessage(convo){
+    var input = document.getElementById('msgComposeInput');
+    var text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    input.disabled = true;
+    try{
+      const {error} = await supabaseClient.rpc("send_venue_message",{
+        p_customer_key: convo.key,
+        p_customer_user_id: convo.customer_user_id,
+        p_customer_name: convo.name,
+        p_customer_phone: convo.phone,
+        p_customer_email: convo.email,
+        p_body: text
+      });
+      if(error) throw error;
+      await reloadConversations(true);
+    }catch(err){
+      showToast(err.message||"We couldn't send that message.");
+      input.value = text;
+    }
+    input.disabled = false;
+    input.focus();
+  }
+
+  bootMessagesPage();
+</script>
+
+<script>
+(function(){
+  var tbInput = document.getElementById('tbSearchInput');
+  var tbResults = document.getElementById('tbSearchResults');
+  if(!tbInput || !tbResults) return;
+  var debounceTimer = null;
+
+  function escHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(name){
+    var parts = String(name||'?').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
+
+  function renderResults(clients, bookings, q){
+    if(!clients.length && !bookings.length){
+      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
+      tbResults.classList.add('open');
+      return;
+    }
+    var html = '';
+    if(clients.length){
+      html += '<div class="tb-sr-heading">Clients</div>';
+      clients.slice(0,5).forEach(function(c){
+        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
+          + '</a>';
+      });
+    }
+    if(bookings.length){
+      html += '<div class="tb-sr-heading">Bookings</div>';
+      bookings.slice(0,5).forEach(function(b){
+        var when = '';
+        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
+          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
+          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
+          + '</a>';
+      });
+    }
+    tbResults.innerHTML = html;
+    tbResults.classList.add('open');
+  }
+
+  function clientKeyForRow(r){
+    return r.phone ? 'ph:'+String(r.phone).trim()
+      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
+      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+
+  function runSearch(q){
+    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
+    var safeQ = q.replace(/[,()%*]/g,'');
+    if(!safeQ){ hideResults(); return; }
+    var pattern = '%'+safeQ+'%';
+    Promise.all([
+      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
+        .eq('salon_id',currentSalonId)
+        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
+        .order('starts_at',{ascending:false}).limit(20),
+      supabaseClient.rpc('get_venue_clients')
+    ]).then(function(res){
+      if(tbInput.value.trim().toLowerCase()!==q) return;
+      var bookingRows = (res[0] && res[0].data) || [];
+      var manual = (res[1] && res[1].data) || [];
+      var seen = {};
+      var clientMatches = [];
+      bookingRows.forEach(function(b){
+        var key = clientKeyForBooking(b);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
+      });
+      manual.forEach(function(r){
+        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
+        if(hay.indexOf(q)===-1) return;
+        var key = clientKeyForRow(r);
+        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
+      });
+      var bookingMatches = bookingRows.slice(0,8);
+      renderResults(clientMatches, bookingMatches, q);
+    }).catch(function(){ hideResults(); });
+  }
+
+  tbInput.addEventListener('input', function(){
+    var q = tbInput.value.trim().toLowerCase();
+    clearTimeout(debounceTimer);
+    if(q.length < 2){ hideResults(); return; }
+    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
+  });
+  tbInput.addEventListener('focus', function(){
+    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  });
+  document.addEventListener('click', function(e){
+    if(e.target===tbInput) return;
+    if(!tbResults.contains(e.target)) hideResults();
+  });
+  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
+})();
+</script>
+
+<script src="/trial-banner.js"></script>
+<script src="/sidebar-badges.js"></script>
 
 </body>
 </html>

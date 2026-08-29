@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sarah K. — Blooma Business</title>
+<title>Team Chat — Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -194,11 +194,6 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     color:var(--text-soft); position:relative; flex:none;
   }
-  .tb-icon-btn .dot{
-    position:absolute; top:7px; right:7px;
-    width:7px; height:7px; border-radius:50%; background:var(--danger);
-    border:1.5px solid var(--surface);
-  }
   .tb-search-mobile-hide{display:none;}
   @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
   .tb-search{position:relative;}
@@ -232,126 +227,72 @@
   .content{padding:22px 16px 60px;}
   @media (min-width:900px){ .content{padding:30px 32px 70px;} }
 
-  /* ---------- STAT CARDS ---------- */
-  .stats-grid{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
-    margin-bottom:22px;
-  }
-  @media (min-width:800px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
-  .stat-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:14px;
-    padding:16px 18px;
-  }
-  .stat-top{display:flex; align-items:center; justify-content:space-between;}
-  .stat-label{font-size:12px; color:var(--text-soft); font-weight:600;}
-  .stat-icon{
-    width:28px; height:28px; border-radius:8px; background:var(--violet-soft);
-    display:flex; align-items:center; justify-content:center; color:var(--violet-text);
-  }
-  .stat-value{font-size:26px; font-weight:800; margin-top:12px; letter-spacing:-0.01em;}
-  .stat-delta{
-    display:inline-flex; align-items:center; gap:4px;
-    font-size:11.5px; font-weight:700; margin-top:6px;
-    color:var(--success);
-  }
-  .stat-delta span.muted{color:var(--text-faint); font-weight:500;}
+  .page-head{margin-bottom:20px;}
+  .page-head h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
+  .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
+  @media (min-width:900px){ .page-head h1{font-size:26px;} }
 
-  /* ---------- PANELS / GRID LAYOUT ---------- */
-  .dash-grid{display:grid; grid-template-columns:1fr; gap:16px;}
-  @media (min-width:1100px){ .dash-grid{grid-template-columns:2fr 1fr;} }
-  .dash-grid > *{min-width:0;}
-
-  .panel{
+  /* ---------- TEAM CHAT ---------- */
+  .tc-shell{
+    display:flex; flex-direction:column; height:calc(100vh - 220px); min-height:440px;
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
-    padding:18px;
+    overflow:hidden;
   }
-  .panel-head{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    margin-bottom:16px;
+  .tc-head{
+    display:flex; align-items:center; gap:12px;
+    padding:16px 20px; border-bottom:1px solid var(--border);
   }
-  .panel-head h2{font-size:15.5px; font-weight:700;}
-  .panel-head .link{font-size:12.5px; font-weight:700; color:var(--violet-text);}
-
-  .side-col{display:flex; flex-direction:column; gap:16px;}
-  .appt-row{
-    display:flex; align-items:center; gap:11px;
-    padding:10px 0; border-bottom:1px solid var(--border);
-  }
-  .appt-row:last-child{border-bottom:none; padding-bottom:0;}
-  .appt-avatar{
-    width:36px; height:36px; border-radius:50%; flex:none;
+  .tc-head-title{font-size:14.5px; font-weight:700;}
+  .tc-head-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
+  .tc-roster{display:flex; margin-left:auto;}
+  .tc-roster-avatar{
+    width:28px; height:28px; border-radius:50%; flex:none;
     display:flex; align-items:center; justify-content:center;
-    font-size:12.5px; font-weight:700; color:var(--white);
+    font-size:10.5px; font-weight:700; color:var(--white);
+    border:2px solid var(--surface); margin-left:-8px;
   }
-  .appt-name{font-size:13px; font-weight:700;}
-  .appt-service{font-size:11.5px; color:var(--text-soft); margin-top:1px;}
-  .appt-time{margin-left:auto; text-align:right; flex:none;}
-  .appt-time .t{font-size:12.5px; font-weight:700;}
-  .status-pill{
-    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:2px 7px; border-radius:99px; margin-top:3px; display:inline-block;
-  }
-  .status-confirmed{background:var(--success-soft); color:var(--success);}
+  .tc-roster-avatar:first-child{margin-left:0;}
 
-  /* ---------- TABLE ---------- */
-  .table-wrap{overflow-x:auto; overflow-y:hidden;}
-  table.data{width:100%; border-collapse:collapse; min-width:560px;}
-  table.data th{
-    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em;
-    color:var(--text-faint); font-weight:700; padding:0 14px 10px;
-    border-bottom:1px solid var(--border);
-  }
-  table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
-  table.data tr:last-child td{border-bottom:none;}
-  table.data tr:hover td{background:var(--surface-hover);}
-  .status-badge{
-    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:4px 9px; border-radius:99px; display:inline-block; white-space:nowrap;
-  }
-  .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
-  .tag-pill{font-size:10px; font-weight:700; padding:3px 8px; border-radius:99px; margin-right:4px; display:inline-block; white-space:nowrap;}
-  .tag-vip{background:rgba(244,201,58,0.16); color:var(--warning);}
-  .tag-new{background:var(--violet-soft); color:var(--violet-text);}
-
-  /* ---------- BREADCRUMB ---------- */
-  .crumb{
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:12.5px; font-weight:700; color:var(--text-soft);
-    margin-bottom:14px;
-  }
-  .crumb:hover{color:var(--text);}
-
-  /* ---------- PROFILE HEADER ---------- */
-  .profile-panel{margin-bottom:20px;}
-  .profile-head{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
-  .profile-avatar{
-    width:64px; height:64px; border-radius:50%; flex:none;
+  .tc-thread{flex:1; overflow-y:auto; overflow-x:hidden; touch-action:pan-y; padding:22px 20px; display:flex; flex-direction:column; gap:4px;}
+  .tc-empty{margin:auto; text-align:center; color:var(--text-faint); font-size:13px;}
+  .tc-date-sep{text-align:center; font-size:11px; color:var(--text-faint); font-weight:600; margin:14px 0 6px;}
+  .tc-row{display:flex; gap:10px; max-width:78%; margin-top:12px;}
+  .tc-row.out{align-self:flex-end; flex-direction:row-reverse;}
+  .tc-row.stacked{margin-top:2px;}
+  .tc-row.stacked .tc-avatar{visibility:hidden;}
+  .tc-avatar{
+    width:28px; height:28px; border-radius:50%; flex:none;
     display:flex; align-items:center; justify-content:center;
-    font-size:22px; font-weight:700; color:var(--white);
+    font-size:10.5px; font-weight:700; color:var(--white); margin-top:2px;
   }
-  .profile-name-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  .profile-name-row h1{font-size:20px; font-weight:800; letter-spacing:-0.01em;}
-  .profile-meta{font-size:12.5px; color:var(--text-soft); margin-top:4px;}
-  .profile-actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto;}
+  .tc-bubble-col{display:flex; flex-direction:column; min-width:0;}
+  .tc-row.out .tc-bubble-col{align-items:flex-end;}
+  .tc-sender{font-size:11px; font-weight:700; color:var(--text-faint); margin-bottom:3px;}
+  .tc-bubble{
+    padding:10px 14px; border-radius:14px; font-size:13.5px; line-height:1.5;
+    background:var(--surface-2); color:var(--text); word-break:break-word;
+  }
+  .tc-row.out .tc-bubble{background:var(--violet); color:var(--white); border-bottom-right-radius:4px;}
+  .tc-row.in .tc-bubble{border-bottom-left-radius:4px;}
+  .tc-time{font-size:10.5px; color:var(--text-faint); margin-top:4px;}
+  .tc-row.out .tc-time{text-align:right;}
 
-  /* ---------- INFO ROWS ---------- */
-  .info-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; gap:10px;}
-  .info-row:last-child{border-bottom:none; padding-bottom:0;}
-  .info-row .info-label{color:var(--text-faint); font-weight:600; flex:none;}
-  .info-row .info-value{font-weight:700; text-align:right;}
+  .tc-composer{
+    display:flex; align-items:center; gap:10px;
+    padding:14px 20px; border-top:1px solid var(--border);
+  }
+  .tc-composer input{
+    flex:1; background:var(--surface-2); border:1px solid var(--border); border-radius:99px;
+    padding:12px 16px; color:var(--text); font-family:inherit; font-size:13.5px; outline:none;
+  }
+  .tc-composer input:focus{border-color:var(--violet);}
+  .tc-composer input:disabled{opacity:.5;}
+  .tc-send{
+    width:40px; height:40px; border-radius:50%; background:var(--violet); color:var(--white);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; border:none;
+  }
+  .tc-send:disabled{opacity:.5; cursor:not-allowed;}
 
-  .notes-box{
-    background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
-    padding:14px; font-size:12.5px; color:var(--text-soft); line-height:1.6;
-  }
-  .notes-input{
-    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
-    padding:12px 14px; color:var(--text); font-family:inherit; font-size:12.5px; line-height:1.6;
-    resize:vertical; min-height:80px; outline:none;
-  }
-  .notes-input:focus{border-color:var(--violet);}
-  .notes-save-row{display:flex; justify-content:flex-end; margin-top:10px;}
-  .notes-save-row .btn{padding:8px 14px; font-size:12.5px;}
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--surface-2); border:1px solid var(--border); color:var(--text);
@@ -360,9 +301,10 @@
     transition:opacity .2s ease, transform .2s ease;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-  .cl-loading{padding:60px 20px; text-align:center; color:var(--text-faint); font-size:13.5px;}
 </style>
 </head>
+
+
 
 <body>
 
@@ -405,12 +347,12 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
       </a>
-      <a href="/venue/admin/team-chat" class="sb-link">
+      <a href="/venue/admin/team-chat" class="sb-link active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
         Team Chat
       </a>
       <div class="sb-section-label">Manage</div>
-      <a href="/venue/admin/clients" class="sb-link active">
+      <a href="/venue/admin/clients" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg>
         Clients
       </a>
@@ -468,7 +410,8 @@
         <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
         <div id="tbSearchResults" class="tb-search-results"></div>
       </div>
-      <div class="tb-right">        <a href="/venue/admin/new-booking" class="btn btn-violet">
+      <div class="tb-right">
+        <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
           New booking
         </a>
@@ -480,21 +423,38 @@
 
     <div class="content">
 
-  <a href="/venue/admin/clients" class="crumb">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
-    Back to clients
-  </a>
-
-  <div id="clientContent">
-    <div class="cl-loading">Loading client…</div>
+  <div class="page-head">
+    <h1>Team Chat</h1>
+    <div class="sub">A private channel for your team — clients never see this</div>
   </div>
 
+  <div class="tc-shell">
+    <div class="tc-head">
+      <div>
+        <div class="tc-head-title" id="tcHeadTitle">Team channel</div>
+        <div class="tc-head-sub" id="tcHeadSub">Loading team…</div>
+      </div>
+      <div class="tc-roster" id="tcRoster"></div>
+    </div>
+
+    <div class="tc-thread" id="tcThread">
+      <div class="tc-empty">Loading messages…</div>
+    </div>
+
+    <div class="tc-composer">
+      <input type="text" id="tcInput" placeholder="Message your team…" disabled>
+      <button class="tc-send" id="tcSendBtn" disabled onclick="doSend()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 3 18 9-18 9 4-9-4-9Z"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
-
-  </div>
-</div>
 
 <script>
   var sidebar = document.getElementById('sidebar');
@@ -521,61 +481,20 @@
 <script>
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
-     Mirrors clients.html's grouping logic exactly (no clients table —
-     a "client" is just bookings grouped by customer identity). Loads
-     ALL of the salon's bookings, regroups, and finds the one group
-     matching ?key=. Staff notes read/write client_notes, keyed by
-     customer_name (matches the reference admin's saveClientNote).
+     One shared channel per salon. get_team_messages() / send_team_message()
+     are SECURITY DEFINER RPCs that check the caller is a staff member of
+     this salon via owner_profiles, same membership check used everywhere
+     else in the admin panel — there's no direct table access to
+     team_messages, matching the bookings/messages RLS pattern.
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
   let currentSalonId = null;
-  let client = null;
-
-  function clientKeyFor(b){
-    return b.customer_user_id ? 'uid:'+b.customer_user_id
-      : b.customer_phone ? 'ph:'+b.customer_phone.trim()
-      : b.customer_email ? 'em:'+b.customer_email.trim().toLowerCase()
-      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
-  }
-
-  function buildClients(bookings){
-    var groups = {};
-    bookings.forEach(function(b){
-      var key = clientKeyFor(b);
-      if(!groups[key]) groups[key] = { key:key, name:b.customer_name||'Customer', email:b.customer_email||'', phone:b.customer_phone||'', bookings:[] };
-      groups[key].bookings.push(b);
-    });
-    var now = Date.now();
-    return Object.values(groups).map(function(g){
-      g.bookings.sort(function(a,b){ return new Date(b.starts_at) - new Date(a.starts_at); });
-      var completed = g.bookings.filter(function(b){ return b.status==='completed'; });
-      var visits = completed.length;
-      var spent = completed.reduce(function(sum,b){ return sum + Number(b.total||0); }, 0);
-      var lastCompletedVisit = completed[0] ? completed[0].starts_at : null;
-      var firstCreated = g.bookings.reduce(function(min,b){ return (!min || new Date(b.created_at)<new Date(min)) ? b.created_at : min; }, null);
-      var hasUpcoming = g.bookings.some(function(b){ return b.status==='upcoming'; });
-      var daysSinceLast = lastCompletedVisit ? (now - new Date(lastCompletedVisit).getTime())/86400000 : Infinity;
-      var tag = null;
-      if(visits>=10 || spent>=1000) tag = 'vip';
-      else if(visits<=1 && !hasUpcoming) tag = 'new';
-      else if(!hasUpcoming && daysSinceLast>90) tag = 'inactive';
-      var stylistCounts = {}, serviceCounts = {};
-      completed.forEach(function(b){
-        if(b.stylist_name_snapshot) stylistCounts[b.stylist_name_snapshot] = (stylistCounts[b.stylist_name_snapshot]||0)+1;
-        if(b.service_name_snapshot) serviceCounts[b.service_name_snapshot] = (serviceCounts[b.service_name_snapshot]||0)+1;
-      });
-      function topOf(counts){ var best=null,bestN=0; for(var k in counts){ if(counts[k]>bestN){ best=k; bestN=counts[k]; } } return best; }
-      return {
-        key:g.key, name:g.name, email:g.email, phone:g.phone,
-        visits:visits, spent:spent, lastVisit:lastCompletedVisit, firstCreated:firstCreated,
-        tag:tag, favoriteStylist:topOf(stylistCounts), favoriteService:topOf(serviceCounts),
-        upcoming: g.bookings.filter(function(b){return b.status==='upcoming';}),
-        allBookings: g.bookings
-      };
-    });
-  }
+  let currentUserId = null;
+  var teamRoster = [];
+  var chatMessages = [];
+  var pollTimer = null;
 
   function initialsFor(name){
     var parts = String(name||'').trim().split(/\s+/);
@@ -591,17 +510,15 @@
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
-  function tagPill(tag){
-    if(tag === 'vip') return '<span class="tag-pill tag-vip">VIP</span>';
-    if(tag === 'new') return '<span class="tag-pill tag-new">New</span>';
-    if(tag === 'inactive') return '<span class="tag-pill tag-inactive">Inactive</span>';
-    return '';
-  }
-  function monthYear(iso){ return iso ? new Intl.DateTimeFormat("en-US",{month:"short",year:"numeric"}).format(new Date(iso)) : '—'; }
-  function fullDate(iso){ return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(iso)); }
-  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
+  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
+  function dateSepLabel(dateKey){
+    if(dateKey===nzTodayKey()) return 'Today';
+    var y = new Intl.DateTimeFormat('en-CA',{timeZone:'Pacific/Auckland'}).format(new Date(Date.now()-86400000));
+    if(dateKey===y) return 'Yesterday';
+    return new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'}).format(new Date(dateKey+'T12:00:00Z'));
+  }
 
   function showLoginRequired(title, message, ctaLabel, ctaHref){
     document.querySelector('.shell').innerHTML = `
@@ -614,170 +531,11 @@
       </div>
     `;
   }
-  function showNotFound(){
-    document.getElementById('clientContent').innerHTML = `
-      <div class="panel" style="text-align:center;padding:60px 24px;">
-        <h1 style="font-size:18px;margin-bottom:8px;">Client not found</h1>
-        <p style="font-size:13.5px;color:var(--text-soft);">This client doesn't have any bookings at your venue.</p>
-      </div>
-    `;
-  }
 
-  function statusBadge(status){
-    var map = { upcoming:'Upcoming', completed:'Completed', cancelled:'Cancelled', no_show:'No-show' };
-    var cls = status==='no_show' ? 'noshow' : status;
-    return '<span class="status-badge status-' + cls + '">' + (map[status]||status) + '</span>';
-  }
-
-  function renderClient(noteText){
-    const c = client;
-    const col = colorFor(c.name);
-    const upcoming = c.upcoming[0];
-
-    document.getElementById('clientContent').innerHTML = `
-      <div class="panel profile-panel">
-        <div class="profile-head">
-          <div class="profile-avatar" style="background:${col.color};color:${col.text};">${initialsFor(c.name)}</div>
-          <div>
-            <div class="profile-name-row">
-              <h1>${escapeHtml(c.name)}</h1>
-              ${tagPill(c.tag)}
-            </div>
-            <div class="profile-meta">Client since ${monthYear(c.firstCreated)} · ${escapeHtml(c.email||'No email on file')} · ${escapeHtml(c.phone||'No phone on file')}</div>
-          </div>
-          <div class="profile-actions">
-            <a href="/venue/admin/messages" class="btn btn-ghost">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Message
-            </a>
-            <a href="/venue/admin/new-booking" class="btn btn-violet">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-              New booking
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Total visits</div>
-            <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
-          </div>
-          <div class="stat-value">${c.visits}</div>
-          <div class="stat-delta"><span class="muted">Since ${monthYear(c.firstCreated)}</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Total spent</div>
-            <div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          </div>
-          <div class="stat-value">$${c.spent.toLocaleString()}</div>
-          <div class="stat-delta"><span class="muted">Lifetime</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Avg. per visit</div>
-            <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></div>
-          </div>
-          <div class="stat-value">$${c.visits ? Math.round(c.spent/c.visits) : 0}</div>
-          <div class="stat-delta"><span class="muted">${c.visits} visit${c.visits===1?'':'s'}</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-top">
-            <div class="stat-label">Last visit</div>
-            <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-          </div>
-          <div class="stat-value">${c.lastVisit ? (nzDateKeyForIso(c.lastVisit)===nzTodayKey()?'Today':fullDate(c.lastVisit)) : '—'}</div>
-          <div class="stat-delta"><span class="muted">${c.lastVisit ? localTimeLabel(c.lastVisit) : ''}</span></div>
-        </div>
-      </div>
-
-      <div class="dash-grid">
-        <div class="side-col">
-
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Upcoming</h2>
-              <a href="/venue/admin/bookings" class="link">See all</a>
-            </div>
-            ${upcoming ? `
-            <div class="appt-row">
-              <div class="appt-avatar" style="background:${col.color};color:${col.text};">${initialsFor(c.name)}</div>
-              <div>
-                <div class="appt-name">${escapeHtml(upcoming.service_name_snapshot||'Service')}</div>
-                <div class="appt-service">${fullDate(upcoming.starts_at)} · ${escapeHtml(upcoming.stylist_name_snapshot||'Venue team')}</div>
-              </div>
-              <div class="appt-time">
-                <div class="t">${localTimeLabel(upcoming.starts_at)}</div>
-                <div class="status-pill status-confirmed">Upcoming</div>
-              </div>
-            </div>` : `<p style="font-size:12.5px;color:var(--text-faint);">No upcoming appointments.</p>`}
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Visit history</h2>
-            </div>
-            <div class="table-wrap">
-              <table class="data">
-                <thead><tr><th>Date</th><th>Service</th><th>Stylist</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody>
-                  ${c.allBookings.length ? c.allBookings.map(function(b){
-                    return '<tr><td>' + fullDate(b.starts_at) + '</td><td>' + escapeHtml(b.service_name_snapshot||'Service') + '</td><td>' + escapeHtml(b.stylist_name_snapshot||'Venue team') + '</td><td>$' + Number(b.total||0).toFixed(0) + '</td><td>' + statusBadge(b.status) + '</td></tr>';
-                  }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:24px;">No bookings yet.</td></tr>'}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="side-col">
-          <div class="panel">
-            <div class="panel-head"><h2>Contact info</h2></div>
-            <div class="info-row"><span class="info-label">Email</span><span class="info-value">${escapeHtml(c.email||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${escapeHtml(c.phone||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Client since</span><span class="info-value">${monthYear(c.firstCreated)}</span></div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head"><h2>Preferences</h2></div>
-            <div class="info-row"><span class="info-label">Favorite stylist</span><span class="info-value">${escapeHtml(c.favoriteStylist||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Favorite service</span><span class="info-value">${escapeHtml(c.favoriteService||'—')}</span></div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head"><h2>Staff notes</h2></div>
-            <textarea class="notes-input" id="clientNoteInput" placeholder="Add notes for other staff — allergies, preferences, anything worth knowing before their next visit…">${escapeHtml(noteText||'')}</textarea>
-            <div class="notes-save-row">
-              <div class="btn btn-violet" onclick="saveClientNote()">Save note</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  async function saveClientNote(){
-    const text = document.getElementById('clientNoteInput').value.trim();
-    try{
-      if(!text){
-        await supabaseClient.from("client_notes").delete().eq("salon_id",currentSalonId).eq("customer_name",client.name);
-      } else {
-        await supabaseClient.from("client_notes").upsert({salon_id:currentSalonId,customer_name:client.name,note:text,updated_at:new Date().toISOString()},{onConflict:"salon_id,customer_name"});
-      }
-      showToast('Note saved');
-    }catch(err){ showToast(err.message||'Could not save note'); }
-  }
-
-  async function bootClientPage(){
-    const key = new URLSearchParams(window.location.search).get('key');
-    if(!key){ showNotFound(); return; }
-
+  async function bootTeamChatPage(){
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(!session){
-      showLoginRequired("Log in to your venue","Use your venue account before opening this client.","Log in","/business-auth?view=login");
+      showLoginRequired("Log in to your venue","Use your venue account before opening Team Chat.","Log in","/business-auth?view=login");
       return;
     }
     const [{data:profile},{data:owner}] = await Promise.all([
@@ -795,45 +553,118 @@
       return;
     }
     currentSalonId=owner.salon_id;
+    currentUserId=session.user.id;
     var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
     document.getElementById('sbAvatar').textContent = initialsFor(displayName);
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
 
-    const [{data:bookings,error},{data:manualClients}] = await Promise.all([
-      supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId),
-      supabaseClient.rpc("get_venue_clients")
-    ]);
-    if(error){ showToast(error.message); showNotFound(); return; }
-    const clients = buildClients(bookings||[]);
-    client = clients.find(function(c){ return c.key===key; });
-    if(!client){
-      var manualRow = (manualClients||[]).find(function(r){
-        return clientKeyFor({customer_user_id:null, customer_phone:r.phone, customer_email:r.email, customer_name:r.name}) === key;
-      });
-      if(manualRow){
-        client = {
-          key:key, name:manualRow.name, email:manualRow.email||'', phone:manualRow.phone||'',
-          visits:0, spent:0, lastVisit:null, firstCreated:manualRow.created_at,
-          tag:'new', favoriteStylist:null, favoriteService:null,
-          upcoming:[], allBookings:[]
-        };
+    try{
+      const [{data:salonRow},{data:roster}] = await Promise.all([
+        supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle(),
+        supabaseClient.rpc("list_staff_members",{p_salon_id:currentSalonId})
+      ]);
+      if(salonRow){
+        document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
+        document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+        document.title = salonRow.name ? `Team Chat — ${salonRow.name}` : "Team Chat — Blooma Business";
       }
-    }
-    if(!client){ showNotFound(); return; }
+      teamRoster = roster||[];
+      renderRoster();
+    }catch(err){ showToast(err.message||"Unable to load team"); }
 
-    const {data:salonRow} = await supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle();
-    if(salonRow){
-      document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
-      document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-      document.title = `${client.name} — ${salonRow.name || 'Blooma Business'}`;
-    }
-
-    const {data:noteRow} = await supabaseClient.from("client_notes").select("note").eq("salon_id",currentSalonId).eq("customer_name",client.name).maybeSingle();
-    renderClient(noteRow?.note || '');
+    await reloadMessages();
+    var input = document.getElementById('tcInput');
+    var sendBtn = document.getElementById('tcSendBtn');
+    input.disabled = false; sendBtn.disabled = false;
+    input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSend(); } });
+    pollTimer = setInterval(function(){ reloadMessages(true); }, 6000);
   }
 
-  bootClientPage();
+  function rosterName(userId){
+    var m = teamRoster.find(function(x){ return x.user_id===userId; });
+    if(!m) return userId===currentUserId ? 'You' : 'Team member';
+    var name = [m.first_name,m.last_name].filter(Boolean).join(' ').trim() || m.email || 'Team member';
+    return userId===currentUserId ? 'You' : name;
+  }
+
+  function renderRoster(){
+    document.getElementById('tcHeadSub').textContent = teamRoster.length + ' team member' + (teamRoster.length===1?'':'s') + ' can see this channel';
+    document.getElementById('tcRoster').innerHTML = teamRoster.slice(0,6).map(function(m){
+      var name = [m.first_name,m.last_name].filter(Boolean).join(' ').trim() || m.email || '?';
+      var col = colorFor(name);
+      return '<div class="tc-roster-avatar" style="background:' + col.color + ';color:' + col.text + ';" title="' + escapeHtml(name) + '">' + initialsFor(name) + '</div>';
+    }).join('');
+  }
+
+  async function reloadMessages(silent){
+    try{
+      const {data,error} = await supabaseClient.rpc("get_team_messages");
+      if(error) throw error;
+      var grew = (data||[]).length > chatMessages.length;
+      chatMessages = data||[];
+      renderThread();
+      if(grew || !silent) scrollThreadToBottom();
+    }catch(err){ if(!silent) showToast(err.message||"Unable to load team chat"); }
+  }
+
+  function renderThread(){
+    var wrap = document.getElementById('tcThread');
+    if(!chatMessages.length){
+      wrap.innerHTML = '<div class="tc-empty">No messages yet — say hi to your team.</div>';
+      return;
+    }
+    var html = '';
+    var lastDateKey = null, lastSender = null;
+    chatMessages.forEach(function(m){
+      var dateKey = nzDateKeyForIso(m.created_at);
+      if(dateKey !== lastDateKey){
+        html += '<div class="tc-date-sep">' + dateSepLabel(dateKey) + '</div>';
+        lastDateKey = dateKey; lastSender = null;
+      }
+      var isOut = m.sender_user_id === currentUserId;
+      var stacked = lastSender === m.sender_user_id;
+      var name = m.sender_name || rosterName(m.sender_user_id);
+      var col = colorFor(name);
+      html += '<div class="tc-row ' + (isOut?'out':'in') + (stacked?' stacked':'') + '">' +
+        '<div class="tc-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(name) + '</div>' +
+        '<div class="tc-bubble-col">' +
+          (stacked ? '' : '<div class="tc-sender">' + (isOut?'You':escapeHtml(name)) + '</div>') +
+          '<div class="tc-bubble">' + escapeHtml(m.body) + '</div>' +
+          '<div class="tc-time">' + localTimeLabel(m.created_at) + '</div>' +
+        '</div>' +
+      '</div>';
+      lastSender = m.sender_user_id;
+    });
+    wrap.innerHTML = html;
+  }
+
+  function scrollThreadToBottom(){
+    var wrap = document.getElementById('tcThread');
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  var sending = false;
+  async function doSend(){
+    var input = document.getElementById('tcInput');
+    var body = input.value.trim();
+    if(!body || sending) return;
+    sending = true;
+    input.disabled = true;
+    document.getElementById('tcSendBtn').disabled = true;
+    try{
+      const {error} = await supabaseClient.rpc("send_team_message_gated",{p_body:body});
+      if(error) throw error;
+      input.value = '';
+      await reloadMessages();
+    }catch(err){ showToast(err.message||"Message failed to send"); }
+    input.disabled = false;
+    document.getElementById('tcSendBtn').disabled = false;
+    sending = false;
+    input.focus();
+  }
+
+  bootTeamChatPage();
 </script>
 
 <script>
