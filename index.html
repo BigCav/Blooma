@@ -1846,17 +1846,6 @@ function applyCanonicalBookingResult(target,saved){
   if(saved.status) target.status=saved.status;
   return target;
 }
-async function rescheduleCloudBooking(original,booking){
-  const payload={
-    salon_id:booking.salonId,service_id:booking.serviceId||null,stylist_id:booking.stylistName==="Any available"?null:(booking.stylistId||null),
-    starts_at:bookingStartIso(state.selectedDay,booking.time),local_date:nzDateKey(DAYS[state.selectedDay]),local_time:bookingLocalTime24(booking.time),duration_minutes:state.service?.duration||booking.duration||30,
-    subtotal:booking.subtotal||0,discount:booking.discount||0,total:booking.price||0,promo_code:booking.promoCode||null,notes:booking.notes||"",preferences:booking.preferences||[],addons:booking.addons||[]
-  };
-  if(!original?.publicToken) throw new Error("This booking cannot be rescheduled yet. Refresh Activity and try again.");
-  const {data,error}=await customerSupabaseClient.rpc("reschedule_public_booking",{token:original.publicToken,payload});
-  if(error) throw error;
-  return data||{};
-}
 async function cancelCloudBooking(booking){
   if(!booking?.publicToken) throw new Error("This booking cannot be cancelled yet. Refresh and try again.");
   const {data,error}=await customerSupabaseClient.rpc("cancel_public_booking",{token:booking.publicToken});
@@ -1903,7 +1892,7 @@ async function loadCustomerCloudState(){
   const cloud=data||{}; const reviews=new Map((cloud.reviews||[]).map(r=>[String(r.booking_id),{rating:Number(r.rating||0),note:r.note||""}]));
   state.bookings=(cloud.bookings||[]).map((r,i)=>customerBookingFromRow(r,i,reviews));
   state.waitlist=(cloud.waitlist||[]).map((r,i)=>customerWaitlistFromRow(r,i));
-  bookingCounter=state.bookings.length+1; waitlistCounter=state.waitlist.length+1;
+  waitlistCounter=state.waitlist.length+1;
   const pr=cloud.profile||{};
   if(Array.isArray(pr.favorites)) state.favorites=pr.favorites;
   if(Array.isArray(pr.recently_viewed)) state.recentlyViewed=pr.recently_viewed;
@@ -2207,12 +2196,6 @@ function countdownLabel(iso){
   if (diff > 1) return `In ${diff} days`;
   return "Past";
 }
-function firstOpenDayIndex(salon){
-  for (let i=0;i<DAYS.length;i++){
-    if (customerDayHours(salon,nzDayIndex(DAYS[i]))) return i;
-  }
-  return 0;
-}
 function parseTimeMins(t){
   const raw=String(t||"").trim();
   const m=raw.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -2221,98 +2204,6 @@ function parseTimeMins(t){
   return 0;
 }
 function formatTimeMins(mins){ let h=Math.floor(mins/60)%24,m=mins%60,period=h>=12?"PM":"AM"; let h12=h%12||12; return `${h12}:${String(m).padStart(2,"0")} ${period}`; }
-function selectedDayHours(salon,dayIndex){
-  const d=DAYS[dayIndex];
-  const h=customerDayHours(salon,nzDayIndex(d));
-  if(!h) return null;
-  return {start:parseTimeMins(h.start),end:parseTimeMins(h.end)};
-}
-function timeSlotsForSalon(salon,dayIndex,durationMins){
-  const bounds=selectedDayHours(salon,dayIndex); if(!bounds) return [];
-  const out=[]; for(let m=bounds.start;m+Number(durationMins||0)<=bounds.end;m+=15) out.push(formatTimeMins(m)); return out;
-}
-function isPastTimeSlot(dayIndex,timeStr){
-  return new Date(bookingStartIso(dayIndex,timeStr)).getTime() < Date.now()+5*60000;
-}
-function intervalOverlaps(aStart,aEnd,bStart,bEnd){ return aStart<bEnd && aEnd>bStart; }
-function staffUnavailableInCloud(salon,staffId,slotStart,slotEnd){
-  const bufferMs=Math.max(0,Number(salon.bufferTime||0))*60000;
-  const booked=(salon.cloudBookedSlots||[]).some(b=>{
-    if(String(b.stylist_id||"")!==String(staffId||"")) return false;
-    const existingStart=new Date(b.starts_at);
-    const existingEnd=new Date(existingStart.getTime()+Number(b.duration_minutes||30)*60000);
-    return intervalOverlaps(slotStart,new Date(slotEnd.getTime()+bufferMs),existingStart,new Date(existingEnd.getTime()+bufferMs));
-  });
-  if(booked) return true;
-  return (salon.cloudBlockouts||[]).some(bo=>(bo.all_staff||String(bo.stylist_id||"")===String(staffId||"")) && intervalOverlaps(slotStart,slotEnd,new Date(bo.starts_at),new Date(bo.ends_at)));
-}
-function isTimeBlocked(salon,dayIndex,stylist,timeStr,durationMins){
-  const d=DAYS[dayIndex];
-  const bounds=selectedDayHours(salon,dayIndex); if(!bounds) return true;
-  const slotStartMin=parseTimeMins(timeStr), slotEndMin=slotStartMin+Number(durationMins||0); if(slotStartMin<bounds.start||slotEndMin>bounds.end) return true;
-  const slotStart=new Date(bookingStartIso(dayIndex,timeStr)); const slotEnd=new Date(slotStart.getTime()+Number(durationMins||0)*60000);
-  if(slotStart.getTime()<Date.now()+5*60000) return true;
-  const localBlocked=(salon.blockouts||[]).some(bo=>{ if(bo.dayOffset!==dayIndex) return false; if(bo.stylistName!=="All staff"&&(!stylist||bo.stylistName!==stylist.name)) return false; return intervalOverlaps(slotStartMin,slotEndMin,parseTimeMins(bo.startTime),parseTimeMins(bo.endTime)); });
-  if(localBlocked) return true;
-  const anySelected=!stylist||stylist.name==="Any available";
-  const isToday=dayIndex===0;
-  if(!anySelected && isToday && stylist.availableToday===false) return true;
-  if(anySelected){
-    const realStaff=(salon.stylists||[]).filter(st=>st.name!=="Any available" && (!isToday || st.availableToday!==false));
-    if(realStaff.length) return realStaff.every(st=>staffUnavailableInCloud(salon,st.id,slotStart,slotEnd));
-    const bufferMs=Math.max(0,Number(salon.bufferTime||0))*60000;
-    const genericBooked=(salon.cloudBookedSlots||[]).some(b=>{
-      if(b.stylist_id) return false;
-      const bs=new Date(b.starts_at),be=new Date(bs.getTime()+Number(b.duration_minutes||30)*60000);
-      return intervalOverlaps(slotStart,new Date(slotEnd.getTime()+bufferMs),bs,new Date(be.getTime()+bufferMs));
-    });
-    const allBlock=(salon.cloudBlockouts||[]).some(bo=>bo.all_staff&&intervalOverlaps(slotStart,slotEnd,new Date(bo.starts_at),new Date(bo.ends_at)));
-    return genericBooked||allBlock;
-  }
-  return staffUnavailableInCloud(salon,stylist.id,slotStart,slotEnd);
-}
-function availableTimeSlots(salon,dayIndex,stylist,durationMins){ return timeSlotsForSalon(salon,dayIndex,durationMins).filter(t=>!isTimeBlocked(salon,dayIndex,stylist,t,durationMins)); }
-function selectedAddonsList(){
-  if (!state.service || !state.service.addons) return [];
-  return state.service.addons.filter(a=>state.selectedAddons.includes(a.id));
-}
-function selectedAddonsTotal(){
-  return selectedAddonsList().reduce((sum,a)=>sum+a.price,0);
-}
-function baseTotal(){
-  if (!state.service) return 0;
-  return state.service.price + selectedAddonsTotal();
-}
-function promoDiscount(){
-  if (!state.appliedPromo) return 0;
-  const p = state.appliedPromo;
-  const subtotal = baseTotal();
-  const raw = p.type === "percent" ? Math.round((subtotal * p.value / 100) * 100) / 100 : Number(p.value||0);
-  return Math.max(0,Math.min(raw, subtotal));
-}
-function loyaltyDiscount(){
-  if (!state.appliedLoyaltyReward) return 0;
-  const remaining = Math.max(0, baseTotal() - promoDiscount());
-  return Math.max(0, Math.min(Number(state.appliedLoyaltyReward.value||0), remaining));
-}
-function packageDiscount(){
-  if (!state.myPackage || !state.packageApplied || !state.service) return 0;
-  if (String(state.myPackage.service_id) !== String(state.service.id)) return 0;
-  return Math.min(state.service.price, baseTotal());
-}
-function giftCardDiscount(){
-  if (!state.appliedGiftCard) return 0;
-  const remaining = Math.max(0, baseTotal() - promoDiscount() - loyaltyDiscount() - packageDiscount());
-  return Math.max(0, Math.min(Number(state.appliedGiftCard.remaining_balance||0), remaining));
-}
-function finalTotal(){
-  return Math.max(0, baseTotal() - promoDiscount() - loyaltyDiscount() - packageDiscount() - giftCardDiscount());
-}
-function loyaltyPointsForThisBooking(){
-  if (!state.loyaltyAccount || !state.loyaltyAccount.pointsPerDollar) return 0;
-  return Math.max(0, Math.round(finalTotal() * state.loyaltyAccount.pointsPerDollar));
-}
-
 const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 function formatTime12(hhmm){
   const [h,m] = hhmm.split(":").map(Number);
@@ -2376,19 +2267,6 @@ function starRowMarkup(rating){
   }
   return out;
 }
-function checkoutVenueCardMarkup(salon){
-  const coverImage = (salon.photos && salon.photos.length) ? salon.photos[0] : (salon.homeImage||"");
-  return `
-    <div class="checkout-sidebar-venue-row">
-      <div class="checkout-sidebar-venue-img">${coverImage?`<img src="${escapeAttr(coverImage)}" alt="${escapeAttr(salon.name)}" loading="lazy" decoding="async">`:`<div class="checkout-sidebar-venue-img-fallback">${icon(salon.icon||'store','var(--purple)')}</div>`}</div>
-      <div style="min-width:0;">
-        <p class="checkout-sidebar-venue-name">${escapeHtml(salon.name)}</p>
-        <p class="checkout-sidebar-venue-rating">${salon.rating!=="New"?`<span>${salon.rating}</span><span class="star-row">${starRowMarkup(salon.rating)}</span><span class="checkout-sidebar-venue-rating-count">(${salon.reviews})</span>`:`${icon('star','var(--gold)')}<span>New</span>`}</p>
-        <p class="checkout-sidebar-venue-address">${escapeHtml(venueFullAddress(salon)||salon.distance||"")}</p>
-      </div>
-    </div>`;
-}
-
 /* ---------------------------------------------------
    STATE
 --------------------------------------------------- */
@@ -2491,7 +2369,6 @@ let state = {
   messageError: "",
   showHomeMenu: false,
 };
-let bookingCounter = 2;
 let waitlistCounter = 1;
 
 function slugifyVenueName(name){
@@ -2557,8 +2434,6 @@ function restoreCustomerHistoryState(entry){
   if(!salon){ Object.assign(state,{page:"home",salon:null,service:null,step:0}); render(); return true; }
   state.salon=salon;
   if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); loadLoyaltyAccount(); return true; }
-  if(page==="serviceSelect"){ Object.assign(state,{page:"serviceSelect"}); render(); return true; }
-  if(page==="checkout"){ const service=(salon.services||[]).find(s=>s.id===entry.serviceId)||state.service; if(service) state.service=service; Object.assign(state,{page:"checkout",step:Number(entry.step||0),checkoutOrigin:entry.checkoutOrigin||state.checkoutOrigin}); render(); return true; }
   if(page==="stylist"){ state.stylistProfile=(salon.stylists||[]).find(st=>st.id===entry.stylistId)||state.stylistProfile; state.page="salon"; state.stylistSheetOpen=true; render(); return true; }
   if(page==="gallery"){ state.gallerySalon=salon; state.page="gallery"; render(); return true; }
   if(page==="reviews"){ state.reviewSalon=salon; state.page="reviews"; render(); return true; }
@@ -2634,23 +2509,6 @@ function rememberVenueScroll(){
 function returnToVenue(extraPatch){
   setState({ page:"salon", ...(extraPatch||{}) }, { restoreScrollTop: state.venueReturnScrollTop || 0 });
 }
-function goServiceSelect(){
-  rememberVenueScroll();
-  setState({ page:"serviceSelect", salonCategory:"All", selectedServiceId:null });
-  pushCustomerHistoryState();
-}
-function intakeQuestionsFor(service){
-  if(!service || !state.venueIntakeQuestions) return [];
-  return state.venueIntakeQuestions[service.id] || [];
-}
-function checkoutStepKeys(service){
-  const keys=[];
-  if (service && service.addons && service.addons.length) keys.push("addons");
-  keys.push("stylist","time");
-  if (intakeQuestionsFor(service).length) keys.push("intake");
-  keys.push("details","confirm");
-  return keys;
-}
 function goCheckoutPage(service, preferredStylist){
   if(!state.salon) return;
   if(!service){ window.location.href = venuePublicPath(state.salon) + "/checkout"; return; }
@@ -2658,17 +2516,6 @@ function goCheckoutPage(service, preferredStylist){
   params.set("service", service.id);
   if(preferredStylist && !isAnyAvailableStylist(preferredStylist)) params.set("stylist", preferredStylist.id);
   window.location.href = venuePublicPath(state.salon) + "/checkout?" + params.toString();
-}
-async function applyPromoCode(){
-  const raw=(state.promoCode||"").trim().toUpperCase();
-  if(!raw){ setState({promoError:"Enter a code to apply"},{samePage:true}); return; }
-  try{
-    const result=await validateCloudPromo(raw);
-    if(!result?.valid){ setState({promoError:"That code isn't valid",appliedPromo:null},{samePage:true}); return; }
-    setState({appliedPromo:{code:result.code,type:result.type,value:Number(result.value||0),label:result.description||"Promotion applied"},promoCode:"",promoError:""},{samePage:true});
-  }catch(err){
-    setState({promoError:"We couldn't check that code. Please try again.",appliedPromo:null},{samePage:true});
-  }
 }
 function goHistory(){
   if (!isLoggedInCustomer()){ window.location.href = customerLoginDestination(); return; }
@@ -2729,15 +2576,6 @@ async function loadLoyaltyAccount(){
   }catch(e){ state.loyaltyAccount=null; /* loyalty is a nice-to-have — fail quietly */ }
   state.loyaltyLoading=false; render();
 }
-async function loadMyPackage(){
-  if(!customerSupabaseClient || !state.authUserId || !state.salon?.id || !state.service?.id) { state.myPackage=null; return; }
-  try{
-    const {data,error}=await customerSupabaseClient.rpc("get_my_packages",{p_salon_id:state.salon.id});
-    if(error) throw error;
-    state.myPackage=(data||[]).find(p=>String(p.service_id)===String(state.service.id)) || null;
-  }catch(e){ state.myPackage=null; }
-  render({samePage:true});
-}
 async function loadMyGiftCardsAndPackages(){
   if(!customerSupabaseClient || !isLoggedInCustomer()) { state.myGiftCards=[]; state.myPackages=[]; return; }
   try{
@@ -2768,19 +2606,6 @@ async function loadVenueIntakeQuestions(){
     state.venueIntakeQuestions=data||{};
   }catch(e){ state.venueIntakeQuestions={}; }
   render({samePage:true});
-}
-async function applyGiftCardCode(){
-  const raw=(state.giftCardCode||"").trim().toUpperCase();
-  if(!raw){ setState({giftCardError:"Enter a gift card code"},{samePage:true}); return; }
-  if(!state.salon?.id) return;
-  setState({giftCardChecking:true, giftCardError:""},{samePage:true});
-  try{
-    const {data,error}=await customerSupabaseClient.rpc("get_gift_card_by_code",{p_salon_id:state.salon.id,p_code:raw});
-    if(error) throw error;
-    setState({appliedGiftCard:data, giftCardCode:"", giftCardError:"", giftCardChecking:false},{samePage:true});
-  }catch(err){
-    setState({giftCardError:err?.message||"That gift card code isn't valid",appliedGiftCard:null, giftCardChecking:false},{samePage:true});
-  }
 }
 async function buyGiftCard(){
   if(!isLoggedInCustomer()){ window.location.href = customerLoginDestination(); return; }
@@ -3477,57 +3302,7 @@ function renderSalon(){
 }
 
 /* ---------------------------------------------------
-   RENDER: SERVICE SELECTION
---------------------------------------------------- */
-function renderServiceSelect(){
-  const salon = state.salon;
-  if (!salon) return renderHome();
-  const categories = ["All", ...Array.from(new Set(salon.services.map(s=>s.category)))];
-  const services = state.salonCategory==="All" ? salon.services : salon.services.filter(s=>s.category===state.salonCategory);
-  const pickedService = services.find(s=>s.id===state.selectedServiceId) || salon.services.find(s=>s.id===state.selectedServiceId);
-  const allStepKeys = ["service", ...checkoutStepKeys(pickedService)];
-  const dots = allStepKeys.map((k,i)=>`<div class="dot ${i===0?'current':'upcoming'}"></div>`).join("");
-  return `
-    <div class="page checkout-shell service-select-shell">
-      <div class="topbar"><div style="display:flex;align-items:center;gap:12px;min-width:0;"><button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Service</h1></div><div class="stepdots">${dots}</div></div>
-      <div class="service-select-sidebar">
-      <div class="service-select-salon-strip">
-        <div class="checkout-summary-mobile" style="padding:16px 20px;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);">
-          <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
-          <div style="min-width:0;">
-            <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(salon.name)}</p>
-            <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;">${pickedService?`${escapeHtml(pickedService.name)} · ${pickedService.duration} min · $${pickedService.price}`:"Select the service you would like to book"}</p>
-          </div>
-        </div>
-        <div class="checkout-summary-desktop" style="padding:16px;">
-          ${checkoutVenueCardMarkup(salon)}
-          <div class="checkout-sidebar-booking-info">
-            ${pickedService?`
-            <div class="checkout-sidebar-divider"></div>
-            <div class="checkout-sidebar-item-row">
-              <span class="checkout-sidebar-item-name">${escapeHtml(pickedService.name)}</span>
-              <span class="checkout-sidebar-item-price">$${pickedService.price}</span>
-            </div>
-            <p class="checkout-sidebar-item-sub">${pickedService.duration} min</p>
-            <div class="checkout-sidebar-divider"></div>
-            <div class="checkout-sidebar-total-row"><span>Total</span><span>$${pickedService.price}</span></div>
-            `:""}
-          </div>
-        </div>
-      </div>
-      <div class="service-select-footer" style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        <button class="primary-btn" id="serviceContinueBtn" ${!state.selectedServiceId?'disabled':''}>Continue</button>
-      </div>
-      </div>
-      <div class="no-scrollbar chip-row" data-scrollkey="service-select-filter" style="padding:16px 20px;flex-shrink:0;">${categories.map(c=>`<button class="chip ${state.salonCategory===c?'active':''}" data-servicecat="${escapeAttr(c)}">${c}</button>`).join("")}</div>
-      <div class="service-select-list" style="flex:1;overflow-y:auto;padding:2px 20px 20px;display:flex;flex-direction:column;gap:8px;min-height:0;">
-        ${services.map(service=>`<button class="service-select-card ${state.selectedServiceId===service.id?'active':''}" data-pickservice="${service.id}"><span style="min-width:0;"><span style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);">${escapeHtml(service.name)}${service.isNew?`<span class="new-badge">New</span>`:""}</span><span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${service.duration} min${service.addons&&service.addons.length?' · add-ons available':''}</span></span><strong style="font-size:14px;color:var(--ink);flex-shrink:0;">$${service.price}</strong></button>`).join("")}
-      </div>
-    </div>`;
-}
-
-/* ---------------------------------------------------
-   RENDER: BOOKING CONFIRMED (shared by checkout-done and Activity detail view)
+   RENDER: BOOKING CONFIRMED (shared by Activity detail view)
 --------------------------------------------------- */
 function renderBookingConfirmed(booking){
   if (!booking){
@@ -3653,351 +3428,6 @@ function bindBookingConfirmedEvents(booking, onBack){
 /* ---------------------------------------------------
    RENDER: CHECKOUT
 --------------------------------------------------- */
-function renderCheckout(){
-  const salon = state.salon, service = state.service;
-
-  if (state.done){
-    const doneBooking = state.bookings.find(b=>b.id===state.lastBookingId) || null;
-    return renderBookingConfirmed(doneBooking);
-  }
-
-  const stepKeys = checkoutStepKeys(service);
-  const step = state.step; // index into stepKeys
-  const stepKey = stepKeys[step] || "confirm";
-  const canContinueStylist = state.selectedStylist !== null;
-  const canContinueTime = state.selectedTime !== null && !isTimeBlocked(salon, state.selectedDay, state.selectedStylist, state.selectedTime, service.duration);
-  const contact = bookingContact();
-  const canContinueDetails = state.firstVisitAnswered && (isLoggedInCustomer() ? (contact.name.length > 1 && contact.phone.length > 5) : (state.name.trim().length > 1 && state.phone.trim().length > 5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.guestEmail.trim())));
-  const canContinueIntake = intakeQuestionsFor(service).every(q=> !q.required || String(state.intakeAnswers[q.id]||"").trim().length>0);
-  const disabled = state.bookingSaving || (stepKey==="stylist" && !canContinueStylist) || (stepKey==="time" && !canContinueTime) || (stepKey==="intake" && !canContinueIntake) || (stepKey==="details" && !canContinueDetails);
-
-  let body = "";
-  if (stepKey==="addons"){
-    body = `
-      <p class="checkout-step-label">Add-ons <span class="checkout-step-label-sub">(optional)</span></p>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        ${service.addons.map(a=>`
-          <button class="addon-row ${state.selectedAddons.includes(a.id)?'active':''}" data-addon="${a.id}">
-            <span style="min-width:0;">
-              <span style="display:block;font-size:13.5px;font-weight:600;color:var(--ink);">${escapeHtml(a.name)}</span>
-              ${a.duration?`<span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:2px;">${a.duration} min</span>`:""}
-            </span>
-            <span style="font-size:13.5px;font-weight:700;color:var(--ink);flex-shrink:0;">+$${a.price}</span>
-          </button>
-        `).join("")}
-      </div>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin:16px 2px 0;line-height:1.5;">You can skip this step if you don't need any add-ons.</p>
-    `;
-  } else if (stepKey==="stylist"){
-    const assignedStylists = salon.stylists.filter(st=>Array.isArray(st.serviceIds) && st.serviceIds.length && st.serviceIds.includes(service.id));
-    const eligibleStylists = assignedStylists.length
-      ? salon.stylists.filter(st=>isAnyAvailableStylist(st) || assignedStylists.includes(st))
-      : salon.stylists;
-    body = `
-      <p class="checkout-step-label">Stylist</p>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        ${eligibleStylists.map(st=>`
-          <button class="stylist-card ${state.selectedStylist && state.selectedStylist.id===st.id?'active':''}" data-stylist="${st.id}">
-            <div class="stylist-avatar">${isAnyAvailableStylist(st) ? icon('sparkles') : escapeHtml(st.name.charAt(0))}</div>
-            <span style="min-width:0;">
-              <span style="display:block;font-size:14px;font-weight:600;color:var(--ink);">${escapeHtml(stylistPreferenceLabel(st))}</span>
-              ${st.specialty?`<span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:2px;">${escapeHtml(st.specialty)}</span>`:""}
-            </span>
-          </button>
-        `).join("")}
-      </div>
-    `;
-  } else if (stepKey==="time"){
-    body = `
-      <p class="checkout-step-label">Day</p>
-      <div class="no-scrollbar checkout-day-row" data-scrollkey="checkout-day" style="display:flex;overflow-x:auto;padding-bottom:4px;margin-bottom:24px;">
-        ${DAYS.map((d,i)=>{
-          const isOpen = !!customerDayHours(salon,nzDayIndex(d));
-          return `
-          <button class="day-pill ${state.selectedDay===i?'active':''}" data-day="${i}" ${isOpen?'':'disabled'}>
-            <span class="dname">${dayShort(d)}</span>
-            <span class="dnum">${nzDayNumber(d)}</span>
-          </button>`;
-        }).join("")}
-      </div>
-      <p class="checkout-step-label">Available times</p>
-      <div style="display:grid;grid-template-columns:1fr;gap:10px;">
-        ${timeSlotsForSalon(salon,state.selectedDay,service.duration).filter(t=>!isPastTimeSlot(state.selectedDay,t)).map(t=>{
-          const blocked = isTimeBlocked(salon, state.selectedDay, state.selectedStylist, t, service.duration);
-          return `<button class="time-pill ${state.selectedTime===t?'active':''}" data-time="${t}" ${blocked?'disabled title="Unavailable"':''}>${t}</button>`;
-        }).join("")}
-      </div>
-      ${timeSlotsForSalon(salon,state.selectedDay,service.duration).filter(t=>!isPastTimeSlot(state.selectedDay,t)).every(t=>isTimeBlocked(salon, state.selectedDay, state.selectedStylist, t, service.duration)) ? `
-      <p style="font-size:12.5px;color:var(--ink-soft);margin:14px 2px 0;line-height:1.5;">No times are available ${escapeHtml(stylistAvailabilityPhrase(state.selectedStylist))} on ${dayLabel(DAYS[state.selectedDay])}. Try another day or stylist, or join the waitlist below.</p>
-      <button class="primary-btn" id="joinWaitlistBtn" style="margin-top:14px;">${icon('bell')}&nbsp;Join the waitlist</button>
-      ` : `
-      <button class="text-link-btn" id="joinWaitlistLink" style="margin-top:16px;">Can't find a time that works? Join the waitlist</button>
-      `}
-    `;
-  } else if (stepKey==="intake"){
-    body = `
-      <p class="checkout-step-label">A few questions from ${escapeHtml(salon.name)}</p>
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        ${intakeQuestionsFor(service).map(q=>`
-        <div class="field" data-intakefield="${escapeAttr(q.id)}">
-          <label>${escapeHtml(q.label)}${q.required?' *':''}</label>
-          ${q.type==="yesno" ? `
-          <div style="display:flex;gap:10px;">
-            <button type="button" class="addon-row intake-yesno-btn ${state.intakeAnswers[q.id]==='Yes'?'active':''}" data-intakeyesno="${escapeAttr(q.id)}|Yes" style="flex:1;justify-content:center;"><span style="font-size:13.5px;font-weight:600;color:var(--ink);">Yes</span></button>
-            <button type="button" class="addon-row intake-yesno-btn ${state.intakeAnswers[q.id]==='No'?'active':''}" data-intakeyesno="${escapeAttr(q.id)}|No" style="flex:1;justify-content:center;"><span style="font-size:13.5px;font-weight:600;color:var(--ink);">No</span></button>
-          </div>
-          ` : q.type==="choice" ? `
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            ${(q.options||[]).map(opt=>`
-            <button type="button" class="addon-row intake-choice-btn ${state.intakeAnswers[q.id]===opt?'active':''}" data-intakechoice="${escapeAttr(q.id)}|${escapeAttr(opt)}"><span style="font-size:13.5px;font-weight:600;color:var(--ink);">${escapeHtml(opt)}</span></button>
-            `).join("")}
-          </div>
-          ` : `
-          <input type="text" data-intaketext="${escapeAttr(q.id)}" value="${escapeAttr(state.intakeAnswers[q.id]||"")}" />
-          `}
-        </div>
-        `).join("")}
-      </div>
-    `;
-  } else if (stepKey==="details"){
-    body = `
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        ${isLoggedInCustomer() ? "" : `
-        <div class="field">
-          <label>Full name</label>
-          <input id="nameInput" value="${escapeAttr(state.name)}" autocomplete="name" required />
-        </div>
-        <div class="field">
-          <label>Phone number</label>
-          <input id="phoneInput" value="${escapeAttr(state.phone)}" autocomplete="tel" inputmode="tel" required />
-        </div>
-        <div class="field">
-          <label>Email address</label>
-          <input id="guestEmailInput" type="email" value="${escapeAttr(state.guestEmail)}" autocomplete="email" inputmode="email" required />
-        </div>`}
-        <div class="field">
-          <p class="checkout-step-label" style="margin-bottom:12px;">Is this your first time visiting this salon?</p>
-          <div style="display:flex;gap:10px;">
-            <button type="button" class="addon-row ${(!state.selectedNotes.includes('First time here') && state.firstVisitAnswered)?'active':''}" data-firstvisit="no" style="flex:1;justify-content:center;">
-              <span style="font-size:13.5px;font-weight:600;color:var(--ink);">No</span>
-            </button>
-            <button type="button" class="addon-row ${state.selectedNotes.includes('First time here')?'active':''}" data-firstvisit="yes" style="flex:1;justify-content:center;">
-              <span style="font-size:13.5px;font-weight:600;color:var(--ink);">Yes</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  } else {
-    const initials = state.name.trim() ? state.name.trim().split(/\s+/).map(p=>p[0]).slice(0,2).join("").toUpperCase() : "?";
-    body = `
-      <h1 class="confirm-page-title">Review and confirm</h1>
-
-      <div class="summary-card confirm-mobile-summary" style="margin-bottom:24px;">
-        ${checkoutVenueCardMarkup(salon)}
-        <div class="checkout-sidebar-divider"></div>
-        ${state.selectedTime?`
-        <div class="checkout-sidebar-datetime">
-          <div class="checkout-sidebar-datetime-row">${icon('calendar')}<span>${dayLabel(DAYS[state.selectedDay])}</span></div>
-          <div class="checkout-sidebar-datetime-row">${icon('clock')}<span>${escapeHtml(state.selectedTime)} – ${formatTimeMins(parseTimeMins(state.selectedTime)+service.duration)} (${service.duration} min)</span></div>
-        </div>
-        <div class="checkout-sidebar-divider"></div>
-        `:""}
-        <div class="checkout-sidebar-item-row">
-          <span class="checkout-sidebar-item-name">${escapeHtml(service.name)}</span>
-          <span class="checkout-sidebar-item-price">$${service.price}</span>
-        </div>
-        <p class="checkout-sidebar-item-sub">${service.duration} min${state.selectedStylist?` with ${escapeHtml(stylistPreferenceLabel(state.selectedStylist,true))}`:""}</p>
-        ${selectedAddonsList().map(a=>`
-        <div class="checkout-sidebar-item-row" style="margin-top:8px;">
-          <span class="checkout-sidebar-item-name" style="font-weight:600;">${escapeHtml(a.name)}</span>
-          <span class="checkout-sidebar-item-price">+$${a.price}</span>
-        </div>`).join("")}
-        <div class="checkout-sidebar-divider"></div>
-        <div class="checkout-sidebar-total-row"><span>Total</span><span>$${finalTotal()}</span></div>
-      </div>
-
-      ${isLoggedInCustomer() ? "" : `
-        <div class="section-rule" style="margin-top:0;"><span class="lbl">Contact</span><span class="line"></span></div>
-        <div class="summary-card">
-          <div class="contact-hero-row">
-            <div class="contact-avatar">${initials}</div>
-            <div style="min-width:0;">
-              <p style="font-size:14.5px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(state.name)}</p>
-              <p style="font-size:13px;color:var(--ink-soft);margin:2px 0 0;">${escapeHtml(state.phone)}</p>
-            </div>
-          </div>
-        </div>
-      `}
-
-      <div class="section-rule" ${isLoggedInCustomer()?'style="margin-top:0;"':''}><span class="lbl">More details</span><span class="line"></span></div>
-      <div class="summary-card">
-        <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 6px;">Cancellation policy</p>
-        <p style="font-size:13px;color:var(--ink-mute);margin:0;line-height:1.5;">${escapeHtml(salon.cancellationPolicy||"You can cancel or reschedule this booking at any time before your appointment.")}</p>
-      </div>
-
-      <div class="section-rule"><span class="lbl">Comments or requests</span><span class="line"></span></div>
-      <div class="summary-card">
-        <div class="field" style="margin:0;"><textarea id="notesInput" rows="3">${escapeHtml(state.notes)}</textarea></div>
-      </div>
-
-      ${(isLoggedInCustomer() && salon.loyalty && salon.loyalty.enabled) ? `
-      <div class="section-rule"><span class="lbl">Rewards</span><span class="line"></span></div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        ${state.appliedLoyaltyReward ? `
-        <div class="summary-card" style="padding:12px 14px;">
-          <div class="promo-applied-row">
-            <span style="display:flex;align-items:center;gap:10px;min-width:0;">
-              <span style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;">${icon('checkSmall')}</span>
-              <span style="min-width:0;">
-                <span style="display:block;font-size:13.5px;font-weight:700;color:var(--ink);">${escapeHtml(state.appliedLoyaltyReward.label)}</span>
-                <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;">Applied to this booking</span>
-              </span>
-            </span>
-            <button class="promo-remove-btn" id="removeLoyaltyBtn">Remove</button>
-          </div>
-        </div>
-        ` : state.loyaltyAccount ? `
-        <button class="loyalty-checkout-card" id="openLoyaltySheet" type="button">
-          <span class="loyalty-checkout-icon">${icon('sparkles')}</span>
-          <span style="min-width:0;flex:1;">
-            <span style="display:block;font-size:13.5px;font-weight:700;color:var(--ink);">
-              ${state.loyaltyAccount.points >= state.loyaltyAccount.threshold ? `${escapeHtml(state.loyaltyAccount.rewardText)}` : `${state.loyaltyAccount.points} of ${state.loyaltyAccount.threshold} points`}
-            </span>
-            <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:2px;">
-              ${state.loyaltyAccount.points >= state.loyaltyAccount.threshold ? "Tap to apply to this booking" : `${Math.max(0,state.loyaltyAccount.threshold-state.loyaltyAccount.points)} points away · tap for details`}
-            </span>
-            <span class="loyalty-checkout-bar"><span style="width:${Math.min(100,Math.round((state.loyaltyAccount.points/(state.loyaltyAccount.threshold||1))*100))}%;"></span></span>
-          </span>
-          ${icon('chevronRight')}
-        </button>
-        ` : state.loyaltyLoading ? `
-        <div class="summary-card" style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
-          <span style="font-size:12.5px;color:var(--ink-soft);">Checking your rewards…</span>
-        </div>
-        ` : ""}
-      </div>
-      ` : ""}
-
-      ${(isLoggedInCustomer() && state.myPackage && String(state.myPackage.service_id)===String(service.id)) ? `
-      <div class="section-rule"><span class="lbl">Your package</span><span class="line"></span></div>
-      <div class="summary-card" style="padding:12px 14px;">
-        <div class="promo-applied-row">
-          <span style="display:flex;align-items:center;gap:10px;min-width:0;">
-            <span style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;">${icon('checkSmall')}</span>
-            <span style="min-width:0;">
-              <span style="display:block;font-size:13.5px;font-weight:700;color:var(--ink);">Use a session from your package</span>
-              <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;">${state.myPackage.sessions_remaining} session${state.myPackage.sessions_remaining===1?'':'s'} remaining</span>
-            </span>
-          </span>
-          <button class="promo-remove-btn" id="togglePackageBtn" data-active="${state.packageApplied?'1':'0'}">${state.packageApplied?'Remove':'Apply'}</button>
-        </div>
-      </div>
-      ` : ""}
-
-      <div class="section-rule"><span class="lbl">Gift card</span><span class="line"></span></div>
-      ${state.appliedGiftCard ? `
-      <div class="summary-card" style="padding:12px 14px;">
-        <div class="promo-applied-row">
-          <span style="display:flex;align-items:center;gap:10px;min-width:0;">
-            <span style="width:28px;height:28px;border-radius:50%;background:var(--purple-pastel);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;">${icon('checkSmall')}</span>
-            <span style="min-width:0;">
-              <span style="display:block;font-size:13.5px;font-weight:700;color:var(--ink);">Gift card ${escapeHtml(state.appliedGiftCard.code)}</span>
-              <span style="display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;">$${state.appliedGiftCard.remaining_balance} balance available</span>
-            </span>
-          </span>
-          <button class="promo-remove-btn" id="removeGiftCardBtn">Remove</button>
-        </div>
-      </div>
-      ` : `
-      <div class="summary-card" style="padding:12px 14px;">
-        <div style="display:flex;gap:8px;">
-          <input class="promo-input ${state.giftCardError?'error':''}" id="giftCardInput" placeholder="Gift card code" value="${escapeAttr(state.giftCardCode)}" style="flex:1;" />
-          <button class="promo-apply-btn" id="applyGiftCardBtn" ${state.giftCardChecking?'disabled':''}>${state.giftCardChecking?'Checking…':'Apply'}</button>
-        </div>
-        ${state.giftCardError?`<p style="font-size:12px;color:#C13B3B;margin:8px 0 0;">${escapeHtml(state.giftCardError)}</p>`:""}
-      </div>
-      `}
-    `;
-  }
-
-  const dots = `<div class="dot done"></div>` + stepKeys.map((k,i)=>{
-    const cls = i===step ? 'current' : (i<step ? 'done' : 'upcoming');
-    return `<div class="dot ${cls}"></div>`;
-  }).join("");
-
-  const stepTitles = { addons:'Add-ons', stylist:'Stylist', time:'Time', intake:'A few questions', details: isLoggedInCustomer()?'Notes':'Details', confirm:'Summary' };
-  const stepBtnLabels = { addons:'Continue', stylist:'Continue', time:'Continue', details:'Review booking', confirm: state.bookingSaving?'Confirming…':'Confirm booking' };
-
-  return `
-    <div class="page checkout-shell booking-checkout-shell">
-      <div class="topbar">
-        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
-          <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
-          <h1 class="toptitle">${stepTitles[stepKey]}</h1>
-        </div>
-        <div class="stepdots">${dots}</div>
-      </div>
-
-      <div class="checkout-summary-strip">
-        <div class="checkout-summary-mobile" style="padding:16px 20px;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);">
-          <div class="salon-icon" style="width:44px;height:44px;border-radius:14px;">${icon('scissors','var(--purple)')}</div>
-          <div style="min-width:0;">
-            <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(service.name)}</p>
-            <p style="font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;" >${escapeHtml(salon.name)} · ${service.duration} min · ${(state.appliedPromo||state.appliedLoyaltyReward||state.appliedGiftCard||packageDiscount()>0)?`<span style="text-decoration:line-through;color:var(--placeholder);">$${baseTotal()}</span> $${finalTotal()}`:`$${baseTotal()}`}</p>
-            ${state.selectedTime?`<p class="checkout-summary-strip-time">${dayLabel(DAYS[state.selectedDay])} · ${escapeHtml(state.selectedTime)}</p>`:""}
-          </div>
-        </div>
-        <div class="checkout-summary-desktop" style="padding:16px;">
-          ${checkoutVenueCardMarkup(salon)}
-          <div class="checkout-sidebar-booking-info confirm-step-booking-info">
-            ${state.selectedTime?`
-            <div class="checkout-sidebar-divider"></div>
-            <div class="checkout-sidebar-datetime">
-              <div class="checkout-sidebar-datetime-row">${icon('calendar')}<span>${dayLabel(DAYS[state.selectedDay])}</span></div>
-              <div class="checkout-sidebar-datetime-row">${icon('clock')}<span>${escapeHtml(state.selectedTime)} – ${formatTimeMins(parseTimeMins(state.selectedTime)+service.duration)} (${service.duration} min)</span></div>
-            </div>`:""}
-            <div class="checkout-sidebar-divider"></div>
-            <div class="checkout-sidebar-item-row">
-              <span class="checkout-sidebar-item-name">${escapeHtml(service.name)}</span>
-              <span class="checkout-sidebar-item-price">$${service.price}</span>
-            </div>
-            <p class="checkout-sidebar-item-sub">${service.duration} min${state.selectedStylist?` with ${escapeHtml(stylistPreferenceLabel(state.selectedStylist,true))}`:""}</p>
-            ${selectedAddonsList().map(a=>`
-            <div class="checkout-sidebar-item-row" style="margin-top:8px;">
-              <span class="checkout-sidebar-item-name" style="font-weight:600;">${escapeHtml(a.name)}</span>
-              <span class="checkout-sidebar-item-price">+$${a.price}</span>
-            </div>`).join("")}
-            <div class="checkout-sidebar-divider"></div>
-            <div class="checkout-sidebar-total-row"><span>Total</span><span>$${finalTotal()}</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="checkoutBody" style="flex:1;overflow-y:auto;padding:20px;min-height:0;">${body}</div>
-
-      <div class="checkout-footer" style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
-        ${state.bookingError?`<p style="font-size:12.5px;color:#C13B3B;text-align:center;margin:0 0 10px;line-height:1.4;">${escapeHtml(state.bookingError)}</p>`:""}
-        ${stepKey==="confirm" ? `
-        <div class="confirm-footer-row">
-          <div class="confirm-footer-price">
-            <span class="confirm-footer-amount">$${finalTotal()}</span>
-            <span class="confirm-footer-label">Total due at salon</span>
-          </div>
-          <button class="primary-btn confirm-footer-btn" id="continueBtn" ${disabled?'disabled':''}>
-            ${stepBtnLabels[stepKey]}
-          </button>
-        </div>
-        ` : `
-        <button class="primary-btn" id="continueBtn" ${disabled?'disabled':''}>
-          ${stepBtnLabels[stepKey]}
-        </button>
-        `}
-      </div>
-    </div>
-    ${renderLoyaltySheet()}
-  `;
-}
 
 /* ---------------------------------------------------
    RENDER: STYLIST PROFILE
@@ -4545,35 +3975,6 @@ function renderWaitlistModal(){
   </div>`;
 }
 
-function renderLoyaltySheet(){
-  if (!state.showLoyaltySheet || !state.loyaltyAccount) return "";
-  const L = state.loyaltyAccount;
-  const eligible = L.points >= L.threshold;
-  const pointsThisBooking = loyaltyPointsForThisBooking();
-  return `
-    <div id="loyaltySheetOverlay" style="position:absolute;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
-    <div class="home-menu-sheet" id="loyaltySheetCard">
-      <div class="home-menu-sheet-header">
-        <h2 class="home-menu-sheet-title">Your rewards</h2>
-        <button id="closeLoyaltySheet" class="home-menu-sheet-close" aria-label="Close">${icon('x')}</button>
-      </div>
-      <div style="background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:18px;margin-bottom:14px;">
-        <p style="font-size:11.5px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.02em;margin:0 0 2px;">${escapeHtml(state.salon.name)}</p>
-        <p class="loyalty-sheet-points">${L.points} <span style="font-size:14px;font-weight:600;color:var(--ink-soft);">point${L.points===1?"":"s"}</span></p>
-        <div class="loyalty-sheet-bar"><span style="width:${Math.min(100,Math.round((L.points/(L.threshold||1))*100))}%;"></span></div>
-        <p style="font-size:13px;color:var(--ink-mute);line-height:1.5;margin:0;">
-          ${eligible
-            ? `You've unlocked: <strong style="color:var(--ink);">${escapeHtml(L.rewardText)}</strong>`
-            : `${L.threshold-L.points} more point${(L.threshold-L.points)===1?"":"s"} until <strong style="color:var(--ink);">${escapeHtml(L.rewardText)}</strong>`}
-        </p>
-        ${pointsThisBooking>0 ? `<p style="font-size:12px;color:var(--ink-soft);margin:8px 0 0;">This booking earns you ~${pointsThisBooking} point${pointsThisBooking===1?"":"s"}.</p>` : ""}
-      </div>
-      ${eligible ? `
-        <button class="primary-btn" id="applyLoyaltyBtn">Apply ${L.rewardValue>0?`$${L.rewardValue} off`:"reward"} to this booking</button>
-      ` : ""}
-    </div>
-  `;
-}
 let gcSheetAnimated=false;
 function openGiftCardSheet(){
   gcSheetAnimated=false;
@@ -4626,17 +4027,6 @@ function renderGiftCardSheet(){
       <button class="primary-btn" id="buyGiftCardBtn" ${state.purchaseSaving?'disabled':''}>${state.purchaseSaving?'Starting checkout…':'Continue to payment'}</button>
     </div>
   `;
-}
-function closeLoyaltySheetEl(afterClose){
-  const sheet=document.getElementById("loyaltySheetCard");
-  const overlay=document.getElementById("loyaltySheetOverlay");
-  const finish=()=>{
-    state.showLoyaltySheet=false;
-    if(typeof afterClose==="function") afterClose(); else render({samePage:true});
-  };
-  if(!sheet){ finish(); return; }
-  sheet.classList.add("closing"); overlay?.classList.add("closing");
-  setTimeout(finish,220);
 }
 function renderConfirmModal(){
   if (!state.confirmDialog) return "";
@@ -4746,8 +4136,6 @@ function render(opts){
   let html = "";
   if (state.page === "home") html = renderHome();
   else if (state.page === "salon") html = renderSalon();
-  else if (state.page === "serviceSelect") html = renderServiceSelect();
-  else if (state.page === "checkout") html = renderCheckout();
   else if (state.page === "stylistGallery") html = renderStylistPortfolioGallery();
   else if (state.page === "gallery") html = renderGallery();
   else if (state.page === "reviews") html = renderReviews();
@@ -5129,257 +4517,6 @@ function bindEvents(){
     }
   }
 
-  if (state.page === "serviceSelect"){
-    document.getElementById("backBtn").addEventListener("click", ()=> returnToVenue());
-    document.querySelectorAll("[data-servicecat]").forEach(btn=>btn.addEventListener("click", ()=>setState({ salonCategory:btn.getAttribute("data-servicecat") }, { samePage:true })));
-    document.querySelectorAll("[data-pickservice]").forEach(btn=>btn.addEventListener("click", ()=>{ setState({ selectedServiceId: btn.getAttribute("data-pickservice") }, { samePage:true }); }));
-    const serviceContinueBtn = document.getElementById("serviceContinueBtn");
-    if (serviceContinueBtn) serviceContinueBtn.addEventListener("click", ()=>{
-      const service = state.salon.services.find(s=>s.id===state.selectedServiceId);
-      if (service) goCheckoutPage(service);
-    });
-  }
-
-  if (state.page === "checkout"){
-    if (state.done){
-      const doneBooking = state.bookings.find(b=>b.id===state.lastBookingId) || null;
-      bindBookingConfirmedEvents(doneBooking, goHome);
-      return;
-    }
-    const stepKeys = checkoutStepKeys(state.service);
-    const stepKey = stepKeys[state.step] || "confirm";
-    document.getElementById("backBtn").addEventListener("click", ()=>{
-      if (state.checkoutOrigin === "history" && state.step === stepKeys.indexOf("time")){
-        setState({ page:"history", checkoutOrigin:null, rescheduleBookingId:null }, { restoreScrollTop: state.historyReturnScrollTop || 0 });
-      } else if (state.step===0){
-        if (state.checkoutOrigin === "serviceSelect") {
-          setState({ page:"serviceSelect", checkoutOrigin:null });
-        } else {
-          returnToVenue({ checkoutOrigin:null });
-        }
-      } else {
-        setState({ step: state.step-1 });
-      }
-    });
-
-    if (stepKey==="addons"){
-      document.querySelectorAll("[data-addon]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const id = btn.getAttribute("data-addon");
-          const addons = state.selectedAddons.includes(id)
-            ? state.selectedAddons.filter(a=>a!==id)
-            : [...state.selectedAddons, id];
-          setState({ selectedAddons: addons }, { samePage:true });
-        });
-      });
-    }
-
-    if (stepKey==="stylist"){
-      document.querySelectorAll("[data-stylist]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const stylist = state.salon.stylists.find(st=>st.id===btn.getAttribute("data-stylist"));
-          if (!stylist) return;
-          setState({ selectedStylist: stylist }, { samePage:true });
-        });
-      });
-    }
-
-    if (stepKey==="time"){
-      document.querySelectorAll("[data-day]").forEach(btn=>{
-        btn.addEventListener("click", ()=> setState({ selectedDay: parseInt(btn.getAttribute("data-day"),10), selectedTime:null }, { samePage:true }));
-      });
-      document.querySelectorAll("[data-time]").forEach(btn=>{
-        btn.addEventListener("click", ()=> setState({ selectedTime: btn.getAttribute("data-time") }, { samePage:true }));
-      });
-      const openWaitlist = ()=>{ const c=bookingContact(); setState({ waitlistModalOpen:true, waitlistName:c.name, waitlistPhone:c.phone, waitlistTimePref:"Any", pendingWaitlistRequestId:null }, { samePage:true }); };
-      const joinWaitlistBtn = document.getElementById("joinWaitlistBtn");
-      if (joinWaitlistBtn) joinWaitlistBtn.addEventListener("click", openWaitlist);
-      const joinWaitlistLink = document.getElementById("joinWaitlistLink");
-      if (joinWaitlistLink) joinWaitlistLink.addEventListener("click", openWaitlist);
-    }
-
-    if (stepKey==="details"){
-      const nameInput = document.getElementById("nameInput");
-      const phoneInput = document.getElementById("phoneInput");
-      const guestEmailInput = document.getElementById("guestEmailInput");
-      if (nameInput) nameInput.addEventListener("input", (e)=>{ state.name = e.target.value; syncContinueBtn(); });
-      if (phoneInput) phoneInput.addEventListener("input", (e)=>{ state.phone = e.target.value; syncContinueBtn(); });
-      if (guestEmailInput) guestEmailInput.addEventListener("input", (e)=>{ state.guestEmail = e.target.value; syncContinueBtn(); });
-      document.querySelectorAll("[data-firstvisit]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const isFirst = btn.getAttribute("data-firstvisit")==="yes";
-          setState({ selectedNotes: isFirst?["First time here"]:[], firstVisitAnswered:true }, { samePage:true });
-        });
-      });
-    }
-
-    if (stepKey==="intake"){
-      document.querySelectorAll("[data-intaketext]").forEach(el=>{
-        el.addEventListener("input", (e)=>{ state.intakeAnswers[el.getAttribute("data-intaketext")] = e.target.value; syncIntakeContinueBtn(); });
-      });
-      document.querySelectorAll("[data-intakeyesno]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const [qid,val] = btn.getAttribute("data-intakeyesno").split("|");
-          setState({ intakeAnswers: Object.assign({}, state.intakeAnswers, { [qid]: val }) }, { samePage:true });
-        });
-      });
-      document.querySelectorAll("[data-intakechoice]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const idx = btn.getAttribute("data-intakechoice").indexOf("|");
-          const qid = btn.getAttribute("data-intakechoice").slice(0,idx);
-          const val = btn.getAttribute("data-intakechoice").slice(idx+1);
-          setState({ intakeAnswers: Object.assign({}, state.intakeAnswers, { [qid]: val }) }, { samePage:true });
-        });
-      });
-    }
-
-    if (stepKey==="confirm"){
-      const promoInput = document.getElementById("promoInput");
-      if (promoInput){
-        promoInput.addEventListener("input", (e)=>{ state.promoCode = e.target.value; });
-        promoInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter"){ e.preventDefault(); applyPromoCode(); } });
-      }
-      const notesInput = document.getElementById("notesInput");
-      if (notesInput) notesInput.addEventListener("input", (e)=>{ state.notes = e.target.value; });
-      const applyBtn = document.getElementById("applyPromoBtn");
-      if (applyBtn) applyBtn.addEventListener("click", applyPromoCode);
-      const removeBtn = document.getElementById("removePromoBtn");
-      if (removeBtn) removeBtn.addEventListener("click", ()=>{
-        setState({ appliedPromo:null, promoCode:"", promoError:"" }, { samePage:true });
-      });
-      const giftCardInput = document.getElementById("giftCardInput");
-      if (giftCardInput){
-        giftCardInput.addEventListener("input", (e)=>{ state.giftCardCode = e.target.value; });
-        giftCardInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter"){ e.preventDefault(); applyGiftCardCode(); } });
-      }
-      const applyGiftCardBtn = document.getElementById("applyGiftCardBtn");
-      if (applyGiftCardBtn) applyGiftCardBtn.addEventListener("click", applyGiftCardCode);
-      const removeGiftCardBtn = document.getElementById("removeGiftCardBtn");
-      if (removeGiftCardBtn) removeGiftCardBtn.addEventListener("click", ()=>{
-        setState({ appliedGiftCard:null, giftCardCode:"", giftCardError:"" }, { samePage:true });
-      });
-      const togglePackageBtn = document.getElementById("togglePackageBtn");
-      if (togglePackageBtn) togglePackageBtn.addEventListener("click", ()=>{
-        setState({ packageApplied: togglePackageBtn.getAttribute("data-active")!=="1" }, { samePage:true });
-      });
-      const openLoyaltyBtn = document.getElementById("openLoyaltySheet");
-      if (openLoyaltyBtn) openLoyaltyBtn.addEventListener("click", ()=>{ setState({ showLoyaltySheet:true }, { samePage:true }); });
-      const removeLoyaltyBtn = document.getElementById("removeLoyaltyBtn");
-      if (removeLoyaltyBtn) removeLoyaltyBtn.addEventListener("click", ()=>{ setState({ appliedLoyaltyReward:null }, { samePage:true }); });
-      const loyaltyOverlay = document.getElementById("loyaltySheetOverlay");
-      if (loyaltyOverlay) loyaltyOverlay.addEventListener("click", ()=>closeLoyaltySheetEl());
-      const closeLoyaltyBtn = document.getElementById("closeLoyaltySheet");
-      if (closeLoyaltyBtn) closeLoyaltyBtn.addEventListener("click", ()=>closeLoyaltySheetEl());
-      const applyLoyaltyBtn = document.getElementById("applyLoyaltyBtn");
-      if (applyLoyaltyBtn) applyLoyaltyBtn.addEventListener("click", ()=>{
-        const L = state.loyaltyAccount;
-        if (!L) return;
-        state.appliedLoyaltyReward = { label: L.rewardText, value: Number(L.rewardValue||0) };
-        closeLoyaltySheetEl(()=>render({samePage:true}));
-      });
-    }
-
-    const continueBtn = document.getElementById("continueBtn");
-    continueBtn.addEventListener("click", async ()=>{
-      if (state.step < stepKeys.length-1){
-        setState({ step: state.step+1, bookingError:"" });
-        pushCustomerHistoryState();
-      } else {
-        continueBtn.disabled=true; continueBtn.textContent="Checking…";
-        try{ await loadMarketplaceVenues(); }catch(e){}
-        const latestSalon=SALONS.find(s=>s.id===state.salon?.id);
-        const latestService=latestSalon?.services?.find(s=>s.id===state.service?.id);
-        if(!latestSalon || !latestService){
-          state.bookingSaving=false;
-          setState({bookingError:"This service is no longer available. Please choose a service again."},{samePage:true});
-          return;
-        }
-        state.salon=latestSalon; state.service=latestService;
-        state.selectedAddons=state.selectedAddons.filter(id=>(latestService.addons||[]).some(a=>a.id===id));
-        const latestStylist=(latestSalon.stylists||[]).find(st=>st.id===state.selectedStylist?.id);
-        if(state.selectedStylist?.name!=="Any available" && !latestStylist){
-          state.selectedStylist=null;
-          setState({step:checkoutStepKeys(latestService).indexOf("stylist"),selectedTime:null,bookingError:"That stylist is no longer available. Please choose a stylist again."},{samePage:true});
-          return;
-        }
-        if(latestStylist) state.selectedStylist=latestStylist;
-        if(!state.selectedTime || isTimeBlocked(latestSalon,state.selectedDay,state.selectedStylist,state.selectedTime,latestService.duration)){
-          setState({step:checkoutStepKeys(latestService).indexOf("time"),selectedTime:null,bookingError:"That appointment time is no longer available. Please choose another time."},{samePage:true});
-          return;
-        }
-        const contact = bookingContact();
-        const booking = {
-          id: bookingCounter++,
-          salonId: state.salon.id,
-          salonName: state.salon.name,
-          salonIcon: state.salon.icon,
-          serviceId: state.service.id,
-          serviceName: state.service.name,
-          stylistId: state.selectedStylist.id,
-          stylistName: state.selectedStylist.name,
-          date: bookingStartIso(state.selectedDay,state.selectedTime),
-          dateLabel: dayLabel(DAYS[state.selectedDay]),
-          time: state.selectedTime,
-          duration: state.service.duration,
-          price: finalTotal(),
-          subtotal: baseTotal(),
-          promoCode: state.appliedPromo ? state.appliedPromo.code : null,
-          discount: promoDiscount() + loyaltyDiscount() + packageDiscount() + giftCardDiscount(),
-          addons: selectedAddonsList(),
-          name: contact.name,
-          phone: contact.phone,
-          email: contact.email,
-          notes: [
-            state.notes,
-            state.appliedLoyaltyReward ? `[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]` : "",
-            packageDiscount() ? `[Package session redeemed]` : "",
-            state.appliedGiftCard ? `[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]` : "",
-          ].filter(Boolean).join(" ").trim(),
-          preferences: state.selectedNotes,
-          status: "upcoming",
-        };
-        if(contact.name.length<2 || contact.phone.length<6){
-          setState({bookingError:"Your account is missing a valid name or mobile number. Update your Profile and try again."},{samePage:true});
-          return;
-        }
-        continueBtn.disabled=true; continueBtn.textContent="Confirming…"; state.bookingSaving=true; state.bookingError="";
-        try{
-          if(state.checkoutOrigin==="history"&&state.rescheduleBookingId){
-            const original=state.bookings.find(b=>b.id===state.rescheduleBookingId); const saved=await rescheduleCloudBooking(original,booking);
-            Object.assign(original,booking); applyCanonicalBookingResult(original,saved); original.stylistName=(SALONS.find(s=>s.id===booking.salonId)?.stylists||[]).find(st=>st.id===saved.stylist_id)?.name||booking.stylistName; if(saved.stylist_id){ const assigned=(state.salon?.stylists||[]).find(st=>st.id===saved.stylist_id); if(assigned) state.selectedStylist=assigned; }
-            state.lastBookingId=original.id;
-          }else{
-            if(!state.pendingBookingRequestId) state.pendingBookingRequestId=makeClientRequestId(); booking.clientRequestId=state.pendingBookingRequestId;
-            const saved=await createCloudBooking(booking); applyCanonicalBookingResult(booking,saved); if(saved.stylist_id){ const st=(state.salon.stylists||[]).find(x=>x.id===saved.stylist_id); if(st){ booking.stylistName=st.name; state.selectedStylist=st; } }
-            state.bookings.push(booking); state.pendingBookingRequestId=null;
-            state.lastBookingId=booking.id;
-          }
-          if(state.appliedLoyaltyReward && customerSupabaseClient){
-            try{ await customerSupabaseClient.rpc("redeem_loyalty_reward",{p_salon_id:state.salon.id}); }
-            catch(redeemErr){ console.warn("Loyalty redemption could not be recorded",redeemErr); }
-          }
-          if(state.appliedGiftCard && giftCardDiscount()>0 && customerSupabaseClient){
-            try{ await customerSupabaseClient.rpc("redeem_gift_card",{p_gift_card_id:state.appliedGiftCard.id, p_amount:giftCardDiscount(), p_booking_id:booking.dbId||null}); }
-            catch(redeemErr){ console.warn("Gift card redemption could not be recorded",redeemErr); }
-          }
-          if(state.myPackage && state.packageApplied && customerSupabaseClient){
-            try{ await customerSupabaseClient.rpc("redeem_package_session",{p_customer_package_id:state.myPackage.id, p_booking_id:booking.dbId||null}); }
-            catch(redeemErr){ console.warn("Package redemption could not be recorded",redeemErr); }
-          }
-          const intakeQs = intakeQuestionsFor(state.service);
-          if(intakeQs.length && booking.publicToken && customerSupabaseClient){
-            const answersPayload = intakeQs.filter(q=>state.intakeAnswers[q.id]!==undefined && String(state.intakeAnswers[q.id]).trim()!=="").map(q=>({question_id:q.id, label:q.label, answer:state.intakeAnswers[q.id]}));
-            if(answersPayload.length){
-              try{ await customerSupabaseClient.rpc("submit_public_intake_form",{token:booking.publicToken, answers:answersPayload}); }
-              catch(intakeErr){ console.warn("Intake form could not be recorded",intakeErr); }
-            }
-          }
-          state.bookingSaving=false; setState({done:true,bookingError:""}); await loadMarketplaceVenues();
-        }catch(err){ state.bookingSaving=false; setState({bookingError:err?.message||"We couldn't save this booking. Please try again."},{samePage:true}); }
-      }
-    });
-  }
-
   if (state.stylistSheetOpen){
     const stylistOverlay = document.getElementById("stylistSheetOverlay");
     if (stylistOverlay) stylistOverlay.addEventListener("click", ()=> closeStylistSheet());
@@ -5456,18 +4593,6 @@ function bindEvents(){
   }
 }
 
-function syncContinueBtn(){
-  const contact=bookingContact();
-  const canContinueDetails = state.firstVisitAnswered && (isLoggedInCustomer() ? (contact.name.length > 1 && contact.phone.length > 5) : (contact.name.length > 1 && contact.phone.length > 5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.guestEmail.trim())));
-  const btn = document.getElementById("continueBtn");
-  if (btn) btn.disabled = !canContinueDetails;
-}
-
-function syncIntakeContinueBtn(){
-  const canContinueIntake = intakeQuestionsFor(state.service).every(q=> !q.required || String(state.intakeAnswers[q.id]||"").trim().length>0);
-  const btn = document.getElementById("continueBtn");
-  if (btn) btn.disabled = !canContinueIntake;
-}
 function syncWaitlistBtn(){ const c=bookingContact(); const btn=document.getElementById("submitWaitlistBtn"); if(btn) btn.disabled=!(c.name.length>1&&c.phone.length>5); }
 
 render();

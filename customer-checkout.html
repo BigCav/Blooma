@@ -203,8 +203,8 @@ const state={
   intake:{}, firstVisit:null,
   authenticated:false, authUserId:null,
   name:'', phone:'', email:'', notes:'',
-  promoCode:'', appliedPromo:null, promoError:'', promoChecking:false,
-  giftCode:'', appliedGiftCard:null, giftError:'', giftChecking:false,
+  promoCode:'', appliedPromo:null, promoChecking:false, promoFlash:false,
+  giftCode:'', appliedGiftCard:null, giftChecking:false, giftFlash:false,
   loyaltyAccount:null, appliedLoyaltyReward:null,
   intakeQuestionsByService:{},
   saving:false, bookingError:'', done:false, lastBooking:null,
@@ -352,10 +352,8 @@ function renderPanel(){
           <p class="section-label">Rewards & offers</p>
           <div class="stack">
             ${eligibleForReward ? `<button class="offer-card" id="rewardToggle" type="button"><div><strong>${state.appliedLoyaltyReward?'Reward applied':'Redeem '+esc(state.loyaltyAccount.rewardText||'reward')}</strong><p>${state.loyaltyAccount.points} points available</p></div><span class="toggle ${state.appliedLoyaltyReward?'on':''}"></span></button>` : ''}
-            <div class="promo-row"><input id="promoInput" placeholder="Promo code" value="${esc(state.promoCode)}"><button class="small-btn" id="promoBtn" type="button">${state.promoChecking?'Checking…':state.appliedPromo?'Remove':'Apply'}</button></div>
-            ${state.promoError?`<p class="panel-sub" style="color:var(--red);margin-top:-6px;">${esc(state.promoError)}</p>`:''}
-            <div class="promo-row"><input id="giftInput" placeholder="Gift card code" value="${esc(state.giftCode)}"><button class="small-btn" id="giftBtn" type="button">${state.giftChecking?'Checking…':state.appliedGiftCard?'Remove':'Apply'}</button></div>
-            ${state.giftError?`<p class="panel-sub" style="color:var(--red);margin-top:-6px;">${esc(state.giftError)}</p>`:''}
+            <div class="promo-row"><input id="promoInput" placeholder="Promo code" value="${esc(state.promoCode)}" style="${state.promoFlash?'border-color:var(--red);box-shadow:0 0 0 3px rgba(193,59,59,.12);':''}"><button class="small-btn" id="promoBtn" type="button">${state.promoChecking?'Checking…':state.appliedPromo?'Remove':'Apply'}</button></div>
+            <div class="promo-row"><input id="giftInput" placeholder="Gift card code" value="${esc(state.giftCode)}" style="${state.giftFlash?'border-color:var(--red);box-shadow:0 0 0 3px rgba(193,59,59,.12);':''}"><button class="small-btn" id="giftBtn" type="button">${state.giftChecking?'Checking…':state.appliedGiftCard?'Remove':'Apply'}</button></div>
           </div>
         </div>
       </div></div>
@@ -367,7 +365,13 @@ function renderPanel(){
       </div>`;
   }
 
+  // Re-rendering swaps in fresh .days/.time-list nodes, which would otherwise reset their
+  // scroll position to 0 on every click (picking a day/time visibly "snapped back to the start").
+  const prevDaysScroll = document.querySelector('.days')?.scrollLeft;
+  const prevTimeScroll = document.querySelector('.time-list')?.scrollTop;
   document.getElementById('panel').innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary" id="next" ${state.saving?'disabled':''}>${state.saving?'Confirming…':(key==='review'?(state.rescheduleToken?'Confirm changes':'Confirm booking'):'Continue')}</button></div>`;
+  const newDays = document.querySelector('.days'); if(newDays && prevDaysScroll) newDays.scrollLeft = prevDaysScroll;
+  const newTimeList = document.querySelector('.time-list'); if(newTimeList && prevTimeScroll) newTimeList.scrollTop = prevTimeScroll;
   bind();
 }
 
@@ -407,30 +411,31 @@ function bind(){
     render();
   };
   const pb=document.getElementById('promoBtn');
+  function flashError(field){ state[field]=true; render(); setTimeout(()=>{ state[field]=false; render(); },900); }
   if(pb) pb.onclick=async ()=>{
     if(state.appliedPromo){ state.appliedPromo=null; state.promoCode=''; render(); return; }
     const raw=(document.getElementById('promoInput').value||'').trim().toUpperCase();
-    if(!raw){ state.promoError='Enter a code'; render(); return; }
-    state.promoChecking=true; state.promoError=''; render();
+    if(!raw){ flashError('promoFlash'); return; }
+    state.promoChecking=true; render();
     try{
       const {data,error}=await supabaseClient.rpc('validate_promo_code',{p_salon_id:state.salon.id,p_code:raw});
       if(error) throw error;
-      if(!data?.valid){ state.promoError="That code isn't valid"; state.appliedPromo=null; }
-      else { state.appliedPromo={code:data.code,type:data.type,value:Number(data.value||0)}; state.promoCode=''; state.promoError=''; }
-    }catch(e){ state.promoError="We couldn't check that code."; state.appliedPromo=null; }
+      if(!data?.valid){ state.appliedPromo=null; state.promoChecking=false; render(); flashError('promoFlash'); return; }
+      state.appliedPromo={code:data.code,type:data.type,value:Number(data.value||0)}; state.promoCode='';
+    }catch(e){ state.appliedPromo=null; state.promoChecking=false; render(); flashError('promoFlash'); return; }
     state.promoChecking=false; render();
   };
   const gb=document.getElementById('giftBtn');
   if(gb) gb.onclick=async ()=>{
     if(state.appliedGiftCard){ state.appliedGiftCard=null; state.giftCode=''; render(); return; }
     const raw=(document.getElementById('giftInput').value||'').trim().toUpperCase();
-    if(!raw){ state.giftError='Enter a gift card code'; render(); return; }
-    state.giftChecking=true; state.giftError=''; render();
+    if(!raw){ flashError('giftFlash'); return; }
+    state.giftChecking=true; render();
     try{
       const {data,error}=await supabaseClient.rpc('get_gift_card_by_code',{p_salon_id:state.salon.id,p_code:raw});
       if(error) throw error;
-      state.appliedGiftCard=data; state.giftCode=''; state.giftError='';
-    }catch(e){ state.giftError=e?.message||"That gift card code isn't valid"; state.appliedGiftCard=null; }
+      state.appliedGiftCard=data; state.giftCode='';
+    }catch(e){ state.appliedGiftCard=null; state.giftChecking=false; render(); flashError('giftFlash'); return; }
     state.giftChecking=false; render();
   };
 
@@ -438,7 +443,7 @@ function bind(){
   document.getElementById('next').onclick=next;
   const viewBtn=document.getElementById('viewBookingBtn');
   if(viewBtn) viewBtn.onclick=()=>{
-    if(state.authenticated && state.lastBooking?.dbId) location.href='/?openBooking='+encodeURIComponent(state.lastBooking.dbId);
+    if(state.authenticated && state.lastBooking?.id) location.href='/?openBooking='+encodeURIComponent(state.lastBooking.id);
     else location.href='/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id);
   };
 }
