@@ -213,6 +213,7 @@
     animation:homeMenuSheetUp .22s ease;will-change:transform;
   }
   .gc-sheet-card.closing{animation:homeMenuSheetDown .22s ease forwards;pointer-events:none;}
+  .gc-sheet-overlay.no-anim,.gc-sheet-card.no-anim{animation:none!important;}
   @media(min-width:900px){
     .gc-sheet-card{
       left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);
@@ -220,9 +221,40 @@
       animation:gcModalIn .16s ease;
     }
     .gc-sheet-card.closing{animation:gcModalOut .14s ease forwards;}
+    /* .home-menu-sheet-header is reused here for the title + close button — the generic desktop
+       rule for the hamburger menu's own header hides it entirely, so restore it. */
+    .gc-sheet-card .home-menu-sheet-header{display:flex!important;}
   }
   @keyframes gcModalIn{from{transform:translate(-50%,-50%) scale(.96);opacity:0;}to{transform:translate(-50%,-50%) scale(1);opacity:1;}}
   @keyframes gcModalOut{from{transform:translate(-50%,-50%) scale(1);opacity:1;}to{transform:translate(-50%,-50%) scale(.96);opacity:0;}}
+
+  /* Stylist profile: same mobile bottom sheet as before, but a real centered modal on desktop
+     instead of reusing .home-menu-sheet's small 288px anchored-dropdown treatment (built for the
+     hamburger menu, far too cramped for an avatar + bio + services + portfolio + reviews). */
+  .stylist-sheet-overlay{
+    position:fixed;inset:0;z-index:150;background:rgba(20,10,40,.4);
+    animation:homeMenuOverlayIn .22s ease;
+  }
+  .stylist-sheet-overlay.closing{animation:homeMenuOverlayOut .22s ease forwards;pointer-events:none;}
+  .stylist-sheet-card{
+    position:fixed;left:0;right:0;bottom:0;z-index:151;max-width:480px;margin:0 auto;
+    background:var(--bg);border-radius:24px 24px 0 0;box-shadow:0 -14px 36px rgba(36,31,51,.14);
+    max-height:88%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:16px 20px calc(24px + env(safe-area-inset-bottom));
+    animation:homeMenuSheetUp .22s ease;will-change:transform;
+  }
+  .stylist-sheet-card.closing{animation:homeMenuSheetDown .22s ease forwards;pointer-events:none;}
+  @media(min-width:900px){
+    .stylist-sheet-card{
+      left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);
+      max-width:600px;width:92%;border-radius:20px;max-height:88vh;padding:28px 32px;
+      animation:gcModalIn .16s ease;
+    }
+    .stylist-sheet-card.closing{animation:gcModalOut .14s ease forwards;}
+    /* .home-menu-sheet-header is reused here for the close button only (no title) — the generic
+       desktop rule for the hamburger menu's own header hides it entirely, so restore it. */
+    .stylist-sheet-card .home-menu-sheet-header{display:flex!important;}
+  }
 
   .location-pill{
     display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;max-width:150px;
@@ -519,7 +551,6 @@
   .msg-compose input::placeholder{color:var(--placeholder);}
   .msg-send-btn{width:38px;height:38px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .msg-send-btn:disabled{background:var(--disabled);}
-  .profile-rewards-card{background:var(--purple-pastel-2);border-radius:16px;padding:16px;}
   .v2-reward-card{background:linear-gradient(145deg,#251d35,#15111d);color:#fff;border-radius:22px;padding:22px;}
   .v2-reward-card .v2-reward-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#cdbcf7;font-weight:800;margin:0 0 8px;}
   .v2-reward-card .v2-reward-points{font-size:22px;font-weight:800;margin:0;color:#fff;}
@@ -2030,6 +2061,7 @@ function liveVenueToSalon(v){
     cancellationPolicy:v.cancellation_policy||"Contact the venue if you need to cancel or reschedule.",
     bufferTime:Math.max(0,Number(v.buffer_minutes||0)),
     loyalty:(v.loyalty&&typeof v.loyalty==="object")?{enabled:!!v.loyalty.enabled,pointsPerDollar:Number(v.loyalty.pointsPerDollar)||1,rewardThreshold:Number(v.loyalty.rewardThreshold)||100,rewardText:v.loyalty.rewardText||"",rewardValue:Number(v.loyalty.rewardValue)||0}:{enabled:false},
+    giftCardsEnabled:v.metadata?.gift_cards_enabled!==false,
     cloudBookedSlots:Array.isArray(v.booked_slots)?v.booked_slots:[], cloudBlockouts:Array.isArray(v.blockouts)?v.blockouts:[],
     stylists, reviewList:reviews.map(r=>({name:r.customer_name||"Blooma customer",rating:Number(r.rating||0),text:r.note||"",date:r.date||null,serviceName:r.service_name||"",stylistName:r.stylist_name||"",stylistId:r.stylist_id||null})), services
   };
@@ -2511,7 +2543,7 @@ function restoreCustomerHistoryState(entry){
   const page=entry.page||"home";
   const salon=entry.salonId?SALONS.find(s=>s.id===entry.salonId):state.salon;
   if(page==="home"){ Object.assign(state,{page:"home",salon:null,service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null,step:0,done:false}); render(); return true; }
-  if(page==="history"||page==="profile"){ Object.assign(state,{page}); render(); if(page==="profile"){ loadLoyaltyAccount(); loadMyGiftCardsAndPackages(); } return true; }
+  if(page==="history"||page==="profile"){ Object.assign(state,{page}); render(); if(page==="profile"){ loadMyGiftCardsAndPackages(); } return true; }
   if(!salon){ Object.assign(state,{page:"home",salon:null,service:null,step:0}); render(); return true; }
   state.salon=salon;
   if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); loadLoyaltyAccount(); return true; }
@@ -2691,7 +2723,7 @@ function goProfile(){
   if(!state.authenticated){ window.location.href=customerLoginDestination(); return; }
   state.profileOrigin = state.page;
   if(state.page==="salon") rememberVenueScroll();
-  setState({page:"profile"}); pushCustomerHistoryState(); loadLoyaltyAccount(); loadMyGiftCardsAndPackages();
+  setState({page:"profile"}); pushCustomerHistoryState(); loadMyGiftCardsAndPackages();
 }
 async function loadLoyaltyAccount(){
   if(!customerSupabaseClient || !state.authUserId || !state.salon?.id || !state.salon?.loyalty?.enabled) { state.loyaltyAccount=null; return; }
@@ -3376,6 +3408,7 @@ function renderSalon(){
               </div>
             </section>` : ""}
 
+            ${salon.giftCardsEnabled ? `
             <section class="v2-section" id="giftpkg">
               <p class="v2-eyebrow">Gift cards & packages</p><h2>Buy ahead and save</h2>
               <div style="display:flex;flex-direction:column;gap:12px;">
@@ -3395,7 +3428,7 @@ function renderSalon(){
                   <button class="v2-book-small" data-buypackage="${escapeAttr(p.id)}" style="flex-shrink:0;">Buy package</button>
                 </div>`).join("") : ""}
               </div>
-            </section>
+            </section>` : ""}
 
             <section class="v2-section">
               <p class="v2-eyebrow">Opening hours</p><h2>When to visit</h2>
@@ -4121,8 +4154,8 @@ function renderVenueMessage(){
 function stylistSheetMarkup(){
   if (!state.stylistSheetOpen || !state.stylistProfile || !state.salon) return "";
   return `
-    <div id="stylistSheetOverlay" style="position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:49;"></div>
-    <div class="home-menu-sheet no-scrollbar" id="stylistSheetCard">
+    <div class="stylist-sheet-overlay" id="stylistSheetOverlay"></div>
+    <div class="stylist-sheet-card no-scrollbar" id="stylistSheetCard">
       <div class="home-menu-sheet-header" style="margin-bottom:6px;justify-content:flex-end;">
         <button id="closeStylistSheet" class="home-menu-sheet-close" aria-label="Close">${icon('x')}</button>
       </div>
@@ -4406,25 +4439,6 @@ function renderProfile(){
         </div>
       </div>
 
-      ${state.salon && (state.loyaltyAccount || state.loyaltyLoading) ? `
-      <div>
-        ${state.loyaltyLoading && !state.loyaltyAccount ? `
-        <div class="profile-rewards-card"><p style="font-size:12.5px;color:var(--ink-soft);margin:0;">Loading your rewards…</p></div>
-        ` : state.loyaltyAccount ? `
-        <div class="profile-rewards-card">
-          <p style="font-size:11.5px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.02em;margin:0 0 6px;">Rewards at ${escapeHtml(state.salon.name)}</p>
-          <p style="font-size:20px;font-weight:800;color:var(--ink);margin:0;">${state.loyaltyAccount.points} point${state.loyaltyAccount.points===1?"":"s"}</p>
-          <div style="height:6px;border-radius:999px;background:#fff;margin-top:10px;overflow:hidden;">
-            <div style="height:100%;width:${Math.min(100,Math.round((state.loyaltyAccount.points/(state.loyaltyAccount.threshold||1))*100))}%;background:var(--purple);border-radius:999px;"></div>
-          </div>
-          <p style="font-size:12.5px;color:var(--ink-soft);margin:8px 0 0;">
-            ${state.loyaltyAccount.points>=state.loyaltyAccount.threshold
-              ? `You've earned: ${escapeHtml(state.loyaltyAccount.rewardText||"a reward")} — mention it at your next visit.`
-              : `${Math.max(0,state.loyaltyAccount.threshold-state.loyaltyAccount.points)} more point${(state.loyaltyAccount.threshold-state.loyaltyAccount.points)===1?"":"s"} until ${escapeHtml(state.loyaltyAccount.rewardText||"your reward")}.`}
-          </p>
-        </div>` : ""}
-      </div>` : ""}
-
       ${isLoggedInCustomer() && (state.myGiftCards.length || state.myPackages.length) ? `
       <div>
         <p class="profile-section-title">Gift cards</p>
@@ -4569,7 +4583,9 @@ function renderLoyaltySheet(){
     </div>
   `;
 }
+let gcSheetAnimated=false;
 function openGiftCardSheet(){
+  gcSheetAnimated=false;
   setState({ showGiftCardSheet:true, purchaseAmount:50, purchaseCustomAmount:"", purchaseRecipientName:"", purchaseRecipientEmail:"", purchaseError:"" }, { samePage:true });
 }
 function closeGiftCardSheetEl(afterClose){
@@ -4577,6 +4593,7 @@ function closeGiftCardSheetEl(afterClose){
   const overlay=document.getElementById("giftCardSheetOverlay");
   const finish=()=>{
     state.showGiftCardSheet=false;
+    gcSheetAnimated=false;
     if(typeof afterClose==="function") afterClose(); else render({samePage:true});
   };
   if(!sheet){ finish(); return; }
@@ -4586,9 +4603,14 @@ function closeGiftCardSheetEl(afterClose){
 function renderGiftCardSheet(){
   if (!state.showGiftCardSheet || !state.salon) return "";
   const amounts=[25,50,100,150];
+  // The whole page re-renders (fresh DOM) on every setState — e.g. picking an amount or hitting
+  // "Continue to payment" — which would otherwise replay the slide-up entrance animation every time
+  // and make the sheet look like it's "reloading". Only the very first render after opening plays it.
+  const alreadyOpen=gcSheetAnimated;
+  gcSheetAnimated=true;
   return `
-    <div class="gc-sheet-overlay" id="giftCardSheetOverlay"></div>
-    <div class="gc-sheet-card" id="giftCardSheetCard">
+    <div class="gc-sheet-overlay${alreadyOpen?' no-anim':''}" id="giftCardSheetOverlay"></div>
+    <div class="gc-sheet-card${alreadyOpen?' no-anim':''}" id="giftCardSheetCard">
       <div class="home-menu-sheet-header">
         <h2 class="home-menu-sheet-title">Buy a gift card</h2>
         <button id="closeGiftCardSheet" class="home-menu-sheet-close" aria-label="Close">${icon('x')}</button>

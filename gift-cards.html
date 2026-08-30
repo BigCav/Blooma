@@ -212,6 +212,14 @@
   .card-title{font-size:15px; font-weight:700;}
   .card-sub{font-size:12px; color:var(--text-faint); margin-top:2px;}
 
+  .toggle-switch{position:relative; display:inline-block; width:40px; height:23px; flex:none;}
+  .toggle-switch input{opacity:0; width:0; height:0;}
+  .toggle-switch .slider{position:absolute; inset:0; background:var(--border); border-radius:999px; cursor:pointer; transition:background .15s;}
+  .toggle-switch .slider::before{content:""; position:absolute; width:17px; height:17px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .15s;}
+  .toggle-switch input:checked + .slider{background:var(--violet);}
+  .toggle-switch input:checked + .slider::before{transform:translateX(17px);}
+  .toggle-switch input:disabled + .slider{opacity:.6; cursor:not-allowed;}
+
   .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px;}
   @media (max-width:560px){ .stats{grid-template-columns:1fr;} }
   .stat{background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:14px 16px;}
@@ -398,6 +406,19 @@
     <div>
       <h1>Gift Cards & Packages</h1>
       <div class="sub">Sell prepaid gift cards and session bundles, and track what's been issued</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-head" style="margin-bottom:0;">
+      <div>
+        <div class="card-title">Show on your venue page</div>
+        <div class="card-sub">Turn this off to hide the whole "Gift cards & packages" section from customers — your catalog stays saved.</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="giftCardsEnabledToggle" checked>
+        <span class="slider"></span>
+      </label>
     </div>
   </div>
 
@@ -621,6 +642,7 @@
       services = Array.isArray(rawConfig.services) ? rawConfig.services : [];
       packageOffers = Array.isArray(rawConfig.packages) ? rawConfig.packages : [];
       renderOffers();
+      document.getElementById('giftCardsEnabledToggle').checked = rawConfig.salon?.giftCardsEnabled !== false;
 
       if(pkgErr) throw pkgErr;
       issuedPackages = pkgs || [];
@@ -739,6 +761,27 @@
     rawConfig = payload;
   }
 
+  async function toggleGiftCardsEnabled(enabled){
+    var toggle = document.getElementById('giftCardsEnabledToggle');
+    toggle.disabled = true;
+    var payload = JSON.parse(JSON.stringify(rawConfig || {salon:{}, stylists:[], services:[], addons:[], promos:[]}));
+    payload.salon = payload.salon || {};
+    payload.salon.giftCardsEnabled = enabled;
+    try{
+      const args = currentConfigVersion==null ? {payload} : {payload, expected_version:currentConfigVersion};
+      const {data,error} = await supabaseClient.rpc("admin_save_config_gated", args);
+      if(error) throw error;
+      if(data?.config_version!=null) currentConfigVersion = data.config_version;
+      rawConfig = payload;
+      showToast(enabled ? "Gift cards are now visible on your venue page" : "Gift cards are now hidden from your venue page");
+    }catch(err){
+      toggle.checked = !enabled;
+      showToast(err.message||"Couldn't save that change");
+    }finally{
+      toggle.disabled = false;
+    }
+  }
+
   async function saveOffer(){
     var name = document.getElementById('offerName').value.trim();
     var serviceId = document.getElementById('offerService').value;
@@ -780,6 +823,8 @@
       showToast(err.message||'Could not update package');
     }
   }
+
+  document.getElementById('giftCardsEnabledToggle').addEventListener('change', function(e){ toggleGiftCardsEnabled(e.target.checked); });
 
   bootPage();
 </script>
