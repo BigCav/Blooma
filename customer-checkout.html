@@ -11,7 +11,7 @@
 <style>
 :root{
  --ink:#201a2e;--muted:#766e8f;--soft:#a39ab9;--purple:#7c5cd9;--purple-dark:#6948c4;
- --lav:#f4f0fc;--lav2:#ece5fb;--line:#ebe7f3;--bg:#faf9fc;--card:#fff;--green:#18874b;
+ --lav:#f4f0fc;--lav2:#ece5fb;--line:#ebe7f3;--bg:#faf9fc;--card:#fff;--green:#18874b;--gold:#F5A623;
  --red:#c13b3b;--shadow:0 16px 44px rgba(44,31,72,.08);--shadow-sm:0 8px 24px rgba(44,31,72,.06)
 }
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}
@@ -32,6 +32,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 .review-block{display:flex;flex-direction:column;gap:14px}.review-card{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}.review-card h3{font-size:14px;margin:0}.review-card p{font-size:12.5px;color:var(--muted);line-height:1.55;margin:7px 0 0}.mini-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:7px 0}.mini-row span:first-child{color:var(--muted)}.promo-row{display:flex;gap:10px}.promo-row input{flex:1;min-width:0;border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}.small-btn{border:none;border-radius:14px;background:var(--purple);color:#fff;padding:0 18px;font-size:12.5px;font-weight:800}.offer-card{border:1px solid var(--line);border-radius:17px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;text-align:left;width:100%}.offer-card>div{flex:1;min-width:0}.offer-card strong{font-size:13.5px}.offer-card p{font-size:12px;color:var(--muted);margin:4px 0 0}.toggle{width:42px;height:24px;border-radius:999px;background:#dfd9e8;padding:3px;transition:.15s;flex:none}.toggle:after{content:"";display:block;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);transition:.15s}.toggle.on{background:var(--purple)}.toggle.on:after{transform:translateX(18px)}
 .success{display:none;text-align:center;padding:30px 0}.success-mark{width:68px;height:68px;border-radius:50%;background:var(--lav2);color:var(--purple);display:grid;place-items:center;margin:0 auto 18px;font-size:30px;font-weight:800}.success h2{font-size:32px;margin:0}.success p{font-size:14px;color:var(--muted);line-height:1.6;max-width:480px;margin:10px auto 0}.success .review-card{max-width:520px;margin:24px auto 0;text-align:left}.success-booking-btn{margin:26px auto 0;min-width:180px;height:50px;padding:0 28px;border:none;border-radius:999px;background:var(--purple);color:#fff;font-size:14px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.success-booking-btn:hover{background:var(--purple-dark)}
 .mobile-bar{display:none}
+.venue-meta{display:flex;align-items:center;gap:5px}.venue-meta svg{flex:none}.date-row svg{flex:none;color:var(--purple)}
 .error-note{padding:13px 16px;background:#fdf1f1;border:1px solid #f4d6d6;border-radius:16px;font-size:12.5px;color:var(--red);line-height:1.5;margin-bottom:16px}
 @media(max-width:900px){
  .shell{padding:0 18px}.topbar-inner{height:66px}.secure{display:none}.page-head{padding:24px 0 18px}.page-head h1{font-size:32px;letter-spacing:-1px}.page-head p{font-size:13.5px}.checkout-layout{display:block;padding-bottom:112px}.aside{display:none}.step-nav{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px;margin-bottom:18px}.panel{border-radius:20px;padding:20px 17px;box-shadow:none}.panel h2{font-size:25px}.panel-head{margin-bottom:20px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.choice-card{min-height:72px;padding:14px}.actions{display:none}.mobile-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:11px 18px calc(11px + env(safe-area-inset-bottom))}.mobile-bar-inner{max-width:650px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.mobile-copy strong{font-size:13.5px;display:block}.mobile-copy span{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}.mobile-bar .btn{height:48px;min-width:130px;padding:0 20px}.time-list{max-height:330px}.yesno{grid-template-columns:1fr 1fr}.success{padding-top:14px}
@@ -70,6 +71,9 @@ const SUPABASE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-customer-auth"}});
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const CLOCK_ICON=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+const USER_ICON=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+const STAR_ICON=`<svg width="15" height="15" viewBox="0 0 24 24" fill="var(--gold)" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg>`;
 function makeClientRequestId(){
   if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{ const r=Math.random()*16|0,v=c==="x"?r:(r&3|8); return v.toString(16); });
@@ -214,6 +218,8 @@ const state={
 function currentService(){ return state.service; }
 function selectedAddonsList(){ if(!state.service) return []; return (state.service.addons||[]).filter(a=>state.addons.includes(a.id)); }
 function selectedAddonsTotal(){ return selectedAddonsList().reduce((s,a)=>s+a.price,0); }
+function selectedAddonsDuration(){ return selectedAddonsList().reduce((s,a)=>s+(Number(a.duration)||0),0); }
+function totalDurationMins(){ return state.service ? state.service.duration + selectedAddonsDuration() : 0; }
 function baseTotal(){ return state.service ? state.service.price + selectedAddonsTotal() : 0; }
 function promoDiscount(){ if(!state.appliedPromo) return 0; const p=state.appliedPromo; const subtotal=baseTotal(); const raw=p.type==='percent'?Math.round(subtotal*p.value/100*100)/100:Number(p.value||0); return Math.max(0,Math.min(raw,subtotal)); }
 function loyaltyDiscount(){ if(!state.appliedLoyaltyReward) return 0; const remaining=Math.max(0,baseTotal()-promoDiscount()); return Math.max(0,Math.min(Number(state.appliedLoyaltyReward.value||0),remaining)); }
@@ -256,10 +262,10 @@ function renderNav(){
 function renderSummary(){
   const salon=state.salon, svc=state.service;
   document.getElementById('summary').innerHTML=`
-    <div class="venue-row"><div class="venue-img">${salon.homeImage?`<img src="${esc(salon.homeImage)}" alt="Venue">`:''}</div><div><p class="venue-name">${esc(salon.name)}</p><p class="venue-meta">★ ${esc(salon.rating)} · ${esc([salon.suburb,salon.city].filter(Boolean).join(', '))}</p></div></div>
+    <div class="venue-row"><div class="venue-img">${salon.homeImage?`<img src="${esc(salon.homeImage)}" alt="Venue">`:''}</div><div><p class="venue-name">${esc(salon.name)}</p><p class="venue-meta">${STAR_ICON} ${esc(salon.rating)} · ${esc([salon.suburb,salon.city].filter(Boolean).join(', '))}</p></div></div>
     <div class="datebox">
-      <div class="date-row">📅 <span>${state.time?dayLabel(DAYS[state.day])+' · '+state.time:'Choose a time'}</span></div>
-      <div class="date-row">👤 <span>${state.stylist?esc(stylistPreferenceLabel(state.stylist)):'Choose a stylist'}</span></div>
+      <div class="date-row">${CLOCK_ICON} <span>${state.time?dayLabel(DAYS[state.day])+' · '+state.time:'Choose a time'}</span></div>
+      <div class="date-row">${USER_ICON} <span>${state.stylist?esc(stylistPreferenceLabel(state.stylist)):'Choose a stylist'}</span></div>
     </div>
     <div class="divider"></div>
     ${svc?`<div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>`:''}
@@ -305,11 +311,11 @@ function renderPanel(){
     h = panelHead('Who would you like to see?','Choose a specific artist or let Blooma show you the widest availability.')
       + `<div class="stack">${eligibleStylists().map(s=>`<button class="choice-card ${state.stylist&&state.stylist.id===s.id?'selected':''}" data-stylist="${esc(s.id)}"><div class="choice-left"><span class="radio"></span><div class="avatar">${isAnyAvailableStylist(s)?'✦':esc((s.name||'?').charAt(0))}</div><div><p class="choice-title">${esc(stylistPreferenceLabel(s))}</p>${s.specialty?`<p class="choice-sub">${esc(s.specialty)}</p>`:''}</div></div></button>`).join('')}</div>`;
   } else if(key==='time'){
-    const slots = timeSlotsForSalon(salon,state.day,svc.duration).filter(t=>!isPastTimeSlot(state.day,t));
-    const allBlocked = slots.length===0 || slots.every(t=>isTimeBlocked(salon,state.day,state.stylist,t,svc.duration));
+    const slots = timeSlotsForSalon(salon,state.day,totalDurationMins()).filter(t=>!isPastTimeSlot(state.day,t));
+    const allBlocked = slots.length===0 || slots.every(t=>isTimeBlocked(salon,state.day,state.stylist,t,totalDurationMins()));
     h = panelHead('Choose a time','Pick a day first, then choose from the available appointment times below.')
       + `<p class="section-label">Day</p><div class="days">${DAYS.map((d,i)=>{ const open=!!customerDayHours(salon,nzDayIndex(d)); return `<button class="day ${state.day===i?'selected':''}" data-day="${i}" ${open?'':'disabled'}><span>${dayShort(d)}</span><span>${nzDayNumber(d)}</span></button>`; }).join('')}</div>`
-      + `<p class="section-label">Available times</p><div class="time-list">${slots.length?slots.map(t=>{ const blocked=isTimeBlocked(salon,state.day,state.stylist,t,svc.duration); return `<button class="time ${state.time===t?'selected':''}" data-time="${esc(t)}" ${blocked?'disabled':''}><strong>${esc(t)}</strong><span>${blocked?'Unavailable':'Available'}</span></button>`; }).join(''):'<p class="panel-sub">This venue is closed on this day.</p>'}</div>`
+      + `<p class="section-label">Available times</p><div class="time-list">${slots.length?slots.map(t=>{ const blocked=isTimeBlocked(salon,state.day,state.stylist,t,totalDurationMins()); return `<button class="time ${state.time===t?'selected':''}" data-time="${esc(t)}" ${blocked?'disabled':''}><strong>${esc(t)}</strong><span>${blocked?'Unavailable':'Available'}</span></button>`; }).join(''):'<p class="panel-sub">This venue is closed on this day.</p>'}</div>`
       + (allBlocked ? `<div class="inline-note" style="margin-top:16px;">No times are available ${esc(stylistAvailabilityPhrase(state.stylist))} on ${esc(dayLabel(DAYS[state.day]))}. Try another day or stylist.</div>` : '');
   } else if(key==='intake'){
     h = panelHead('A few questions',`These help ${salon.name} prepare for your appointment.`)
@@ -379,7 +385,7 @@ function canNext(){
   const key=stepDefs()[state.step]?.key;
   if(key==='service') return !!state.service;
   if(key==='stylist') return !!state.stylist;
-  if(key==='time') return !!state.time && !isTimeBlocked(state.salon,state.day,state.stylist,state.time,state.service.duration);
+  if(key==='time') return !!state.time && !isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins());
   if(key==='intake') return intakeQuestionsForCurrent().every(q=>!q.required || String(state.intake[q.id]||'').trim().length>0);
   if(key==='details') return !!state.firstVisit && state.name.trim().length>1 && state.phone.trim().length>5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim());
   return true;
@@ -468,7 +474,7 @@ async function confirmBooking(){
   if(state.saving) return;
   const contact=bookingContact();
   if(!state.rescheduleToken && (contact.name.length<2 || contact.phone.length<6)){ state.bookingError='Add a valid name and mobile number in Details before confirming.'; render(); return; }
-  if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,state.service.duration)){ state.bookingError='That time is no longer available — please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
+  if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins())){ state.bookingError='That time is no longer available — please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
   state.saving=true; state.bookingError=''; render();
   try{
     const notes=[state.notes, state.appliedLoyaltyReward?`[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]`:'', state.appliedGiftCard?`[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]`:''].filter(Boolean).join(' ').trim();
@@ -481,7 +487,7 @@ async function confirmBooking(){
         starts_at: bookingStartIso(state.day,state.time),
         local_date: nzDateKey(DAYS[state.day]),
         local_time: bookingLocalTime24(state.time),
-        duration_minutes: state.service.duration,
+        duration_minutes: totalDurationMins(),
         subtotal: baseTotal(),
         discount: promoDiscount()+loyaltyDiscount()+giftCardDiscount(),
         total: finalTotal(),
@@ -502,7 +508,7 @@ async function confirmBooking(){
         starts_at: bookingStartIso(state.day,state.time),
         local_date: nzDateKey(DAYS[state.day]),
         local_time: bookingLocalTime24(state.time),
-        duration_minutes: state.service.duration,
+        duration_minutes: totalDurationMins(),
         subtotal: baseTotal(),
         discount: promoDiscount()+loyaltyDiscount()+giftCardDiscount(),
         total: finalTotal(),

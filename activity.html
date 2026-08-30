@@ -62,12 +62,13 @@ a{text-decoration:none;color:inherit}button,input{font:inherit}.shell{max-width:
 .tabs{display:flex;gap:9px;margin-bottom:28px}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:11px 18px;font-size:13px;font-weight:800;color:var(--ink);cursor:pointer}.tab.active{background:var(--ink);border-color:var(--ink);color:#fff}
 .section{padding:0 0 36px;margin-bottom:36px;border-bottom:1px solid var(--line)}.section:last-child{border-bottom:none}.section-title-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.section h2{font-size:30px;letter-spacing:-.8px;margin:0}.section-count{font-size:12px;color:var(--purple);background:var(--lav2);border-radius:999px;padding:7px 10px;font-weight:800}
 .booking-list{display:flex;flex-direction:column;gap:14px}.booking-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;display:grid;grid-template-columns:124px minmax(0,1fr) auto;gap:20px;align-items:center;cursor:pointer;transition:.18s ease;box-shadow:0 1px 0 rgba(30,20,50,.02)}.booking-card:hover{border-color:#d9cffa;box-shadow:var(--shadow-sm);transform:translateY(-1px)}.booking-img{width:124px;height:106px;border-radius:17px;overflow:hidden;background:var(--lav);position:relative}.booking-img img{width:100%;height:100%;object-fit:cover;display:block}.booking-img-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--purple)}.status-badge{position:absolute;left:10px;bottom:10px;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800;background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(0,0,0,.08)}.status-badge.upcoming{color:var(--green)}.status-badge.completed{color:var(--purple)}.status-badge.cancelled,.status-badge.no_show{color:var(--red)}
-.booking-venue{font-size:12px;color:var(--purple);font-weight:800;text-transform:uppercase;letter-spacing:.08em}.booking-service{font-size:19px;font-weight:800;margin-top:5px;letter-spacing:-.25px}.booking-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;margin-top:8px}.meta-dot{width:4px;height:4px;border-radius:50%;background:#c9c2d7}.booking-foot{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.mini-pill{font-size:11.5px;font-weight:700;color:var(--muted);background:var(--lav);padding:7px 10px;border-radius:999px}.booking-total{text-align:right;align-self:center}.booking-total strong{display:block;font-size:18px}.booking-total span{display:block;font-size:12px;color:var(--soft);margin-top:4px}.chev{margin-top:12px;color:var(--purple);display:inline-flex}
+.booking-venue{font-size:12px;color:var(--purple);font-weight:800;text-transform:uppercase;letter-spacing:.08em}.booking-service{font-size:19px;font-weight:800;margin-top:5px;letter-spacing:-.25px}.booking-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;margin-top:8px}.meta-dot{width:4px;height:4px;border-radius:50%;background:#c9c2d7}
+.booking-meta-mobile{display:none}.booking-meta-mobile .mm-row1{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px;margin-top:8px}.booking-meta-mobile .mm-row2{color:var(--muted);font-size:13.5px;margin-top:4px}.booking-foot{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.mini-pill{font-size:11.5px;font-weight:700;color:var(--muted);background:var(--lav);padding:7px 10px;border-radius:999px}.booking-total{text-align:right;align-self:center}.booking-total strong{display:block;font-size:18px}.booking-total span{display:block;font-size:12px;color:var(--soft);margin-top:4px}.chev{margin-top:12px;color:var(--purple);display:inline-flex}
 .empty{background:#fff;border:1px dashed #dcd4ef;border-radius:22px;padding:34px;text-align:center;color:var(--muted)}
 .summary-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:var(--shadow)}.summary-card h3{font-size:24px;letter-spacing:-.5px;margin:0}.summary-card>p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:8px 0 20px}.summary-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid #f1eef6}.summary-row:last-child{border-bottom:none}.summary-row span{font-size:13px;color:var(--muted)}.summary-row strong{font-size:15px}
 .help-card{margin-top:14px;background:linear-gradient(145deg,#251d35,#15111d);color:#fff;border-radius:22px;padding:22px}.help-card .eyebrow{color:#cdbcf7}.help-card h4{font-size:20px;margin:0 0 8px}.help-card p{font-size:13px;color:#bdb4ca;line-height:1.55;margin:0}
 .loading-state{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
-@media(max-width:900px){.shell{padding:0 18px}.topbar-inner{height:66px}.page-head{padding:32px 0 22px;display:block}.page-title{font-size:34px;letter-spacing:-1.15px}.page-sub{font-size:14px;margin-top:10px}.head-cta{margin-top:20px;width:100%;justify-content:center;box-shadow:none}.activity-layout{display:block;padding:28px 0 60px}.side{display:none}.section{padding-bottom:30px;margin-bottom:30px}.section h2{font-size:25px}.booking-card{grid-template-columns:96px minmax(0,1fr);gap:14px;padding:14px}.booking-img{width:96px;height:92px;border-radius:15px}.booking-service{font-size:16px}.booking-meta{font-size:12.5px;gap:6px}.booking-foot{margin-top:10px}.booking-total{grid-column:2;text-align:left;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #f1eef6;padding-top:12px}.booking-total strong{font-size:16px}.booking-total span{display:none}.chev{margin:0}}
+@media(max-width:900px){.shell{padding:0 18px}.topbar-inner{height:66px}.page-head{padding:32px 0 22px;display:block}.page-title{font-size:34px;letter-spacing:-1.15px}.page-sub{font-size:14px;margin-top:10px}.head-cta{margin-top:20px;width:100%;justify-content:center;box-shadow:none}.activity-layout{display:block;padding:28px 0 60px}.side{display:none}.section{padding-bottom:30px;margin-bottom:30px}.section h2{font-size:25px}.booking-card{grid-template-columns:96px minmax(0,1fr);gap:14px;padding:14px}.booking-img{width:96px;height:92px;border-radius:15px}.booking-service{font-size:16px}.booking-meta-desktop{display:none}.booking-meta-mobile{display:block}.booking-meta-mobile .mm-row1,.booking-meta-mobile .mm-row2{font-size:12.5px}.booking-foot{margin-top:10px}.booking-total{grid-column:2;text-align:left;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #f1eef6;padding-top:12px}.booking-total strong{font-size:16px}.booking-total span{display:none}.chev{margin:0}}
 @media(max-width:520px){.shell{padding:0 16px}.page-title{font-size:31px}.section h2{font-size:23px}.section-title-row{align-items:center}.tabs{margin-bottom:24px}.tab{padding:10px 15px}.booking-card{grid-template-columns:82px minmax(0,1fr);gap:12px}.booking-img{width:82px;height:86px}.booking-service{font-size:15.5px}.mini-pill{padding:6px 8px}}
 </style>
 </head>
@@ -106,6 +107,12 @@ function escapeHtml(s){
 function escapeAttr(s){ return escapeHtml(s); }
 function dayLabel(d){ return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",timeZone:NZ_TIME_ZONE}); }
 function bookingStatusLabel(status){ return status==="completed"?"Completed":status==="cancelled"?"Cancelled":status==="no_show"?"No-show":"Upcoming"; }
+function formatTimeLower(d){ return d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:NZ_TIME_ZONE}).replace(/\s?(AM|PM)$/i,m=>m.trim().toLowerCase()); }
+function timeRangeLabel(b){
+  const start = new Date(b.startsAt);
+  const end = new Date(start.getTime() + Number(b.duration||30)*60000);
+  return `${formatTimeLower(start)} - ${formatTimeLower(end)}`;
+}
 
 function bookingFromRow(r){
   const dt = new Date(r.starts_at);
@@ -144,12 +151,13 @@ function bookingCard(b){
     <article class="booking-card" data-booking="${escapeAttr(b.dbId)}">
       <div class="booking-img">
         ${thumb ? `<img src="${escapeAttr(thumb)}" alt="${escapeAttr(b.salonName)}" loading="lazy" decoding="async">` : `<div class="booking-img-fallback"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"></path><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"></path></svg></div>`}
-        <span class="status-badge ${b.status}">${bookingStatusLabel(b.status)}</span>
+        ${b.status!=="upcoming"?`<span class="status-badge ${b.status}">${bookingStatusLabel(b.status)}</span>`:""}
       </div>
       <div>
         <div class="booking-venue">${escapeHtml(b.salonName)}</div>
         <div class="booking-service">${escapeHtml(b.serviceName)}</div>
-        <div class="booking-meta"><span>${escapeHtml(b.dateLabel)}</span><span class="meta-dot"></span><span>${escapeHtml(b.time)}</span><span class="meta-dot"></span><span>${escapeHtml(b.stylistName)}</span></div>
+        <div class="booking-meta booking-meta-desktop"><span>${escapeHtml(b.dateLabel)}</span><span class="meta-dot"></span><span>${escapeHtml(b.time)}</span><span class="meta-dot"></span><span>${escapeHtml(b.stylistName)}</span></div>
+        <div class="booking-meta-mobile"><div class="mm-row1"><span>${escapeHtml(b.dateLabel)}</span><span class="meta-dot"></span><span>${escapeHtml(b.stylistName)}</span></div><div class="mm-row2">${escapeHtml(timeRangeLabel(b))}</div></div>
         <div class="booking-foot"><span class="mini-pill">${b.duration} min</span>${b.addons&&b.addons.length?`<span class="mini-pill">+ ${escapeHtml(b.addons.map(a=>a.name).join(", "))}</span>`:""}</div>
       </div>
       <div class="booking-total">
@@ -170,7 +178,7 @@ function renderContent(){
     <section class="section">
       <div class="section-title-row">
         <h2>${activeTab==="upcoming"?"Upcoming bookings":"Past bookings"}</h2>
-        <span class="section-count">${list.length} booking${list.length===1?"":"s"}</span>
+        <span class="section-count">${list.length}</span>
       </div>
       <div class="booking-list">
         ${list.length ? list.map(bookingCard).join("") : renderEmpty(activeTab)}
