@@ -4263,6 +4263,7 @@ function render(opts){
   const root = document.getElementById("app");
   if(!state.marketplaceReady || !state.authReady){
     document.title = "Blooma";
+    document.body.classList.add("page-home");
     root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-topbar"><span class="brand-logo">Blooma</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div>`;
     return;
   }
