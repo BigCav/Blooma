@@ -4,7 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="format-detection" content="telephone=no, address=no, email=no" />
-<title>Salon Booking</title>
+<title>Blooma — Book Hair, Beauty & Wellness Appointments Online</title>
+<meta name="description" content="Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma." />
+<link rel="canonical" href="https://blooma.co.nz/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Blooma" />
+<meta property="og:title" content="Blooma — Book Hair, Beauty & Wellness Appointments Online" />
+<meta property="og:description" content="Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma." />
+<meta property="og:url" content="https://blooma.co.nz/" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Blooma — Book Hair, Beauty & Wellness Appointments Online" />
+<meta name="twitter:description" content="Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -4258,6 +4268,71 @@ function initVenueMaps(){
   });
 }
 
+function setMetaTag(attr,key,content){
+  let el=document.head.querySelector(`meta[${attr}="${key}"]`);
+  if(!el){ el=document.createElement("meta"); el.setAttribute(attr,key); document.head.appendChild(el); }
+  el.setAttribute("content",content);
+}
+function removeMetaTag(attr,key){
+  const el=document.head.querySelector(`meta[${attr}="${key}"]`);
+  if(el) el.remove();
+}
+function setCanonicalLink(url){
+  let el=document.head.querySelector('link[rel="canonical"]');
+  if(!el){ el=document.createElement("link"); el.setAttribute("rel","canonical"); document.head.appendChild(el); }
+  el.setAttribute("href",url);
+}
+function setVenueJsonLd(salon){
+  let el=document.getElementById("bloomaJsonLd");
+  if(!salon || !salon.publicSlug){ if(el) el.remove(); return; }
+  const hasRating = salon.rating && salon.rating!=="New" && Number(salon.reviews)>0;
+  const data={
+    "@context":"https://schema.org",
+    "@type":"HealthAndBeautyBusiness",
+    name:salon.name,
+    image:salon.homeImage||undefined,
+    url:`https://blooma.co.nz/venue/${salon.publicSlug}`,
+    telephone:salon.phone||undefined,
+    address:{
+      "@type":"PostalAddress",
+      streetAddress:salon.address||undefined,
+      addressLocality:salon.suburb||salon.city||undefined,
+      addressRegion:salon.region||undefined,
+      postalCode:salon.postcode||undefined,
+      addressCountry:"NZ"
+    },
+    aggregateRating:hasRating?{"@type":"AggregateRating",ratingValue:salon.rating,reviewCount:salon.reviews}:undefined
+  };
+  if(!el){ el=document.createElement("script"); el.type="application/ld+json"; el.id="bloomaJsonLd"; document.head.appendChild(el); }
+  el.textContent=JSON.stringify(data);
+}
+function updateSeoMeta(){
+  const salon = (state.page==="salon" && state.salon) ? state.salon : null;
+  const defaultTitle = "Blooma — Book Hair, Beauty & Wellness Appointments Online";
+  const defaultDesc = "Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma.";
+  let title = defaultTitle, description = defaultDesc, url = "https://blooma.co.nz/", image = "";
+  if(salon){
+    const place = [salon.suburb,salon.city].filter(Boolean).join(", ");
+    title = `${salon.name} — Book Online | Blooma`;
+    description = `Book your next appointment at ${salon.name}${place?` in ${place}`:""} on Blooma. ${salon.tag||"Beauty & wellness"}.${(salon.rating&&salon.rating!=="New"&&salon.reviews>0)?` Rated ${salon.rating}★ (${salon.reviews} reviews).`:""}`.trim();
+    url = salon.publicSlug ? `https://blooma.co.nz/venue/${salon.publicSlug}` : url;
+    image = salon.homeImage||"";
+  }
+  document.title = title;
+  setMetaTag("name","description",description);
+  setMetaTag("property","og:type",salon?"business.business":"website");
+  setMetaTag("property","og:site_name","Blooma");
+  setMetaTag("property","og:title",title);
+  setMetaTag("property","og:description",description);
+  setMetaTag("property","og:url",url);
+  if(image) setMetaTag("property","og:image",image); else removeMetaTag("property","og:image");
+  setMetaTag("name","twitter:card",image?"summary_large_image":"summary");
+  setMetaTag("name","twitter:title",title);
+  setMetaTag("name","twitter:description",description);
+  if(image) setMetaTag("name","twitter:image",image); else removeMetaTag("name","twitter:image");
+  setCanonicalLink(url);
+  setVenueJsonLd(salon);
+}
 function render(opts){
   opts = opts || {};
   const activeBefore=opts.samePage?document.activeElement:null;
@@ -4275,7 +4350,7 @@ function render(opts){
     root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-cap"><div class="home-topbar"><span class="brand-logo">Blooma</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div></div>`;
     return;
   }
-  document.title = (state.page==="salon" && state.salon) ? `${state.salon.name} — Blooma` : "Blooma";
+  updateSeoMeta();
   document.body.classList.toggle("page-home", state.page==="home");
   document.body.classList.toggle("page-salon", state.page==="salon");
   let html = "";
