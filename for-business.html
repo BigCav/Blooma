@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Blooma for Venues — Salon &amp; Beauty Booking Software for New Zealand</title>
+<meta name="description" content="Free online booking software for New Zealand hair, beauty and wellness venues. Calendar, staff, clients, payments, gift cards and loyalty in one dashboard. 7-day free trial." />
+<link rel="canonical" href="https://blooma.co.nz/for-business" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Blooma" />
+<meta property="og:title" content="Blooma for Venues — Salon & Beauty Booking Software for New Zealand" />
+<meta property="og:description" content="Free online booking software for New Zealand hair, beauty and wellness venues. Calendar, staff, clients, payments, gift cards and loyalty in one dashboard. 7-day free trial." />
+<meta property="og:url" content="https://blooma.co.nz/for-business" />
+<meta property="og:image" content="https://blooma.co.nz/favicon-512.png" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Blooma for Venues — Salon & Beauty Booking Software for New Zealand" />
+<meta name="twitter:description" content="Free online booking software for New Zealand hair, beauty and wellness venues. Calendar, staff, clients, payments, gift cards and loyalty in one dashboard. 7-day free trial." />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Blooma",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "url": "https://blooma.co.nz/for-business",
+  "offers": [
+    { "@type": "Offer", "name": "Solo", "price": "29", "priceCurrency": "NZD", "description": "1 stylist, per month" },
+    { "@type": "Offer", "name": "Team", "price": "19", "priceCurrency": "NZD", "description": "Per stylist per month, 2+ stylists" }
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  :focus{outline:none;}
+  :focus-visible{outline:2px solid #6C4FD6;outline-offset:2px;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#FAF9FD;color:#241F33;-webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px;}
+
+  /* ---- Nav ---- */
+  .nav{border-bottom:1px solid #EFECF9;background:rgba(250,249,253,.92);backdrop-filter:blur(6px);position:sticky;top:0;z-index:20;}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;max-width:1120px;margin:0 auto;}
+  .nav-logo{font-size:20px;font-weight:800;letter-spacing:-.4px;text-decoration:none;color:#241F33;}
+  .nav-actions{display:flex;align-items:center;gap:10px;}
+  .nav-link{font-size:14px;font-weight:600;color:#6B6285;text-decoration:none;padding:8px 10px;}
+  .nav-link:hover{color:#241F33;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;border:none;padding:12px 20px;transition:background .15s,border-color .15s,transform .1s;}
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:#7C5CD9;color:#fff;}
+  .btn-primary:hover{background:#6D4DC7;}
+  .btn-outline{background:#fff;color:#241F33;border:1px solid #E9E4F7;}
+  .btn-outline:hover{border-color:#C9BBEF;}
+  .btn-sm{padding:9px 16px;font-size:13.5px;}
+
+  /* ---- Hero ---- */
+  .hero{padding:64px 0 56px;text-align:center;}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:#F1ECFB;color:#6D4DC7;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px;margin-bottom:20px;}
+  .hero h1{font-size:44px;line-height:1.12;letter-spacing:-1.2px;margin:0 0 18px;font-weight:800;}
+  .hero p{font-size:17px;line-height:1.6;color:#6B6285;max-width:600px;margin:0 auto 30px;}
+  .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .hero-note{margin-top:16px;font-size:13px;color:#8A80AD;}
+
+  /* ---- Trust strip ---- */
+  .trust-strip{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;padding:0 0 56px;}
+  .trust-item{text-align:center;}
+  .trust-item strong{display:block;font-size:22px;font-weight:800;color:#241F33;}
+  .trust-item span{font-size:12.5px;color:#8A80AD;font-weight:600;}
+
+  /* ---- Sections ---- */
+  section{padding:56px 0;}
+  .section-head{text-align:center;max-width:560px;margin:0 auto 40px;}
+  .section-eyebrow{font-size:12.5px;font-weight:700;color:#7C5CD9;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;}
+  .section-head h2{font-size:30px;letter-spacing:-.6px;margin:0 0 10px;font-weight:800;}
+  .section-head p{font-size:15.5px;color:#6B6285;line-height:1.6;margin:0;}
+
+  /* ---- Feature grid ---- */
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
+  .feature-card{background:#fff;border:1px solid #EFECF9;border-radius:18px;padding:24px;}
+  .feature-icon{width:44px;height:44px;border-radius:12px;background:#F3EEFC;color:#7C5CD9;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .feature-card h3{font-size:16px;font-weight:700;margin:0 0 6px;letter-spacing:-.2px;}
+  .feature-card p{font-size:13.5px;color:#6B6285;line-height:1.55;margin:0;}
+
+  /* ---- How it works ---- */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;}
+  .step{text-align:center;padding:0 12px;}
+  .step-num{width:40px;height:40px;border-radius:50%;background:#7C5CD9;color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  .step h3{font-size:16px;font-weight:700;margin:0 0 8px;}
+  .step p{font-size:13.5px;color:#6B6285;line-height:1.55;margin:0;}
+
+  /* ---- Referral callout ---- */
+  .callout{background:#241F33;border-radius:24px;padding:40px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;color:#fff;}
+  .callout-icon{width:56px;height:56px;border-radius:16px;background:rgba(124,92,217,.28);color:#B7A6EE;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .callout-body{flex:1;min-width:240px;}
+  .callout-body h3{font-size:20px;font-weight:800;margin:0 0 8px;}
+  .callout-body p{font-size:14px;color:#B8B3C9;line-height:1.6;margin:0;max-width:520px;}
+
+  /* ---- Pricing ---- */
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:760px;margin:0 auto;}
+  .price-card{background:#fff;border:1px solid #EFECF9;border-radius:20px;padding:30px;}
+  .price-card.featured{border-color:#7C5CD9;box-shadow:0 12px 32px -16px rgba(124,92,217,.35);}
+  .price-tag{font-size:11px;font-weight:700;color:#7C5CD9;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;}
+  .price-card h3{font-size:18px;font-weight:800;margin:0 0 4px;}
+  .price-amount{font-size:34px;font-weight:800;letter-spacing:-1px;margin:12px 0 2px;}
+  .price-amount span{font-size:14px;font-weight:600;color:#8A80AD;}
+  .price-card ul{list-style:none;padding:0;margin:18px 0 22px;display:flex;flex-direction:column;gap:10px;}
+  .price-card li{font-size:13.5px;color:#4A4359;display:flex;align-items:flex-start;gap:8px;}
+  .price-card li svg{flex-shrink:0;margin-top:2px;color:#7C5CD9;}
+
+  /* ---- FAQ ---- */
+  .faq{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+  .faq-item{background:#fff;border:1px solid #EFECF9;border-radius:14px;padding:18px 20px;}
+  .faq-item summary{font-size:14.5px;font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary .chev{transition:transform .15s;flex-shrink:0;color:#8A80AD;}
+  .faq-item[open] summary .chev{transform:rotate(180deg);}
+  .faq-item p{font-size:13.5px;color:#6B6285;line-height:1.6;margin:12px 0 0;}
+
+  /* ---- Bottom CTA ---- */
+  .bottom-cta{text-align:center;background:#F1ECFB;border-radius:24px;padding:52px 30px;}
+  .bottom-cta h2{font-size:28px;font-weight:800;letter-spacing:-.6px;margin:0 0 12px;}
+  .bottom-cta p{font-size:15px;color:#5C4E7E;margin:0 0 26px;}
+
+  /* ---- Footer ---- */
+  footer{border-top:1px solid #EFECF9;padding:28px 0;text-align:center;}
+  footer p{font-size:12.5px;color:#8A80AD;margin:0 0 6px;}
+  footer a{font-size:12.5px;color:#8A80AD;text-decoration:underline;}
+
+  @media(max-width:640px){
+    .hero h1{font-size:32px;}
+    .hero p{font-size:15.5px;}
+    .callout{padding:28px;}
+    .bottom-cta{padding:40px 22px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">Blooma</a>
+    <div class="nav-actions">
+      <a class="nav-link" href="/business-auth?view=login">Venue log in</a>
+      <a class="btn btn-primary btn-sm" href="/business-auth">Start free trial</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="hero-eyebrow">For salons, barbers &amp; beauty studios</span>
+      <h1>Booking software built for<br>New Zealand venues</h1>
+      <p>Calendar, staff, clients, payments, gift cards and loyalty — all in one simple dashboard. Give your customers a booking link they'll actually use, and get your chairs full.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/business-auth">Start your free trial</a>
+        <a class="btn btn-outline" href="#how-it-works">See how it works</a>
+      </div>
+      <p class="hero-note">7 days free. No credit card required to start.</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="trust-strip">
+      <div class="trust-item"><strong>7 days</strong><span>Free trial</span></div>
+      <div class="trust-item"><strong>$29/mo</strong><span>Solo, from</span></div>
+      <div class="trust-item"><strong>10 min</strong><span>To get set up</span></div>
+      <div class="trust-item"><strong>$120</strong><span>Per venue you refer</span></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Everything in one place</p>
+        <h2>Run your whole venue from Blooma</h2>
+        <p>No more juggling a paper diary, a payments terminal and three different apps.</p>
+      </div>
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <h3>Online booking &amp; calendar</h3>
+          <p>Customers book themselves, 24/7. Your calendar updates in real time, with buffers and staff availability handled for you.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h3>Staff &amp; team scheduling</h3>
+          <p>Add every stylist or therapist, set their hours and services, and let clients book the right person automatically.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg></div>
+          <h3>Payments &amp; checkout</h3>
+          <p>Take payment in person or online, track add-ons and packages, and keep a clean record of every transaction.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg></div>
+          <h3>Gift cards &amp; packages</h3>
+          <p>Sell gift cards and prepaid packages straight from your booking page — a new revenue stream with no extra setup.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+          <h3>Loyalty &amp; repeat clients</h3>
+          <p>Reward regulars with a points-based loyalty program that keeps them coming back instead of shopping around.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+          <h3>Client &amp; team messaging</h3>
+          <p>Message clients directly about their booking, and keep your team in sync with built-in team chat.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8 14 12.7l-3-3L7 13.6"/></svg></div>
+          <h3>Reports &amp; insights</h3>
+          <p>See your busiest days, best-selling services and top clients at a glance, no spreadsheet required.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg></div>
+          <h3>Refer &amp; earn</h3>
+          <p>Know another venue that would love Blooma? You both get $120 in wallet credit once they subscribe.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="how-it-works">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Getting started</p>
+        <h2>Live in about 10 minutes</h2>
+        <p>No sales calls, no contracts to sign first. Set up your venue and start taking bookings the same day.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Add your venue</h3>
+          <p>Services, staff, hours and pricing — set up in one guided flow.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Share your link</h3>
+          <p>Put your Blooma booking link in your Instagram bio, at the counter, or in your texts.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Manage everything</h3>
+          <p>Bookings, payments, clients and staff — all from one dashboard, on any device.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="callout">
+        <div class="callout-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg></div>
+        <div class="callout-body">
+          <h3>Refer a venue, earn $120</h3>
+          <p>Once you're on Blooma, every venue you refer that subscribes puts $120 straight into your Blooma wallet — and $120 into theirs. Your first referral pays for over 4 months of the Solo plan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Pricing</p>
+        <h2>Simple, per-stylist pricing</h2>
+        <p>Try everything free for 7 days. Pick a plan when you're ready — cancel any time from your dashboard.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <p class="price-tag">Solo</p>
+          <h3>Working alone</h3>
+          <div class="price-amount">$29<span>/month</span></div>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 1 stylist / bookable staff member</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Full booking, payments &amp; client tools</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Gift cards, packages &amp; loyalty</li>
+          </ul>
+          <a class="btn btn-outline" style="width:100%;" href="/business-auth">Start free trial</a>
+        </div>
+        <div class="price-card featured">
+          <p class="price-tag">Team</p>
+          <h3>2+ stylists</h3>
+          <div class="price-amount">$19<span>/stylist /month</span></div>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Unlimited stylists / staff</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Everything in Solo, per seat</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Team chat &amp; shared reporting</li>
+          </ul>
+          <a class="btn btn-primary" style="width:100%;" href="/business-auth">Start free trial</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Questions</p>
+        <h2>Frequently asked</h2>
+      </div>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Do I need a contract?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <p>No. Blooma is a month-to-month subscription — no lock-in contract. You can manage or cancel your plan any time from your venue dashboard.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What if I already use another booking system?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <p>You can set up your services, staff and hours in Blooma in about 10 minutes and run it alongside your current system until you're ready to switch over fully.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do my customers need the Blooma app?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <p>No app required. Your booking page works straight from a browser — perfect for sharing as a link in your Instagram bio, texts or Google Business profile.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How does the referral bonus work?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <p>Every Blooma venue gets a unique referral link from their dashboard. When a venue you refer subscribes to a paid plan, you both get $120 credited to your Blooma wallet automatically.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What happens after my free trial?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <p>You get 7 days to try Blooma with no credit card required. After that, choose a plan to keep going — your venue, services and booking history are all still there waiting for you.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="bottom-cta">
+        <h2>Ready to fill your chairs?</h2>
+        <p>Set up your venue free, and start taking bookings today.</p>
+        <a class="btn btn-primary" href="/business-auth">Start your free trial</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Blooma. All rights reserved.</p>
+    <p><a href="/">Customer marketplace</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
