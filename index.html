@@ -442,6 +442,16 @@
     animation:serviceDetailUp .24s ease;will-change:transform;
   }
   .service-detail-sheet.closing{animation:serviceDetailDown .24s ease forwards;pointer-events:none;}
+  @media(min-width:900px){
+    .service-detail-sheet{
+      position:fixed;left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);
+      height:auto;min-height:0;max-height:85vh;max-width:440px;width:92%;border-radius:20px;
+      animation:serviceDetailModalIn .16s ease;
+    }
+    .service-detail-sheet.closing{animation:serviceDetailModalOut .14s ease forwards;}
+  }
+  @keyframes serviceDetailModalIn{from{transform:translate(-50%,-50%) scale(.96);opacity:0;}to{transform:translate(-50%,-50%) scale(1);opacity:1;}}
+  @keyframes serviceDetailModalOut{from{transform:translate(-50%,-50%) scale(1);opacity:1;}to{transform:translate(-50%,-50%) scale(.96);opacity:0;}}
   .service-detail-close{
     width:34px;height:34px;border-radius:50%;background:var(--purple-pastel-2);color:var(--ink);
     display:flex;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;
@@ -2642,7 +2652,8 @@ function checkoutStepKeys(service){
   return keys;
 }
 function goCheckoutPage(service, preferredStylist){
-  if(!state.salon || !service) return;
+  if(!state.salon) return;
+  if(!service){ window.location.href = venuePublicPath(state.salon) + "/checkout"; return; }
   const params = new URLSearchParams();
   params.set("service", service.id);
   if(preferredStylist && !isAnyAvailableStylist(preferredStylist)) params.set("stylist", preferredStylist.id);
@@ -2665,23 +2676,8 @@ function goHistory(){
 }
 function goReschedule(booking){
   const salon = SALONS.find(s=>s.id===booking.salonId);
-  if (!salon) return;
-  const service = salon.services.find(sv=>sv.id===booking.serviceId);
-  if (!service) return;
-  const stylist = salon.stylists.find(st=>st.id===booking.stylistId) || null;
-  delete scrollPositions["checkout-day"];
-  setState({
-    page:"checkout", checkoutOrigin:"history", salon, service, step:checkoutStepKeys(service).indexOf("time"),
-    selectedStylist: stylist, selectedDay:firstOpenDayIndex(salon), selectedTime:null, selectedAddons:[], selectedNotes: booking.preferences||[], firstVisitAnswered: !!(booking.preferences||[]).length,
-    name: booking.name||"", phone: booking.phone||"", notes: booking.notes||"",
-    promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"",
-    giftCardCode:"", appliedGiftCard:null, giftCardError:"", myPackage:null, packageApplied:false, intakeAnswers:{}, intakeError:"",
-    done:false, rescheduleBookingId:booking.id, pendingBookingRequestId:null,
-  });
-  pushCustomerHistoryState();
-  loadLoyaltyAccount();
-  loadMyPackage();
-  if(state._venuePackagesLoadedFor!==salon.id) loadVenueIntakeQuestions();
+  if (!salon || !booking.publicToken) return;
+  window.location.href = venuePublicPath(salon) + "/checkout?reschedule=" + encodeURIComponent(booking.publicToken);
 }
 function goGallery(salon){
   rememberVenueScroll();
@@ -5084,9 +5080,9 @@ function bindEvents(){
     });
     bindSalonServiceButtons();
     const venueBookNowBtn = document.getElementById("venueBookNowBtn");
-    if (venueBookNowBtn) venueBookNowBtn.addEventListener("click", goServiceSelect);
+    if (venueBookNowBtn) venueBookNowBtn.addEventListener("click", ()=> goCheckoutPage(null));
     const venueBookNowBtnDesktop = document.getElementById("venueBookNowBtnDesktop");
-    if (venueBookNowBtnDesktop) venueBookNowBtnDesktop.addEventListener("click", goServiceSelect);
+    if (venueBookNowBtnDesktop) venueBookNowBtnDesktop.addEventListener("click", ()=> goCheckoutPage(null));
     document.querySelectorAll("[data-stylistprofile]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const stylist = state.salon.stylists.find(st=>st.id===btn.getAttribute("data-stylistprofile"));

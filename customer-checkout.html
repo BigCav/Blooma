@@ -40,7 +40,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 </style>
 </head>
 <body>
-<header class="topbar"><div class="shell topbar-inner"><div class="brand">Blooma</div><div class="header-right"><button class="icon-btn" id="closeBtn" aria-label="Close">✕</button></div></div></header>
+<header class="topbar"><div class="shell topbar-inner"><button class="brand" id="brandBtn" style="border:none;background:none;padding:0;cursor:pointer;color:inherit;" aria-label="Go to home">Blooma</button><div class="header-right"><button class="icon-btn" id="closeBtn" aria-label="Close">✕</button></div></div></header>
 <main class="shell">
  <section class="page-head"><p class="eyebrow">Booking</p><h1>Complete your appointment</h1><p>Choose the extras, artist and time that suit you, then review everything before confirming.</p></section>
  <div class="checkout-layout">
@@ -97,6 +97,8 @@ function nzDayNumber(d){ return Number(nzParts(d).day); }
 function dayShort(d){ return d.toLocaleDateString(undefined,{weekday:"short",timeZone:NZ_TIME_ZONE}); }
 function dayLabel(d){ return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",timeZone:NZ_TIME_ZONE}); }
 const DAYS = Array.from({length:21},(_,i)=>dateFromNzKey(addDaysToDateKey(nzTodayKey(),i)));
+function dayIndexForDate(d){ const key=nzDateKey(d); for(let i=0;i<DAYS.length;i++){ if(nzDateKey(DAYS[i])===key) return i; } return -1; }
+function nzMinutesOfDay(d){ const fmt=new Intl.DateTimeFormat('en-CA',{timeZone:NZ_TIME_ZONE,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}); let h=0,m=0; fmt.formatToParts(d).forEach(p=>{ if(p.type==='hour') h=Number(p.value); if(p.type==='minute') m=Number(p.value); }); return h*60+m; }
 function bookingStartIso(dayIndex,timeStr){ return nzLocalToIso(nzDateKey(DAYS[dayIndex]),timeStr); }
 function isPastTimeSlot(dayIndex,timeStr){ return new Date(bookingStartIso(dayIndex,timeStr)).getTime() < Date.now()+5*60000; }
 
@@ -206,6 +208,7 @@ const state={
   loyaltyAccount:null, appliedLoyaltyReward:null,
   intakeQuestionsByService:{},
   saving:false, bookingError:'', done:false, lastBooking:null,
+  rescheduleToken:null, rescheduleBookingId:null,
 };
 
 function currentService(){ return state.service; }
@@ -225,7 +228,7 @@ function stepDefs(){
   defs.push({key:'stylist',label:'Stylist'});
   defs.push({key:'time',label:'Time'});
   if(intakeQuestionsForCurrent().length) defs.push({key:'intake',label:'A few questions'});
-  defs.push({key:'details',label:'Details'});
+  if(!state.rescheduleToken) defs.push({key:'details',label:'Details'});
   defs.push({key:'review',label:'Summary'});
   return defs;
 }
@@ -358,13 +361,13 @@ function renderPanel(){
       </div></div>
       <div class="success" id="success">
         <div class="success-mark">✓</div>
-        <h2>You're all booked in</h2>
-        <p>${esc(salon.name)} has received your booking for ${esc(svc.name)}${state.lastBooking?', '+esc(dayLabel(DAYS[state.day]))+' at '+esc(state.time):''}.</p>
+        <h2>${state.rescheduleToken?'Booking updated':"You're all booked in"}</h2>
+        <p>${state.rescheduleToken ? `Your appointment for ${esc(svc.name)} at ${esc(salon.name)} has been moved to ${esc(dayLabel(DAYS[state.day]))} at ${esc(state.time)}.` : `${esc(salon.name)} has received your booking for ${esc(svc.name)}${state.lastBooking?', '+esc(dayLabel(DAYS[state.day]))+' at '+esc(state.time):''}.`}</p>
         <button class="success-booking-btn" id="viewBookingBtn" type="button">View booking</button>
       </div>`;
   }
 
-  document.getElementById('panel').innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary" id="next" ${state.saving?'disabled':''}>${state.saving?'Confirming…':(key==='review'?'Confirm booking':'Continue')}</button></div>`;
+  document.getElementById('panel').innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary" id="next" ${state.saving?'disabled':''}>${state.saving?'Confirming…':(key==='review'?(state.rescheduleToken?'Confirm changes':'Confirm booking'):'Continue')}</button></div>`;
   bind();
 }
 
@@ -459,31 +462,53 @@ function back(){ if(state.step>0){ state.step--; render(); window.scrollTo({top:
 async function confirmBooking(){
   if(state.saving) return;
   const contact=bookingContact();
-  if(contact.name.length<2 || contact.phone.length<6){ state.bookingError='Add a valid name and mobile number in Details before confirming.'; render(); return; }
+  if(!state.rescheduleToken && (contact.name.length<2 || contact.phone.length<6)){ state.bookingError='Add a valid name and mobile number in Details before confirming.'; render(); return; }
   if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,state.service.duration)){ state.bookingError='That time is no longer available — please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
   state.saving=true; state.bookingError=''; render();
   try{
-    const payload={
-      salon_id: state.salon.id,
-      service_id: state.service.id,
-      stylist_id: isAnyAvailableStylist(state.stylist) ? null : state.stylist.id,
-      customer_name: contact.name,
-      customer_phone: contact.phone,
-      customer_email: contact.email||'',
-      starts_at: bookingStartIso(state.day,state.time),
-      local_date: nzDateKey(DAYS[state.day]),
-      local_time: bookingLocalTime24(state.time),
-      duration_minutes: state.service.duration,
-      subtotal: baseTotal(),
-      discount: promoDiscount()+loyaltyDiscount()+giftCardDiscount(),
-      total: finalTotal(),
-      promo_code: state.appliedPromo ? state.appliedPromo.code : null,
-      notes: [state.notes, state.appliedLoyaltyReward?`[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]`:'', state.appliedGiftCard?`[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]`:''].filter(Boolean).join(' ').trim(),
-      preferences: state.firstVisit==='Yes' ? ['First time here'] : [],
-      addons: selectedAddonsList(),
-      client_request_id: makeClientRequestId(),
-    };
-    const {data,error}=await supabaseClient.rpc('create_public_booking',{payload});
+    const notes=[state.notes, state.appliedLoyaltyReward?`[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]`:'', state.appliedGiftCard?`[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]`:''].filter(Boolean).join(' ').trim();
+    let data, error;
+    if(state.rescheduleToken){
+      const payload={
+        salon_id: state.salon.id,
+        service_id: state.service.id,
+        stylist_id: isAnyAvailableStylist(state.stylist) ? null : state.stylist.id,
+        starts_at: bookingStartIso(state.day,state.time),
+        local_date: nzDateKey(DAYS[state.day]),
+        local_time: bookingLocalTime24(state.time),
+        duration_minutes: state.service.duration,
+        subtotal: baseTotal(),
+        discount: promoDiscount()+loyaltyDiscount()+giftCardDiscount(),
+        total: finalTotal(),
+        promo_code: state.appliedPromo ? state.appliedPromo.code : null,
+        notes,
+        preferences: state.firstVisit==='Yes' ? ['First time here'] : [],
+        addons: selectedAddonsList(),
+      };
+      ({data,error}=await supabaseClient.rpc('reschedule_public_booking',{token:state.rescheduleToken,payload}));
+    } else {
+      const payload={
+        salon_id: state.salon.id,
+        service_id: state.service.id,
+        stylist_id: isAnyAvailableStylist(state.stylist) ? null : state.stylist.id,
+        customer_name: contact.name,
+        customer_phone: contact.phone,
+        customer_email: contact.email||'',
+        starts_at: bookingStartIso(state.day,state.time),
+        local_date: nzDateKey(DAYS[state.day]),
+        local_time: bookingLocalTime24(state.time),
+        duration_minutes: state.service.duration,
+        subtotal: baseTotal(),
+        discount: promoDiscount()+loyaltyDiscount()+giftCardDiscount(),
+        total: finalTotal(),
+        promo_code: state.appliedPromo ? state.appliedPromo.code : null,
+        notes,
+        preferences: state.firstVisit==='Yes' ? ['First time here'] : [],
+        addons: selectedAddonsList(),
+        client_request_id: makeClientRequestId(),
+      };
+      ({data,error}=await supabaseClient.rpc('create_public_booking',{payload}));
+    }
     if(error) throw error;
     state.lastBooking=data||{};
 
@@ -567,13 +592,46 @@ async function boot(){
     document.getElementById('panel').innerHTML='<div class="panel-head"><h2>We couldn\'t load this venue</h2><p class="panel-sub">Please go back and try again.</p></div>';
     return;
   }
-  state.service = (requestedServiceId && state.salon.services.find(s=>s.id===requestedServiceId)) || state.salon.services[0] || null;
-  state.day = firstOpenDayIndex(state.salon);
-  const requestedStylistId=new URLSearchParams(location.search).get('stylist');
   const anyAvailable = state.salon.stylists.find(st=>st.name==='Any available') || null;
-  state.stylist = (requestedStylistId && state.salon.stylists.find(st=>st.id===requestedStylistId)) || anyAvailable;
+  const rescheduleToken=new URLSearchParams(location.search).get('reschedule');
+  if(rescheduleToken){
+    try{
+      const {data,error}=await supabaseClient.rpc('get_public_bookings',{tokens:[rescheduleToken]});
+      if(error) throw error;
+      const booking=(data||[])[0];
+      if(!booking || String(booking.salon_id)!==String(state.salon.id) || booking.status!=='upcoming') throw new Error('not found');
+      state.rescheduleToken=rescheduleToken;
+      state.rescheduleBookingId=booking.id;
+      state.service = state.salon.services.find(s=>s.id===booking.service_id) || state.salon.services[0] || null;
+      const stylistMatch = booking.stylist_id ? state.salon.stylists.find(st=>st.id===booking.stylist_id) : null;
+      state.stylist = stylistMatch || anyAvailable;
+      const startDate = new Date(booking.starts_at);
+      const idx = dayIndexForDate(startDate);
+      state.day = idx>=0 ? idx : firstOpenDayIndex(state.salon);
+      state.time = formatTimeMins(nzMinutesOfDay(startDate));
+      state.addons = Array.isArray(booking.addons) ? booking.addons.map(a=>a && a.id).filter(Boolean) : [];
+      state.notes = booking.notes || '';
+      state.firstVisit = (Array.isArray(booking.preferences) && booking.preferences.length) ? 'Yes' : 'No';
+      state.name = booking.customer_name || '';
+      state.phone = booking.customer_phone || '';
+      state.email = booking.customer_email || '';
+    }catch(e){
+      document.getElementById('panel').innerHTML='<div class="panel-head"><h2>We couldn\'t load that booking</h2><p class="panel-sub">This reschedule link may have expired — please go back to Activity and try again.</p></div>';
+      return;
+    }
+  } else {
+    state.service = (requestedServiceId && state.salon.services.find(s=>s.id===requestedServiceId)) || state.salon.services[0] || null;
+    state.day = firstOpenDayIndex(state.salon);
+    const requestedStylistId=new URLSearchParams(location.search).get('stylist');
+    state.stylist = (requestedStylistId && state.salon.stylists.find(st=>st.id===requestedStylistId)) || anyAvailable;
+  }
   document.getElementById('closeBtn').onclick=()=>{ location.href='/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id); };
+  document.getElementById('brandBtn').onclick=()=>{ location.href='/'; };
   if(state.service) loadIntakeQuestionsFor(state.service);
+  if(state.rescheduleToken){
+    const timeIdx=stepDefs().findIndex(d=>d.key==='time');
+    if(timeIdx>=0) state.step=timeIdx;
+  }
   render();
   loadAuth();
 }
