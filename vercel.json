@@ -108,6 +108,10 @@
       "destination": "/terms-conditions"
     },
     {
+      "source": "/venue/:slug/checkout",
+      "destination": "/customer-checkout?venue=:slug"
+    },
+    {
       "source": "/venue/:slug",
       "destination": "/?venue=:slug"
     }

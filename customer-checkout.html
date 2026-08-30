@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Blooma — Checkout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+ --ink:#201a2e;--muted:#766e8f;--soft:#a39ab9;--purple:#7c5cd9;--purple-dark:#6948c4;
+ --lav:#f4f0fc;--lav2:#ece5fb;--line:#ebe7f3;--bg:#faf9fc;--card:#fff;--green:#18874b;
+ --red:#c13b3b;--shadow:0 16px 44px rgba(44,31,72,.08);--shadow-sm:0 8px 24px rgba(44,31,72,.06)
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px;margin:0 auto;padding:0 32px}.topbar{position:sticky;top:0;z-index:50;background:rgba(250,249,252,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(235,231,243,.92)}
+.topbar-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-size:22px;font-weight:800;letter-spacing:-.6px}.header-right{display:flex;align-items:center;gap:12px}.secure{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12.5px;font-weight:700}.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--ink)}
+.page-head{padding:34px 0 24px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--purple);font-weight:800;margin:0 0 8px}.page-head h1{font-size:42px;line-height:1.05;letter-spacing:-1.5px;margin:0}.page-head p{font-size:15px;color:var(--muted);line-height:1.6;margin:10px 0 0;max-width:620px}
+.checkout-layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:44px;align-items:start;padding:0 0 100px}.main{min-width:0}.aside{position:sticky;top:102px}.step-nav{display:flex;gap:8px;overflow:auto;scrollbar-width:none;padding-bottom:18px;margin-bottom:22px;border-bottom:1px solid var(--line)}.step-nav::-webkit-scrollbar{display:none}.step-pill{border:1px solid var(--line);background:#fff;border-radius:999px;height:38px;padding:0 14px;color:var(--muted);font-size:12.5px;font-weight:800;white-space:nowrap;display:flex;align-items:center;gap:8px}.step-pill .num{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--lav);color:var(--purple);font-size:10px}.step-pill.active{background:var(--ink);border-color:var(--ink);color:#fff}.step-pill.active .num{background:#fff;color:var(--ink)}.step-pill.done{color:var(--purple);border-color:#ded3f8;background:#fbf9ff}
+.panel{background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 1px 0 rgba(30,20,50,.02)}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:24px}.panel h2{font-size:30px;letter-spacing:-.8px;margin:0}.panel-sub{font-size:14px;color:var(--muted);line-height:1.55;margin:7px 0 0}.section-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin:0 0 11px}.stack{display:flex;flex-direction:column;gap:12px}
+.service-cats{display:flex;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:0 0 18px;padding:1px 1px 3px;scroll-padding-inline:1px}.service-cats::-webkit-scrollbar{display:none}.service-cat{flex:0 0 auto;min-height:38px;padding:7px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s,color .15s;box-shadow:none}.service-cat:hover{border-color:#d9cffa}.service-cat.selected{background:var(--ink);border-color:var(--ink);color:#fff}.service-empty{border:1px dashed var(--line);border-radius:18px;padding:22px 18px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.5;background:#fff}
+.choice-card{width:100%;min-height:76px;border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;transition:box-shadow .15s,border-color .15s,background .15s;outline:none}.choice-card:hover{border-color:#d9cffa;box-shadow:var(--shadow-sm)}.choice-card.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);background:#fdfcff}.choice-left{display:flex;align-items:center;gap:13px;min-width:0}.radio{width:20px;height:20px;border-radius:50%;border:1.5px solid #d8d0e6;display:grid;place-items:center;flex:none}.selected .radio{border-color:var(--purple)}.selected .radio:after{content:"";width:9px;height:9px;border-radius:50%;background:var(--purple)}.avatar{width:48px;height:48px;border-radius:15px;background:var(--lav);display:grid;place-items:center;color:var(--purple);font-weight:800;flex:none}.choice-title{font-size:14px;font-weight:800;margin:0}.choice-sub{font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.35}.choice-price{font-size:13.5px;font-weight:800;white-space:nowrap}
+.days{display:flex;gap:9px;overflow:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:22px}.days::-webkit-scrollbar{display:none}.day{min-width:66px;height:72px;border-radius:16px;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink);flex:none}.day span:first-child{font-size:10.5px;color:var(--soft);font-weight:700}.day span:last-child{font-size:17px;font-weight:800;margin-top:4px}.day.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple);background:#fdfcff}.day.selected span:first-child{color:var(--purple)}.day:disabled{opacity:.35;cursor:not-allowed}
+.time-list{max-height:390px;overflow:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:9px;padding-right:1px}.time-list::-webkit-scrollbar{display:none}.time{height:52px;min-height:52px;border:1px solid var(--line);background:#fff;border-radius:15px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:700}.time span{font-size:12px;color:var(--soft);font-weight:600}.time.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple);background:#fdfcff}.time:disabled{text-decoration:line-through;opacity:.35;cursor:not-allowed}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:12.5px;font-weight:700}.field input,.field textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 15px;outline:none;color:var(--ink);font-size:14px;transition:border-color .15s,box-shadow .15s}.field textarea{resize:vertical;min-height:96px}.field input:focus,.field textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,92,217,.09)}
+.yesno{display:grid;grid-template-columns:1fr 1fr;gap:10px}.yesno button{height:50px;border:1px solid var(--line);border-radius:15px;background:#fff;color:var(--ink);font-size:13px;font-weight:800}.yesno button.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple);background:#fdfcff}
+.inline-note{padding:14px 16px;background:var(--lav);border:1px solid #e7defa;border-radius:16px;font-size:12.5px;color:var(--muted);line-height:1.55}.actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px}.btn{height:50px;border-radius:999px;padding:0 24px;font-size:13.5px;font-weight:800;border:1px solid var(--line);background:#fff;color:var(--ink)}.btn.primary{border:none;background:var(--purple);color:#fff;min-width:160px}.btn.primary:hover{background:var(--purple-dark)}.btn.ghost:hover{background:var(--lav)}
+.summary-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}.venue-row{display:flex;gap:12px;align-items:center}.venue-img{width:60px;height:60px;border-radius:16px;overflow:hidden;background:var(--lav);flex:none}.venue-img img{width:100%;height:100%;object-fit:cover}.venue-name{font-size:15px;font-weight:800;margin:0}.venue-meta{font-size:12px;color:var(--muted);margin:4px 0 0}.divider{height:1px;background:var(--line);margin:18px 0}.summary-line{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-top:12px}.summary-line:first-child{margin-top:0}.summary-name{font-size:13.5px;font-weight:700}.summary-sub{font-size:12px;color:var(--muted);margin-top:3px}.summary-price{font-size:13.5px;font-weight:800;white-space:nowrap}.datebox{background:var(--lav);border-radius:16px;padding:14px;margin-top:16px}.date-row{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}.date-row+.date-row{margin-top:8px}.total{display:flex;justify-content:space-between;align-items:end}.total span:first-child{font-size:13px;color:var(--muted);font-weight:700}.total strong{font-size:23px;letter-spacing:-.5px}.reward-card{margin-top:14px;background:linear-gradient(145deg,#251d35,#15111d);color:#fff;border-radius:22px;padding:20px}.reward-card .eyebrow{color:#cdbcf7}.reward-points{font-size:20px;font-weight:800}.reward-note{font-size:12px;color:#bdb4ca;line-height:1.5;margin:7px 0 0}.reward-bar{height:6px;background:rgba(255,255,255,.15);border-radius:999px;margin-top:12px;overflow:hidden}.reward-bar span{display:block;width:62%;height:100%;background:#fff;border-radius:999px}
+.review-block{display:flex;flex-direction:column;gap:14px}.review-card{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}.review-card h3{font-size:14px;margin:0}.review-card p{font-size:12.5px;color:var(--muted);line-height:1.55;margin:7px 0 0}.mini-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:7px 0}.mini-row span:first-child{color:var(--muted)}.promo-row{display:flex;gap:10px}.promo-row input{flex:1;min-width:0;border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}.small-btn{border:none;border-radius:14px;background:var(--purple);color:#fff;padding:0 18px;font-size:12.5px;font-weight:800}.offer-card{border:1px solid var(--line);border-radius:17px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;text-align:left;width:100%}.offer-card>div{flex:1;min-width:0}.offer-card strong{font-size:13.5px}.offer-card p{font-size:12px;color:var(--muted);margin:4px 0 0}.toggle{width:42px;height:24px;border-radius:999px;background:#dfd9e8;padding:3px;transition:.15s;flex:none}.toggle:after{content:"";display:block;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);transition:.15s}.toggle.on{background:var(--purple)}.toggle.on:after{transform:translateX(18px)}
+.success{display:none;text-align:center;padding:30px 0}.success-mark{width:68px;height:68px;border-radius:50%;background:var(--lav2);color:var(--purple);display:grid;place-items:center;margin:0 auto 18px;font-size:30px;font-weight:800}.success h2{font-size:32px;margin:0}.success p{font-size:14px;color:var(--muted);line-height:1.6;max-width:480px;margin:10px auto 0}.success .review-card{max-width:520px;margin:24px auto 0;text-align:left}.success-booking-btn{margin:26px auto 0;min-width:180px;height:50px;padding:0 28px;border:none;border-radius:999px;background:var(--purple);color:#fff;font-size:14px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.success-booking-btn:hover{background:var(--purple-dark)}
+.mobile-bar{display:none}
+.error-note{padding:13px 16px;background:#fdf1f1;border:1px solid #f4d6d6;border-radius:16px;font-size:12.5px;color:var(--red);line-height:1.5;margin-bottom:16px}
+@media(max-width:900px){
+ .shell{padding:0 18px}.topbar-inner{height:66px}.secure{display:none}.page-head{padding:24px 0 18px}.page-head h1{font-size:32px;letter-spacing:-1px}.page-head p{font-size:13.5px}.checkout-layout{display:block;padding-bottom:112px}.aside{display:none}.step-nav{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px;margin-bottom:18px}.panel{border-radius:20px;padding:20px 17px;box-shadow:none}.panel h2{font-size:25px}.panel-head{margin-bottom:20px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.choice-card{min-height:72px;padding:14px}.actions{display:none}.mobile-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:11px 18px calc(11px + env(safe-area-inset-bottom))}.mobile-bar-inner{max-width:650px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.mobile-copy strong{font-size:13.5px;display:block}.mobile-copy span{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}.mobile-bar .btn{height:48px;min-width:130px;padding:0 20px}.time-list{max-height:330px}.yesno{grid-template-columns:1fr 1fr}.success{padding-top:14px}
+}
+@media(max-width:520px){.shell{padding:0 16px}.step-nav{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}.page-head h1{font-size:29px}.panel{padding:18px 15px}.panel h2{font-size:23px}.choice-price{font-size:13px}.avatar{width:44px;height:44px;border-radius:14px}.day{min-width:62px}.mobile-copy{max-width:150px}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="shell topbar-inner"><div class="brand">Blooma</div><div class="header-right"><button class="icon-btn" id="closeBtn" aria-label="Close">✕</button></div></div></header>
+<main class="shell">
+ <section class="page-head"><p class="eyebrow">Booking</p><h1>Complete your appointment</h1><p>Choose the extras, artist and time that suit you, then review everything before confirming.</p></section>
+ <div class="checkout-layout">
+  <div class="main">
+   <div class="step-nav" id="stepNav"></div>
+   <section class="panel" id="panel"></section>
+  </div>
+  <aside class="aside">
+   <div class="summary-card" id="summary"></div>
+   <div class="reward-card" id="rewardCard" style="display:none;"><p class="eyebrow">Blooma rewards</p><div class="reward-points" id="rewardPoints"></div><div class="reward-bar"><span id="rewardBarFill"></span></div><p class="reward-note" id="rewardNote"></p></div>
+  </aside>
+ </div>
+</main>
+<div class="mobile-bar"><div class="mobile-bar-inner"><div class="mobile-copy"><strong id="mobileTotal">$0 total</strong><span id="mobileStep">Step 1</span></div><button class="btn primary" id="mobileNext">Continue</button></div></div>
+<script>
+/* ---------------------------------------------------
+   Blooma — standalone checkout page.
+   Reached via /venue/:slug/checkout (vercel.json rewrites this to
+   /customer-checkout?venue=:slug, optionally with &service=:id to
+   pre-select a service). Ports the same booking business logic used by
+   the in-app checkout in index.html (availability, discounts, intake
+   questions, booking creation) onto the design supplied for this page —
+   the markup/CSS above is intentionally untouched from that design.
+--------------------------------------------------- */
+const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-customer-auth"}});
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function makeClientRequestId(){
+  if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{ const r=Math.random()*16|0,v=c==="x"?r:(r&3|8); return v.toString(16); });
+}
+
+/* ---------- NZ date/time helpers (same logic as the main app) ---------- */
+const NZ_TIME_ZONE = "Pacific/Auckland";
+function nzParts(d=new Date()){ const out={}; new Intl.DateTimeFormat("en-CA",{timeZone:NZ_TIME_ZONE,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d).forEach(p=>{if(p.type!=="literal")out[p.type]=p.value;}); return out; }
+function nzDateKey(d=new Date()){ const o=nzParts(d); return `${o.year}-${o.month}-${o.day}`; }
+function nzTodayKey(){ return nzDateKey(new Date()); }
+function addDaysToDateKey(key,days){ const [y,m,d]=String(key).split("-").map(Number),dt=new Date(Date.UTC(y,m-1,d+Number(days||0))); return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,"0")}-${String(dt.getUTCDate()).padStart(2,"0")}`; }
+function parseTimeMins(t){ const raw=String(t||"").trim(); const m=raw.match(/(\d+):(\d+)\s*(AM|PM)/i); if(m){ let h=parseInt(m[1],10)%12; if(/PM/i.test(m[3])) h+=12; return h*60+parseInt(m[2],10); } const m24=raw.match(/^(\d{1,2}):(\d{2})/); if(m24) return Number(m24[1])*60+Number(m24[2]); return 0; }
+function formatTimeMins(mins){ let h=Math.floor(mins/60)%24,m=mins%60,period=h>=12?"PM":"AM"; let h12=h%12||12; return `${h12}:${String(m).padStart(2,"0")} ${period}`; }
+function bookingLocalTime24(timeStr){ const mins=parseTimeMins(timeStr); return `${String(Math.floor(mins/60)).padStart(2,"0")}:${String(mins%60).padStart(2,"0")}:00`; }
+function nzLocalToIso(dateKey,timeStr){
+  const [y,mo,da]=dateKey.split("-").map(Number), mins=parseTimeMins(timeStr), hh=Math.floor(mins/60), mm=mins%60;
+  const target=Date.UTC(y,mo-1,da,hh,mm,0); let guess=target;
+  const fmt=new Intl.DateTimeFormat("en-CA",{timeZone:NZ_TIME_ZONE,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+  for(let i=0;i<3;i++){ const o={}; fmt.formatToParts(new Date(guess)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); const represented=Date.UTC(Number(o.year),Number(o.month)-1,Number(o.day),Number(o.hour),Number(o.minute),0); guess+=target-represented; }
+  return new Date(guess).toISOString();
+}
+function dateFromNzKey(key){ return new Date(nzLocalToIso(key,"12:00 PM")); }
+function nzDayIndex(d){ const wd=new Intl.DateTimeFormat("en-US",{timeZone:NZ_TIME_ZONE,weekday:"short"}).format(d); return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(wd); }
+function nzDayNumber(d){ return Number(nzParts(d).day); }
+function dayShort(d){ return d.toLocaleDateString(undefined,{weekday:"short",timeZone:NZ_TIME_ZONE}); }
+function dayLabel(d){ return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",timeZone:NZ_TIME_ZONE}); }
+const DAYS = Array.from({length:21},(_,i)=>dateFromNzKey(addDaysToDateKey(nzTodayKey(),i)));
+function bookingStartIso(dayIndex,timeStr){ return nzLocalToIso(nzDateKey(DAYS[dayIndex]),timeStr); }
+function isPastTimeSlot(dayIndex,timeStr){ return new Date(bookingStartIso(dayIndex,timeStr)).getTime() < Date.now()+5*60000; }
+
+/* ---------- Venue mapping + availability (ported from index.html) ---------- */
+function liveVenueIcon(tag){ return "sparkles"; }
+function liveDbTime(t){ return String(t||"").slice(0,5) || "09:00"; }
+function liveOpenDays(days){ return (Array.isArray(days)?days:[]).map(d=>Number(d)===7?0:Number(d)).filter(d=>Number.isInteger(d)); }
+function normalizedDailyHours(raw){
+  const out={}; const src=raw&&typeof raw==="object"?raw:{};
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(key=>{ const h=src[key]; if(h&&typeof h==="object") out[key]={open:h.open!==false,start:String(h.start||""),end:String(h.end||"")}; });
+  return out;
+}
+function customerDayHours(salon,dayIndex){
+  const keys=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]; const idx=((Number(dayIndex)%7)+7)%7;
+  const h=salon?.dailyHours?.[keys[idx]];
+  if(h&&typeof h==="object"){ if(h.open===false) return null; return {start:String(h.start||salon.openTime||"09:00"),end:String(h.end||salon.closeTime||"17:00")}; }
+  if(!(salon?.openDays||[]).includes(idx)) return null;
+  return {start:String(salon.openTime||"09:00"),end:String(salon.closeTime||"17:00")};
+}
+function formatAnyTime12(value){ return formatTimeMins(parseTimeMins(value)); }
+function liveHoursLabel(v){
+  const daily=normalizedDailyHours(v?.metadata?.hours);
+  const salon={dailyHours:daily,openDays:liveOpenDays(v.open_days),openTime:liveDbTime(v.open_time),closeTime:liveDbTime(v.close_time)};
+  const open=[]; [1,2,3,4,5,6,0].forEach(idx=>{ const h=customerDayHours(salon,idx); if(h) open.push(`${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][idx]} ${formatAnyTime12(h.start)}–${formatAnyTime12(h.end)}`); });
+  return open.length?open.join(" · "):"Hours not set";
+}
+function liveVenueToSalon(v){
+  const reviews=Array.isArray(v.reviews)?v.reviews:[];
+  const tag=String(v.tag||"").trim() || ((v.categories||[]).map(c=>c.name).filter(Boolean).join(" · ")) || "Beauty & wellness";
+  const mainImage=String(v.main_image||"").trim();
+  const galleryImages=(Array.isArray(v.gallery_images)?v.gallery_images:[]).map(String).filter(Boolean);
+  const stylists=(Array.isArray(v.stylists)?v.stylists:[]).map(st=>({
+    id:String(st.id), name:st.name, specialty:st.specialty||"", availableDays:liveOpenDays(v.open_days),
+    availableToday:st.available_today!==false, photo:st.image_url||"",
+    serviceIds:Array.isArray(st.service_ids)?st.service_ids.map(String):[]
+  }));
+  if(!stylists.some(st=>st.name==="Any available")) stylists.unshift({id:`${v.id}-any`,name:"Any available",availableDays:liveOpenDays(v.open_days)});
+  const services=(Array.isArray(v.services)?v.services:[]).map(sv=>({
+    id:String(sv.id), name:sv.name, description:String(sv.description||sv.service_description||"").trim(), duration:Math.max(15,Number(sv.duration_minutes||30)), price:Math.max(0,Number(sv.price||0)),
+    category:sv.category_name||tag.split("·")[0].trim()||"Services", addons:(Array.isArray(sv.addons)?sv.addons:[]).map(a=>({id:String(a.id),name:a.name,price:Number(a.price||0),duration:Number(a.duration_minutes||a.duration||0)}))
+  }));
+  return {
+    id:String(v.id), publicSlug:String(v.public_slug||"").trim(), name:v.name||"Venue", tag, rating: reviews.length ? (reviews.reduce((sum,r)=>sum+Number(r.rating||0),0)/reviews.length).toFixed(1) : "New", reviews:reviews.length,
+    city:String(v.city||"").trim(), suburb:String(v.suburb||"").trim(),
+    homeImage:mainImage||galleryImages[0]||"",
+    hours:liveHoursLabel(v), openDays:liveOpenDays(v.open_days), openTime:liveDbTime(v.open_time), closeTime:liveDbTime(v.close_time), dailyHours:normalizedDailyHours(v.metadata&&v.metadata.hours),
+    cancellationPolicy:v.cancellation_policy||"You can cancel or reschedule this booking at any time before your appointment.",
+    bufferTime:Math.max(0,Number(v.buffer_minutes||0)),
+    loyalty:(v.loyalty&&typeof v.loyalty==="object")?{enabled:!!v.loyalty.enabled,pointsPerDollar:Number(v.loyalty.pointsPerDollar)||1,rewardThreshold:Number(v.loyalty.rewardThreshold)||100,rewardText:v.loyalty.rewardText||"",rewardValue:Number(v.loyalty.rewardValue)||0}:{enabled:false},
+    cloudBookedSlots:Array.isArray(v.booked_slots)?v.booked_slots:[], cloudBlockouts:Array.isArray(v.blockouts)?v.blockouts:[],
+    stylists, services
+  };
+}
+function isAnyAvailableStylist(stylist){ return !stylist || String(stylist.name||stylist).trim().toLowerCase()==="any available"; }
+function stylistPreferenceLabel(stylist){ return isAnyAvailableStylist(stylist) ? "Any available" : String(stylist?.name||stylist||""); }
+function stylistAvailabilityPhrase(stylist){ return isAnyAvailableStylist(stylist) ? "with any available stylist" : `with ${String(stylist?.name||stylist||"this stylist")}`; }
+function timeSlotsForSalon(salon,dayIndex,durationMins){
+  const h=customerDayHours(salon,nzDayIndex(DAYS[dayIndex])); if(!h) return [];
+  const bounds={start:parseTimeMins(h.start),end:parseTimeMins(h.end)};
+  const out=[]; for(let m=bounds.start;m+Number(durationMins||0)<=bounds.end;m+=15) out.push(formatTimeMins(m)); return out;
+}
+function intervalOverlaps(aStart,aEnd,bStart,bEnd){ return aStart<bEnd && aEnd>bStart; }
+function staffUnavailableInCloud(salon,staffId,slotStart,slotEnd){
+  const bufferMs=Math.max(0,Number(salon.bufferTime||0))*60000;
+  const booked=(salon.cloudBookedSlots||[]).some(b=>{
+    if(String(b.stylist_id||"")!==String(staffId||"")) return false;
+    const existingStart=new Date(b.starts_at); const existingEnd=new Date(existingStart.getTime()+Number(b.duration_minutes||30)*60000);
+    return intervalOverlaps(slotStart,new Date(slotEnd.getTime()+bufferMs),existingStart,new Date(existingEnd.getTime()+bufferMs));
+  });
+  if(booked) return true;
+  return (salon.cloudBlockouts||[]).some(bo=>(bo.all_staff||String(bo.stylist_id||"")===String(staffId||"")) && intervalOverlaps(slotStart,slotEnd,new Date(bo.starts_at),new Date(bo.ends_at)));
+}
+function isTimeBlocked(salon,dayIndex,stylist,timeStr,durationMins){
+  const h=customerDayHours(salon,nzDayIndex(DAYS[dayIndex])); if(!h) return true;
+  const bounds={start:parseTimeMins(h.start),end:parseTimeMins(h.end)};
+  const slotStartMin=parseTimeMins(timeStr), slotEndMin=slotStartMin+Number(durationMins||0); if(slotStartMin<bounds.start||slotEndMin>bounds.end) return true;
+  const slotStart=new Date(bookingStartIso(dayIndex,timeStr)); const slotEnd=new Date(slotStart.getTime()+Number(durationMins||0)*60000);
+  if(slotStart.getTime()<Date.now()+5*60000) return true;
+  const anySelected=!stylist||stylist.name==="Any available";
+  const isToday=dayIndex===0;
+  if(!anySelected && isToday && stylist.availableToday===false) return true;
+  if(anySelected){
+    const realStaff=(salon.stylists||[]).filter(st=>st.name!=="Any available" && (!isToday || st.availableToday!==false));
+    if(realStaff.length) return realStaff.every(st=>staffUnavailableInCloud(salon,st.id,slotStart,slotEnd));
+    const bufferMs=Math.max(0,Number(salon.bufferTime||0))*60000;
+    const genericBooked=(salon.cloudBookedSlots||[]).some(b=>{
+      if(b.stylist_id) return false;
+      const bs=new Date(b.starts_at),be=new Date(bs.getTime()+Number(b.duration_minutes||30)*60000);
+      return intervalOverlaps(slotStart,new Date(slotEnd.getTime()+bufferMs),bs,new Date(be.getTime()+bufferMs));
+    });
+    const allBlock=(salon.cloudBlockouts||[]).some(bo=>bo.all_staff&&intervalOverlaps(slotStart,slotEnd,new Date(bo.starts_at),new Date(bo.ends_at)));
+    return genericBooked||allBlock;
+  }
+  return staffUnavailableInCloud(salon,stylist.id,slotStart,slotEnd);
+}
+function firstOpenDayIndex(salon){ for (let i=0;i<DAYS.length;i++){ if (customerDayHours(salon,nzDayIndex(DAYS[i]))) return i; } return 0; }
+
+/* ---------- App state ---------- */
+const state={
+  step:0, salon:null, service:null, serviceCategory:'All',
+  addons:[], stylist:null, day:0, time:null,
+  intake:{}, firstVisit:null,
+  authenticated:false, authUserId:null,
+  name:'', phone:'', email:'', notes:'',
+  promoCode:'', appliedPromo:null, promoError:'', promoChecking:false,
+  giftCode:'', appliedGiftCard:null, giftError:'', giftChecking:false,
+  loyaltyAccount:null, appliedLoyaltyReward:null,
+  intakeQuestionsByService:{},
+  saving:false, bookingError:'', done:false, lastBooking:null,
+};
+
+function currentService(){ return state.service; }
+function selectedAddonsList(){ if(!state.service) return []; return (state.service.addons||[]).filter(a=>state.addons.includes(a.id)); }
+function selectedAddonsTotal(){ return selectedAddonsList().reduce((s,a)=>s+a.price,0); }
+function baseTotal(){ return state.service ? state.service.price + selectedAddonsTotal() : 0; }
+function promoDiscount(){ if(!state.appliedPromo) return 0; const p=state.appliedPromo; const subtotal=baseTotal(); const raw=p.type==='percent'?Math.round(subtotal*p.value/100*100)/100:Number(p.value||0); return Math.max(0,Math.min(raw,subtotal)); }
+function loyaltyDiscount(){ if(!state.appliedLoyaltyReward) return 0; const remaining=Math.max(0,baseTotal()-promoDiscount()); return Math.max(0,Math.min(Number(state.appliedLoyaltyReward.value||0),remaining)); }
+function giftCardDiscount(){ if(!state.appliedGiftCard) return 0; const remaining=Math.max(0,baseTotal()-promoDiscount()-loyaltyDiscount()); return Math.max(0,Math.min(Number(state.appliedGiftCard.remaining_balance||0),remaining)); }
+function finalTotal(){ return Math.max(0, baseTotal()-promoDiscount()-loyaltyDiscount()-giftCardDiscount()); }
+function intakeQuestionsForCurrent(){ if(!state.service) return []; return state.intakeQuestionsByService[state.service.id] || []; }
+function bookingContact(){ return { name:(state.name||'').trim(), phone:(state.phone||'').trim(), email:(state.email||'').trim() }; }
+
+function stepDefs(){
+  const defs=[{key:'service',label:'Services'}];
+  if(state.service && state.service.addons && state.service.addons.length) defs.push({key:'addons',label:'Add-ons'});
+  defs.push({key:'stylist',label:'Stylist'});
+  defs.push({key:'time',label:'Time'});
+  if(intakeQuestionsForCurrent().length) defs.push({key:'intake',label:'A few questions'});
+  defs.push({key:'details',label:'Details'});
+  defs.push({key:'review',label:'Summary'});
+  return defs;
+}
+function eligibleStylists(){
+  if(!state.salon || !state.service) return [];
+  const assigned = state.salon.stylists.filter(st=>Array.isArray(st.serviceIds)&&st.serviceIds.length&&st.serviceIds.includes(state.service.id));
+  return assigned.length ? state.salon.stylists.filter(st=>isAnyAvailableStylist(st)||assigned.includes(st)) : state.salon.stylists;
+}
+
+/* ---------- Rendering ---------- */
+function renderNav(){
+  const defs=stepDefs();
+  if(state.step>=defs.length) state.step=defs.length-1;
+  const nav=document.getElementById('stepNav');
+  nav.innerHTML=defs.map((s,i)=>`<button class="step-pill ${i===state.step?'active':i<state.step?'done':''}" data-goto="${i}"><span class="num">${i<state.step?'✓':i+1}</span>${esc(s.label)}</button>`).join('');
+  nav.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{ if(+b.dataset.goto<=state.step){ state.step=+b.dataset.goto; render(); } });
+  requestAnimationFrame(()=>{
+    const active=nav.querySelector('.step-pill.active'); if(!active) return;
+    if(window.matchMedia('(max-width:900px)').matches){
+      const target=Math.max(0,active.offsetLeft-parseFloat(getComputedStyle(nav).paddingLeft||0));
+      nav.scrollTo({left:target,behavior:'smooth'});
+    }
+  });
+}
+function renderSummary(){
+  const salon=state.salon, svc=state.service;
+  document.getElementById('summary').innerHTML=`
+    <div class="venue-row"><div class="venue-img">${salon.homeImage?`<img src="${esc(salon.homeImage)}" alt="Venue">`:''}</div><div><p class="venue-name">${esc(salon.name)}</p><p class="venue-meta">★ ${esc(salon.rating)} · ${esc([salon.suburb,salon.city].filter(Boolean).join(', '))}</p></div></div>
+    <div class="datebox">
+      <div class="date-row">📅 <span>${state.time?dayLabel(DAYS[state.day])+' · '+state.time:'Choose a time'}</span></div>
+      <div class="date-row">👤 <span>${state.stylist?esc(stylistPreferenceLabel(state.stylist)):'Choose a stylist'}</span></div>
+    </div>
+    <div class="divider"></div>
+    ${svc?`<div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>`:''}
+    ${selectedAddonsList().map(a=>`<div class="summary-line"><div><div class="summary-name">${esc(a.name)}</div></div><div class="summary-price">+$${a.price}</div></div>`).join('')}
+    ${state.appliedLoyaltyReward?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">${esc(state.appliedLoyaltyReward.label)}</div><div class="summary-price" style="color:var(--purple)">−$${loyaltyDiscount()}</div></div>`:''}
+    ${state.appliedPromo?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Promo ${esc(state.appliedPromo.code)}</div><div class="summary-price" style="color:var(--purple)">−$${promoDiscount()}</div></div>`:''}
+    ${state.appliedGiftCard?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Gift card</div><div class="summary-price" style="color:var(--purple)">−$${giftCardDiscount()}</div></div>`:''}
+    <div class="divider"></div>
+    <div class="total"><span>Total</span><strong>$${finalTotal()}</strong></div>
+  `;
+  const rewardCard=document.getElementById('rewardCard');
+  if(state.authenticated && salon.loyalty && salon.loyalty.enabled && state.loyaltyAccount){
+    rewardCard.style.display='';
+    const L=state.loyaltyAccount;
+    document.getElementById('rewardPoints').textContent=`${L.points} points available`;
+    document.getElementById('rewardBarFill').style.width=Math.min(100,Math.round((L.points/(L.threshold||1))*100))+'%';
+    document.getElementById('rewardNote').textContent=L.points>=L.threshold ? `You can redeem for ${L.rewardText||'a reward'} at the summary step.` : `${Math.max(0,L.threshold-L.points)} more points until ${L.rewardText||'your reward'}.`;
+  } else {
+    rewardCard.style.display='none';
+  }
+  const svcForTotal = state.service;
+  document.getElementById('mobileTotal').textContent=`$${finalTotal()} total`;
+  document.getElementById('mobileStep').textContent=`Step ${state.step+1} of ${stepDefs().length}`;
+}
+function panelHead(title,sub){ return `<div class="panel-head"><div><p class="section-label">${esc(stepDefs()[state.step]?.label||'')}</p><h2>${esc(title)}</h2><p class="panel-sub">${esc(sub)}</p></div></div>`; }
+
+function renderPanel(){
+  const salon=state.salon; const svc=state.service;
+  const key=stepDefs()[state.step]?.key;
+  let h='';
+
+  if(key==='service'){
+    const categories=['All', ...Array.from(new Set(salon.services.map(s=>s.category)))];
+    const filtered = state.serviceCategory==='All' ? salon.services : salon.services.filter(s=>s.category===state.serviceCategory);
+    h = panelHead('Choose your service','Select the treatment you would like to book. You can change this before moving on.')
+      + `<div class="service-cats" aria-label="Service categories">${categories.map(c=>`<button class="service-cat ${state.serviceCategory===c?'selected':''}" data-service-category="${esc(c)}">${esc(c)}</button>`).join('')}</div>`
+      + `<div class="stack">${filtered.length?filtered.map(x=>`<button class="choice-card ${svc&&svc.id===x.id?'selected':''}" data-service="${esc(x.id)}"><div class="choice-left"><span class="radio"></span><div><p class="choice-title">${esc(x.name)}</p><p class="choice-sub">${x.duration} min${x.description?' · '+esc(x.description):''}</p></div></div><div class="choice-price">$${x.price}</div></button>`).join(''):`<div class="service-empty">No services in this category yet.</div>`}</div>`;
+  } else if(key==='addons'){
+    h = panelHead('Add anything extra?','Optional extras can be added now and included in the final appointment time.')
+      + `<div class="stack">${svc.addons.map(a=>`<button class="choice-card ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}"><div class="choice-left"><span class="radio"></span><div><p class="choice-title">${esc(a.name)}</p>${a.duration?`<p class="choice-sub">${a.duration} min</p>`:''}</div></div><div class="choice-price">+$${a.price}</div></button>`).join('')}</div>`
+      + `<div class="inline-note" style="margin-top:16px">No extras needed? You can simply continue.</div>`;
+  } else if(key==='stylist'){
+    h = panelHead('Who would you like to see?','Choose a specific artist or let Blooma show you the widest availability.')
+      + `<div class="stack">${eligibleStylists().map(s=>`<button class="choice-card ${state.stylist&&state.stylist.id===s.id?'selected':''}" data-stylist="${esc(s.id)}"><div class="choice-left"><span class="radio"></span><div class="avatar">${isAnyAvailableStylist(s)?'✦':esc((s.name||'?').charAt(0))}</div><div><p class="choice-title">${esc(stylistPreferenceLabel(s))}</p>${s.specialty?`<p class="choice-sub">${esc(s.specialty)}</p>`:''}</div></div></button>`).join('')}</div>`;
+  } else if(key==='time'){
+    const slots = timeSlotsForSalon(salon,state.day,svc.duration).filter(t=>!isPastTimeSlot(state.day,t));
+    const allBlocked = slots.length===0 || slots.every(t=>isTimeBlocked(salon,state.day,state.stylist,t,svc.duration));
+    h = panelHead('Choose a time','Pick a day first, then choose from the available appointment times below.')
+      + `<p class="section-label">Day</p><div class="days">${DAYS.map((d,i)=>{ const open=!!customerDayHours(salon,nzDayIndex(d)); return `<button class="day ${state.day===i?'selected':''}" data-day="${i}" ${open?'':'disabled'}><span>${dayShort(d)}</span><span>${nzDayNumber(d)}</span></button>`; }).join('')}</div>`
+      + `<p class="section-label">Available times</p><div class="time-list">${slots.length?slots.map(t=>{ const blocked=isTimeBlocked(salon,state.day,state.stylist,t,svc.duration); return `<button class="time ${state.time===t?'selected':''}" data-time="${esc(t)}" ${blocked?'disabled':''}><strong>${esc(t)}</strong><span>${blocked?'Unavailable':'Available'}</span></button>`; }).join(''):'<p class="panel-sub">This venue is closed on this day.</p>'}</div>`
+      + (allBlocked ? `<div class="inline-note" style="margin-top:16px;">No times are available ${esc(stylistAvailabilityPhrase(state.stylist))} on ${esc(dayLabel(DAYS[state.day]))}. Try another day or stylist.</div>` : '');
+  } else if(key==='intake'){
+    h = panelHead('A few questions',`These help ${salon.name} prepare for your appointment.`)
+      + `<div class="stack">${intakeQuestionsForCurrent().map(q=>`
+        <div class="field">
+          <label>${esc(q.label)}${q.required?' *':''}</label>
+          ${q.type==='yesno' ? `
+          <div class="yesno">
+            <button type="button" data-intakeyesno="${esc(q.id)}|No" class="${state.intake[q.id]==='No'?'selected':''}">No</button>
+            <button type="button" data-intakeyesno="${esc(q.id)}|Yes" class="${state.intake[q.id]==='Yes'?'selected':''}">Yes</button>
+          </div>` : q.type==='choice' ? `
+          <div class="stack">${(q.options||[]).map(opt=>`<button type="button" class="choice-card ${state.intake[q.id]===opt?'selected':''}" data-intakechoice="${esc(q.id)}|${esc(opt)}"><div class="choice-left"><span class="radio"></span><p class="choice-title">${esc(opt)}</p></div></button>`).join('')}</div>` : `
+          <input type="text" data-intaketext="${esc(q.id)}" value="${esc(state.intake[q.id]||'')}">`}
+        </div>`).join('')}</div>`;
+  } else if(key==='details'){
+    h = panelHead('Your details', state.authenticated ? 'Confirm the details we\'ll pass on to the venue.' : 'We\'ll use these details to confirm your booking.')
+      + `<div class="field-grid">
+          <div class="field"><label>Full name</label><input id="nameInput" value="${esc(state.name)}" autocomplete="name"></div>
+          <div class="field"><label>Phone number</label><input id="phoneInput" value="${esc(state.phone)}" autocomplete="tel" inputmode="tel"></div>
+          <div class="field full"><label>Email address</label><input id="emailInput" type="email" value="${esc(state.email)}" autocomplete="email"></div>
+          <div class="field full"><p class="section-label" style="margin-bottom:10px">Is this your first time visiting this salon?</p><div class="yesno"><button data-first="No" class="${state.firstVisit==='No'?'selected':''}">No</button><button data-first="Yes" class="${state.firstVisit==='Yes'?'selected':''}">Yes</button></div></div>
+        </div>`;
+  } else {
+    const svcOnly=svc.price, addonsList=selectedAddonsList();
+    const eligibleForReward = state.authenticated && salon.loyalty && salon.loyalty.enabled && state.loyaltyAccount && state.loyaltyAccount.points >= state.loyaltyAccount.threshold;
+    h = `<div id="reviewContent">${panelHead('Review and confirm','Check the booking details below, then confirm to send this booking to the venue.')}
+      ${state.bookingError?`<div class="error-note">${esc(state.bookingError)}</div>`:''}
+      <div class="review-block">
+        <div class="review-card">
+          <h3>Appointment</h3>
+          <div class="mini-row"><span>Service</span><strong>${esc(svc.name)}</strong></div>
+          ${addonsList.map(a=>`<div class="mini-row"><span>${esc(a.name)}</span><strong>+$${a.price}</strong></div>`).join('')}
+          <div class="mini-row"><span>Artist</span><strong>${esc(stylistPreferenceLabel(state.stylist))}</strong></div>
+          <div class="mini-row"><span>Date & time</span><strong>${state.time?esc(dayLabel(DAYS[state.day]))+' · '+esc(state.time):'Not selected'}</strong></div>
+          <div class="mini-row"><span>Total</span><strong>$${finalTotal()}</strong></div>
+        </div>
+        <div class="review-card"><h3>Cancellation policy</h3><p>${esc(salon.cancellationPolicy)}</p></div>
+        <div class="field"><label>Comments or requests</label><textarea id="notesInput" placeholder="Optional">${esc(state.notes)}</textarea></div>
+        <div>
+          <p class="section-label">Rewards & offers</p>
+          <div class="stack">
+            ${eligibleForReward ? `<button class="offer-card" id="rewardToggle" type="button"><div><strong>${state.appliedLoyaltyReward?'Reward applied':'Redeem '+esc(state.loyaltyAccount.rewardText||'reward')}</strong><p>${state.loyaltyAccount.points} points available</p></div><span class="toggle ${state.appliedLoyaltyReward?'on':''}"></span></button>` : ''}
+            <div class="promo-row"><input id="promoInput" placeholder="Promo code" value="${esc(state.promoCode)}"><button class="small-btn" id="promoBtn" type="button">${state.promoChecking?'Checking…':state.appliedPromo?'Remove':'Apply'}</button></div>
+            ${state.promoError?`<p class="panel-sub" style="color:var(--red);margin-top:-6px;">${esc(state.promoError)}</p>`:''}
+            <div class="promo-row"><input id="giftInput" placeholder="Gift card code" value="${esc(state.giftCode)}"><button class="small-btn" id="giftBtn" type="button">${state.giftChecking?'Checking…':state.appliedGiftCard?'Remove':'Apply'}</button></div>
+            ${state.giftError?`<p class="panel-sub" style="color:var(--red);margin-top:-6px;">${esc(state.giftError)}</p>`:''}
+          </div>
+        </div>
+      </div></div>
+      <div class="success" id="success">
+        <div class="success-mark">✓</div>
+        <h2>You're all booked in</h2>
+        <p>${esc(salon.name)} has received your booking for ${esc(svc.name)}${state.lastBooking?', '+esc(dayLabel(DAYS[state.day]))+' at '+esc(state.time):''}.</p>
+        <button class="success-booking-btn" id="viewBookingBtn" type="button">View booking</button>
+      </div>`;
+  }
+
+  document.getElementById('panel').innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary" id="next" ${state.saving?'disabled':''}>${state.saving?'Confirming…':(key==='review'?'Confirm booking':'Continue')}</button></div>`;
+  bind();
+}
+
+function canNext(){
+  const key=stepDefs()[state.step]?.key;
+  if(key==='service') return !!state.service;
+  if(key==='stylist') return !!state.stylist;
+  if(key==='time') return !!state.time && !isTimeBlocked(state.salon,state.day,state.stylist,state.time,state.service.duration);
+  if(key==='intake') return intakeQuestionsForCurrent().every(q=>!q.required || String(state.intake[q.id]||'').trim().length>0);
+  if(key==='details') return !!state.firstVisit && state.name.trim().length>1 && state.phone.trim().length>5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim());
+  return true;
+}
+
+function bind(){
+  document.querySelectorAll('[data-service-category]').forEach(b=>b.onclick=()=>{ state.serviceCategory=b.dataset.serviceCategory; render(); });
+  document.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{
+    const svc = state.salon.services.find(s=>s.id===b.dataset.service);
+    if(!svc) return;
+    state.service=svc; state.addons=[]; state.stylist=null; state.time=null; state.intake={};
+    loadIntakeQuestionsFor(svc);
+    render();
+  });
+  document.querySelectorAll('[data-addon]').forEach(b=>b.onclick=()=>{ const id=b.dataset.addon; state.addons=state.addons.includes(id)?state.addons.filter(x=>x!==id):[...state.addons,id]; render(); });
+  document.querySelectorAll('[data-stylist]').forEach(b=>b.onclick=()=>{ state.stylist=eligibleStylists().find(s=>s.id===b.dataset.stylist)||null; state.time=null; render(); });
+  document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{ state.day=+b.dataset.day; state.time=null; render(); });
+  document.querySelectorAll('[data-time]').forEach(b=>b.onclick=()=>{ state.time=b.dataset.time; render(); });
+  document.querySelectorAll('[data-intaketext]').forEach(el=>el.oninput=()=>{ state.intake[el.getAttribute('data-intaketext')]=el.value; });
+  document.querySelectorAll('[data-intakeyesno]').forEach(b=>b.onclick=()=>{ const [qid,val]=b.getAttribute('data-intakeyesno').split('|'); state.intake[qid]=val; render(); });
+  document.querySelectorAll('[data-intakechoice]').forEach(b=>b.onclick=()=>{ const idx=b.getAttribute('data-intakechoice').indexOf('|'); const qid=b.getAttribute('data-intakechoice').slice(0,idx); const val=b.getAttribute('data-intakechoice').slice(idx+1); state.intake[qid]=val; render(); });
+  document.querySelectorAll('[data-first]').forEach(b=>b.onclick=()=>{ state.firstVisit=b.dataset.first; render(); });
+  ['nameInput','phoneInput','emailInput','notesInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.oninput=()=>{ if(id==='nameInput') state.name=el.value; else if(id==='phoneInput') state.phone=el.value; else if(id==='emailInput') state.email=el.value; else state.notes=el.value; }; });
+
+  const rt=document.getElementById('rewardToggle');
+  if(rt) rt.onclick=()=>{
+    if(state.appliedLoyaltyReward){ state.appliedLoyaltyReward=null; }
+    else { const L=state.loyaltyAccount; state.appliedLoyaltyReward={label:L.rewardText||'Loyalty reward',value:Number(L.rewardValue||0)}; }
+    render();
+  };
+  const pb=document.getElementById('promoBtn');
+  if(pb) pb.onclick=async ()=>{
+    if(state.appliedPromo){ state.appliedPromo=null; state.promoCode=''; render(); return; }
+    const raw=(document.getElementById('promoInput').value||'').trim().toUpperCase();
+    if(!raw){ state.promoError='Enter a code'; render(); return; }
+    state.promoChecking=true; state.promoError=''; render();
+    try{
+      const {data,error}=await supabaseClient.rpc('validate_promo_code',{p_salon_id:state.salon.id,p_code:raw});
+      if(error) throw error;
+      if(!data?.valid){ state.promoError="That code isn't valid"; state.appliedPromo=null; }
+      else { state.appliedPromo={code:data.code,type:data.type,value:Number(data.value||0)}; state.promoCode=''; state.promoError=''; }
+    }catch(e){ state.promoError="We couldn't check that code."; state.appliedPromo=null; }
+    state.promoChecking=false; render();
+  };
+  const gb=document.getElementById('giftBtn');
+  if(gb) gb.onclick=async ()=>{
+    if(state.appliedGiftCard){ state.appliedGiftCard=null; state.giftCode=''; render(); return; }
+    const raw=(document.getElementById('giftInput').value||'').trim().toUpperCase();
+    if(!raw){ state.giftError='Enter a gift card code'; render(); return; }
+    state.giftChecking=true; state.giftError=''; render();
+    try{
+      const {data,error}=await supabaseClient.rpc('get_gift_card_by_code',{p_salon_id:state.salon.id,p_code:raw});
+      if(error) throw error;
+      state.appliedGiftCard=data; state.giftCode=''; state.giftError='';
+    }catch(e){ state.giftError=e?.message||"That gift card code isn't valid"; state.appliedGiftCard=null; }
+    state.giftChecking=false; render();
+  };
+
+  document.getElementById('back').onclick=back;
+  document.getElementById('next').onclick=next;
+  const viewBtn=document.getElementById('viewBookingBtn');
+  if(viewBtn) viewBtn.onclick=()=>{
+    if(state.authenticated && state.lastBooking?.dbId) location.href='/?openBooking='+encodeURIComponent(state.lastBooking.dbId);
+    else location.href='/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id);
+  };
+}
+
+function shakePanel(){
+  document.getElementById('panel').animate([{transform:'translateX(0)'},{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(0)'}],{duration:180});
+}
+
+async function next(){
+  const defs=stepDefs();
+  const key=defs[state.step]?.key;
+  if(key==='review'){
+    await confirmBooking();
+    return;
+  }
+  if(!canNext()){ shakePanel(); return; }
+  state.step++; render(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function back(){ if(state.step>0){ state.step--; render(); window.scrollTo({top:0,behavior:'smooth'}); } }
+
+async function confirmBooking(){
+  if(state.saving) return;
+  const contact=bookingContact();
+  if(contact.name.length<2 || contact.phone.length<6){ state.bookingError='Add a valid name and mobile number in Details before confirming.'; render(); return; }
+  if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,state.service.duration)){ state.bookingError='That time is no longer available — please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
+  state.saving=true; state.bookingError=''; render();
+  try{
+    const payload={
+      salon_id: state.salon.id,
+      service_id: state.service.id,
+      stylist_id: isAnyAvailableStylist(state.stylist) ? null : state.stylist.id,
+      customer_name: contact.name,
+      customer_phone: contact.phone,
+      customer_email: contact.email||'',
+      starts_at: bookingStartIso(state.day,state.time),
+      local_date: nzDateKey(DAYS[state.day]),
+      local_time: bookingLocalTime24(state.time),
+      duration_minutes: state.service.duration,
+      subtotal: baseTotal(),
+      discount: promoDiscount()+loyaltyDiscount()+giftCardDiscount(),
+      total: finalTotal(),
+      promo_code: state.appliedPromo ? state.appliedPromo.code : null,
+      notes: [state.notes, state.appliedLoyaltyReward?`[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]`:'', state.appliedGiftCard?`[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]`:''].filter(Boolean).join(' ').trim(),
+      preferences: state.firstVisit==='Yes' ? ['First time here'] : [],
+      addons: selectedAddonsList(),
+      client_request_id: makeClientRequestId(),
+    };
+    const {data,error}=await supabaseClient.rpc('create_public_booking',{payload});
+    if(error) throw error;
+    state.lastBooking=data||{};
+
+    if(state.appliedLoyaltyReward){ try{ await supabaseClient.rpc('redeem_loyalty_reward',{p_salon_id:state.salon.id}); }catch(e){} }
+    if(state.appliedGiftCard && giftCardDiscount()>0){ try{ await supabaseClient.rpc('redeem_gift_card',{p_gift_card_id:state.appliedGiftCard.id,p_amount:giftCardDiscount(),p_booking_id:state.lastBooking.id||null}); }catch(e){} }
+    const intakeQs=intakeQuestionsForCurrent();
+    if(intakeQs.length && state.lastBooking.public_token){
+      const answers=intakeQs.filter(q=>state.intake[q.id]!==undefined && String(state.intake[q.id]).trim()!=='').map(q=>({question_id:q.id,label:q.label,answer:state.intake[q.id]}));
+      if(answers.length){ try{ await supabaseClient.rpc('submit_public_intake_form',{token:state.lastBooking.public_token,answers}); }catch(e){} }
+    }
+
+    state.saving=false; state.done=true; render();
+    document.getElementById('reviewContent').style.display='none';
+    document.getElementById('desktopActions').style.display='none';
+    document.getElementById('success').style.display='block';
+    const mb=document.querySelector('.mobile-bar'); if(mb) mb.style.display='none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    state.saving=false; state.bookingError=err?.message||"We couldn't save this booking. Please try again.";
+    render();
+  }
+}
+
+/* ---------- Data loading ---------- */
+async function loadIntakeQuestionsFor(service){
+  if(!state.salon?.id || state.intakeQuestionsByService[service.id]!==undefined) return;
+  try{
+    const {data,error}=await supabaseClient.rpc('get_public_intake_questions',{p_salon_id:state.salon.id});
+    if(error) throw error;
+    state.intakeQuestionsByService = data || {};
+  }catch(e){ /* nice-to-have, fail quietly */ }
+  render();
+}
+async function loadLoyaltyAccount(){
+  if(!state.authenticated || !state.authUserId || !state.salon?.loyalty?.enabled) return;
+  try{
+    const {data,error}=await supabaseClient.from('loyalty_accounts').select('points').eq('salon_id',state.salon.id).eq('customer_user_id',state.authUserId).maybeSingle();
+    if(!error){
+      const cfg=state.salon.loyalty;
+      state.loyaltyAccount={points:Number(data?.points||0),threshold:cfg.rewardThreshold,rewardText:cfg.rewardText,rewardValue:cfg.rewardValue||0};
+    }
+  }catch(e){}
+  render();
+}
+async function loadAuth(){
+  try{
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    if(!session) return;
+    const {data:row}=await supabaseClient.from('user_profiles').select('account_type,first_name,last_name,phone').eq('user_id',session.user.id).maybeSingle();
+    const accountType=String(row?.account_type||session.user.user_metadata?.account_type||'customer').toLowerCase();
+    if(accountType!=='customer') return;
+    const first=(row?.first_name||session.user.user_metadata?.first_name||'').trim();
+    const last=(row?.last_name||session.user.user_metadata?.last_name||'').trim();
+    state.authenticated=true; state.authUserId=session.user.id;
+    state.name=[first,last].filter(Boolean).join(' ').trim() || state.name;
+    state.phone=(row?.phone||'').trim() || state.phone;
+    state.email=(session.user.user_metadata?.actual_email||session.user.email||'').trim() || state.email;
+    loadLoyaltyAccount();
+    render();
+  }catch(e){}
+}
+
+function requestedSlug(){
+  const q=new URLSearchParams(location.search).get('venue'); if(q) return q;
+  const m=location.pathname.replace(/\/+$/,'').match(/^\/venue\/([^/]+)\/checkout$/i);
+  return m ? decodeURIComponent(m[1]) : '';
+}
+
+async function boot(){
+  const slug=requestedSlug();
+  const requestedServiceId=new URLSearchParams(location.search).get('service');
+  if(!slug){ document.getElementById('panel').innerHTML='<div class="panel-head"><h2>Venue not found</h2><p class="panel-sub">This checkout link is missing a venue.</p></div>'; return; }
+  try{
+    const {data,error}=await supabaseClient.rpc('get_marketplace_venues');
+    if(error) throw error;
+    const wanted=slug.toLowerCase();
+    const match=(data||[]).find(v=>String(v.public_slug||'').toLowerCase()===wanted || String(v.id).toLowerCase()===wanted);
+    if(!match) throw new Error('not found');
+    state.salon=liveVenueToSalon(match);
+  }catch(e){
+    document.getElementById('panel').innerHTML='<div class="panel-head"><h2>We couldn\'t load this venue</h2><p class="panel-sub">Please go back and try again.</p></div>';
+    return;
+  }
+  state.service = (requestedServiceId && state.salon.services.find(s=>s.id===requestedServiceId)) || state.salon.services[0] || null;
+  state.day = firstOpenDayIndex(state.salon);
+  const requestedStylistId=new URLSearchParams(location.search).get('stylist');
+  const anyAvailable = state.salon.stylists.find(st=>st.name==='Any available') || null;
+  state.stylist = (requestedStylistId && state.salon.stylists.find(st=>st.id===requestedStylistId)) || anyAvailable;
+  document.getElementById('closeBtn').onclick=()=>{ location.href='/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id); };
+  if(state.service) loadIntakeQuestionsFor(state.service);
+  render();
+  loadAuth();
+}
+function render(){ renderNav(); renderPanel(); renderSummary(); const mn=document.getElementById('mobileNext'); mn.textContent = stepDefs()[state.step]?.key==='review' ? 'Confirm' : 'Continue'; mn.onclick=next; }
+
+boot();
+</script>
+</body>
+</html>

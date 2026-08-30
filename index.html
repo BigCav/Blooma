@@ -2641,15 +2641,12 @@ function checkoutStepKeys(service){
   keys.push("details","confirm");
   return keys;
 }
-function goCheckout(service, origin, preferredStylist){
-  delete scrollPositions["checkout-day"];
-  const contact = bookingContact();
-  const anyAvailable = (state.salon?.stylists||[]).find(st=>st.name==="Any available") || null;
-  setState({ page:"checkout", checkoutOrigin:origin||"salon", service, step:0, selectedStylist:preferredStylist||anyAvailable, selectedDay:firstOpenDayIndex(state.salon), selectedTime:null, selectedAddons:[], selectedNotes:[], firstVisitAnswered:false, name:contact.name, phone:contact.phone, guestEmail:contact.email, notes:"", promoCode:"", appliedPromo:null, appliedLoyaltyReward:null, promoError:"", giftCardCode:"", appliedGiftCard:null, giftCardError:"", myPackage:null, packageApplied:false, intakeAnswers:{}, intakeError:"", bookingError:"", bookingSaving:false, pendingBookingRequestId:null, rescheduleBookingId:null, done:false });
-  pushCustomerHistoryState();
-  loadLoyaltyAccount();
-  loadMyPackage();
-  if(state.salon?.id && state._venuePackagesLoadedFor!==state.salon.id) loadVenueIntakeQuestions();
+function goCheckoutPage(service, preferredStylist){
+  if(!state.salon || !service) return;
+  const params = new URLSearchParams();
+  params.set("service", service.id);
+  if(preferredStylist && !isAnyAvailableStylist(preferredStylist)) params.set("stylist", preferredStylist.id);
+  window.location.href = venuePublicPath(state.salon) + "/checkout?" + params.toString();
 }
 async function applyPromoCode(){
   const raw=(state.promoCode||"").trim().toUpperCase();
@@ -3245,8 +3242,7 @@ function openServiceDetailSheet(service){
   closeBtn?.addEventListener("click",()=>closeServiceDetailSheet());
   overlay?.addEventListener("click",()=>closeServiceDetailSheet());
   bookBtn?.addEventListener("click",()=>closeServiceDetailSheet(()=>{
-    rememberVenueScroll();
-    goCheckout(service,"salon");
+    goCheckoutPage(service);
   }));
 }
 function bindSalonServiceButtons(scope=document){
@@ -3257,8 +3253,7 @@ function bindSalonServiceButtons(scope=document){
       event.stopPropagation();
       const service=state.salon?.services?.find(s=>String(s.id)===btn.getAttribute("data-service"));
       if(!service) return;
-      rememberVenueScroll();
-      goCheckout(service,"salon");
+      goCheckoutPage(service);
     });
   });
   scope.querySelectorAll("[data-service-row]").forEach(row=>{
@@ -5145,7 +5140,7 @@ function bindEvents(){
     const serviceContinueBtn = document.getElementById("serviceContinueBtn");
     if (serviceContinueBtn) serviceContinueBtn.addEventListener("click", ()=>{
       const service = state.salon.services.find(s=>s.id===state.selectedServiceId);
-      if (service) goCheckout(service, "serviceSelect");
+      if (service) goCheckoutPage(service);
     });
   }
 
@@ -5400,7 +5395,7 @@ function bindEvents(){
     document.querySelectorAll("[data-bookservice]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const svc = (state.salon?.services||[]).find(sv=>sv.id===btn.getAttribute("data-bookservice"));
-        if (svc){ state.stylistSheetOpen=false; goCheckout(svc, "stylist", state.stylistProfile); }
+        if (svc){ goCheckoutPage(svc, state.stylistProfile); }
       });
     });
     const seeAllReviewsBtn = document.getElementById("stylistSeeAllReviews");
