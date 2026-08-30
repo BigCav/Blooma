@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Platform Admin — Blooma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0E0D13;
+    --surface:#18171F;
+    --surface-2:#201F29;
+    --surface-hover:#26252F;
+    --border:#2A2933;
+    --accent:#3ED598;
+    --accent-soft:rgba(62,213,152,0.14);
+    --accent-text:#3ED598;
+    --text:#F2F1F7;
+    --text-soft:#9F9CB0;
+    --text-faint:#6C6980;
+    --warning:#F4C93A;
+    --warning-soft:rgba(244,201,58,0.14);
+    --danger:#FF6B81;
+    --danger-soft:rgba(255,107,129,0.14);
+    --white:#FFFFFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%; scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; scrollbar-width:none;
+  }
+  body::-webkit-scrollbar{display:none;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(14,13,19,0.92); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px; height:64px;
+  }
+  .tb-brand{font-weight:800; font-size:16px; letter-spacing:-0.01em; display:flex; align-items:center; gap:9px;}
+  .tb-brand .tag{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-text); background:var(--accent-soft); padding:3px 8px; border-radius:99px;}
+  .tb-logout{font-size:12.5px; font-weight:700; color:var(--text-soft); background:var(--surface-2); border:1px solid var(--border); padding:8px 14px; border-radius:9px;}
+  .tb-logout:hover{background:var(--surface-hover); color:var(--text);}
+
+  .content{max-width:1280px; margin:0 auto; padding:28px 20px 60px;}
+  @media (min-width:900px){ .content{padding:36px 32px 70px;} }
+
+  .page-head{margin-bottom:22px;}
+  .page-head h1{font-size:24px; font-weight:800; letter-spacing:-0.01em;}
+  .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:4px;}
+  @media (min-width:900px){ .page-head h1{font-size:28px;} }
+
+  .stats-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:22px;}
+  @media (min-width:760px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
+  .stat-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px;}
+  .stat-label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint);}
+  .stat-value{font-size:24px; font-weight:800; margin-top:6px;}
+
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:0; overflow:hidden;}
+  .panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px; border-bottom:1px solid var(--border);}
+  .panel-title{font-size:15px; font-weight:700;}
+  .panel-sub{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .filter-search{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:8px 12px; min-width:220px;
+  }
+  .filter-search input{background:none; border:none; outline:none; color:var(--text); font-size:13px; font-family:inherit; width:100%;}
+  .filter-search svg{flex:none; color:var(--text-faint);}
+
+  .table-wrap{overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; min-width:760px;}
+  th{
+    text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:12px 20px; border-bottom:1px solid var(--border); white-space:nowrap;
+  }
+  td{padding:14px 20px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--surface-hover);}
+  .venue-name{font-weight:700;}
+  .venue-city{font-size:11.5px; color:var(--text-faint); margin-top:2px;}
+  .owner-email{color:var(--text-soft); font-size:12.5px;}
+  .row-empty{padding:36px 20px; text-align:center; color:var(--text-faint); font-size:13px;}
+
+  .pill{display:inline-flex; align-items:center; padding:4px 10px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; background:var(--surface-2); color:var(--text-soft);}
+  .pill-active{background:var(--accent-soft); color:var(--accent-text);}
+  .pill-trialing{background:var(--warning-soft); color:var(--warning);}
+  .pill-past_due,.pill-incomplete{background:var(--danger-soft); color:var(--danger);}
+  .pill-canceled,.pill-unpaid{background:var(--surface-2); color:var(--text-faint);}
+
+  .gate{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;}
+  .gate-card{max-width:380px; text-align:center;}
+  .gate-card h1{font-size:20px; margin-bottom:8px;}
+  .gate-card p{font-size:13.5px; color:var(--text-soft); line-height:1.55; margin-bottom:18px;}
+  .gate-card a{display:inline-flex; background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:11px 20px; border-radius:10px; font-size:13.5px; font-weight:700;}
+  .gate-card a:hover{background:var(--surface-hover);}
+</style>
+</head>
+<body>
+
+<div id="root">
+  <div class="gate"><div class="gate-card"><p style="color:var(--text-faint);">Loading…</p></div></div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
+  let venues = [];
+  let searchQuery = "";
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function fmtDate(iso){
+    if(!iso) return '—';
+    try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '—'; }
+  }
+  function statusLabel(v){
+    if(v.status) return v.status.replace(/_/g,' ');
+    if(v.trial_ends_at && new Date(v.trial_ends_at) > new Date()) return 'trialing';
+    if(v.trial_ends_at) return 'trial expired';
+    return 'no plan';
+  }
+  function statusPillClass(v){
+    var s = v.status || (v.trial_ends_at && new Date(v.trial_ends_at) > new Date() ? 'trialing' : 'canceled');
+    return 'pill-' + s;
+  }
+
+  function showGate(title, message, ctaLabel, ctaHref){
+    document.getElementById('root').innerHTML =
+      '<div class="gate"><div class="gate-card">' +
+        '<h1>' + escapeHtml(title) + '</h1>' +
+        '<p>' + escapeHtml(message) + '</p>' +
+        '<a href="' + ctaHref + '">' + escapeHtml(ctaLabel) + '</a>' +
+      '</div></div>';
+  }
+
+  function renderShell(){
+    document.getElementById('root').innerHTML =
+      '<header class="topbar">' +
+        '<div class="tb-brand">Blooma <span class="tag">Platform Admin</span></div>' +
+        '<button class="tb-logout" id="logoutBtn">Log out</button>' +
+      '</header>' +
+      '<div class="content">' +
+        '<div class="page-head"><h1>All venues</h1><div class="sub">Every venue on Blooma, across every plan and trial state</div></div>' +
+        '<div class="stats-grid" id="statsGrid"></div>' +
+        '<div class="panel">' +
+          '<div class="panel-head">' +
+            '<div><div class="panel-title" id="panelTitle">Venues</div><div class="panel-sub" id="panelSub">Loading…</div></div>' +
+            '<div class="filter-search">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>' +
+              '<input type="text" id="searchInput" placeholder="Search venue or owner email…">' +
+            '</div>' +
+          '</div>' +
+          '<div class="table-wrap">' +
+            '<table>' +
+              '<thead><tr><th>Venue</th><th>Owner</th><th>Plan</th><th>Status</th><th>Trial ends</th><th>Subscribed</th><th>Signed up</th></tr></thead>' +
+              '<tbody id="venuesTbody"><tr><td colspan="7" class="row-empty">Loading…</td></tr></tbody>' +
+            '</table>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('logoutBtn').addEventListener('click', async function(){
+      try{ await supabaseClient.auth.signOut(); }catch(e){}
+      location.href = '/business-auth?view=login';
+    });
+    document.getElementById('searchInput').addEventListener('input', function(e){
+      searchQuery = e.target.value.trim().toLowerCase();
+      renderVenues();
+    });
+  }
+
+  function renderStats(){
+    var total = venues.length;
+    var active = venues.filter(function(v){ return v.status==='active'; }).length;
+    var trialing = venues.filter(function(v){ return statusLabel(v)==='trialing'; }).length;
+    var pastDue = venues.filter(function(v){ return v.status==='past_due' || v.status==='canceled' || v.status==='unpaid'; }).length;
+    document.getElementById('statsGrid').innerHTML =
+      '<div class="stat-card"><div class="stat-label">Total venues</div><div class="stat-value">' + total + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">Paying</div><div class="stat-value">' + active + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">Trialing</div><div class="stat-value">' + trialing + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">Past due / cancelled</div><div class="stat-value">' + pastDue + '</div></div>';
+  }
+
+  function renderVenues(){
+    var filtered = venues.filter(function(v){
+      if(!searchQuery) return true;
+      return (v.name||'').toLowerCase().includes(searchQuery) || (v.owner_email||'').toLowerCase().includes(searchQuery);
+    });
+    document.getElementById('panelSub').textContent = filtered.length + ' venue' + (filtered.length===1?'':'s') + (searchQuery ? ' matching "'+searchQuery+'"' : '');
+    var tbody = document.getElementById('venuesTbody');
+    if(!filtered.length){
+      tbody.innerHTML = '<tr><td colspan="7" class="row-empty">No venues found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filtered.map(function(v){
+      return '<tr>' +
+        '<td><div class="venue-name">' + escapeHtml(v.name||'Unnamed venue') + '</div><div class="venue-city">' + escapeHtml([v.city,v.region].filter(Boolean).join(', ')) + '</div></td>' +
+        '<td class="owner-email">' + escapeHtml(v.owner_email||'—') + '</td>' +
+        '<td>' + escapeHtml(v.plan_id ? (v.plan_id + (v.seat_count>1?' · '+v.seat_count+' seats':'')) : '—') + '</td>' +
+        '<td><span class="pill ' + statusPillClass(v) + '">' + escapeHtml(statusLabel(v)) + '</span></td>' +
+        '<td>' + fmtDate(v.trial_ends_at) + '</td>' +
+        '<td>' + fmtDate(v.subscribed_at) + '</td>' +
+        '<td>' + fmtDate(v.signup_at) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  async function boot(){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(!session){
+      showGate("Log in required", "Log in with your Blooma account to continue.", "Log in", "/business-auth?view=login");
+      return;
+    }
+    try{
+      const {data,error} = await supabaseClient.rpc("get_platform_admin_venues");
+      if(error) throw error;
+      venues = (data && data.venues) || [];
+      renderShell();
+      renderStats();
+      renderVenues();
+    }catch(err){
+      showGate("Access denied", "This account doesn't have access to this page.", "Go to Blooma", "/");
+    }
+  }
+
+  boot();
+</script>
+
+</body>
+</html>
