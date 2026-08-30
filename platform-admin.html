@@ -10,6 +10,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* Blooma: kill the blue mouse-click highlight/outline everywhere; keep it for keyboard nav */
+  *{-webkit-tap-highlight-color:transparent;}
+  :focus{outline:none;}
+  :focus-visible{outline:2px solid #6C4FD6;outline-offset:2px;}
+
   :root{
     --bg:#0E0D13;
     --surface:#18171F;
