@@ -116,7 +116,7 @@
   .greeting h1{font-size:26px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
   .greeting p{font-size:14px;color:var(--ink-soft);margin:4px 0 0;}
   .search-wrap{padding:16px 20px 6px;}
-  .brand-logo{display:flex;align-items:center;gap:7px;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;-webkit-tap-highlight-color:transparent;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;}
+  .brand-logo{display:flex;align-items:center;gap:7px;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;-webkit-tap-highlight-color:transparent;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;font-synthesis:none;}
   .brand-mark{width:26px;height:26px;border-radius:9px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .brand-mark .icon svg{width:15px;height:15px;}
   .menu-btn{
@@ -265,15 +265,15 @@
   .location-pill .icon{color:var(--purple);flex-shrink:0;}
   .location-pill span.loc-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-  .cats-wrap{padding:16px 0 6px;}
+  .cats-wrap{padding:16px 20px 6px;}
   .cats-wrap .chip-row{
-    padding-left:20px;padding-right:20px;
+    padding-left:0;padding-right:0;
     -webkit-mask-image:linear-gradient(to right, black calc(100% - 28px), transparent);
     mask-image:linear-gradient(to right, black calc(100% - 28px), transparent);
   }
   .cats-wrap .chip-row::after{content:none;}
   @media(max-width:899px){
-    .cats-wrap{padding:8px 0 2px;}
+    .cats-wrap{padding:8px 20px 2px;}
     .cats-wrap .chip-row{padding-top:4px;padding-bottom:4px;}
     /* Match the gap below the pills to the gap above them (search bar -> pills is 14px total;
        .venue-featured-section's own 34px margin-top made the gap below the pills much bigger). */
@@ -1049,7 +1049,7 @@
     body.page-home #app{max-width:none;margin:0;}
     body.page-salon #app{max-width:none;margin:0;}
     body.page-salon .shell{overflow:visible;}
-    .cats-wrap .chip-row{padding-left:32px;padding-right:32px;}
+    .cats-wrap{padding-left:32px;padding-right:32px;}
     .salon-list{display:none;}
     .salon-count-label{display:none;}
     .venue-carousel-section{display:block;}
@@ -2989,7 +2989,7 @@ function renderHome(){
         <div class="home-trust-divider"></div>
         <div class="home-trust-item"><strong>${state.marketplaceStats?.bookings_this_year!=null?Number(state.marketplaceStats.bookings_this_year).toLocaleString():"—"}</strong><span>Bookings this year</span></div>
         <div class="home-trust-divider home-trust-divider-3"></div>
-        <div class="home-trust-item home-trust-item-4"><strong style="display:inline-flex;align-items:center;">${ICONS.check?ICONS.check.replace(/width="\d+" height="\d+"/,'width="20" height="20"'):"✓"}</strong><span>Instant confirmation</span></div>
+        <div class="home-trust-item home-trust-item-4"><strong>42 sec</strong><span>Avg. booking time</span></div>
       </div>
 
       ${(state.marketplaceError || filtered.length===0) ? `
