@@ -7,7 +7,7 @@ function escapeXml(s) {
 }
 
 module.exports = async (req, res) => {
-  const staticPaths = ['/', '/for-business', '/privacy-policy', '/terms-conditions'];
+  const staticPaths = ['/', '/for-business', '/alternative-to-fresha', '/alternative-to-timely', '/privacy-policy', '/terms-conditions'];
   let venueSlugs = [];
 
   try {
@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
 
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
-    ...staticPaths.map(p => ({ loc: `${SITE_URL}${p}`, priority: p === '/' ? '1.0' : (p === '/for-business' ? '0.9' : '0.3') })),
+    ...staticPaths.map(p => ({ loc: `${SITE_URL}${p}`, priority: p === '/' ? '1.0' : (p === '/for-business' ? '0.9' : (p.startsWith('/alternative-to-') ? '0.7' : '0.3')) })),
     ...venueSlugs.map(slug => ({ loc: `${SITE_URL}/venue/${slug}`, priority: '0.8' })),
   ];
 
