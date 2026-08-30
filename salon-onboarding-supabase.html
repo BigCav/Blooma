@@ -266,6 +266,16 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:"blooma-venue-auth" }
 });
 let inPasswordRecovery = /type=recovery/.test(location.hash) || new URLSearchParams(location.search).get("type")==="recovery";
+const REFERRAL_CODE_KEY = "blooma_venue_referral_code";
+(function rememberReferralCodeFromUrl(){
+  const fromUrl = new URLSearchParams(location.search).get("ref");
+  if (fromUrl) { try{ localStorage.setItem(REFERRAL_CODE_KEY, fromUrl); }catch(e){} }
+})();
+function getStoredReferralCode(){
+  const fromUrl = new URLSearchParams(location.search).get("ref");
+  if (fromUrl) return fromUrl;
+  try{ return localStorage.getItem(REFERRAL_CODE_KEY) || ""; }catch(e){ return ""; }
+}
 supabaseClient.auth.onAuthStateChange((event,session)=>{
   if(event==="PASSWORD_RECOVERY"){
     inPasswordRecovery=true;
@@ -296,6 +306,8 @@ function authRedirectUrl(draftId=state?.draftId){
   if(draftId) base+=`&draft=${encodeURIComponent(draftId)}`;
   const staffInviteToken=new URLSearchParams(location.search).get("staff_invite");
   if(staffInviteToken) base+=`&staff_invite=${encodeURIComponent(staffInviteToken)}`;
+  const referralCode=getStoredReferralCode();
+  if(referralCode) base+=`&ref=${encodeURIComponent(referralCode)}`;
   return base;
 }
 function adminDestination(){ return location.protocol === "file:" ? "salon-admin-v3-24-supabase.html" : "/venue/admin"; }
@@ -431,6 +443,7 @@ let state = {
   draftId: "",
   draftReady: false,
   draftStatus: "draft",
+  referralCode: getStoredReferralCode(),
 };
 let serviceCounter = 1;
 let stylistCounter = 1;
@@ -489,11 +502,13 @@ function venueDraftPayload(){
     address:state.address,
     city:state.city,
     region:state.region,
+    postcode:state.postcode,
     phone:state.phone,
     description:state.description,
     hours:state.hours,
     services:state.services,
-    team:state.team
+    team:state.team,
+    referral_code:state.referralCode||""
   };
 }
 function rememberPendingVenueDraft(){
@@ -535,7 +550,7 @@ function restoreVenueDraft(email){
 function applyVenueDraftPayload(d){
   if(!d||typeof d!=="object") return false;
   if(Number.isInteger(d.step)) state.step=Math.max(0,Math.min(STEP_META.length-1,d.step));
-  ["name","address","city","region","phone","description"].forEach(k=>{ if(typeof d[k]==="string") state[k]=d[k]; });
+  ["name","address","city","region","postcode","phone","description"].forEach(k=>{ if(typeof d[k]==="string") state[k]=d[k]; });
   if(Array.isArray(d.categories)) state.categories=d.categories;
   if(d.hours&&typeof d.hours==="object") state.hours=d.hours;
   if(Array.isArray(d.services)) state.services=d.services;

@@ -77,6 +77,42 @@ async function fulfillPackagePurchase(svc, session) {
   });
 }
 
+const REFERRAL_PAYOUT_CENTS = 12000;
+
+async function processReferralConversion(svc, salonId) {
+  // Only ever pays out once: the moment we flip a referral's status to 'paid_out' below, this
+  // query stops matching, so Stripe redelivering 'active' status updates is naturally a no-op.
+  const { data: referral } = await svc
+    .from('venue_referrals')
+    .select('id, referrer_salon_id, referred_salon_id')
+    .eq('referred_salon_id', salonId)
+    .eq('status', 'pending')
+    .maybeSingle();
+  if (!referral) return;
+
+  await svc.from('venue_wallet_ledger').insert([
+    {
+      salon_id: referral.referrer_salon_id,
+      amount_cents: REFERRAL_PAYOUT_CENTS,
+      type: 'referral_bonus_referrer',
+      description: 'Referral bonus — a venue you referred went live on a paid plan',
+      related_referral_id: referral.id,
+    },
+    {
+      salon_id: referral.referred_salon_id,
+      amount_cents: REFERRAL_PAYOUT_CENTS,
+      type: 'referral_bonus_referred',
+      description: 'Welcome bonus — you signed up via a referral',
+      related_referral_id: referral.id,
+    },
+  ]);
+
+  await svc
+    .from('venue_referrals')
+    .update({ status: 'paid_out', converted_at: new Date().toISOString() })
+    .eq('id', referral.id);
+}
+
 function planIdForPrice(priceId) {
   if (priceId === process.env.STRIPE_PRICE_TEAM_SEAT) return 'team';
   if (priceId === process.env.STRIPE_PRICE_SOLO) return 'solo';
@@ -135,6 +171,8 @@ async function syncSubscriptionToDb(svc, subscription) {
   }
 
   await svc.from('venue_billing').upsert(row, { onConflict: 'salon_id' });
+
+  if (subscription.status === 'active') await processReferralConversion(svc, salonId);
 }
 
 module.exports = async (req, res) => {

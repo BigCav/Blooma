@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Chat — Blooma Business</title>
+<title>Refer & Earn — Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,8 +24,10 @@
     --success:#3ED598;
     --success-soft:rgba(62,213,152,0.14);
     --warning:#F4C93A;
+    --warning-soft:rgba(244,201,58,0.14);
     --danger:#FF6B81;
     --white:#FFFFFF;
+    --gold:#F5C451;
   }
 
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -55,8 +57,11 @@
   }
   .btn-violet{background:var(--violet); color:var(--white);}
   .btn-violet:hover{background:#5C4EDB;}
+  .btn-violet:disabled{opacity:.5; cursor:not-allowed;}
   .btn-ghost{background:var(--surface-2); color:var(--text); border-color:var(--border);}
   .btn-ghost:hover{background:var(--surface-hover);}
+  .btn-gold{background:var(--gold); color:#241D0A;}
+  .btn-gold:hover{background:#E9B23C;}
 
   /* ---------- SHELL ---------- */
   .shell{display:flex; min-height:100vh;}
@@ -154,9 +159,6 @@
       transition:transform .25s ease;
     }
     .sidebar.open{transform:translateY(0) translateZ(0);}
-    /* The sidebar doubles as a mobile bottom sheet, so it (not the nav list inside it) owns
-       scrolling here — nav no longer has its own independent scroll container, which was
-       fighting the sheet's during the open transition and causing a one-frame scroll glitch. */
     .sb-nav{overflow:visible; flex:none;}
   }
 
@@ -178,125 +180,106 @@
   @media (min-width:1080px){ .menu-btn{display:none;} }
   .tb-logo-mobile{font-weight:800; font-size:16px; letter-spacing:-0.01em; flex:none; white-space:nowrap;}
   @media (min-width:1080px){ .tb-logo-mobile{display:none;} }
-
-  .tb-search{
-    flex:1; max-width:360px;
-    display:flex; align-items:center; gap:9px;
-    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
-    padding:9px 13px;
-  }
-  .tb-search svg{color:var(--text-faint); flex:none;}
-  .tb-search input{
-    border:none; background:none; outline:none; color:var(--text);
-    font-family:inherit; font-size:13.5px; width:100%;
-  }
-  .tb-search input::placeholder{color:var(--text-faint);}
   .tb-right{display:flex; align-items:center; gap:10px; margin-left:auto;}
   .tb-right .btn{height:36px; padding:0 16px;}
-  .tb-icon-btn{
-    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
-    border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    color:var(--text-soft); position:relative; flex:none;
-  }
-  .tb-search-mobile-hide{display:none;}
-  @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
-  .tb-search{position:relative;}
-  .tb-search-results{
-    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
-    background:var(--surface); border:1px solid var(--border); border-radius:12px;
-    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
-    padding:6px;
-  }
-  .tb-search-results.open{display:block;}
-  .tb-sr-heading{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
-    color:var(--text-faint); padding:8px 10px 4px;
-  }
-  .tb-sr-row{
-    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
-    text-decoration:none; color:var(--text);
-  }
-  .tb-sr-row:hover{background:var(--surface-2);}
-  .tb-sr-avatar{
-    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
-    color:var(--text-soft); flex:none;
-  }
-  .tb-sr-info{min-width:0;}
-  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
   @media (min-width:900px){ .content{padding:30px 32px 70px;} }
 
-  .page-head{margin-bottom:20px;}
+  .page-head{margin-bottom:20px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
   .page-head h1{font-size:22px; font-weight:800; letter-spacing:-0.01em;}
   .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
   @media (min-width:900px){ .page-head h1{font-size:26px;} }
 
-  /* ---------- TEAM CHAT ---------- */
-  .tc-shell{
-    display:flex; flex-direction:column; height:calc(100vh - 220px); min-height:440px;
+  .card{
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
-    overflow:hidden;
+    padding:20px;
   }
-  .tc-head{
-    display:flex; align-items:center; gap:12px;
-    padding:16px 20px; border-bottom:1px solid var(--border);
-  }
-  .tc-head-title{font-size:14.5px; font-weight:700;}
-  .tc-head-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
-  .tc-roster{display:flex; margin-left:auto;}
-  .tc-roster-avatar{
-    width:28px; height:28px; border-radius:50%; flex:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:10.5px; font-weight:700; color:var(--white);
-    border:2px solid var(--surface); margin-left:-8px;
-  }
-  .tc-roster-avatar:first-child{margin-left:0;}
+  .card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;}
+  .card-title{font-size:15px; font-weight:700;}
+  .card-sub{font-size:12px; color:var(--text-faint); margin-top:2px;}
 
-  .tc-thread{flex:1; overflow-y:auto; overflow-x:hidden; touch-action:pan-y; padding:22px 20px; display:flex; flex-direction:column; gap:4px;}
-  .tc-empty{margin:auto; text-align:center; color:var(--text-faint); font-size:13px;}
-  .tc-date-sep{text-align:center; font-size:11px; color:var(--text-faint); font-weight:600; margin:14px 0 6px;}
-  .tc-row{display:flex; gap:10px; max-width:78%; margin-top:12px;}
-  .tc-row.out{align-self:flex-end; flex-direction:row-reverse;}
-  .tc-row.stacked{margin-top:2px;}
-  .tc-row.stacked .tc-avatar{visibility:hidden;}
-  .tc-avatar{
-    width:28px; height:28px; border-radius:50%; flex:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:10.5px; font-weight:700; color:var(--white); margin-top:2px;
+  /* Hero */
+  .re-hero{
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 140% at 100% 0%, rgba(245,196,81,0.16), transparent 55%),
+      linear-gradient(155deg, var(--violet-soft), var(--surface) 60%);
+    border:1px solid var(--border); border-radius:20px;
+    padding:28px 24px; margin-bottom:20px;
   }
-  .tc-bubble-col{display:flex; flex-direction:column; min-width:0;}
-  .tc-row.out .tc-bubble-col{align-items:flex-end;}
-  .tc-sender{font-size:11px; font-weight:700; color:var(--text-faint); margin-bottom:3px;}
-  .tc-bubble{
-    padding:10px 14px; border-radius:14px; font-size:13.5px; line-height:1.5;
-    background:var(--surface-2); color:var(--text); word-break:break-word;
+  .re-hero-eyebrow{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--gold); background:rgba(245,196,81,0.12);
+    padding:5px 10px; border-radius:99px; margin-bottom:14px;
   }
-  .tc-row.out .tc-bubble{background:var(--violet); color:var(--white); border-bottom-right-radius:4px;}
-  .tc-row.in .tc-bubble{border-bottom-left-radius:4px;}
-  .tc-time{font-size:10.5px; color:var(--text-faint); margin-top:4px;}
-  .tc-row.out .tc-time{text-align:right;}
-
-  .tc-composer{
+  .re-hero h1{font-size:24px; font-weight:800; letter-spacing:-0.02em; line-height:1.15; max-width:520px;}
+  @media (min-width:640px){ .re-hero h1{font-size:30px;} }
+  .re-hero p{font-size:13.5px; color:var(--text-soft); line-height:1.55; max-width:520px; margin-top:10px;}
+  .re-hero-amounts{display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;}
+  .re-amount-chip{
     display:flex; align-items:center; gap:10px;
-    padding:14px 20px; border-top:1px solid var(--border);
+    background:rgba(19,18,24,0.55); border:1px solid var(--border);
+    border-radius:14px; padding:10px 16px;
   }
-  .tc-composer input{
-    flex:1; background:var(--surface-2); border:1px solid var(--border); border-radius:99px;
-    padding:12px 16px; color:var(--text); font-family:inherit; font-size:13.5px; outline:none;
+  .re-amount-chip .num{font-size:20px; font-weight:800; color:var(--gold);}
+  .re-amount-chip .lbl{font-size:11.5px; color:var(--text-soft); line-height:1.3;}
+
+  /* Stats */
+  .re-stats{display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:20px;}
+  @media (min-width:700px){ .re-stats{grid-template-columns:repeat(3,1fr);} }
+  .re-stat{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px;}
+  .re-stat-label{font-size:11.5px; color:var(--text-faint); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;}
+  .re-stat-value{font-size:24px; font-weight:800; margin-top:6px;}
+  .re-stat-value.gold{color:var(--gold);}
+
+  /* Referral link card */
+  .re-link-card{margin-bottom:20px;}
+  .re-link-row{
+    display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;
   }
-  .tc-composer input:focus{border-color:var(--violet);}
-  .tc-composer input:disabled{opacity:.5;}
-  .tc-send{
-    width:40px; height:40px; border-radius:50%; background:var(--violet); color:var(--white);
-    display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; border:none;
+  .re-link-box{
+    flex:1; min-width:220px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; font-size:13px; color:var(--text-soft);
+    font-family:monospace; overflow-x:auto; white-space:nowrap;
+    display:flex; align-items:center;
   }
-  .tc-send:disabled{opacity:.5; cursor:not-allowed;}
+  .re-link-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .re-share-row{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .re-share-btn{
+    display:inline-flex; align-items:center; gap:7px;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:9px 14px; border-radius:10px; font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+  .re-share-btn:hover{background:var(--surface-hover);}
+
+  /* How it works */
+  .re-steps{display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:20px;}
+  @media (min-width:760px){ .re-steps{grid-template-columns:repeat(3,1fr);} }
+  .re-step{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px;}
+  .re-step-num{
+    width:26px; height:26px; border-radius:8px; background:var(--violet-soft); color:var(--violet-text);
+    display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; margin-bottom:10px;
+  }
+  .re-step h3{font-size:13.5px; font-weight:700; margin-bottom:5px;}
+  .re-step p{font-size:12.5px; color:var(--text-faint); line-height:1.5;}
+
+  /* Table */
+  table{width:100%; border-collapse:collapse;}
+  th{
+    text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    color:var(--text-faint); padding:0 10px 10px; border-bottom:1px solid var(--border);
+  }
+  td{padding:12px 10px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .row-empty{padding:30px 10px; text-align:center; color:var(--text-faint); font-size:13px;}
+  .table-wrap{overflow-x:auto;}
+  .pill{display:inline-flex; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700;}
+  .pill-pending{background:var(--warning-soft); color:var(--warning);}
+  .pill-paid{background:var(--success-soft); color:var(--success);}
 
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -308,8 +291,6 @@
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
-
-
 
 <body>
 
@@ -352,7 +333,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
       </a>
-      <a href="/venue/admin/team-chat" class="sb-link active">
+      <a href="/venue/admin/team-chat" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
         Team Chat
       </a>
@@ -386,7 +367,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
@@ -414,11 +395,6 @@
 
     <header class="topbar">
       <div class="tb-logo-mobile">Blooma</div>
-      <div class="tb-search tb-search-mobile-hide">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
-        <div id="tbSearchResults" class="tb-search-results"></div>
-      </div>
       <div class="tb-right">
         <a href="/venue/admin/new-booking" class="btn btn-violet">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
@@ -433,28 +409,104 @@
     <div class="content">
 
   <div class="page-head">
-    <h1>Team Chat</h1>
-    <div class="sub">A private channel for your team — clients never see this</div>
+    <div>
+      <h1>Refer & Earn</h1>
+      <div class="sub">Send other venues your link — when they go live on a paid plan, you both get $120</div>
+    </div>
   </div>
 
-  <div class="tc-shell">
-    <div class="tc-head">
-      <div>
-        <div class="tc-head-title" id="tcHeadTitle">Team channel</div>
-        <div class="tc-head-sub" id="tcHeadSub">Loading team…</div>
+  <div class="re-hero">
+    <div class="re-hero-eyebrow">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg>
+      Refer a venue, you both win
+    </div>
+    <h1>Know a venue that'd love Blooma? Send them your link.</h1>
+    <p>Share your personal referral link with any salon, barber, or studio you know. The moment they go live on a paid Blooma plan, $120 lands in both of your wallets — no cap on how many venues you refer.</p>
+    <div class="re-hero-amounts">
+      <div class="re-amount-chip">
+        <span class="num">$120</span>
+        <span class="lbl">to your<br>wallet</span>
       </div>
-      <div class="tc-roster" id="tcRoster"></div>
+      <div class="re-amount-chip">
+        <span class="num">$120</span>
+        <span class="lbl">to their<br>wallet</span>
+      </div>
     </div>
+  </div>
 
-    <div class="tc-thread" id="tcThread">
-      <div class="tc-empty">Loading messages…</div>
+  <div class="re-stats">
+    <div class="re-stat">
+      <div class="re-stat-label">Wallet balance</div>
+      <div class="re-stat-value gold" id="statWallet">—</div>
     </div>
+    <div class="re-stat">
+      <div class="re-stat-label">Venues referred</div>
+      <div class="re-stat-value" id="statReferred">—</div>
+    </div>
+    <div class="re-stat">
+      <div class="re-stat-label">Converted to paid</div>
+      <div class="re-stat-value" id="statConverted">—</div>
+    </div>
+  </div>
 
-    <div class="tc-composer">
-      <input type="text" id="tcInput" placeholder="Message your team…" disabled>
-      <button class="tc-send" id="tcSendBtn" disabled onclick="doSend()">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 3 18 9-18 9 4-9-4-9Z"/></svg>
+  <div class="card re-link-card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Your referral link</div>
+        <div class="card-sub">Anyone who signs up through this link is automatically tied to you</div>
+      </div>
+    </div>
+    <div class="re-link-row">
+      <div class="re-link-box" id="referralLinkBox">Loading…</div>
+      <div class="re-link-actions">
+        <button class="btn btn-gold" id="copyLinkBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy link
+        </button>
+      </div>
+    </div>
+    <div class="re-share-row">
+      <button class="re-share-btn" id="shareEmailBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+        Email it
       </button>
+      <button class="re-share-btn" id="shareSmsBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Text it
+      </button>
+    </div>
+  </div>
+
+  <div class="re-steps">
+    <div class="re-step">
+      <div class="re-step-num">1</div>
+      <h3>Share your link</h3>
+      <p>Send it to a venue owner you know — text, email, DM, whatever's easiest.</p>
+    </div>
+    <div class="re-step">
+      <div class="re-step-num">2</div>
+      <h3>They sign up</h3>
+      <p>They create their Blooma venue account through your link. That's it on their end for now.</p>
+    </div>
+    <div class="re-step">
+      <div class="re-step-num">3</div>
+      <h3>You both get paid</h3>
+      <p>Once they subscribe to a paid monthly plan, $120 lands in each of your Blooma wallets.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Venues you've referred</div>
+        <div class="card-sub" id="referralsSub">Loading…</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Venue</th><th>Status</th><th>Referred</th><th>Converted</th></tr></thead>
+        <tbody id="referralsTbody"><tr><td colspan="4" class="row-empty">Loading…</td></tr></tbody>
+      </table>
     </div>
   </div>
 
@@ -497,43 +549,31 @@
 <script>
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
-     One shared channel per salon. get_team_messages() / send_team_message()
-     are SECURITY DEFINER RPCs that check the caller is a staff member of
-     this salon via owner_profiles, same membership check used everywhere
-     else in the admin panel — there's no direct table access to
-     team_messages, matching the bookings/messages RLS pattern.
+     get_my_referral_code() lazily generates + returns this venue's unique
+     referral code. get_referral_dashboard() returns the wallet balance and
+     the list of venues referred so far. Both are auth.uid()-gated RPCs —
+     see get_referral_dashboard/get_my_referral_code in the DB. Payout
+     itself happens server-side in api/stripe/webhook.js the moment a
+     referred venue's subscription first reaches status "active".
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
   let currentSalonId = null;
-  let currentUserId = null;
-  var teamRoster = [];
-  var chatMessages = [];
-  var pollTimer = null;
+  let referralLink = "";
 
-  function initialsFor(name){
-    var parts = String(name||'').trim().split(/\s+/);
-    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
-  }
-  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
-  function colorFor(seed){
-    var hash = 0; var s = String(seed||'?');
-    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
-    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
-    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
-  }
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
-  function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
-  function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
-  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
-  function dateSepLabel(dateKey){
-    if(dateKey===nzTodayKey()) return 'Today';
-    var y = new Intl.DateTimeFormat('en-CA',{timeZone:'Pacific/Auckland'}).format(new Date(Date.now()-86400000));
-    if(dateKey===y) return 'Yesterday';
-    return new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'}).format(new Date(dateKey+'T12:00:00Z'));
+  function fmtDate(iso){
+    if(!iso) return '—';
+    try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '—'; }
+  }
+  function fmtMoney(cents){ return '$' + ((Number(cents)||0)/100).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2}); }
+  function statusPill(status){
+    var cls = status==='paid_out' ? 'pill-paid' : 'pill-pending';
+    var label = status==='paid_out' ? 'Converted — paid' : 'Pending';
+    return '<span class="pill '+cls+'">'+escapeHtml(label)+'</span>';
   }
 
   function showLoginRequired(title, message, ctaLabel, ctaHref){
@@ -548,10 +588,10 @@
     `;
   }
 
-  async function bootTeamChatPage(){
+  async function bootPage(){
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(!session){
-      showLoginRequired("Log in to your venue","Use your venue account before opening Team Chat.","Log in","/business-auth?view=login");
+      showLoginRequired("Log in to your venue","Use your venue account before opening Refer & Earn.","Log in","/business-auth?view=login");
       return;
     }
     const [{data:profile},{data:owner}] = await Promise.all([
@@ -569,228 +609,74 @@
       return;
     }
     currentSalonId=owner.salon_id;
-    currentUserId=session.user.id;
     var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
-    document.getElementById('sbAvatar').textContent = initialsFor(displayName);
+    document.getElementById('sbAvatar').textContent = displayName.trim()[0]?.toUpperCase() || '?';
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
 
     try{
-      const [{data:salonRow},{data:roster}] = await Promise.all([
+      const [{data:salonRow},{data:dashboard,error:dashErr},{data:code,error:codeErr}] = await Promise.all([
         supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle(),
-        supabaseClient.rpc("list_staff_members",{p_salon_id:currentSalonId})
+        supabaseClient.rpc("get_referral_dashboard"),
+        supabaseClient.rpc("get_my_referral_code")
       ]);
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-        document.title = salonRow.name ? `Team Chat — ${salonRow.name}` : "Team Chat — Blooma Business";
       }
-      teamRoster = roster||[];
-      renderRoster();
-    }catch(err){ showToast(err.message||"Unable to load team"); }
+      if(codeErr) throw codeErr;
+      referralLink = location.origin + '/business-auth?ref=' + encodeURIComponent(code);
+      document.getElementById('referralLinkBox').textContent = referralLink;
 
-    await reloadMessages();
-    var input = document.getElementById('tcInput');
-    var sendBtn = document.getElementById('tcSendBtn');
-    input.disabled = false; sendBtn.disabled = false;
-    input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSend(); } });
-    pollTimer = setInterval(function(){ reloadMessages(true); }, 6000);
+      if(dashErr) throw dashErr;
+      renderDashboard(dashboard || {});
+    }catch(err){ showToast(err.message||"Unable to load referral data"); }
   }
 
-  function rosterName(userId){
-    var m = teamRoster.find(function(x){ return x.user_id===userId; });
-    if(!m) return userId===currentUserId ? 'You' : 'Team member';
-    var name = [m.first_name,m.last_name].filter(Boolean).join(' ').trim() || m.email || 'Team member';
-    return userId===currentUserId ? 'You' : name;
-  }
+  function renderDashboard(d){
+    document.getElementById('statWallet').textContent = fmtMoney(d.wallet_balance_cents);
+    document.getElementById('statReferred').textContent = Number(d.referred_count||0);
+    document.getElementById('statConverted').textContent = Number(d.converted_count||0);
 
-  function renderRoster(){
-    document.getElementById('tcHeadSub').textContent = teamRoster.length + ' team member' + (teamRoster.length===1?'':'s') + ' can see this channel';
-    document.getElementById('tcRoster').innerHTML = teamRoster.slice(0,6).map(function(m){
-      var name = [m.first_name,m.last_name].filter(Boolean).join(' ').trim() || m.email || '?';
-      var col = colorFor(name);
-      return '<div class="tc-roster-avatar" style="background:' + col.color + ';color:' + col.text + ';" title="' + escapeHtml(name) + '">' + initialsFor(name) + '</div>';
+    var referrals = Array.isArray(d.referrals) ? d.referrals : [];
+    document.getElementById('referralsSub').textContent = referrals.length + ' venue' + (referrals.length===1?'':'s') + ' referred so far';
+    var tbody = document.getElementById('referralsTbody');
+    if(!referrals.length){
+      tbody.innerHTML = '<tr><td colspan="4" class="row-empty">No referrals yet — share your link above to get started.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = referrals.map(function(r){
+      return '<tr>' +
+        '<td>' + escapeHtml(r.salon_name||'Venue') + '</td>' +
+        '<td>' + statusPill(r.status) + '</td>' +
+        '<td>' + fmtDate(r.created_at) + '</td>' +
+        '<td>' + fmtDate(r.converted_at) + '</td>' +
+      '</tr>';
     }).join('');
   }
 
-  async function reloadMessages(silent){
+  document.getElementById('copyLinkBtn').addEventListener('click', async function(){
+    if(!referralLink) return;
     try{
-      const {data,error} = await supabaseClient.rpc("get_team_messages");
-      if(error) throw error;
-      var grew = (data||[]).length > chatMessages.length;
-      chatMessages = data||[];
-      renderThread();
-      if(grew || !silent) scrollThreadToBottom();
-    }catch(err){ if(!silent) showToast(err.message||"Unable to load team chat"); }
-  }
-
-  function renderThread(){
-    var wrap = document.getElementById('tcThread');
-    if(!chatMessages.length){
-      wrap.innerHTML = '<div class="tc-empty">No messages yet — say hi to your team.</div>';
-      return;
+      await navigator.clipboard.writeText(referralLink);
+      showToast('Referral link copied');
+    }catch(e){
+      showToast('Could not copy — select and copy the link manually');
     }
-    var html = '';
-    var lastDateKey = null, lastSender = null;
-    chatMessages.forEach(function(m){
-      var dateKey = nzDateKeyForIso(m.created_at);
-      if(dateKey !== lastDateKey){
-        html += '<div class="tc-date-sep">' + dateSepLabel(dateKey) + '</div>';
-        lastDateKey = dateKey; lastSender = null;
-      }
-      var isOut = m.sender_user_id === currentUserId;
-      var stacked = lastSender === m.sender_user_id;
-      var name = m.sender_name || rosterName(m.sender_user_id);
-      var col = colorFor(name);
-      html += '<div class="tc-row ' + (isOut?'out':'in') + (stacked?' stacked':'') + '">' +
-        '<div class="tc-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(name) + '</div>' +
-        '<div class="tc-bubble-col">' +
-          (stacked ? '' : '<div class="tc-sender">' + (isOut?'You':escapeHtml(name)) + '</div>') +
-          '<div class="tc-bubble">' + escapeHtml(m.body) + '</div>' +
-          '<div class="tc-time">' + localTimeLabel(m.created_at) + '</div>' +
-        '</div>' +
-      '</div>';
-      lastSender = m.sender_user_id;
-    });
-    wrap.innerHTML = html;
-  }
-
-  function scrollThreadToBottom(){
-    var wrap = document.getElementById('tcThread');
-    wrap.scrollTop = wrap.scrollHeight;
-  }
-
-  var sending = false;
-  async function doSend(){
-    var input = document.getElementById('tcInput');
-    var body = input.value.trim();
-    if(!body || sending) return;
-    sending = true;
-    input.disabled = true;
-    document.getElementById('tcSendBtn').disabled = true;
-    try{
-      const {error} = await supabaseClient.rpc("send_team_message_gated",{p_body:body});
-      if(error) throw error;
-      input.value = '';
-      await reloadMessages();
-    }catch(err){ showToast(err.message||"Message failed to send"); }
-    input.disabled = false;
-    document.getElementById('tcSendBtn').disabled = false;
-    sending = false;
-    input.focus();
-  }
-
-  bootTeamChatPage();
-</script>
-
-<script>
-(function(){
-  var tbInput = document.getElementById('tbSearchInput');
-  var tbResults = document.getElementById('tbSearchResults');
-  if(!tbInput || !tbResults) return;
-  var debounceTimer = null;
-
-  function escHtml(s){
-    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-  function initials(name){
-    var parts = String(name||'?').trim().split(/\s+/);
-    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
-  }
-  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
-
-  function renderResults(clients, bookings, q){
-    if(!clients.length && !bookings.length){
-      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
-      tbResults.classList.add('open');
-      return;
-    }
-    var html = '';
-    if(clients.length){
-      html += '<div class="tb-sr-heading">Clients</div>';
-      clients.slice(0,5).forEach(function(c){
-        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
-          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
-          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
-          + '</a>';
-      });
-    }
-    if(bookings.length){
-      html += '<div class="tb-sr-heading">Bookings</div>';
-      bookings.slice(0,5).forEach(function(b){
-        var when = '';
-        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
-        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
-          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
-          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
-          + '</a>';
-      });
-    }
-    tbResults.innerHTML = html;
-    tbResults.classList.add('open');
-  }
-
-  function clientKeyForRow(r){
-    return r.phone ? 'ph:'+String(r.phone).trim()
-      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
-      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
-  }
-  function clientKeyForBooking(b){
-    return b.customer_user_id ? 'uid:'+b.customer_user_id
-      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
-      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
-      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
-  }
-
-  function runSearch(q){
-    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
-    var safeQ = q.replace(/[,()%*]/g,'');
-    if(!safeQ){ hideResults(); return; }
-    var pattern = '%'+safeQ+'%';
-    Promise.all([
-      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
-        .eq('salon_id',currentSalonId)
-        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
-        .order('starts_at',{ascending:false}).limit(20),
-      supabaseClient.rpc('get_venue_clients')
-    ]).then(function(res){
-      if(tbInput.value.trim().toLowerCase()!==q) return;
-      var bookingRows = (res[0] && res[0].data) || [];
-      var manual = (res[1] && res[1].data) || [];
-      var seen = {};
-      var clientMatches = [];
-      bookingRows.forEach(function(b){
-        var key = clientKeyForBooking(b);
-        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
-      });
-      manual.forEach(function(r){
-        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
-        if(hay.indexOf(q)===-1) return;
-        var key = clientKeyForRow(r);
-        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
-      });
-      var bookingMatches = bookingRows.slice(0,8);
-      renderResults(clientMatches, bookingMatches, q);
-    }).catch(function(){ hideResults(); });
-  }
-
-  tbInput.addEventListener('input', function(){
-    var q = tbInput.value.trim().toLowerCase();
-    clearTimeout(debounceTimer);
-    if(q.length < 2){ hideResults(); return; }
-    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
   });
-  tbInput.addEventListener('focus', function(){
-    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
+  document.getElementById('shareEmailBtn').addEventListener('click', function(){
+    if(!referralLink) return;
+    var subject = encodeURIComponent("You should try Blooma for your venue");
+    var body = encodeURIComponent("Hey — I've been using Blooma to manage bookings for my venue and thought you'd like it too. Sign up through my link and we both get a bonus once you're set up:\n\n" + referralLink);
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
   });
-  document.addEventListener('click', function(e){
-    if(e.target===tbInput) return;
-    if(!tbResults.contains(e.target)) hideResults();
+  document.getElementById('shareSmsBtn').addEventListener('click', function(){
+    if(!referralLink) return;
+    var body = encodeURIComponent("Hey! I've been using Blooma for my venue's bookings — you should check it out. Sign up here and we both get a bonus: " + referralLink);
+    window.location.href = 'sms:?&body=' + body;
   });
-  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
-})();
+
+  bootPage();
 </script>
 
 <script src="/trial-banner.js"></script>

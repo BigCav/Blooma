@@ -80,6 +80,10 @@
       "destination": "/payments"
     },
     {
+      "source": "/venue/admin/refer-earn",
+      "destination": "/refer-earn"
+    },
+    {
       "source": "/venue/admin/new-booking",
       "destination": "/new-booking"
     },
