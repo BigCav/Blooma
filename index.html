@@ -532,6 +532,36 @@
     }
     .confirm-desktop-topbar .brand-logo{font-size:22px;letter-spacing:-.6px;}
     .confirm-desktop-topbar .menu-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--border-2);}
+    .confirm-done-shell{display:none;}
+  }
+  .confirm-desktop-view{display:none;}
+  @media(min-width:900px){
+    .confirm-desktop-view{display:block;}
+    .cdv-shell{max-width:1100px;margin:0 auto;padding:36px 32px 80px;}
+    .cdv-back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;margin-bottom:22px;color:var(--ink-soft);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+    .cdv-back:hover{color:var(--ink);}
+    .cdv-back .icon svg{width:16px;height:16px;}
+    .cdv-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:36px;align-items:start;}
+    .cdv-title{font-size:34px;font-weight:800;letter-spacing:-1px;color:var(--ink);margin:16px 0 4px;line-height:1.15;}
+    .cdv-sub{font-size:14.5px;color:var(--ink-soft);margin:0;}
+    .cdv-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px;}
+    .cdv-action-btn{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:16px 10px;transition:border-color .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
+    .cdv-action-btn:hover{border-color:var(--purple);box-shadow:0 4px 14px rgba(124,92,217,.08);}
+    .cdv-action-icon{width:38px;height:38px;border-radius:50%;background:var(--purple-pastel-2);color:var(--purple);display:flex;align-items:center;justify-content:center;}
+    .cdv-action-label{font-size:12.5px;font-weight:700;color:var(--ink);}
+    .cdv-card{background:var(--white);border:1px solid var(--border-2);border-radius:20px;padding:22px;}
+    .cdv-aside{position:sticky;top:96px;display:flex;flex-direction:column;gap:16px;}
+    .cdv-venue-card{background:var(--white);border:1px solid var(--border-2);border-radius:20px;overflow:hidden;}
+    .cdv-venue-img{height:140px;background:var(--purple-pastel-2);}
+    .cdv-venue-img img{width:100%;height:100%;object-fit:cover;display:block;}
+    .cdv-venue-body{padding:16px;}
+    .cdv-venue-name{font-size:15px;font-weight:800;color:var(--ink);margin:0;}
+    .cdv-venue-meta{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);margin:8px 0 0;}
+    .cdv-venue-meta .icon svg{width:13px;height:13px;flex-shrink:0;}
+    .cdv-total-card{background:var(--white);border:1px solid var(--border-2);border-radius:20px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;}
+    .cdv-total-card span{font-size:13px;font-weight:700;color:var(--ink-soft);}
+    .cdv-total-card strong{font-size:20px;color:var(--purple);}
+    .cdv-ref{font-size:12px;color:var(--ink-soft);text-align:center;margin:0;}
   }
   .confirm-badge{
     display:inline-flex;align-items:center;gap:6px;background:var(--purple-pastel-2);color:var(--purple-dark);
@@ -3325,6 +3355,12 @@ function renderBookingConfirmed(booking){
         <div class="topbar"><div style="display:flex;align-items:center;gap:12px;"><button class="backbtn" id="doneBackBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Booking</h1></div></div>
         <div class="empty-state">This booking couldn't be found.</div>
       </div>
+      <div class="confirm-desktop-view">
+        <div class="cdv-shell">
+          <button class="cdv-back" id="doneBackBtnDesktop">${icon('chevronLeft')}<span>Back</span></button>
+          <div class="cdv-card" style="text-align:center;color:var(--ink-soft);padding:48px 24px;">This booking couldn't be found.</div>
+        </div>
+      </div>
       ${hamburgerMenuMarkup()}
     `;
   }
@@ -3410,17 +3446,100 @@ function renderBookingConfirmed(booking){
         ${bookingRef?`<p class="confirm-booking-ref">Booking ref: ${escapeHtml(bookingRef)}</p>`:""}
       </div>
     </div>
+
+    <div class="confirm-desktop-view">
+      <div class="cdv-shell">
+        <button class="cdv-back" id="doneBackBtnDesktop">${icon('chevronLeft')}<span>Back</span></button>
+        <div class="cdv-grid">
+          <div class="cdv-main">
+            <span class="confirm-badge">${icon('checkSmall')}<span>${isUpcoming?"Confirmed":bookingStatusLabel(booking.status)}</span></span>
+            <h1 class="cdv-title">${escapeHtml(booking.dateLabel)} at ${escapeHtml(booking.time)}</h1>
+            <p class="cdv-sub">${booking.duration} min${addonsList.length?` · ${escapeHtml(booking.serviceName)} + ${addonsList.length} add-on${addonsList.length===1?"":"s"}`:` · ${escapeHtml(booking.serviceName)}`}</p>
+
+            <div class="cdv-actions">
+              <button class="cdv-action-btn" id="addToCalendarBtnDesktop">
+                <span class="cdv-action-icon">${icon('calendar')}</span>
+                <span class="cdv-action-label">Add to calendar</span>
+              </button>
+              ${salon?`
+              <button class="cdv-action-btn" id="doneDirectionsBtnDesktop">
+                <span class="cdv-action-icon">${icon('navigation')}</span>
+                <span class="cdv-action-label">Get directions</span>
+              </button>
+              <button class="cdv-action-btn" id="doneMessageBtnDesktop">
+                <span class="cdv-action-icon">${icon('messageSquare')}</span>
+                <span class="cdv-action-label">Send message</span>
+              </button>
+              <button class="cdv-action-btn" id="doneVenueBtnDesktop">
+                <span class="cdv-action-icon">${icon('store')}</span>
+                <span class="cdv-action-label">Venue details</span>
+              </button>
+              `:""}
+            </div>
+
+            <div class="section-rule"><span class="lbl">Overview</span><span class="line"></span></div>
+            <div class="cdv-card">
+              <div class="row"><span style="font-weight:700;color:var(--ink);">${escapeHtml(booking.serviceName)}</span><span class="value">$${servicePrice}</span></div>
+              <p style="font-size:12px;color:var(--ink-soft);margin:2px 0 0;">${booking.duration} min</p>
+              ${addonsList.map(a=>`
+              <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+              <div class="row"><span style="font-weight:600;color:var(--ink);">${escapeHtml(a.name)}</span><span class="value">+$${a.price}</span></div>
+              `).join("")}
+              <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+              ${booking.discount?`<div class="row" style="margin-bottom:10px;"><span class="label">${booking.promoCode?`Promo (${escapeHtml(booking.promoCode)})`:"Discount"}</span><span class="value" style="color:#1E8A4C;">−$${booking.discount}</span></div>`:""}
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:14px;font-weight:700;color:var(--ink);">Total</span>
+                <span style="font-size:19px;font-weight:800;color:var(--purple);">$${booking.price}</span>
+              </div>
+            </div>
+
+            <div class="section-rule"><span class="lbl">More details</span><span class="line"></span></div>
+            <div class="cdv-card">
+              <p style="font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--ink-soft);text-transform:uppercase;margin:0 0 6px;">Cancellation policy</p>
+              <p style="font-size:13px;color:var(--ink-mute);margin:0;line-height:1.5;">${escapeHtml((salon&&salon.cancellationPolicy)||"You can cancel or reschedule this booking at any time before your appointment.")}</p>
+              ${isUpcoming?`
+              <div style="height:1px;background:var(--border);margin:16px 0 4px;"></div>
+              <button class="home-menu-row" id="doneRescheduleBtnDesktop"><span>Reschedule appointment</span>${icon('chevronRight')}</button>
+              <button class="home-menu-row" id="doneCancelBtnDesktop"><span>Cancel appointment</span>${icon('chevronRight')}</button>
+              `:""}
+            </div>
+
+            ${salon&&salon.address?`
+            <div class="section-rule"><span class="lbl">Getting there</span><span class="line"></span></div>
+            ${venueMapSectionMarkup(salon)}
+            `:""}
+          </div>
+
+          <aside class="cdv-aside">
+            ${salon?`
+            <div class="cdv-venue-card">
+              <div class="cdv-venue-img">${heroImg?`<img src="${escapeAttr(heroImg)}" alt="${escapeAttr(booking.salonName)}" loading="lazy" decoding="async">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--purple);">${bigIcon(salon.icon,40)}</div>`}</div>
+              <div class="cdv-venue-body">
+                <p class="cdv-venue-name">${escapeHtml(booking.salonName)}</p>
+                <p class="cdv-venue-meta">${salon.rating!=="New"?`${icon('star','var(--gold)')}<span>${escapeHtml(String(salon.rating))} · ${escapeHtml(String(salon.reviews||0))} review${salon.reviews===1?"":"s"}</span>`:`${icon('star','var(--gold)')}<span>New</span>`}</p>
+                <p class="cdv-venue-meta">${icon('mapPin','var(--ink-soft)')}<span>${escapeHtml(venueFullAddress(salon)||salon.distance||"")}</span></p>
+              </div>
+            </div>
+            `:""}
+            <div class="cdv-total-card">
+              <span>Total</span><strong>$${booking.price}</strong>
+            </div>
+            ${bookingRef?`<p class="cdv-ref">Booking ref: ${escapeHtml(bookingRef)}</p>`:""}
+          </aside>
+        </div>
+      </div>
+    </div>
+
     ${calendarSheetMarkup()}
     ${hamburgerMenuMarkup()}
   `;
 }
 function bindBookingConfirmedEvents(booking, onBack){
-  const doneBackBtn = document.getElementById("doneBackBtn");
-  if (doneBackBtn) doneBackBtn.addEventListener("click", onBack);
+  const bindAll = (ids, handler) => ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener("click", handler); });
+  bindAll(["doneBackBtn","doneBackBtnDesktop"], onBack);
   if (!booking) return;
   const salon = SALONS.find(s=>s.id===booking.salonId) || null;
-  const addToCalendarBtn = document.getElementById("addToCalendarBtn");
-  if (addToCalendarBtn) addToCalendarBtn.addEventListener("click", ()=>{
+  bindAll(["addToCalendarBtn","addToCalendarBtnDesktop"], ()=>{
     const evt = buildCalendarEvent({
       title: `${booking.serviceName} at ${booking.salonName}`,
       description: `Booked via Blooma${booking.stylistName && !isAnyAvailableStylist(booking.stylistName) ? ` with ${booking.stylistName}` : ""}`,
@@ -3430,18 +3549,13 @@ function bindBookingConfirmedEvents(booking, onBack){
     });
     setState({ calendarSheetEvent: evt }, { samePage:true });
   });
-  const doneDirectionsBtn = document.getElementById("doneDirectionsBtn");
-  if (doneDirectionsBtn && salon) doneDirectionsBtn.addEventListener("click", ()=>{
-    window.open(venueMapUrl(salon,false), "_blank", "noopener");
-  });
-  const doneMessageBtn = document.getElementById("doneMessageBtn");
-  if (doneMessageBtn && salon) doneMessageBtn.addEventListener("click", ()=> goVenueMessage(salon, booking));
-  const doneVenueBtn = document.getElementById("doneVenueBtn");
-  if (doneVenueBtn && salon) doneVenueBtn.addEventListener("click", ()=> goSalon(salon));
-  const doneRescheduleBtn = document.getElementById("doneRescheduleBtn");
-  if (doneRescheduleBtn) doneRescheduleBtn.addEventListener("click", ()=> goReschedule(booking));
-  const doneCancelBtn = document.getElementById("doneCancelBtn");
-  if (doneCancelBtn) doneCancelBtn.addEventListener("click", ()=> cancelBooking(booking.id));
+  if (salon){
+    bindAll(["doneDirectionsBtn","doneDirectionsBtnDesktop"], ()=> window.open(venueMapUrl(salon,false), "_blank", "noopener"));
+    bindAll(["doneMessageBtn","doneMessageBtnDesktop"], ()=> goVenueMessage(salon, booking));
+    bindAll(["doneVenueBtn","doneVenueBtnDesktop"], ()=> goSalon(salon));
+  }
+  bindAll(["doneRescheduleBtn","doneRescheduleBtnDesktop"], ()=> goReschedule(booking));
+  bindAll(["doneCancelBtn","doneCancelBtnDesktop"], ()=> cancelBooking(booking.id));
   bindCalendarSheetControls();
 }
 
