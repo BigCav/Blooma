@@ -421,23 +421,24 @@
       Refer a venue, you both win
     </div>
     <h1>Know a venue that'd love Blooma? Send them your link.</h1>
-    <p>Share your personal referral link with any salon, barber, or studio you know. The moment they go live on a paid Blooma plan, $120 lands in both of your wallets — no cap on how many venues you refer.</p>
+    <p>Share your personal referral link with any salon, barber, or studio you know. The moment they go live on a paid Blooma plan, $120 is automatically credited to both of your Blooma subscriptions — no cap on how many venues you refer.</p>
     <div class="re-hero-amounts">
       <div class="re-amount-chip">
         <span class="num">$120</span>
-        <span class="lbl">to your<br>wallet</span>
+        <span class="lbl">credited to<br>your bill</span>
       </div>
       <div class="re-amount-chip">
         <span class="num">$120</span>
-        <span class="lbl">to their<br>wallet</span>
+        <span class="lbl">credited to<br>their bill</span>
       </div>
     </div>
   </div>
 
   <div class="re-stats">
     <div class="re-stat">
-      <div class="re-stat-label">Wallet balance</div>
+      <div class="re-stat-label">Total earned</div>
       <div class="re-stat-value gold" id="statWallet">—</div>
+      <div style="font-size:11.5px;color:var(--text-faint);margin-top:4px;" id="statWalletNote"></div>
     </div>
     <div class="re-stat">
       <div class="re-stat-label">Venues referred</div>
@@ -490,8 +491,8 @@
     </div>
     <div class="re-step">
       <div class="re-step-num">3</div>
-      <h3>You both get paid</h3>
-      <p>Once they subscribe to a paid monthly plan, $120 lands in each of your Blooma wallets.</p>
+      <h3>You both get credited</h3>
+      <p>Once they subscribe to a paid monthly plan, $120 is automatically applied to each of your Blooma bills.</p>
     </div>
   </div>
 
@@ -635,6 +636,10 @@
 
   function renderDashboard(d){
     document.getElementById('statWallet').textContent = fmtMoney(d.wallet_balance_cents);
+    var unapplied = Number(d.unapplied_cents||0);
+    document.getElementById('statWalletNote').textContent = unapplied>0
+      ? (fmtMoney(unapplied) + ' will apply once you have an active subscription')
+      : 'Applied automatically to your Blooma subscription';
     document.getElementById('statReferred').textContent = Number(d.referred_count||0);
     document.getElementById('statConverted').textContent = Number(d.converted_count||0);
 

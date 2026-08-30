@@ -79,6 +79,41 @@ async function fulfillPackagePurchase(svc, session) {
 
 const REFERRAL_PAYOUT_CENTS = 12000;
 
+// Pushes any not-yet-applied wallet ledger credits (or debits) for a venue onto its Stripe
+// customer balance, so they land as an automatic reduction on that venue's next invoice.
+// A ledger row can only be applied once a venue actually has a Stripe customer — a venue that
+// hasn't subscribed yet earns the credit but it stays unapplied until they do, at which point
+// this same function (called from syncSubscriptionToDb on every billing sync) sweeps it in.
+async function applyUnappliedWalletCredits(svc, salonId) {
+  const { data: billing } = await svc.from('venue_billing').select('stripe_customer_id').eq('salon_id', salonId).maybeSingle();
+  const customerId = billing?.stripe_customer_id;
+  if (!customerId) return;
+
+  const { data: unapplied } = await svc
+    .from('venue_wallet_ledger')
+    .select('id, amount_cents, description')
+    .eq('salon_id', salonId)
+    .eq('stripe_applied', false);
+  if (!unapplied || !unapplied.length) return;
+
+  for (const row of unapplied) {
+    try {
+      const balanceTx = await stripe.customers.createBalanceTransaction(customerId, {
+        amount: -row.amount_cents, // Stripe convention: negative = credit (reduces what's owed).
+        currency: 'nzd',
+        description: row.description || 'Blooma wallet credit',
+      });
+      await svc
+        .from('venue_wallet_ledger')
+        .update({ stripe_applied: true, stripe_balance_transaction_id: balanceTx.id })
+        .eq('id', row.id);
+    } catch (err) {
+      console.error('Blooma: failed to apply wallet credit to Stripe balance', salonId, row.id, err);
+      // Leave it unapplied — the next billing sync for this venue will retry.
+    }
+  }
+}
+
 async function processReferralConversion(svc, salonId) {
   // Only ever pays out once: the moment we flip a referral's status to 'paid_out' below, this
   // query stops matching, so Stripe redelivering 'active' status updates is naturally a no-op.
@@ -111,6 +146,9 @@ async function processReferralConversion(svc, salonId) {
     .from('venue_referrals')
     .update({ status: 'paid_out', converted_at: new Date().toISOString() })
     .eq('id', referral.id);
+
+  await applyUnappliedWalletCredits(svc, referral.referrer_salon_id);
+  await applyUnappliedWalletCredits(svc, referral.referred_salon_id);
 }
 
 function planIdForPrice(priceId) {
@@ -173,6 +211,10 @@ async function syncSubscriptionToDb(svc, subscription) {
   await svc.from('venue_billing').upsert(row, { onConflict: 'salon_id' });
 
   if (subscription.status === 'active') await processReferralConversion(svc, salonId);
+  // Catches up any wallet credit this venue earned before it had a Stripe customer to apply
+  // it to (e.g. it referred someone while still on trial, or was itself referred and only just
+  // subscribed) — runs on every billing sync, not just the moment a referral converts.
+  await applyUnappliedWalletCredits(svc, salonId);
 }
 
 module.exports = async (req, res) => {
