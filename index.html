@@ -536,7 +536,7 @@
   }
   .confirm-desktop-view{display:none;}
   @media(min-width:900px){
-    .confirm-desktop-view{display:block;}
+    .confirm-desktop-view{display:block;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
     .cdv-shell{max-width:1400px;margin:0 auto;padding:36px 32px 80px;}
     .cdv-back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;margin-bottom:22px;color:var(--ink-soft);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
     .cdv-back:hover{color:var(--ink);}
@@ -2456,7 +2456,8 @@ function customerHistorySnapshot(){
   return {
     blooma:true,bloomaUi:true,page:state.page,step:Number(state.step||0),
     salonId:state.salon?.id||null,serviceId:state.service?.id||null,
-    stylistId:state.stylistProfile?.id||null,checkoutOrigin:state.checkoutOrigin||null
+    stylistId:state.stylistProfile?.id||null,checkoutOrigin:state.checkoutOrigin||null,
+    bookingId:state.viewBookingId||null,bookingReturnPage:state.bookingDetailReturnPage||null
   };
 }
 function replaceCustomerHistoryState(){
@@ -2471,6 +2472,7 @@ function restoreCustomerHistoryState(entry){
   const salon=entry.salonId?SALONS.find(s=>s.id===entry.salonId):state.salon;
   if(page==="home"){ Object.assign(state,{page:"home",salon:null,service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null,step:0,done:false}); render(); return true; }
   if(page==="history"||page==="profile"){ Object.assign(state,{page}); render(); if(page==="profile"){ loadMyGiftCardsAndPackages(); } return true; }
+  if(page==="bookingDetail"){ Object.assign(state,{page:"bookingDetail",viewBookingId:entry.bookingId||null,bookingDetailReturnPage:entry.bookingReturnPage||"history"}); render(); return true; }
   if(!salon){ Object.assign(state,{page:"home",salon:null,service:null,step:0}); render(); return true; }
   state.salon=salon;
   if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); loadLoyaltyAccount(); return true; }
@@ -4741,6 +4743,14 @@ loadCustomerAuth().then(()=>{
     return;
   }
   if (params.get("openProfile")) goProfile();
+  // A page that had a pushState "bookingDetail" entry (e.g. reschedule redirected out to the
+  // checkout page and the customer hit the browser Back button) may land here as a fresh reload
+  // rather than a same-document popstate — restore it from the saved history state directly.
+  const navEntry = history.state;
+  if (navEntry?.bloomaUi && navEntry.page==="bookingDetail" && navEntry.bookingId){
+    const match = state.bookings.find(b=> String(b.id)===String(navEntry.bookingId));
+    if (match) setState({ page:"bookingDetail", viewBookingId:match.id, bookingDetailReturnPage:navEntry.bookingReturnPage||"history" });
+  }
 });
 let marketplaceRefreshBusy=false;
 async function refreshMarketplaceData(){
