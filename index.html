@@ -280,15 +280,6 @@
     .upcoming-bookings-section{margin-top:12px!important;}
   }
 
-  .home-promo-banner{display:none;position:relative;background:var(--near-black);border-radius:24px;padding:22px 20px;margin:18px 20px 4px;color:#fff;overflow:hidden;flex-shrink:0;}
-  .home-promo-banner::before{
-    content:'';position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(circle at 88% 10%, rgba(183,157,245,.28), transparent 55%);
-  }
-  .home-promo-banner > *{position:relative;z-index:1;}
-  .home-promo-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple-pastel);margin:0 0 8px;}
-  .home-promo-banner h2{color:#fff;font-size:21px;font-weight:800;line-height:1.2;letter-spacing:-.01em;margin:0;max-width:320px;}
-  .home-promo-banner p{color:rgba(255,255,255,.65);font-size:12.5px;margin:6px 0 0;max-width:280px;}
   .home-trust-strip{
     display:none;flex-shrink:0;background:var(--white);border:1px solid var(--border);border-radius:16px;
     margin:26px 20px 4px;padding:16px 6px;box-shadow:0 1px 2px rgba(36,31,51,.04),0 10px 24px -18px rgba(36,31,51,.2);
@@ -1065,9 +1056,6 @@
     .venue-carousel-header{display:flex;align-items:center;justify-content:space-between;padding:0 32px;margin-bottom:16px;}
     .venue-carousel-header h2{font-size:24px;}
     .home-topbar{padding:18px 32px;}
-    .home-promo-banner{display:block;padding:32px 40px;margin:24px 32px 4px;text-align:center;}
-    .home-promo-banner h2{font-size:28px;max-width:none;}
-    .home-promo-banner p{font-size:14px;max-width:480px;margin:8px auto 0;}
     .home-trust-strip{display:flex;margin:38px 32px 6px;padding:22px 10px;}
     .home-trust-item strong{font-size:22px;}
     .home-trust-item span{font-size:12px;}
@@ -2092,7 +2080,7 @@ function liveVenueToSalon(v){
     category:sv.category_name||tag.split("·")[0].trim()||"Services", addons:(Array.isArray(sv.addons)?sv.addons:[]).map(a=>({id:String(a.id),name:a.name,price:Number(a.price||0),duration:Number(a.duration_minutes||a.duration||0)}))
   }));
   return {
-    id:String(v.id), _cloud:true, publicSlug:String(v.public_slug||"").trim(), name:v.name||"Venue", tag, rating, reviews:reviews.length, city:String(v.city||"").trim(), region:String(v.region||"").trim(), suburb:String(v.suburb||"").trim(), postcode:String(v.postcode||"").trim(), distance:[String(v.suburb||"").trim(),String(v.city||"").trim()].filter(Boolean).join(", ")||"Location not set", icon:liveVenueIcon(tag),
+    id:String(v.id), _cloud:true, publicSlug:String(v.public_slug||"").trim(), name:v.name||"Venue", tag, rating, reviews:reviews.length, createdAt:v.created_at||null, city:String(v.city||"").trim(), region:String(v.region||"").trim(), suburb:String(v.suburb||"").trim(), postcode:String(v.postcode||"").trim(), distance:[String(v.suburb||"").trim(),String(v.city||"").trim()].filter(Boolean).join(", ")||"Location not set", icon:liveVenueIcon(tag),
     homeImage:mainImage||galleryImages[0]||"", photos:venuePhotos, blurb:String(v.about||"").trim(),
     hours:liveHoursLabel(v), openDays:liveOpenDays(v.open_days), openTime:liveDbTime(v.open_time), closeTime:liveDbTime(v.close_time), dailyHours:normalizedDailyHours(v.metadata&&v.metadata.hours),
     phone:v.phone||"", address:v.address||"Address available from venue",
@@ -2112,6 +2100,7 @@ function mergeLiveVenue(live){
   existing._cloud=true;
   existing.publicSlug=live.publicSlug||existing.publicSlug||"";
   existing.name=live.name;
+  existing.createdAt=live.createdAt||existing.createdAt||null;
   existing.tag=live.tag;
   existing.phone=live.phone;
   existing.address=live.address;
@@ -2205,6 +2194,24 @@ async function loadMarketplaceVenues(applyRouteAfterLoad=false){
   }
 }
 
+
+async function loadMarketplaceStats(){
+  try{
+    const res=await fetch(`${MARKETPLACE_SUPABASE_URL}/rest/v1/rpc/get_marketplace_stats`,{
+      method:"POST",
+      headers:{"apikey":MARKETPLACE_SUPABASE_KEY,"Content-Type":"application/json"},
+      body:"{}"
+    });
+    if(!res.ok) throw new Error(`Marketplace stats request failed (${res.status})`);
+    const stats=await res.json();
+    if(stats && typeof stats==="object"){
+      state.marketplaceStats=stats;
+      render({samePage:true});
+    }
+  }catch(err){
+    console.warn("Blooma marketplace stats could not be loaded.",err);
+  }
+}
 
 function showBloomaToast(msg){
   let el = document.getElementById("bloomaToast");
@@ -2389,6 +2396,7 @@ let state = {
   authReady: false,
   marketplaceReady: false,
   marketplaceError: "",
+  marketplaceStats: null,
   authUserId: null,
   accountType: null,
   hasVenue: false,
@@ -2947,7 +2955,8 @@ function renderHome(){
     const q = state.homeQuery.toLowerCase();
     const matchesQuery = s.name.toLowerCase().includes(q) || s.tag.toLowerCase().includes(q) || String(s.address||"").toLowerCase().includes(q);
     const matchesCity = !state.city?.name || String(s.city||"").toLowerCase()===String(state.city.name).toLowerCase();
-    return matchesFilter && matchesQuery && matchesCity && String(s.rating)==="New";
+    const isNewVenue = s.createdAt && (Date.now() - new Date(s.createdAt).getTime()) < 30*24*60*60*1000;
+    return matchesFilter && matchesQuery && matchesCity && isNewVenue;
   });
 
   return `
@@ -2973,20 +2982,14 @@ function renderHome(){
         </div>
       </div>
 
-      <div class="home-promo-banner">
-        <p class="home-promo-eyebrow">412 chairs open today</p>
-        <h2>Your next appointment is closer than you think.</h2>
-        <p>Real-time openings across 400+ independent salons and barbershops in ${escapeHtml(state.city.name)}.</p>
-      </div>
-
       <div class="home-trust-strip">
-        <div class="home-trust-item"><strong style="display:inline-flex;align-items:center;gap:3px;">4.7<span style="display:inline-flex;color:var(--gold);">${ICONS.star.replace('width="13" height="13"','width="16" height="16"')}</span></strong><span>Avg. rating</span></div>
+        <div class="home-trust-item"><strong style="display:inline-flex;align-items:center;gap:3px;">${state.marketplaceStats?.avg_rating!=null?Number(state.marketplaceStats.avg_rating).toFixed(1):"4.7"}<span style="display:inline-flex;color:var(--gold);">${ICONS.star.replace('width="13" height="13"','width="16" height="16"')}</span></strong><span>Avg. rating</span></div>
         <div class="home-trust-divider"></div>
-        <div class="home-trust-item"><strong>110+</strong><span>Venues on Blooma</span></div>
+        <div class="home-trust-item"><strong>${state.marketplaceStats?.venue_count!=null?state.marketplaceStats.venue_count:SALONS.length||"—"}</strong><span>Venues on Blooma</span></div>
         <div class="home-trust-divider"></div>
-        <div class="home-trust-item"><strong>3,900+</strong><span>Bookings this year</span></div>
+        <div class="home-trust-item"><strong>${state.marketplaceStats?.bookings_this_year!=null?Number(state.marketplaceStats.bookings_this_year).toLocaleString():"—"}</strong><span>Bookings this year</span></div>
         <div class="home-trust-divider home-trust-divider-3"></div>
-        <div class="home-trust-item home-trust-item-4"><strong>42 sec</strong><span>Avg. booking time</span></div>
+        <div class="home-trust-item home-trust-item-4"><strong style="display:inline-flex;align-items:center;">${ICONS.check?ICONS.check.replace(/width="\d+" height="\d+"/,'width="20" height="20"'):"✓"}</strong><span>Instant confirmation</span></div>
       </div>
 
       ${(state.marketplaceError || filtered.length===0) ? `
@@ -4264,7 +4267,7 @@ function render(opts){
   if(!state.marketplaceReady || !state.authReady){
     document.title = "Blooma";
     document.body.classList.add("page-home");
-    root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-topbar"><span class="brand-logo">Blooma</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div>`;
+    root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-cap"><div class="home-topbar"><span class="brand-logo">Blooma</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div></div>`;
     return;
   }
   document.title = (state.page==="salon" && state.salon) ? `${state.salon.name} — Blooma` : "Blooma";
@@ -4734,6 +4737,7 @@ function syncWaitlistBtn(){ const c=bookingContact(); const btn=document.getElem
 
 render();
 loadMarketplaceVenues(true);
+loadMarketplaceStats();
 loadCustomerAuth().then(()=>{
   if (!state.authenticated) return;
   const params = new URLSearchParams(location.search);
