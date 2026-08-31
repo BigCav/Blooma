@@ -31,6 +31,8 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+  @keyframes bloomaPageIn{from{opacity:0;}to{opacity:1;}}
+  body{animation:bloomaPageIn .28s ease both;}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);
@@ -154,8 +156,27 @@ function customerVerificationRedirectUrl(customerUserId){
   return `${location.origin}/signup?verify_customer=1&customer=${encodeURIComponent(customerUserId)}`;
 }
 function customerAppDestination(){ return location.protocol === "file:" ? "index.html" : "/"; }
-function signedInCustomerDestination(){ return customerAppDestination(); }
-function setAuthPath(path){ if(/^https?:$/.test(location.protocol) && location.pathname!==path) history.replaceState({},"",path); }
+// A ?next=/venue/foo/checkout param lets a page that requires login (e.g. checkout) send the
+// customer back to exactly where they were, instead of always dropping them at the home feed.
+// Only ever trust a same-origin relative path here — never let this become an open redirect.
+// Captured once at load, since setAuthPath() below rewrites the URL (dropping query params) as
+// the user moves between login/register steps — re-reading location.search later would lose it.
+const CUSTOMER_NEXT_DESTINATION = (()=>{
+  const raw=new URLSearchParams(location.search).get("next")||"";
+  return (raw && raw.startsWith("/") && !raw.startsWith("//")) ? raw : "";
+})();
+function customerNextDestination(){
+  return CUSTOMER_NEXT_DESTINATION || customerAppDestination();
+}
+function signedInCustomerDestination(){ return customerNextDestination(); }
+// Fades the page out before actually navigating, so finishing sign-in/registration and landing
+// back on checkout (or home) reads as one smooth transition instead of an abrupt cut.
+function navigateWithFade(url){
+  document.body.style.transition='opacity .16s ease';
+  document.body.style.opacity='0';
+  setTimeout(()=>{ window.location.href=url; }, 160);
+}
+function setAuthPath(path){ if(/^https?:$/.test(location.protocol) && location.pathname!==path) history.replaceState({},"",path + (CUSTOMER_NEXT_DESTINATION ? "?next="+encodeURIComponent(CUSTOMER_NEXT_DESTINATION) : "")); }
 async function customerAuthRequest(action,payload){
   const res=await fetch(CUSTOMER_AUTH_FUNCTION,{
     method:"POST",
@@ -458,9 +479,8 @@ function renderWelcome(){
         <div class="welcome-check">${icon('check')}</div>
         <h1 class="step-title" style="margin-bottom:8px;">You're all set!</h1>
         <p class="step-sub" style="max-width:330px;margin:0 auto;">
-          Your account is ready to use. Want to verify <strong>${escapeHtml(state.email)}</strong>? We can send you a confirmation link anytime.
+          Your account is ready to use.
         </p>
-        <button type="button" id="welcomeResendConfirmationBtn" style="margin-top:14px;border:0;background:transparent;padding:6px;color:var(--purple);font:inherit;font-size:13px;font-weight:750;cursor:pointer;">Send confirmation email</button>
       </div>
       <div style="padding:16px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
         <button class="primary-btn" id="customerContinueBtn">Continue to Blooma</button>
@@ -683,13 +703,7 @@ function render(){
     root.innerHTML = `<div class="shell">${renderWelcome()}</div>`;
     resetScroll(root);
     const continueBtn=document.getElementById("customerContinueBtn");
-    if(continueBtn) continueBtn.addEventListener("click",()=>{ window.location.href=customerAppDestination(); });
-    const resendBtn=document.getElementById("welcomeResendConfirmationBtn");
-    if(resendBtn) resendBtn.addEventListener("click",async ()=>{
-      resendBtn.disabled=true; resendBtn.textContent="Sending…";
-      try{ await resendCustomerConfirmationEmail(); resendBtn.textContent="Sent — check your email"; }
-      catch(err){ resendBtn.disabled=false; resendBtn.textContent="Try sending confirmation email"; }
-    });
+    if(continueBtn) continueBtn.addEventListener("click",()=>{ navigateWithFade(customerNextDestination()); });
     return;
   }
 
@@ -803,7 +817,7 @@ function bindLoginEvents(){
       await applyCustomerSession(result.session);
       state.loginBusy=false;
       state.registered=false;
-      window.location.replace(signedInCustomerDestination());
+      navigateWithFade(signedInCustomerDestination());
     }catch(err){
       state.loginBusy=false;
       setState({loginErrors:{loginPassword:err.message||"Incorrect password. Try again."}});
@@ -902,7 +916,7 @@ async function bootstrapAuthPage(){
         return;
       }
       const actualEmail=String(session.user.user_metadata?.actual_email||state.email||"");
-      if(state.authView==="login"){ window.location.replace(customerAppDestination()); return; }
+      if(state.authView==="login"){ navigateWithFade(customerNextDestination()); return; }
       if(state.registered){ render(); return; }
       if(actualEmail) state.email=actualEmail;
     }
