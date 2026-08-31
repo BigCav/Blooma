@@ -1,4 +1,4 @@
-// Solo: flat $29/mo (1 stylist). Team: $19/mo per stylist once there are 2+.
+// Solo: flat $19/mo (1 stylist). Team: $14/mo per stylist once there are 2+.
 // Team member count comes from app_config.config.stylists — the same array
 // team.html reads/writes — so seat count always reflects the real roster.
 async function stylistCount(svc, salonId) {
@@ -20,7 +20,7 @@ function planForSeatCount(seatCount) {
 }
 
 function monthlyCost(planId, quantity) {
-  return planId === 'team' ? 19 * quantity : 29;
+  return planId === 'team' ? 14 * quantity : 19;
 }
 
 module.exports = { stylistCount, planForSeatCount, monthlyCost };
