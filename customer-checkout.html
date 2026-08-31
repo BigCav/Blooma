@@ -43,6 +43,9 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 .mobile-bar{display:none}
 .venue-meta{display:flex;align-items:center;gap:5px}.venue-meta svg{flex:none}.date-row svg{flex:none;color:var(--purple)}
 .error-note{padding:13px 16px;background:#fdf1f1;border:1px solid #f4d6d6;border-radius:16px;font-size:12.5px;color:var(--red);line-height:1.5;margin-bottom:16px}
+.review-appt-mobile{display:none}
+#notesInput{resize:none}
+@media(max-width:900px){.review-appt-desktop{display:none}.review-appt-mobile{display:block}}
 @media(max-width:900px){
  .shell{padding:0 18px}.topbar-inner{height:66px}.secure{display:none}.page-head{display:none}.checkout-layout{display:block;padding-top:20px;padding-bottom:112px}.aside{display:none}.step-nav{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px;margin-bottom:18px}.panel{border-radius:20px;padding:20px 17px;box-shadow:none}.panel h2{font-size:25px}.panel-head{margin-bottom:20px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.choice-card{min-height:72px;padding:14px}.actions{display:none}.mobile-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:11px 18px calc(11px + env(safe-area-inset-bottom))}.mobile-bar-inner{max-width:650px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.mobile-copy strong{font-size:13.5px;display:block}.mobile-copy span{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}.mobile-bar .btn{height:48px;min-width:130px;padding:0 20px}.time-list{max-height:330px}.yesno{grid-template-columns:1fr 1fr}.success{padding-top:14px}
 }
@@ -93,6 +96,7 @@ function navigateWithFade(url){
 const CLOCK_ICON=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
 const USER_ICON=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
 const STAR_ICON=`<svg width="15" height="15" viewBox="0 0 24 24" fill="var(--gold)" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg>`;
+const CALENDAR_ICON=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
 function makeClientRequestId(){
   if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{ const r=Math.random()*16|0,v=c==="x"?r:(r&3|8); return v.toString(16); });
@@ -119,6 +123,9 @@ function nzDayIndex(d){ const wd=new Intl.DateTimeFormat("en-US",{timeZone:NZ_TI
 function nzDayNumber(d){ return Number(nzParts(d).day); }
 function dayShort(d){ return d.toLocaleDateString(undefined,{weekday:"short",timeZone:NZ_TIME_ZONE}); }
 function dayLabel(d){ return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",timeZone:NZ_TIME_ZONE}); }
+function dayLabelFull(d){ return d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric",timeZone:NZ_TIME_ZONE}); }
+function durationLabel(mins){ const h=Math.floor(mins/60),m=mins%60; if(h && m) return `${h} hr${h>1?'s':''}, ${m} min${m>1?'s':''}`; if(h) return `${h} hr${h>1?'s':''}`; return `${m} min${m>1?'s':''}`; }
+function timeRangeWithDurationLabel(time,mins){ if(!time) return 'Not selected'; const end=formatTimeMins(parseTimeMins(time)+mins); return `${time}–${end} (${durationLabel(mins)} duration)`; }
 const DAYS = Array.from({length:21},(_,i)=>dateFromNzKey(addDaysToDateKey(nzTodayKey(),i)));
 function dayIndexForDate(d){ const key=nzDateKey(d); for(let i=0;i<DAYS.length;i++){ if(nzDateKey(DAYS[i])===key) return i; } return -1; }
 function nzMinutesOfDay(d){ const fmt=new Intl.DateTimeFormat('en-CA',{timeZone:NZ_TIME_ZONE,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}); let h=0,m=0; fmt.formatToParts(d).forEach(p=>{ if(p.type==='hour') h=Number(p.value); if(p.type==='minute') m=Number(p.value); }); return h*60+m; }
@@ -369,7 +376,7 @@ function renderPanel(){
     h = `<div id="reviewContent">${panelHead('Review and confirm','Check the booking details below, then confirm to send this booking to the venue.')}
       ${state.bookingError?`<div class="error-note">${esc(state.bookingError)}</div>`:''}
       <div class="review-block">
-        <div class="review-card">
+        <div class="review-card review-appt-desktop">
           <h3>Appointment</h3>
           <div class="mini-row"><span>Service</span><strong>${esc(svc.name)}</strong></div>
           ${addonsList.map(a=>`<div class="mini-row"><span>${esc(a.name)}</span><strong>+$${a.price}</strong></div>`).join('')}
@@ -378,14 +385,26 @@ function renderPanel(){
           <div class="mini-row"><span>Total</span><strong>$${finalTotal()}</strong></div>
           ${!state.rescheduleToken && depositAmountFor(salon,finalTotal())>0 ? `<div class="mini-row" style="color:var(--purple)"><span>Deposit due now</span><strong>$${depositAmountFor(salon,finalTotal())}</strong></div>` : ''}
         </div>
+        <div class="review-card review-appt-mobile">
+          <div class="venue-row"><div class="venue-img">${salon.homeImage?`<img src="${esc(salon.homeImage)}" alt="Venue">`:''}</div><div><p class="venue-name">${esc(salon.name)}</p><p class="venue-meta">${STAR_ICON} ${esc(salon.rating)} · ${esc([salon.suburb,salon.city].filter(Boolean).join(', '))}</p></div></div>
+          <div class="divider"></div>
+          <div class="date-row">${CALENDAR_ICON} <span>${state.time?esc(dayLabelFull(DAYS[state.day])):'Not selected'}</span></div>
+          <div class="date-row">${CLOCK_ICON} <span>${esc(timeRangeWithDurationLabel(state.time,totalDurationMins()))}</span></div>
+          <div class="date-row">${USER_ICON} <span>${esc(stylistPreferenceLabel(state.stylist))}</span></div>
+          <div class="divider"></div>
+          <div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>
+          ${addonsList.map(a=>`<div class="summary-line"><div><div class="summary-name">${esc(a.name)}</div></div><div class="summary-price">+$${a.price}</div></div>`).join('')}
+          <div class="divider"></div>
+          <div class="total"><span>Total</span><strong>$${finalTotal()}</strong></div>
+          ${!state.rescheduleToken && depositAmountFor(salon,finalTotal())>0 ? `<div class="mini-row" style="margin-top:10px;"><span>Pay now</span><strong>$${depositAmountFor(salon,finalTotal())}</strong></div><div class="mini-row"><span>Pay in store</span><span>$${finalTotal()-depositAmountFor(salon,finalTotal())}</span></div>` : ''}
+        </div>
         ${!state.rescheduleToken && depositAmountFor(salon,finalTotal())>0 ? `<div class="review-card"><h3>Deposit required</h3><p>${esc(salon.name)} requires a $${depositAmountFor(salon,finalTotal())} deposit to secure this booking. You'll pay by card on the next step; the rest is due at your appointment.</p></div>` : ''}
         <div class="review-card"><h3>Cancellation policy</h3><p>${esc(salon.cancellationPolicy)}</p></div>
-        <div class="field"><label>Comments or requests</label><textarea id="notesInput" placeholder="Optional">${esc(state.notes)}</textarea></div>
+        <div class="field"><label>Comments</label><textarea id="notesInput">${esc(state.notes)}</textarea></div>
         <div>
           <p class="section-label">Rewards & offers</p>
           <div class="stack">
             ${eligibleForReward ? `<button class="offer-card" id="rewardToggle" type="button"><div><strong>${state.appliedLoyaltyReward?'Reward applied':'Redeem '+esc(state.loyaltyAccount.rewardText||'reward')}</strong><p>${state.loyaltyAccount.points} points available</p></div><span class="toggle ${state.appliedLoyaltyReward?'on':''}"></span></button>` : ''}
-            <div class="promo-row"><input id="promoInput" placeholder="Promo code" value="${esc(state.promoCode)}" style="${state.promoFlash?'border-color:var(--red);box-shadow:0 0 0 3px rgba(193,59,59,.12);':''}"><button class="small-btn" id="promoBtn" type="button">${state.promoChecking?'Checking…':state.appliedPromo?'Remove':'Apply'}</button></div>
             <div class="promo-row"><input id="giftInput" placeholder="Gift card code" value="${esc(state.giftCode)}" style="${state.giftFlash?'border-color:var(--red);box-shadow:0 0 0 3px rgba(193,59,59,.12);':''}"><button class="small-btn" id="giftBtn" type="button">${state.giftChecking?'Checking…':state.appliedGiftCard?'Remove':'Apply'}</button></div>
           </div>
         </div>
@@ -443,21 +462,7 @@ function bind(){
     else { const L=state.loyaltyAccount; state.appliedLoyaltyReward={label:L.rewardText||'Loyalty reward',value:Number(L.rewardValue||0)}; }
     render();
   };
-  const pb=document.getElementById('promoBtn');
   function flashError(field){ state[field]=true; render(); setTimeout(()=>{ state[field]=false; render(); },900); }
-  if(pb) pb.onclick=async ()=>{
-    if(state.appliedPromo){ state.appliedPromo=null; state.promoCode=''; render(); return; }
-    const raw=(document.getElementById('promoInput').value||'').trim().toUpperCase();
-    if(!raw){ flashError('promoFlash'); return; }
-    state.promoChecking=true; render();
-    try{
-      const {data,error}=await supabaseClient.rpc('validate_promo_code',{p_salon_id:state.salon.id,p_code:raw});
-      if(error) throw error;
-      if(!data?.valid){ state.appliedPromo=null; state.promoChecking=false; render(); flashError('promoFlash'); return; }
-      state.appliedPromo={code:data.code,type:data.type,value:Number(data.value||0)}; state.promoCode='';
-    }catch(e){ state.appliedPromo=null; state.promoChecking=false; render(); flashError('promoFlash'); return; }
-    state.promoChecking=false; render();
-  };
   const gb=document.getElementById('giftBtn');
   if(gb) gb.onclick=async ()=>{
     if(state.appliedGiftCard){ state.appliedGiftCard=null; state.giftCode=''; render(); return; }
