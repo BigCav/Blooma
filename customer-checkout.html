@@ -20,6 +20,10 @@
  --red:#c13b3b;--shadow:0 16px 44px rgba(44,31,72,.08);--shadow-sm:0 8px 24px rgba(44,31,72,.06)
 }
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}
+@keyframes bloomaPageIn{from{opacity:0;}to{opacity:1;}}
+body{animation:bloomaPageIn .28s ease both;}
+#panel{transition:opacity .16s ease, transform .16s ease;}
+#panel.step-transitioning{opacity:0; transform:translateY(8px);}
 body{background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px;margin:0 auto;padding:0 32px}.topbar{position:sticky;top:0;z-index:50;background:rgba(250,249,252,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(235,231,243,.92)}
 .topbar-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-size:22px;font-weight:800;letter-spacing:-.6px}.header-right{display:flex;align-items:center;gap:12px}.secure{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12.5px;font-weight:700}.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--ink)}
@@ -79,6 +83,13 @@ const SUPABASE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-customer-auth"}});
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+// Fades the page out before actually navigating away, so leaving checkout (or handing off to
+// Stripe) reads as one smooth transition instead of an abrupt cut.
+function navigateWithFade(url){
+  document.body.style.transition='opacity .16s ease';
+  document.body.style.opacity='0';
+  setTimeout(()=>{ window.location.href=url; }, 160);
+}
 const CLOCK_ICON=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
 const USER_ICON=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
 const STAR_ICON=`<svg width="15" height="15" viewBox="0 0 24 24" fill="var(--gold)" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg>`;
@@ -160,6 +171,7 @@ function liveVenueToSalon(v){
     cancellationPolicy:v.cancellation_policy||"You can cancel or reschedule this booking at any time before your appointment.",
     bufferTime:Math.max(0,Number(v.buffer_minutes||0)),
     loyalty:(v.loyalty&&typeof v.loyalty==="object")?{enabled:!!v.loyalty.enabled,pointsPerDollar:Number(v.loyalty.pointsPerDollar)||1,rewardThreshold:Number(v.loyalty.rewardThreshold)||100,rewardText:v.loyalty.rewardText||"",rewardValue:Number(v.loyalty.rewardValue)||0}:{enabled:false},
+    depositEnabled:!!v.deposit_enabled, depositType:v.deposit_type==="flat"?"flat":"percent", depositValue:Math.max(0,Number(v.deposit_value)||0),
     cloudBookedSlots:Array.isArray(v.booked_slots)?v.booked_slots:[], cloudBlockouts:Array.isArray(v.blockouts)?v.blockouts:[],
     stylists, services
   };
@@ -233,6 +245,11 @@ function promoDiscount(){ if(!state.appliedPromo) return 0; const p=state.applie
 function loyaltyDiscount(){ if(!state.appliedLoyaltyReward) return 0; const remaining=Math.max(0,baseTotal()-promoDiscount()); return Math.max(0,Math.min(Number(state.appliedLoyaltyReward.value||0),remaining)); }
 function giftCardDiscount(){ if(!state.appliedGiftCard) return 0; const remaining=Math.max(0,baseTotal()-promoDiscount()-loyaltyDiscount()); return Math.max(0,Math.min(Number(state.appliedGiftCard.remaining_balance||0),remaining)); }
 function finalTotal(){ return Math.max(0, baseTotal()-promoDiscount()-loyaltyDiscount()-giftCardDiscount()); }
+function depositAmountFor(salon,total){
+  if(!salon || !salon.depositEnabled || total<=0) return 0;
+  const raw = salon.depositType==='flat' ? salon.depositValue : Math.round(total*salon.depositValue)/100;
+  return Math.max(0, Math.min(raw, total));
+}
 function intakeQuestionsForCurrent(){ if(!state.service) return []; return state.intakeQuestionsByService[state.service.id] || []; }
 function bookingContact(){ return { name:(state.name||'').trim(), phone:(state.phone||'').trim(), email:(state.email||'').trim() }; }
 
@@ -242,7 +259,7 @@ function stepDefs(){
   defs.push({key:'stylist',label:'Stylist'});
   defs.push({key:'time',label:'Time'});
   if(intakeQuestionsForCurrent().length) defs.push({key:'intake',label:'A few questions'});
-  if(!state.rescheduleToken) defs.push({key:'details',label:'Details'});
+  if(!state.rescheduleToken) defs.push({key:'firstVisit',label:'About you'});
   defs.push({key:'review',label:'Summary'});
   return defs;
 }
@@ -283,6 +300,7 @@ function renderSummary(){
     ${state.appliedGiftCard?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Gift card</div><div class="summary-price" style="color:var(--purple)">−$${giftCardDiscount()}</div></div>`:''}
     <div class="divider"></div>
     <div class="total"><span>Total</span><strong>$${finalTotal()}</strong></div>
+    ${!state.rescheduleToken && depositAmountFor(salon,finalTotal())>0 ? `<div class="summary-line" style="margin-top:10px;"><div class="summary-name" style="color:var(--purple)">Deposit due to book</div><div class="summary-price" style="color:var(--purple)">$${depositAmountFor(salon,finalTotal())}</div></div>` : ''}
   `;
   const rewardCard=document.getElementById('rewardCard');
   if(state.authenticated && salon.loyalty && salon.loyalty.enabled && state.loyaltyAccount){
@@ -338,13 +356,11 @@ function renderPanel(){
           <div class="stack">${(q.options||[]).map(opt=>`<button type="button" class="choice-card ${state.intake[q.id]===opt?'selected':''}" data-intakechoice="${esc(q.id)}|${esc(opt)}"><div class="choice-left"><p class="choice-title">${esc(opt)}</p></div></button>`).join('')}</div>` : `
           <input type="text" data-intaketext="${esc(q.id)}" value="${esc(state.intake[q.id]||'')}">`}
         </div>`).join('')}</div>`;
-  } else if(key==='details'){
-    h = panelHead('Your details', state.authenticated ? 'Confirm the details we\'ll pass on to the venue.' : 'We\'ll use these details to confirm your booking.')
-      + `<div class="field-grid">
-          <div class="field"><label>Full name</label><input id="nameInput" value="${esc(state.name)}" autocomplete="name"></div>
-          <div class="field"><label>Phone number</label><input id="phoneInput" value="${esc(state.phone)}" autocomplete="tel" inputmode="tel"></div>
-          <div class="field full"><label>Email address</label><input id="emailInput" type="email" value="${esc(state.email)}" autocomplete="email"></div>
-          <div class="field full"><p class="section-label" style="margin-bottom:10px">Is this your first time visiting this salon?</p><div class="yesno"><button data-first="No" class="${state.firstVisit==='No'?'selected':''}">No</button><button data-first="Yes" class="${state.firstVisit==='Yes'?'selected':''}">Yes</button></div></div>
+  } else if(key==='firstVisit'){
+    h = panelHead(`Is this your first visit to ${salon.name}?`, "This just helps them prepare for your appointment.")
+      + `<div class="stack">
+          <button type="button" class="choice-card ${state.firstVisit==='Yes'?'selected':''}" data-first="Yes"><div class="choice-left"><div><p class="choice-title">Yes</p><p class="choice-sub">This is my first visit</p></div></div></button>
+          <button type="button" class="choice-card ${state.firstVisit==='No'?'selected':''}" data-first="No"><div class="choice-left"><div><p class="choice-title">No</p><p class="choice-sub">I've visited before</p></div></div></button>
         </div>`;
   } else {
     const svcOnly=svc.price, addonsList=selectedAddonsList();
@@ -359,7 +375,9 @@ function renderPanel(){
           <div class="mini-row"><span>Artist</span><strong>${esc(stylistPreferenceLabel(state.stylist))}</strong></div>
           <div class="mini-row"><span>Date & time</span><strong>${state.time?esc(dayLabel(DAYS[state.day]))+' · '+esc(state.time):'Not selected'}</strong></div>
           <div class="mini-row"><span>Total</span><strong>$${finalTotal()}</strong></div>
+          ${!state.rescheduleToken && depositAmountFor(salon,finalTotal())>0 ? `<div class="mini-row" style="color:var(--purple)"><span>Deposit due now</span><strong>$${depositAmountFor(salon,finalTotal())}</strong></div>` : ''}
         </div>
+        ${!state.rescheduleToken && depositAmountFor(salon,finalTotal())>0 ? `<div class="review-card"><h3>Deposit required</h3><p>${esc(salon.name)} requires a $${depositAmountFor(salon,finalTotal())} deposit to secure this booking. You'll pay by card on the next step; the rest is due at your appointment.</p></div>` : ''}
         <div class="review-card"><h3>Cancellation policy</h3><p>${esc(salon.cancellationPolicy)}</p></div>
         <div class="field"><label>Comments or requests</label><textarea id="notesInput" placeholder="Optional">${esc(state.notes)}</textarea></div>
         <div>
@@ -395,7 +413,7 @@ function canNext(){
   if(key==='stylist') return !!state.stylist;
   if(key==='time') return !!state.time && !isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins());
   if(key==='intake') return intakeQuestionsForCurrent().every(q=>!q.required || String(state.intake[q.id]||'').trim().length>0);
-  if(key==='details') return !!state.firstVisit && state.name.trim().length>1 && state.phone.trim().length>5 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim());
+  if(key==='firstVisit') return !!state.firstVisit;
   return true;
 }
 
@@ -416,7 +434,7 @@ function bind(){
   document.querySelectorAll('[data-intakeyesno]').forEach(b=>b.onclick=()=>{ const [qid,val]=b.getAttribute('data-intakeyesno').split('|'); state.intake[qid]=val; render(); });
   document.querySelectorAll('[data-intakechoice]').forEach(b=>b.onclick=()=>{ const idx=b.getAttribute('data-intakechoice').indexOf('|'); const qid=b.getAttribute('data-intakechoice').slice(0,idx); const val=b.getAttribute('data-intakechoice').slice(idx+1); state.intake[qid]=val; render(); });
   document.querySelectorAll('[data-first]').forEach(b=>b.onclick=()=>{ state.firstVisit=b.dataset.first; render(); });
-  ['nameInput','phoneInput','emailInput','notesInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.oninput=()=>{ if(id==='nameInput') state.name=el.value; else if(id==='phoneInput') state.phone=el.value; else if(id==='emailInput') state.email=el.value; else state.notes=el.value; }; });
+  const notesEl=document.getElementById('notesInput'); if(notesEl) notesEl.oninput=()=>{ state.notes=notesEl.value; };
 
   const rt=document.getElementById('rewardToggle');
   if(rt) rt.onclick=()=>{
@@ -457,8 +475,8 @@ function bind(){
   document.getElementById('next').onclick=next;
   const viewBtn=document.getElementById('viewBookingBtn');
   if(viewBtn) viewBtn.onclick=()=>{
-    if(state.authenticated && state.lastBooking?.id) location.href='/?openBooking='+encodeURIComponent(state.lastBooking.id);
-    else location.href='/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id);
+    if(state.authenticated && state.lastBooking?.id) navigateWithFade('/?openBooking='+encodeURIComponent(state.lastBooking.id));
+    else navigateWithFade('/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id));
   };
 }
 
@@ -474,14 +492,76 @@ async function next(){
     return;
   }
   if(!canNext()){ shakePanel(); return; }
-  state.step++; render(); window.scrollTo({top:0,behavior:'smooth'});
+  // Contact details now come from the signed-in profile, not a form on this page, so a
+  // guest needs to log in right after picking a time — before the questions/summary steps
+  // that assume a real profile exists. savePendingCheckoutState() lets them pick back up
+  // here (see restorePendingCheckoutState()) instead of starting the whole flow over.
+  if(key==='time' && !state.rescheduleToken && !state.authenticated){
+    savePendingCheckoutState();
+    navigateWithFade('/login?next='+encodeURIComponent(location.pathname+location.search));
+    return;
+  }
+  animateStepChange(()=>{ state.step++; render(); });
 }
-function back(){ if(state.step>0){ state.step--; render(); window.scrollTo({top:0,behavior:'smooth'}); } }
+// Fades #panel out, applies the step change, then fades it back in — used for step-to-step
+// moves (next/back) only, not for in-step interactions like picking a card, which stay instant.
+function animateStepChange(applyChange){
+  const panel=document.getElementById('panel');
+  if(!panel){ applyChange(); return; }
+  panel.classList.add('step-transitioning');
+  setTimeout(()=>{
+    applyChange();
+    window.scrollTo({top:0,behavior:'smooth'});
+    requestAnimationFrame(()=>{ document.getElementById('panel')?.classList.remove('step-transitioning'); });
+  },160);
+}
+function savePendingCheckoutState(){
+  if(!state.salon) return;
+  try{
+    localStorage.setItem('bloomaPendingCheckout', JSON.stringify({
+      venueId: state.salon.id,
+      serviceId: state.service ? state.service.id : null,
+      addons: state.addons,
+      stylistId: state.stylist ? state.stylist.id : null,
+      dateKey: nzDateKey(DAYS[state.day]),
+      time: state.time,
+      notes: state.notes,
+      intake: state.intake,
+      savedAt: Date.now()
+    }));
+  }catch(e){}
+}
+function restorePendingCheckoutState(){
+  let raw;
+  try{ raw=JSON.parse(localStorage.getItem('bloomaPendingCheckout')||'null'); }catch(e){ raw=null; }
+  if(!raw) return false;
+  const fresh = raw.venueId===state.salon.id && (Date.now()-Number(raw.savedAt||0))<2*60*60*1000;
+  localStorage.removeItem('bloomaPendingCheckout');
+  if(!fresh) return false;
+  const svc=state.salon.services.find(s=>s.id===raw.serviceId);
+  if(!svc) return false;
+  state.service=svc;
+  state.addons=Array.isArray(raw.addons)?raw.addons:[];
+  const anyAvailable=state.salon.stylists.find(st=>st.name==='Any available')||null;
+  state.stylist=(raw.stylistId && state.salon.stylists.find(st=>st.id===raw.stylistId)) || anyAvailable;
+  const idx=raw.dateKey ? dayIndexForDate(dateFromNzKey(raw.dateKey)) : -1;
+  state.day=idx>=0 ? idx : firstOpenDayIndex(state.salon);
+  state.time=raw.time||null;
+  state.notes=raw.notes||'';
+  state.intake=raw.intake||{};
+  loadIntakeQuestionsFor(svc);
+  const defs=stepDefs();
+  const resumeIdx=defs.findIndex(d=>d.key==='firstVisit');
+  state.step = resumeIdx>=0 ? resumeIdx : Math.max(0, defs.length-1);
+  return true;
+}
+function back(){ if(state.step>0){ animateStepChange(()=>{ state.step--; render(); }); } }
 
 async function confirmBooking(){
   if(state.saving) return;
   const contact=bookingContact();
-  if(!state.rescheduleToken && (contact.name.length<2 || contact.phone.length<6)){ state.bookingError='Add a valid name and mobile number in Details before confirming.'; render(); return; }
+  if(!state.rescheduleToken && !state.authenticated){ savePendingCheckoutState(); navigateWithFade('/login?next='+encodeURIComponent(location.pathname+location.search)); return; }
+  if(!state.rescheduleToken && (contact.name.length<2 || contact.phone.length<6)){ state.bookingError="We couldn't load your account details — please refresh and try again."; render(); return; }
   if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins())){ state.bookingError='That time is no longer available — please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
   state.saving=true; state.bookingError=''; render();
   try{
@@ -539,6 +619,14 @@ async function confirmBooking(){
       if(answers.length){ try{ await supabaseClient.rpc('submit_public_intake_form',{token:state.lastBooking.public_token,answers}); }catch(e){} }
     }
 
+    if(state.lastBooking.deposit_status==='pending' && Number(state.lastBooking.deposit_amount)>0){
+      const res=await fetch('/api/stripe/create-booking-deposit-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:state.lastBooking.id})});
+      const out=await res.json().catch(()=>null);
+      if(!res.ok || !out?.url){ throw new Error(out?.error || "Booking was saved, but we couldn't start the deposit payment. Please try again."); }
+      navigateWithFade(out.url);
+      return;
+    }
+
     state.saving=false; state.done=true; render();
     document.getElementById('reviewContent').style.display='none';
     document.getElementById('desktopActions').style.display='none';
@@ -585,6 +673,7 @@ async function loadAuth(){
     state.name=[first,last].filter(Boolean).join(' ').trim() || state.name;
     state.phone=(row?.phone||'').trim() || state.phone;
     state.email=(session.user.user_metadata?.actual_email||session.user.email||'').trim() || state.email;
+    if(!state.rescheduleToken) restorePendingCheckoutState();
     loadLoyaltyAccount();
     render();
   }catch(e){}
@@ -639,13 +728,16 @@ async function boot(){
       return;
     }
   } else {
-    state.service = (requestedServiceId && state.salon.services.find(s=>s.id===requestedServiceId)) || state.salon.services[0] || null;
+    // No ?service= means the customer tapped a generic "Book now" CTA, not a specific
+    // service's Book button — leave it unselected so they actually choose one, rather than
+    // silently defaulting to whichever service happens to sort first.
+    state.service = requestedServiceId ? (state.salon.services.find(s=>s.id===requestedServiceId) || null) : null;
     state.day = firstOpenDayIndex(state.salon);
     const requestedStylistId=new URLSearchParams(location.search).get('stylist');
     state.stylist = (requestedStylistId && state.salon.stylists.find(st=>st.id===requestedStylistId)) || anyAvailable;
   }
-  document.getElementById('closeBtn').onclick=()=>{ location.href='/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id); };
-  document.getElementById('brandBtn').onclick=()=>{ location.href='/'; };
+  document.getElementById('closeBtn').onclick=()=>{ navigateWithFade('/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id)); };
+  document.getElementById('brandBtn').onclick=()=>{ navigateWithFade('/'); };
   if(state.service) loadIntakeQuestionsFor(state.service);
   if(state.rescheduleToken){
     const timeIdx=stepDefs().findIndex(d=>d.key==='time');
@@ -656,7 +748,55 @@ async function boot(){
 }
 function render(){ renderNav(); renderPanel(); renderSummary(); const mn=document.getElementById('mobileNext'); mn.textContent = stepDefs()[state.step]?.key==='review' ? 'Confirm' : 'Continue'; mn.onclick=next; }
 
-boot();
+// Stripe redirects back here after a deposit payment (or cancellation) with no venue/service
+// context in the URL, so this renders a standalone confirmation instead of running the normal
+// multi-step booking flow — it works for guests too, since it's looked up by the booking's
+// unguessable public token rather than requiring a logged-in session.
+async function handleDepositReturn(){
+  const params=new URLSearchParams(location.search);
+  const status=params.get('depositReturn');
+  const token=params.get('token');
+  if(!status || !token) return false;
+
+  document.querySelector('.step-nav').style.display='none';
+  document.querySelector('.aside').style.display='none';
+  const mb=document.querySelector('.mobile-bar'); if(mb) mb.style.display='none';
+  const panel=document.getElementById('panel');
+  panel.innerHTML='<div class="panel-head"><h2>Loading your booking…</h2></div>';
+
+  try{
+    const {data,error}=await supabaseClient.rpc('get_booking_by_public_token',{p_token:token});
+    if(error) throw error;
+    const b=data;
+    const when=b.starts_at ? new Date(b.starts_at).toLocaleString(undefined,{weekday:'long',day:'numeric',month:'long',hour:'numeric',minute:'2-digit',timeZone:NZ_TIME_ZONE}) : '';
+    if(status==='success' && b.deposit_status==='paid'){
+      panel.innerHTML=`<div class="success" style="display:block;">
+        <div class="success-mark">✓</div>
+        <h2>Deposit paid — you're booked in</h2>
+        <p>${esc(b.salon_name)} has received your $${Number(b.deposit_amount).toFixed(2)} deposit for ${esc(b.service_name_snapshot||'your appointment')}${when?', '+esc(when):''}. The rest is due at your appointment.</p>
+        <button class="success-booking-btn" type="button" onclick="navigateWithFade('/')">Back to Blooma</button>
+      </div>`;
+    } else {
+      panel.innerHTML=`<div class="panel-head"><h2>Your booking is on hold</h2><p class="panel-sub">${esc(b.salon_name)} is holding ${esc(b.service_name_snapshot||'your appointment')}${when?' for '+esc(when):''}, but the $${Number(b.deposit_amount).toFixed(2)} deposit hasn't been paid yet — pay now to confirm it.</p></div>
+        <div class="actions" style="display:flex;"><button class="btn ghost" type="button" onclick="navigateWithFade('/')">Cancel</button><button class="btn primary" type="button" id="retryDepositBtn">Pay deposit</button></div>`;
+      const retryBtn=document.getElementById('retryDepositBtn');
+      if(retryBtn) retryBtn.onclick=async ()=>{
+        retryBtn.disabled=true; retryBtn.textContent='Redirecting…';
+        try{
+          const res=await fetch('/api/stripe/create-booking-deposit-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:b.id})});
+          const out=await res.json().catch(()=>null);
+          if(!res.ok || !out?.url) throw new Error(out?.error||'Could not start checkout');
+          navigateWithFade(out.url);
+        }catch(e){ retryBtn.disabled=false; retryBtn.textContent='Pay deposit'; alert(e.message||'Something went wrong — please try again.'); }
+      };
+    }
+  }catch(e){
+    panel.innerHTML='<div class="panel-head"><h2>We couldn\'t load this booking</h2><p class="panel-sub">The link may have expired. Please contact the venue directly.</p></div>';
+  }
+  return true;
+}
+
+handleDepositReturn().then(handled=>{ if(!handled) boot(); });
 </script>
 </body>
 </html>

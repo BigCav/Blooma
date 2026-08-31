@@ -47,6 +47,8 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;}
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  @keyframes bloomaPageIn{from{opacity:0;}to{opacity:1;}}
+  body{animation:bloomaPageIn .28s ease both;}
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);
@@ -1629,6 +1631,10 @@ function reviewMetaLineMarkup(r, salon){
   if (!parts.length && !stylistHtml) return "";
   return `<p class="review-meta-line">${parts.join(' <span class="review-meta-dot">&middot;</span> ')}${(parts.length && stylistHtml)?' <span class="review-meta-dot">&middot;</span> ':''}${stylistHtml}</p>`;
 }
+function reviewerFirstName(fullName){
+  const first = String(fullName||"").trim().split(/\s+/)[0];
+  return first || "Blooma customer";
+}
 function reviewCardMarkup(r, salon){
   return `
     <div class="review-card">
@@ -2110,7 +2116,7 @@ function liveVenueToSalon(v){
     loyalty:(v.loyalty&&typeof v.loyalty==="object")?{enabled:!!v.loyalty.enabled,pointsPerDollar:Number(v.loyalty.pointsPerDollar)||1,rewardThreshold:Number(v.loyalty.rewardThreshold)||100,rewardText:v.loyalty.rewardText||"",rewardValue:Number(v.loyalty.rewardValue)||0}:{enabled:false},
     giftCardsEnabled:v.metadata?.gift_cards_enabled!==false,
     cloudBookedSlots:Array.isArray(v.booked_slots)?v.booked_slots:[], cloudBlockouts:Array.isArray(v.blockouts)?v.blockouts:[],
-    stylists, reviewList:reviews.map(r=>({name:r.customer_name||"Blooma customer",rating:Number(r.rating||0),text:r.note||"",date:r.date||null,serviceName:r.service_name||"",stylistName:r.stylist_name||"",stylistId:r.stylist_id||null})), services
+    stylists, reviewList:reviews.map(r=>({name:reviewerFirstName(r.customer_name),rating:Number(r.rating||0),text:r.note||"",date:r.date||null,serviceName:r.service_name||"",stylistName:r.stylist_name||"",stylistId:r.stylist_id||null})), services
   };
 }
 function mergeLiveVenue(live){
@@ -2430,6 +2436,7 @@ let state = {
   bookingDetailReturnPage: "history",
   messageSalon: null,
   messageBooking: null,
+  messageReturnPage: null,
   messageThread: [],
   messageDraft: "",
   messageLoading: false,
@@ -2528,7 +2535,7 @@ function goSalon(salon, opts){
   loadLoyaltyAccount();
 }
 function goVenueMessage(salon, booking){
-  setState({ page:"venueMessage", messageSalon:salon, messageBooking:booking||null, messageDraft:"", messageThread:[], messageError:"", messageLoading:!!booking });
+  setState({ page:"venueMessage", messageSalon:salon, messageBooking:booking||null, messageDraft:"", messageThread:[], messageError:"", messageLoading:!!booking, messageReturnPage:state.page });
   pushCustomerHistoryState();
   if (booking) loadVenueMessageThread();
 }
@@ -2581,11 +2588,18 @@ function returnToVenue(extraPatch){
 }
 function goCheckoutPage(service, preferredStylist){
   if(!state.salon) return;
-  if(!service){ window.location.href = venuePublicPath(state.salon) + "/checkout"; return; }
+  if(!service){ navigateWithFade(venuePublicPath(state.salon) + "/checkout"); return; }
   const params = new URLSearchParams();
   params.set("service", service.id);
   if(preferredStylist && !isAnyAvailableStylist(preferredStylist)) params.set("stylist", preferredStylist.id);
-  window.location.href = venuePublicPath(state.salon) + "/checkout?" + params.toString();
+  navigateWithFade(venuePublicPath(state.salon) + "/checkout?" + params.toString());
+}
+// Fades the page out before actually navigating, so tapping Book/Book now reads as one smooth
+// transition into checkout instead of an abrupt cut.
+function navigateWithFade(url){
+  document.body.style.transition='opacity .16s ease';
+  document.body.style.opacity='0';
+  setTimeout(()=>{ window.location.href=url; }, 160);
 }
 function goHistory(){
   if (!isLoggedInCustomer()){ window.location.href = customerLoginDestination(); return; }
@@ -3754,7 +3768,8 @@ function stylistProfileBodyMarkup(stylist, salon){
   const portfolioTiles = portfolioPhotos || palette.concat(palette).slice(0,3);
   const visibleTiles = portfolioTiles.slice(0,3);
   const moreCount = portfolioTiles.length > 3 ? portfolioTiles.length - 2 : 0;
-  const reviews = (salon.reviewList || []).slice(0,4);
+  const stylistReviews = (salon.reviewList || []).filter(r=>r.stylistId===stylist.id || (r.stylistName && r.stylistName===stylist.name));
+  const reviews = stylistReviews.slice(0,4);
 
   return `
         <div style="padding:4px 0 6px;display:flex;flex-direction:column;align-items:center;text-align:center;">
@@ -3800,7 +3815,7 @@ function stylistProfileBodyMarkup(stylist, salon){
         <div style="padding:22px 0 4px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <p class="checkout-step-label" style="margin:0;">Reviews</p>
-            ${salon.reviewList && salon.reviewList.length>4 ? `<button class="text-link-btn" id="stylistSeeAllReviews" style="font-size:12.5px;">See all</button>` : ""}
+            ${stylistReviews.length>4 ? `<button class="text-link-btn" id="stylistSeeAllReviews" style="font-size:12.5px;">See all</button>` : ""}
           </div>
           ${reviews.length ? `
           <div style="display:flex;flex-direction:column;gap:10px;">
@@ -4795,7 +4810,8 @@ function bindEvents(){
   if (state.page === "venueMessage"){
     const backBtn = document.getElementById("backBtn");
     if (backBtn) backBtn.addEventListener("click", ()=>{
-      if (state.salon) returnToVenue({ messageSalon:null });
+      if (state.messageReturnPage === "bookingDetail" && state.viewBookingId) setState({ page:"bookingDetail", messageSalon:null });
+      else if (state.salon) returnToVenue({ messageSalon:null });
       else setState({ page:"home", messageSalon:null });
     });
     const input = document.getElementById("msgComposeInput");
