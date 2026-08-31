@@ -903,10 +903,38 @@
       </div>
       <div class="setting-row">
         <div>
-          <h4>Appointment reminders (SMS)</h4>
-          <p>Text clients a reminder 24 hours and 2 hours before their appointment.</p>
+          <h4>SMS: Booking confirmation</h4>
+          <p>Text the client as soon as a booking is made.</p>
         </div>
-        <div class="toggle on" id="notifToggle_appointment_reminders_sms" onclick="toggleNotifPref('appointment_reminders_sms')"></div>
+        <div class="toggle" id="notifToggle_sms_booking_confirmation" onclick="toggleNotifPref('sms_booking_confirmation')"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <h4>SMS: Reminder — 24 hours before</h4>
+          <p>Text clients a reminder the day before their appointment.</p>
+        </div>
+        <div class="toggle on" id="notifToggle_sms_reminder_24h" onclick="toggleNotifPref('sms_reminder_24h')"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <h4>SMS: Reminder — 1 hour before</h4>
+          <p>Text clients a reminder shortly before their appointment.</p>
+        </div>
+        <div class="toggle on" id="notifToggle_sms_reminder_1h" onclick="toggleNotifPref('sms_reminder_1h')"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <h4>SMS: Cancellation</h4>
+          <p>Text the client if their booking is cancelled.</p>
+        </div>
+        <div class="toggle" id="notifToggle_sms_cancelled" onclick="toggleNotifPref('sms_cancelled')"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <h4>SMS: Rescheduled</h4>
+          <p>Text the client if their booking time changes.</p>
+        </div>
+        <div class="toggle" id="notifToggle_sms_rescheduled" onclick="toggleNotifPref('sms_rescheduled')"></div>
       </div>
       <div class="setting-row">
         <div>
@@ -1057,7 +1085,7 @@
     if(Array.isArray(cfg.promos)) salon.promos=cfg.promos.map(x=>({...x}));
   }
 
-  var notifPrefs = {booking_confirmations:true, appointment_reminders_sms:true, new_review_alerts:true, daily_summary_email:true, product_tips:false};
+  var notifPrefs = {booking_confirmations:true, sms_booking_confirmation:false, sms_reminder_24h:true, sms_reminder_1h:true, sms_cancelled:false, sms_rescheduled:false, new_review_alerts:true, daily_summary_email:true, product_tips:false};
   var notifPrefKeys = Object.keys(notifPrefs);
   var notifSaving = {};
 
