@@ -118,6 +118,48 @@
   .faq-item[open] summary .chev{transform:rotate(180deg);}
   .faq-item p{font-size:13.5px;color:#6B6285;line-height:1.6;margin:12px 0 0;}
 
+  .calc-card{background:#fff;border:1px solid #EFECF9;border-radius:20px;padding:28px;max-width:820px;margin:0 auto;}
+  .calc-row{margin-bottom:22px;}
+  .calc-row:last-child{margin-bottom:0;}
+  .calc-label{font-size:13px;font-weight:700;color:#241F33;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .calc-label .calc-hint{font-size:11.5px;font-weight:600;color:#8A80AD;}
+  .calc-stepper{display:flex;align-items:center;gap:14px;}
+  .calc-stepper button{width:38px;height:38px;border-radius:11px;border:1px solid #E9E4F7;background:#FAF9FD;color:#241F33;font-size:18px;font-weight:700;cursor:pointer;line-height:1;}
+  .calc-stepper button:hover{border-color:#C9BBEF;}
+  .calc-stepper button:disabled{opacity:.4;cursor:not-allowed;}
+  .calc-stepper input{width:64px;text-align:center;font-size:16px;font-weight:800;border:1px solid #E9E4F7;border-radius:11px;padding:9px 4px;-moz-appearance:textfield;}
+  .calc-stepper input::-webkit-outer-spin-button,.calc-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .calc-addons{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
+  .calc-addon{display:flex;align-items:center;gap:10px;border:1px solid #E9E4F7;border-radius:13px;padding:12px 14px;cursor:pointer;background:#FAF9FD;transition:border-color .15s,background .15s;}
+  .calc-addon:hover{border-color:#C9BBEF;}
+  .calc-addon input{width:16px;height:16px;accent-color:#7C5CD9;flex-shrink:0;}
+  .calc-addon.checked{background:#F8F5FE;border-color:#C9BBEF;}
+  .calc-addon-name{font-size:13.5px;font-weight:700;color:#241F33;}
+  .calc-addon-price{font-size:11.5px;color:#8A80AD;margin-top:1px;}
+  .calc-vol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+  .calc-field label{display:block;font-size:12px;font-weight:600;color:#6B6285;margin:0 0 7px;}
+  .calc-field .calc-input-wrap{position:relative;}
+  .calc-field .calc-input-wrap span{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:#8A80AD;font-weight:700;}
+  .calc-field input{width:100%;border:1px solid #E9E4F7;border-radius:12px;padding:11px 14px 11px 28px;font-size:14px;font-weight:700;color:#241F33;background:#fff;}
+  .calc-field input:focus{border-color:#7C5CD9;}
+  .calc-avgtxn{margin-top:10px;font-size:12px;color:#8A80AD;}
+  .calc-avgtxn input{width:56px;border:1px solid #E9E4F7;border-radius:8px;padding:3px 6px;font-size:12px;font-weight:700;color:#241F33;text-align:center;margin:0 3px;}
+  .calc-results{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .calc-result-card{border-radius:16px;padding:20px;border:1px solid #EFECF9;}
+  .calc-result-card.blooma{background:#F8F5FE;border-color:#DCCFF6;}
+  .calc-result-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8A80AD;margin:0 0 6px;}
+  .calc-result-card.blooma .calc-result-tag{color:#7C5CD9;}
+  .calc-result-total{font-size:26px;font-weight:800;letter-spacing:-.6px;margin:0 0 12px;}
+  .calc-result-total span{font-size:12.5px;font-weight:600;color:#8A80AD;}
+  .calc-breakdown{display:flex;flex-direction:column;gap:5px;}
+  .calc-breakdown div{display:flex;justify-content:space-between;font-size:12px;color:#6B6285;}
+  .calc-breakdown div strong{color:#241F33;font-weight:700;}
+  .calc-savings{margin-top:16px;text-align:center;background:#241F33;color:#fff;border-radius:16px;padding:18px 20px;}
+  .calc-savings .amt{font-size:24px;font-weight:800;letter-spacing:-.5px;}
+  .calc-savings .sub{font-size:12.5px;color:#C6BEE0;margin-top:4px;}
+  .calc-note{font-size:11.5px;color:#8A80AD;text-align:center;margin:16px 0 0;line-height:1.6;}
+  @media(max-width:640px){.calc-results{grid-template-columns:1fr;}.calc-card{padding:22px 18px;}}
+
   .bottom-cta{text-align:center;background:#F1ECFB;border-radius:24px;padding:52px 30px;}
   .bottom-cta h2{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:0 0 12px;}
   .bottom-cta p{font-size:15px;color:#5C4E7E;margin:0 0 26px;}
@@ -208,6 +250,78 @@
         </table>
       </div>
       <p class="disclaimer">Fresha add-on pricing shown is publicly available information as of 2026 and can change. Please confirm current pricing directly on Fresha's website before deciding.</p>
+    </div>
+  </section>
+
+  <section id="calculator">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Work it out</p>
+        <h2>Price calculator</h2>
+        <p>Plug in your team size, add-ons and roughly how much you process each month, and see what you'd actually pay on each platform.</p>
+      </div>
+      <div class="calc-card">
+        <div class="calc-row">
+          <p class="calc-label">Number of stylists <span class="calc-hint" id="calcPlanHint">Solo plan</span></p>
+          <div class="calc-stepper">
+            <button type="button" id="calcStylistsMinus" aria-label="Decrease">&minus;</button>
+            <input type="number" id="calcStylists" value="1" min="1" max="200" inputmode="numeric">
+            <button type="button" id="calcStylistsPlus" aria-label="Increase">+</button>
+          </div>
+        </div>
+        <div class="calc-row">
+          <p class="calc-label">Add-ons</p>
+          <div class="calc-addons">
+            <label class="calc-addon" data-blooma="29" data-fresha="99.95" data-perstylist="0">
+              <input type="checkbox" class="calc-addon-check">
+              <div><div class="calc-addon-name">Client loyalty</div><div class="calc-addon-price">$29/mo vs $99.95/mo</div></div>
+            </label>
+            <label class="calc-addon" data-blooma="9" data-fresha="24.95" data-perstylist="0">
+              <input type="checkbox" class="calc-addon-check">
+              <div><div class="calc-addon-name">Google review prompts</div><div class="calc-addon-price">$9/mo vs $24.95/mo</div></div>
+            </label>
+            <label class="calc-addon" data-blooma="4" data-fresha="8.29" data-perstylist="1">
+              <input type="checkbox" class="calc-addon-check">
+              <div><div class="calc-addon-name">Team connect</div><div class="calc-addon-price">$4/mo whole team vs $8.29/stylist/mo</div></div>
+            </label>
+            <label class="calc-addon" data-blooma="9" data-fresha="16.95" data-perstylist="1">
+              <input type="checkbox" class="calc-addon-check">
+              <div><div class="calc-addon-name">Reports &amp; insights</div><div class="calc-addon-price">$9/mo whole store vs $16.95/stylist/mo</div></div>
+            </label>
+          </div>
+        </div>
+        <div class="calc-row">
+          <p class="calc-label">Roughly how much do you process a month?</p>
+          <div class="calc-vol-grid">
+            <div class="calc-field">
+              <label for="calcOnlineVol">Online payments (deposits, pre-pay)</label>
+              <div class="calc-input-wrap"><span>$</span><input type="number" id="calcOnlineVol" value="1000" min="0" inputmode="numeric"></div>
+            </div>
+            <div class="calc-field">
+              <label for="calcInPersonVol">In-person payments (in-store)</label>
+              <div class="calc-input-wrap"><span>$</span><input type="number" id="calcInPersonVol" value="3000" min="0" inputmode="numeric"></div>
+            </div>
+          </div>
+          <p class="calc-avgtxn">Assumes an average transaction of $<input type="number" id="calcAvgTxn" value="80" min="1" inputmode="numeric"> to estimate transaction count for the per-transaction fee.</p>
+        </div>
+        <div class="calc-results">
+          <div class="calc-result-card blooma">
+            <p class="calc-result-tag">Blooma</p>
+            <p class="calc-result-total" id="calcBloomaTotal">$0<span>/month</span></p>
+            <div class="calc-breakdown" id="calcBloomaBreakdown"></div>
+          </div>
+          <div class="calc-result-card">
+            <p class="calc-result-tag">Fresha</p>
+            <p class="calc-result-total" id="calcFreshaTotal">$0<span>/month</span></p>
+            <div class="calc-breakdown" id="calcFreshaBreakdown"></div>
+          </div>
+        </div>
+        <div class="calc-savings" id="calcSavings">
+          <div class="amt" id="calcSavingsAmt">$0/month saved with Blooma</div>
+          <div class="sub" id="calcSavingsSub">$0/year</div>
+        </div>
+        <p class="calc-note">Estimate only, based on the publicly listed pricing in the tables above (Fresha plan prices include GST). Actual costs depend on your real transaction mix and any plan-specific terms. Confirm current pricing directly with each provider.</p>
+      </div>
     </div>
   </section>
 
@@ -312,5 +426,97 @@
   </div>
 </footer>
 
+<script>
+(function(){
+  var BLOOMA_ONLINE_PCT=0.023, BLOOMA_ONLINE_FLAT=0.30;
+  var BLOOMA_INPERSON_PCT=0.0179, BLOOMA_INPERSON_FLAT=0.20;
+  var FRESHA_PCT=0.0249, FRESHA_FLAT=0.30;
+  var GST=1.15;
+
+  var stylistsInput=document.getElementById('calcStylists');
+  var minusBtn=document.getElementById('calcStylistsMinus');
+  var plusBtn=document.getElementById('calcStylistsPlus');
+  var planHint=document.getElementById('calcPlanHint');
+  var addonChecks=document.querySelectorAll('.calc-addon-check');
+  var onlineVolInput=document.getElementById('calcOnlineVol');
+  var inPersonVolInput=document.getElementById('calcInPersonVol');
+  var avgTxnInput=document.getElementById('calcAvgTxn');
+  var money=function(n){ return '$'+n.toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+
+  function clampStylists(){
+    var n=parseInt(stylistsInput.value,10);
+    if(!n || n<1) n=1;
+    if(n>200) n=200;
+    stylistsInput.value=n;
+    return n;
+  }
+
+  function calculate(){
+    var stylists=clampStylists();
+    planHint.textContent = stylists===1 ? 'Solo plan' : 'Team plan';
+
+    var bloomaPlan = stylists===1 ? 19 : stylists*14;
+    var freshaPlan = (stylists===1 ? 44.95 : stylists*29.95) * GST;
+
+    var bloomaAddons=0, freshaAddons=0, addonLines=[];
+    addonChecks.forEach(function(cb){
+      if(!cb.checked) return;
+      var label=cb.closest('.calc-addon');
+      var b=parseFloat(label.dataset.blooma), f=parseFloat(label.dataset.fresha), perStylist=label.dataset.perstylist==='1';
+      bloomaAddons += b;
+      freshaAddons += perStylist ? f*stylists : f;
+    });
+
+    var avgTxn=Math.max(1, parseFloat(avgTxnInput.value)||80);
+    var onlineVol=Math.max(0, parseFloat(onlineVolInput.value)||0);
+    var inPersonVol=Math.max(0, parseFloat(inPersonVolInput.value)||0);
+    var onlineTxns=onlineVol/avgTxn, inPersonTxns=inPersonVol/avgTxn;
+
+    var bloomaProcessing = (onlineVol*BLOOMA_ONLINE_PCT + onlineTxns*BLOOMA_ONLINE_FLAT) + (inPersonVol*BLOOMA_INPERSON_PCT + inPersonTxns*BLOOMA_INPERSON_FLAT);
+    var freshaProcessing = (onlineVol+inPersonVol)*FRESHA_PCT + (onlineTxns+inPersonTxns)*FRESHA_FLAT;
+
+    var bloomaTotal=bloomaPlan+bloomaAddons+bloomaProcessing;
+    var freshaTotal=freshaPlan+freshaAddons+freshaProcessing;
+
+    document.getElementById('calcBloomaTotal').innerHTML=money(bloomaTotal)+'<span>/month</span>';
+    document.getElementById('calcFreshaTotal').innerHTML=money(freshaTotal)+'<span>/month</span>';
+
+    document.getElementById('calcBloomaBreakdown').innerHTML=
+      '<div><span>Plan</span><strong>'+money(bloomaPlan)+'</strong></div>'+
+      '<div><span>Add-ons</span><strong>'+money(bloomaAddons)+'</strong></div>'+
+      '<div><span>Processing</span><strong>'+money(bloomaProcessing)+'</strong></div>';
+    document.getElementById('calcFreshaBreakdown').innerHTML=
+      '<div><span>Plan</span><strong>'+money(freshaPlan)+'</strong></div>'+
+      '<div><span>Add-ons</span><strong>'+money(freshaAddons)+'</strong></div>'+
+      '<div><span>Processing</span><strong>'+money(freshaProcessing)+'</strong></div>';
+
+    var diff=freshaTotal-bloomaTotal;
+    var savingsBox=document.getElementById('calcSavings');
+    var amtEl=document.getElementById('calcSavingsAmt');
+    var subEl=document.getElementById('calcSavingsSub');
+    if(diff>=0){
+      amtEl.textContent=money(diff)+'/month saved with Blooma';
+      subEl.textContent=money(diff*12)+'/year';
+      savingsBox.style.background='#241F33';
+    } else {
+      amtEl.textContent=money(Math.abs(diff))+'/month more with Blooma';
+      subEl.textContent='Based on the figures entered above';
+      savingsBox.style.background='#8A80AD';
+    }
+  }
+
+  minusBtn.addEventListener('click',function(){ stylistsInput.value=Math.max(1,(parseInt(stylistsInput.value,10)||1)-1); calculate(); });
+  plusBtn.addEventListener('click',function(){ stylistsInput.value=Math.min(200,(parseInt(stylistsInput.value,10)||1)+1); calculate(); });
+  stylistsInput.addEventListener('input',calculate);
+  onlineVolInput.addEventListener('input',calculate);
+  inPersonVolInput.addEventListener('input',calculate);
+  avgTxnInput.addEventListener('input',calculate);
+  addonChecks.forEach(function(cb){
+    cb.addEventListener('change',function(){ cb.closest('.calc-addon').classList.toggle('checked',cb.checked); calculate(); });
+  });
+
+  calculate();
+})();
+</script>
 </body>
 </html>
