@@ -1030,7 +1030,7 @@
   }
   function localFullDate(iso){ return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:"long",month:"long",day:"numeric"}).format(new Date(iso)); }
 
-  var FEE_PCT = 0.0149, FEE_FLAT = 0.20;
+  var FEE_PCT = 0.0179, FEE_FLAT = 0.20;
   function openReceiptModal(dbId){
     var b = bookingsData.find(function(x){ return x.dbId===dbId; });
     if(!b) return;
@@ -1046,7 +1046,7 @@
     var discountRow = b.discount>0 ? '<div class="info-row"><span class="info-label">Discount</span><span class="info-value" style="color:var(--success);">-$'+b.discount.toFixed(2)+'</span></div>' : '';
     var tipRow = tip>0 ? '<div class="info-row"><span class="info-label">Tip</span><span class="info-value">$'+tip.toFixed(2)+'</span></div>' : '';
     var feeRow = method==='card'
-      ? '<div class="info-row"><span class="info-label">Processing fee (1.49% + $0.20)</span><span class="info-value" style="color:var(--danger);">-$'+fee.toFixed(2)+'</span></div>'
+      ? '<div class="info-row"><span class="info-label">Processing fee (1.79% + $0.20)</span><span class="info-value" style="color:var(--danger);">-$'+fee.toFixed(2)+'</span></div>'
       : '<div class="info-row"><span class="info-label">Processing fee</span><span class="info-value" style="color:var(--success);">$0.00 (cash)</span></div>';
     document.getElementById('receiptModalBox').innerHTML =
       '<div class="modal-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><h2 style="margin:0;font-size:16px;font-weight:700;">Receipt</h2><div class="modal-close" onclick="closeReceiptModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +

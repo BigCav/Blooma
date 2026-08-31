@@ -942,7 +942,7 @@
     if(e.key === 'Escape') closeCancelModal();
   });
 
-  var FEE_PCT = 0.0149, FEE_FLAT = 0.20;
+  var FEE_PCT = 0.0179, FEE_FLAT = 0.20;
   function receiptModalHtml(b){
     const c = colorFor(b.customer_name);
     const shortCode = 'BK-' + String(b.id).replace(/-/g,'').slice(0,6).toUpperCase();
@@ -956,7 +956,7 @@
     const discountRow = Number(b.discount||0)>0 ? '<div class="info-row"><span class="info-label">Discount</span><span class="info-value" style="color:var(--success);">-$'+Number(b.discount).toFixed(2)+'</span></div>' : '';
     const tipRow = tip>0 ? '<div class="info-row"><span class="info-label">Tip</span><span class="info-value">$'+tip.toFixed(2)+'</span></div>' : '';
     const feeRow = method==='card'
-      ? '<div class="info-row"><span class="info-label">Processing fee (1.49% + $0.20)</span><span class="info-value" style="color:var(--danger);">-$'+fee.toFixed(2)+'</span></div>'
+      ? '<div class="info-row"><span class="info-label">Processing fee (1.79% + $0.20)</span><span class="info-value" style="color:var(--danger);">-$'+fee.toFixed(2)+'</span></div>'
       : '<div class="info-row"><span class="info-label">Processing fee</span><span class="info-value" style="color:var(--success);">$0.00 (cash)</span></div>';
     return `
       <div class="modal-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><h2 style="margin:0;">Receipt</h2><div class="modal-close" onclick="closeReceiptModal()" style="width:28px;height:28px;border-radius:8px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-soft);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>

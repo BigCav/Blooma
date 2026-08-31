@@ -565,7 +565,7 @@
 
   <div class="panel" style="margin-bottom:16px; background:linear-gradient(155deg, var(--violet-soft), var(--surface) 65%);">
     <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--violet-text);">How payments work</div>
-    <div style="font-size:13px; color:var(--text-soft); margin-top:6px; line-height:1.55; max-width:640px;">Blooma doesn't hold or move your money — clients pay with cash or your own card terminal at checkout, and funds settle directly to your bank. This page tracks what's been collected and the card-processing fees you're covering, computed at 1.49% + $0.20 per card transaction.</div>
+    <div style="font-size:13px; color:var(--text-soft); margin-top:6px; line-height:1.55; max-width:640px;">Blooma doesn't hold or move your money — clients pay with cash or your own card terminal at checkout, and funds settle directly to your bank. This page tracks what's been collected and the card-processing fees you're covering, computed at 1.79% + $0.20 per card transaction.</div>
   </div>
 
   <a href="/venue/admin/refer-earn" class="panel" style="margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; background:radial-gradient(120% 140% at 100% 0%, rgba(245,196,81,0.14), transparent 55%), var(--surface); cursor:pointer;">
@@ -679,7 +679,7 @@
      every "transaction" is a real completed booking, priced at its own
      total + tip_amount, with the real payment_method recorded at checkout
      (see checkout.html's txAccept -> admin_update_booking_status). Card
-     transactions carry a processing fee (1.49% + $0.20); cash does not.
+     transactions carry a processing fee (1.79% + $0.20); cash does not.
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
@@ -691,7 +691,7 @@
   var currentPage = 1;
   var PAGE_SIZE = 8;
 
-  var FEE_PCT = 0.0149;
+  var FEE_PCT = 0.0179;
   var FEE_FLAT = 0.20;
 
   function escapeHtml(s){
@@ -811,7 +811,7 @@
       statCard('Total processed','$'+processed.toFixed(2),'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>') +
       statCard('Card payments','$'+cardTotal.toFixed(2), cardTx.length+' transaction'+(cardTx.length===1?'':'s'),'violet','<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>') +
       statCard('Cash payments','$'+cashTotal.toFixed(2), cashTx.length+' transaction'+(cashTx.length===1?'':'s'),'success','<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>') +
-      statCard('Processing fees','$'+fees.toFixed(2),'1.49% + $0.20 per card tx','danger','<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>');
+      statCard('Processing fees','$'+fees.toFixed(2),'1.79% + $0.20 per card tx','danger','<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>');
 
     document.getElementById('pmStatsGrid2').innerHTML =
       statCard('Net revenue','$'+net.toFixed(2),'After processing fees','success','<path d="M20 6 9 17l-5-5"/>') +
@@ -905,7 +905,7 @@
     var addonsRows = t.addons.map(function(a){ return '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(a.name) + '</span><span class="sr-amt">$' + Number(a.price||0).toFixed(2) + '</span></div>'; }).join('');
     var discountRow = t.discount>0 ? '<div class="schedule-row"><span class="sr-sub">Discount</span><span class="sr-amt" style="color:var(--success);">-$' + t.discount.toFixed(2) + '</span></div>' : '';
     var tipRow = t.tip>0 ? '<div class="schedule-row"><span class="sr-sub">Tip</span><span class="sr-amt">$' + t.tip.toFixed(2) + '</span></div>' : '';
-    var feeRow = t.method==='card' ? '<div class="schedule-row"><span class="sr-sub">Processing fee (1.49% + $0.20)</span><span class="sr-amt" style="color:var(--danger);">-$' + t.fee.toFixed(2) + '</span></div>' : '<div class="schedule-row"><span class="sr-sub">Processing fee</span><span class="sr-amt" style="color:var(--success);">$0.00 (cash)</span></div>';
+    var feeRow = t.method==='card' ? '<div class="schedule-row"><span class="sr-sub">Processing fee (1.79% + $0.20)</span><span class="sr-amt" style="color:var(--danger);">-$' + t.fee.toFixed(2) + '</span></div>' : '<div class="schedule-row"><span class="sr-sub">Processing fee</span><span class="sr-amt" style="color:var(--success);">$0.00 (cash)</span></div>';
 
     document.getElementById('txModalBox').innerHTML =
       '<div class="modal-head"><h2>Transaction details</h2><div class="modal-close" onclick="closeTxModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
