@@ -234,6 +234,16 @@ function isTimeBlocked(salon,dayIndex,stylist,timeStr,durationMins){
   return staffUnavailableInCloud(salon,stylist.id,slotStart,slotEnd);
 }
 function firstOpenDayIndex(salon){ for (let i=0;i<DAYS.length;i++){ if (customerDayHours(salon,nzDayIndex(DAYS[i]))) return i; } return 0; }
+// Like firstOpenDayIndex, but skips days that are technically "open" yet have no actual bookable
+// slot left for this stylist/duration (e.g. today's remaining hours are too short, or every slot
+// is already booked out) -- so the time step never defaults to a day with nothing to pick.
+function firstBookableDayIndex(salon,stylist,durationMins){
+  for(let i=0;i<DAYS.length;i++){
+    const slots=timeSlotsForSalon(salon,i,durationMins);
+    if(slots.some(t=>!isTimeBlocked(salon,i,stylist,t,durationMins))) return i;
+  }
+  return firstOpenDayIndex(salon);
+}
 
 /* ---------- App state ---------- */
 const state={
@@ -285,18 +295,18 @@ function eligibleStylists(){
 }
 
 /* ---------- Rendering ---------- */
-function renderNav(){
+function renderNav(smoothScroll){
   const defs=stepDefs();
   if(state.step>=defs.length) state.step=defs.length-1;
   const nav=document.getElementById('stepNav');
   const doneCheck='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
   nav.innerHTML=defs.map((s,i)=>`<button class="step-pill ${i===state.step?'active':i<state.step?'done':''}" data-goto="${i}"><span class="num">${i<state.step?doneCheck:i+1}</span>${esc(s.label)}</button>`).join('');
-  nav.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{ if(+b.dataset.goto<=state.step){ state.step=+b.dataset.goto; render(); } });
+  nav.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{ if(+b.dataset.goto<=state.step){ state.step=+b.dataset.goto; render({smoothNav:true}); } });
   requestAnimationFrame(()=>{
     const active=nav.querySelector('.step-pill.active'); if(!active) return;
-    if(window.matchMedia('(max-width:900px)').matches){
+    if(nav.scrollWidth>nav.clientWidth+1){
       const target=Math.max(0,active.offsetLeft-parseFloat(getComputedStyle(nav).paddingLeft||0));
-      nav.scrollTo({left:target,behavior:'smooth'});
+      nav.scrollTo({left:target,behavior:smoothScroll?'smooth':'auto'});
     }
   });
 }
@@ -456,7 +466,11 @@ function bind(){
     render();
   });
   document.querySelectorAll('[data-addon]').forEach(b=>b.onclick=()=>{ const id=b.dataset.addon; state.addons=state.addons.includes(id)?state.addons.filter(x=>x!==id):[...state.addons,id]; render(); });
-  document.querySelectorAll('[data-stylist]').forEach(b=>b.onclick=()=>{ state.stylist=eligibleStylists().find(s=>s.id===b.dataset.stylist)||null; state.time=null; render(); });
+  document.querySelectorAll('[data-stylist]').forEach(b=>b.onclick=()=>{
+    state.stylist=eligibleStylists().find(s=>s.id===b.dataset.stylist)||null; state.time=null;
+    if(!state.rescheduleToken) state.day=firstBookableDayIndex(state.salon,state.stylist,totalDurationMins());
+    render();
+  });
   document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{ state.day=+b.dataset.day; state.time=null; render(); });
   document.querySelectorAll('[data-time]').forEach(b=>b.onclick=()=>{ state.time=b.dataset.time; render(); });
   document.querySelectorAll('[data-intaketext]').forEach(el=>el.oninput=()=>{ state.intake[el.getAttribute('data-intaketext')]=el.value; });
@@ -516,7 +530,12 @@ async function next(){
     navigateWithFade('/login?next='+encodeURIComponent(location.pathname+location.search));
     return;
   }
-  animateStepChange(()=>{ state.step++; render(); });
+  // Covers stylists preselected via a deep link (skipping the stylist choice-card click that
+  // normally recomputes this) -- catch it here too, right before the time step first appears.
+  if(defs[state.step+1]?.key==='time' && !state.rescheduleToken && !state.time){
+    state.day=firstBookableDayIndex(state.salon,state.stylist,totalDurationMins());
+  }
+  animateStepChange(()=>{ state.step++; render({smoothNav:true}); });
 }
 // Fades #panel out, applies the step change, then fades it back in — used for step-to-step
 // moves (next/back) only, not for in-step interactions like picking a card, which stay instant.
@@ -570,7 +589,7 @@ function restorePendingCheckoutState(){
   state.step = resumeIdx>=0 ? resumeIdx : Math.max(0, defs.length-1);
   return true;
 }
-function back(){ if(state.step>0){ animateStepChange(()=>{ state.step--; render(); }); } }
+function back(){ if(state.step>0){ animateStepChange(()=>{ state.step--; render({smoothNav:true}); }); } }
 
 async function confirmBooking(){
   if(state.saving) return;
@@ -761,7 +780,7 @@ async function boot(){
   render();
   loadAuth();
 }
-function render(){ renderNav(); renderPanel(); renderSummary(); const mn=document.getElementById('mobileNext'); mn.textContent = stepDefs()[state.step]?.key==='review' ? 'Confirm' : 'Continue'; mn.onclick=next; }
+function render(opts){ renderNav(opts&&opts.smoothNav); renderPanel(); renderSummary(); const mn=document.getElementById('mobileNext'); mn.textContent = stepDefs()[state.step]?.key==='review' ? 'Confirm' : 'Continue'; mn.onclick=next; }
 
 // Stripe redirects back here after a deposit payment (or cancellation) with no venue/service
 // context in the URL, so this renders a standalone confirmation instead of running the normal
