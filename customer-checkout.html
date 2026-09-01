@@ -309,12 +309,13 @@ function renderSummary(){
       <div class="date-row">${USER_ICON} <span>${state.stylist?esc(stylistPreferenceLabel(state.stylist)):'Choose a stylist'}</span></div>
     </div>
     <div class="divider"></div>
-    ${svc?`<div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>`:''}
-    ${selectedAddonsList().map(a=>`<div class="summary-line"><div><div class="summary-name">${esc(a.name)}</div></div><div class="summary-price">+$${a.price}</div></div>`).join('')}
-    ${state.appliedLoyaltyReward?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">${esc(state.appliedLoyaltyReward.label)}</div><div class="summary-price" style="color:var(--purple)">−$${loyaltyDiscount()}</div></div>`:''}
-    ${state.appliedPromo?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Promo ${esc(state.appliedPromo.code)}</div><div class="summary-price" style="color:var(--purple)">−$${promoDiscount()}</div></div>`:''}
-    ${state.appliedGiftCard?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Gift card</div><div class="summary-price" style="color:var(--purple)">−$${giftCardDiscount()}</div></div>`:''}
-    <div class="divider"></div>
+    ${(()=>{ const lines=[
+      svc?`<div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>`:'',
+      selectedAddonsList().map(a=>`<div class="summary-line"><div><div class="summary-name">${esc(a.name)}</div></div><div class="summary-price">+$${a.price}</div></div>`).join(''),
+      state.appliedLoyaltyReward?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">${esc(state.appliedLoyaltyReward.label)}</div><div class="summary-price" style="color:var(--purple)">−$${loyaltyDiscount()}</div></div>`:'',
+      state.appliedPromo?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Promo ${esc(state.appliedPromo.code)}</div><div class="summary-price" style="color:var(--purple)">−$${promoDiscount()}</div></div>`:'',
+      state.appliedGiftCard?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Gift card</div><div class="summary-price" style="color:var(--purple)">−$${giftCardDiscount()}</div></div>`:'',
+    ].join(''); return lines + (lines?'<div class="divider"></div>':''); })()}
     <div class="total"><span>Total</span><strong>$${finalTotal()}</strong></div>
     ${!state.rescheduleToken && depositAmountFor(salon,finalTotal())>0 ? `<div class="summary-line" style="margin-top:10px;"><div class="summary-name" style="color:var(--purple)">Deposit due to book</div><div class="summary-price" style="color:var(--purple)">$${depositAmountFor(salon,finalTotal())}</div></div>` : ''}
   `;
@@ -344,7 +345,7 @@ function renderPanel(){
     const filtered = state.serviceCategory==='All' ? salon.services : salon.services.filter(s=>s.category===state.serviceCategory);
     h = panelHead('Choose your service','Select the treatment you would like to book. You can change this before moving on.')
       + `<div class="service-cats" aria-label="Service categories">${categories.map(c=>`<button class="service-cat ${state.serviceCategory===c?'selected':''}" data-service-category="${esc(c)}">${esc(c)}</button>`).join('')}</div>`
-      + `<div class="stack">${filtered.length?filtered.map(x=>`<button class="choice-card ${svc&&svc.id===x.id?'selected':''}" data-service="${esc(x.id)}"><div class="choice-left"><div><p class="choice-title">${esc(x.name)}</p><p class="choice-sub">${x.duration} min${x.description?' · '+esc(x.description):''}</p></div></div><div class="choice-price">$${x.price}</div></button>`).join(''):`<div class="service-empty">No services in this category yet.</div>`}</div>`;
+      + `<div class="stack">${filtered.length?filtered.map(x=>`<button class="choice-card ${svc&&svc.id===x.id?'selected':''}" data-service="${esc(x.id)}"><div class="choice-left"><div><p class="choice-title">${esc(x.name)}</p><p class="choice-sub">${x.duration} min${x.addons&&x.addons.length?' · add-ons available':''}${x.description?' · '+esc(x.description):''}</p></div></div><div class="choice-price">$${x.price}</div></button>`).join(''):`<div class="service-empty">No services in this category yet.</div>`}</div>`;
   } else if(key==='addons'){
     h = panelHead('Add anything extra?','Optional extras can be added now and included in the final appointment time.')
       + `<div class="stack">${svc.addons.map(a=>`<button class="choice-card ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}"><div class="choice-left"><div><p class="choice-title">${esc(a.name)}</p>${a.duration?`<p class="choice-sub">${a.duration} min</p>`:''}</div></div><div class="choice-price">+$${a.price}</div></button>`).join('')}</div>`
