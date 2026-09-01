@@ -633,7 +633,7 @@
 
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
-      <div class="sb-logo">Blooma <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
+      <div class="sb-logo">blooma. <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
       <div class="sb-close" id="sbClose">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </div>
@@ -727,7 +727,7 @@
   <div class="main">
 
     <header class="topbar">
-      <div class="tb-logo-mobile">Blooma</div>
+      <div class="tb-logo-mobile">blooma.</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
@@ -858,12 +858,20 @@
         </div>
         <div class="toggle on"></div>
       </div>
-      <div class="setting-row">
-        <div>
-          <h4>Require card on file</h4>
-          <p>Ask new clients to save a card before their first booking is confirmed.</p>
+      <div class="setting-row" style="align-items:flex-start;">
+        <div style="flex:1;">
+          <h4>Require a deposit to book</h4>
+          <p>Ask clients to pay a deposit by card when they book online — charged to your Blooma account, the rest is due at the appointment.</p>
+          <div id="depositAmountRow" style="display:none; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
+            <select id="depositTypeInput" style="background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+              <option value="percent">% of total</option>
+              <option value="flat">Flat amount ($)</option>
+            </select>
+            <input type="number" id="depositValueInput" min="0" step="1" style="width:100px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            <button type="button" class="btn btn-violet" style="padding:9px 16px; font-size:12.5px;" onclick="saveDepositSettings()">Save</button>
+          </div>
         </div>
-        <div class="toggle"></div>
+        <div class="toggle" id="depositToggle" onclick="toggleDepositEnabled()"></div>
       </div>
       <div class="setting-row">
         <div>
@@ -1118,18 +1126,57 @@
     }
   }
 
+  var depositSettings = { enabled:false, type:'percent', value:20 };
+  var depositSaving = false;
+  function renderDepositSettings(){
+    var t=document.getElementById('depositToggle'); if(t) t.classList.toggle('on', depositSettings.enabled);
+    var row=document.getElementById('depositAmountRow'); if(row) row.style.display = depositSettings.enabled ? 'flex' : 'none';
+    var typeSel=document.getElementById('depositTypeInput'); if(typeSel) typeSel.value=depositSettings.type;
+    var valInput=document.getElementById('depositValueInput'); if(valInput && document.activeElement!==valInput) valInput.value=depositSettings.value;
+  }
+  function toggleDepositEnabled(){
+    depositSettings.enabled = !depositSettings.enabled;
+    renderDepositSettings();
+    if(!depositSettings.enabled) saveDepositSettings();
+  }
+  async function saveDepositSettings(){
+    if(depositSaving) return;
+    depositSaving = true;
+    var type = document.getElementById('depositTypeInput').value;
+    var value = Math.max(0, Number(document.getElementById('depositValueInput').value)||0);
+    if(type==='percent') value = Math.min(100, value);
+    try{
+      const {error} = await supabaseClient.rpc('admin_set_deposit_settings', {p_enabled:depositSettings.enabled, p_type:type, p_value:value});
+      if(error) throw error;
+      depositSettings.type = type; depositSettings.value = value;
+      renderDepositSettings();
+      showToast('Deposit settings saved');
+    }catch(err){
+      showToast(err.message||'Could not save deposit settings');
+    }finally{
+      depositSaving = false;
+    }
+  }
+
   async function reloadAdminConfigFromCloud(){
     if(!currentSalonId) return;
-    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow}]=await Promise.all([
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow},{data:depositRow}]=await Promise.all([
       supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
       supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle(),
       supabaseClient.rpc("get_notification_prefs"),
-      supabaseClient.rpc("get_venue_billing")
+      supabaseClient.rpc("get_venue_billing"),
+      supabaseClient.rpc("get_deposit_settings")
     ]);
     if(cfgError) throw cfgError;
     if(salonError) throw salonError;
     if(prefsRow){ notifPrefKeys.forEach(function(k){ if(prefsRow[k]!==undefined) notifPrefs[k]=!!prefsRow[k]; }); }
     renderNotifPrefs();
+    if(depositRow){
+      depositSettings.enabled = !!depositRow.deposit_enabled;
+      depositSettings.type = depositRow.deposit_type || 'percent';
+      depositSettings.value = Number(depositRow.deposit_value)||0;
+      renderDepositSettings();
+    }
     if(billingRow){
       billing.plan_id = billingRow.plan_id || null;
       billing.status = billingRow.status || 'inactive';

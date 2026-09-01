@@ -17,7 +17,6 @@
     display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;
   }
   .card{text-align:center;max-width:380px;}
-  .logo{font-size:20px;font-weight:800;letter-spacing:-.4px;color:#241F33;text-decoration:none;display:inline-block;margin-bottom:40px;}
   .icon{width:72px;height:72px;border-radius:20px;background:#F1ECFB;color:#7C5CD9;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
   h1{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:0 0 10px;}
   p{font-size:14.5px;color:#6B6285;line-height:1.6;margin:0 0 28px;}
@@ -32,7 +31,6 @@ if(/^\/venue\/[^/]+\/?$/i.test(location.pathname)){
 }else{
   document.body.innerHTML=`
     <div class="card">
-      <a class="logo" href="/">blooma.</a>
       <div class="icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
       <h1>Page not found</h1>
       <p>That page doesn't exist, or may have moved. Let's get you back on track.</p>

@@ -1480,7 +1480,7 @@ function topbarMarkup(opts){
   opts = opts || {};
   return `
     <div class="home-topbar">
-      ${opts.backBtn ? `<button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>` : `<button class="brand-logo" id="brandLogoBtn" aria-label="Go to home">Blooma</button>`}
+      ${opts.backBtn ? `<button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>` : `<button class="brand-logo" id="brandLogoBtn" aria-label="Go to home">blooma.</button>`}
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
         ${opts.locationBtn ? `<button id="locationBtn" class="location-pill">${icon('mapPin','var(--purple)')}<span class="loc-name">${escapeHtml(opts.locationBtn.cityName)}</span></button>` : ""}
         ${opts.shareBtn ? `<button class="menu-btn" id="shareVenueBtn" data-sharetitle="${escapeAttr(opts.shareBtn.title)}" data-shareurl="${escapeAttr(opts.shareBtn.url)}" aria-label="Share">${icon('share')}</button>` : ""}
@@ -2943,7 +2943,7 @@ function homeFooterMarkup(){
       <div class="home-footer-inner">
       <div class="home-footer-top">
         <div class="home-footer-brand">
-          <p class="home-footer-logo">Blooma</p>
+          <p class="home-footer-logo">blooma.</p>
           <p class="home-footer-tagline">Book trusted salons across New Zealand, all in one place.</p>
         </div>
         <div class="home-footer-links">
@@ -3220,7 +3220,7 @@ function renderSalon(){
   return `
     <div class="page v2-venue-page ${state.showGiftCardSheet?'no-bg-scroll':''}" style="position:relative;">
       <header class="v2-topbar"><div class="v2-shell v2-topbar-inner">
-        <button class="v2-brand" id="brandLogoBtn" aria-label="Go to home">Blooma</button>
+        <button class="v2-brand" id="brandLogoBtn" aria-label="Go to home">blooma.</button>
         <div class="v2-top-actions">
           <button class="v2-icon-btn" id="shareVenueBtn" data-sharetitle="${escapeAttr(salon.name)}" data-shareurl="${escapeAttr(`${location.origin}${venuePublicPath(salon)}`)}" aria-label="Share salon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
@@ -3388,7 +3388,7 @@ function renderBookingConfirmed(booking){
   if (!booking){
     return `
       <header class="confirm-desktop-topbar">
-        <button class="brand-logo" id="brandLogoBtn" aria-label="Go to home">Blooma</button>
+        <button class="brand-logo" id="brandLogoBtn" aria-label="Go to home">blooma.</button>
         <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">${icon('menu')}</button>
       </header>
       <div class="page checkout-shell confirm-done-shell">
@@ -3413,7 +3413,7 @@ function renderBookingConfirmed(booking){
   const isUpcoming = booking.status === "upcoming";
   return `
     <header class="confirm-desktop-topbar">
-      <button class="brand-logo" id="brandLogoBtn" aria-label="Go to home">Blooma</button>
+      <button class="brand-logo" id="brandLogoBtn" aria-label="Go to home">blooma.</button>
       <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="${state.showHomeMenu?'true':'false'}">${icon('menu')}</button>
     </header>
     <div class="page checkout-shell confirm-done-shell">
@@ -4368,7 +4368,7 @@ function render(opts){
   if(!state.marketplaceReady || !state.authReady){
     document.title = "Blooma";
     document.body.classList.add("page-home");
-    root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-cap"><div class="home-topbar"><span class="brand-logo">Blooma</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div></div>`;
+    root.innerHTML = `<div class="shell"><div class="page" style="background:var(--bg);"><div class="home-cap"><div class="home-topbar"><span class="brand-logo">blooma.</span><span class="menu-btn" style="visibility:hidden;">${icon('menu')}</span></div><div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:12px;"><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.72;"></div><div style="height:112px;border-radius:16px;background:var(--purple-pastel-2);opacity:.5;"></div></div></div></div></div>`;
     return;
   }
   updateSeoMeta();

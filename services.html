@@ -521,11 +521,14 @@
   .modal-overlay{
     position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:80;
     display:none; align-items:center; justify-content:center; padding:20px;
+    overflow-y:auto;
   }
   .modal-overlay.open{display:flex;}
   .modal-box{
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
     padding:22px; width:100%; max-width:420px;
+    max-height:calc(100vh - 40px); overflow-y:auto; margin:auto;
+    -webkit-overflow-scrolling:touch;
   }
   .modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
   .modal-head h2{font-size:16px; font-weight:700;}
@@ -584,7 +587,7 @@
 
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
-      <div class="sb-logo">Blooma <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
+      <div class="sb-logo">blooma. <span style="font-weight:500; color:var(--text-faint); font-size:12px;">business</span></div>
       <div class="sb-close" id="sbClose">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </div>
@@ -678,7 +681,7 @@
   <div class="main">
 
     <header class="topbar">
-      <div class="tb-logo-mobile">Blooma</div>
+      <div class="tb-logo-mobile">blooma.</div>
       <div class="tb-search tb-search-mobile-hide">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
@@ -859,9 +862,15 @@
         <div class="addon-service-list" id="editSvcStylistList"></div>
       </div>
       <div class="form-group">
-        <label class="form-label">Intake form <span style="font-weight:500;color:var(--text-faint);">(optional — asked when a client books this service)</span></label>
-        <div id="intakeQuestionsList"></div>
-        <div class="btn btn-ghost" style="margin-top:8px;" onclick="addIntakeQuestion()">+ Add question</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <label class="form-label" style="margin-bottom:0;">Intake form</label>
+          <div class="toggle" id="intakeFormToggle" onclick="toggleIntakeForm()"></div>
+        </div>
+        <p style="font-size:11.5px;color:var(--text-faint);margin:4px 0 0;">Ask clients a quick question when they book this service.</p>
+        <div id="intakeFormBody" style="display:none;margin-top:10px;">
+          <div id="intakeQuestionsList"></div>
+          <div class="btn btn-ghost" style="margin-top:8px;" onclick="addIntakeQuestion()">+ Add question</div>
+        </div>
       </div>
       <div class="modal-actions">
         <div class="btn btn-danger" onclick="deleteEditService()">Delete</div>
@@ -1445,6 +1454,18 @@
   var currentEditServiceId = null;
   var deleteConfirmPending = false;
   var editingIntakeQuestions = [];
+  var intakeFormEnabled = false;
+
+  function toggleIntakeForm(){
+    intakeFormEnabled = !intakeFormEnabled;
+    updateIntakeFormToggleUI();
+  }
+  function updateIntakeFormToggleUI(){
+    var t = document.getElementById('intakeFormToggle');
+    var body = document.getElementById('intakeFormBody');
+    if(t) t.classList.toggle('on', intakeFormEnabled);
+    if(body) body.style.display = intakeFormEnabled ? '' : 'none';
+  }
 
   function randQuestionId(){ return 'q_' + Math.random().toString(36).slice(2,9); }
   function addIntakeQuestion(){
@@ -1464,7 +1485,7 @@
     var wrap = document.getElementById('intakeQuestionsList');
     if(!wrap) return;
     if(!editingIntakeQuestions.length){
-      wrap.innerHTML = '<p style="font-size:12.5px;color:var(--text-faint);margin:4px 0 0;">No questions yet — clients won\'t see an intake form for this service.</p>';
+      wrap.innerHTML = '<p style="font-size:12.5px;color:var(--text-faint);margin:0;">No questions yet.</p>';
       return;
     }
     wrap.innerHTML = editingIntakeQuestions.map(function(q,idx){
@@ -1501,6 +1522,8 @@
     populateStylistOptions('editSvcStylistList', serviceStylistIds(id));
     populateCategorySelect('editSvcCategory', s.category);
     editingIntakeQuestions = Array.isArray(s.intakeQuestions) ? JSON.parse(JSON.stringify(s.intakeQuestions)) : [];
+    intakeFormEnabled = editingIntakeQuestions.length > 0;
+    updateIntakeFormToggleUI();
     renderIntakeQuestionsEditor();
 
     document.getElementById('editServiceOverlay').classList.add('open');
@@ -1527,7 +1550,7 @@
     var description = document.getElementById('editSvcDescription').value.trim();
     if(!name || !duration) return false;
     s.name = name; s.category = category; s.duration = duration; s.price = price; s.description = description;
-    s.intakeQuestions = editingIntakeQuestions
+    s.intakeQuestions = !intakeFormEnabled ? [] : editingIntakeQuestions
       .map(function(q){ return { id:q.id, label:String(q.label||'').trim(), type:q.type, required:!!q.required, options: q.type==='choice' ? String(q.options||'').split(',').map(function(o){return o.trim();}).filter(Boolean) : undefined }; })
       .filter(function(q){ return q.label; });
     applyServiceStylistSelection(currentEditServiceId, getCheckedValues('editSvcStylistList'));
