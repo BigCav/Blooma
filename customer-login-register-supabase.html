@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sign In</title>
 <style>
+  /* Enables a native browser crossfade between this page and the next same-origin page (e.g.
+     checkout -> here -> back to checkout), so the JS opacity fade below doesn't hit a hard white
+     flash at the moment of navigation. No-op in browsers that don't support it yet. */
+  @view-transition{navigation:auto;}
   /* Blooma: kill the blue mouse-click highlight/outline everywhere; keep it for keyboard nav */
   *{-webkit-tap-highlight-color:transparent;}
   :focus{outline:none;}

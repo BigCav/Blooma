@@ -9,6 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* Enables a native browser crossfade between this page and the next same-origin page (e.g.
+     venue page -> here, or here -> login -> back), so the JS opacity fade doesn't hit a hard
+     white flash at the moment of navigation. No-op in browsers that don't support it yet. */
+  @view-transition{navigation:auto;}
   /* Blooma: kill the blue mouse-click highlight/outline everywhere; keep it for keyboard nav */
   *{-webkit-tap-highlight-color:transparent;}
   :focus{outline:none;}
