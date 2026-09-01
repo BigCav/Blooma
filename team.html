@@ -995,7 +995,7 @@
 
   function syncStripeSeats(){
     // Keeps an existing Stripe subscription's price/quantity in step with the real
-    // stylist roster (hiring a 2nd stylist moves Solo $19/mo -> Team $14/mo/seat
+    // stylist roster (hiring a 2nd stylist moves Solo $24/mo -> Team $19/mo/seat
     // immediately; dropping back down defers to the next renewal, no proration).
     // No-ops server-side if this venue hasn't subscribed yet. Resolves to a short
     // human-readable note about what changed (or null if there's nothing to say),
@@ -1011,7 +1011,7 @@
         if(!data || !data.synced) return null;
         var planLabel = data.planId === 'team' ? 'Team' : 'Solo';
         if(data.effective === 'immediate'){
-          var cost = data.planId === 'team' ? ('$' + (14*data.quantity) + '/month (' + data.quantity + ' stylists)') : '$19/month';
+          var cost = data.planId === 'team' ? ('$' + (19*data.quantity) + '/month (' + data.quantity + ' stylists)') : '$24/month';
           return 'now on ' + planLabel + ', ' + cost;
         }
         if(data.effective === 'next_renewal'){

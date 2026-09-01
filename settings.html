@@ -990,7 +990,7 @@
         </div>
         <div class="btn btn-ghost" onclick="openBillingPortal()">Manage billing</div>
       </div>
-      <div class="field-hint" style="margin-top:10px;" id="billingHint">Solo is $19/month for one stylist. Once you add a second stylist, pricing automatically switches to $14/month per stylist — no need to change plans yourself.</div>
+      <div class="field-hint" style="margin-top:10px;" id="billingHint">Solo is $24/month for one stylist. Once you add a second stylist, pricing automatically switches to $19/month per stylist — no need to change plans yourself.</div>
 
       <div class="table-wrap" id="invoiceTableWrap" style="display:none; margin-top:20px;">
         <table class="data">
@@ -1427,8 +1427,8 @@
   }
 
   var PLAN_CATALOG = {
-    solo: {name:'Solo', price:'$19/month', blurb:'1 stylist'},
-    team: {name:'Team', price:'$14/month per stylist', blurb:'2+ stylists'}
+    solo: {name:'Solo', price:'$24/month', blurb:'1 stylist'},
+    team: {name:'Team', price:'$19/month per stylist', blurb:'2+ stylists'}
   };
   var billing = {plan_id:null, status:'inactive', seat_count:1, current_period_end:null, card_brand:null, card_last4:null, card_exp:null, pending_plan_id:null, pending_seat_count:null, pending_effective_at:null};
 
@@ -1444,7 +1444,7 @@
 
     if(!active || !plan){
       document.getElementById('planNameLabel').textContent = 'No active subscription';
-      document.getElementById('planPriceLabel').textContent = 'Solo is $19/month (1 stylist) · Team is $14/month per stylist (2+)';
+      document.getElementById('planPriceLabel').textContent = 'Solo is $24/month (1 stylist) · Team is $19/month per stylist (2+)';
       actionBtn.textContent = 'Subscribe';
       actionBtn.onclick = startCheckout;
       document.getElementById('payMethodRow').style.display = 'none';
@@ -1456,8 +1456,8 @@
     var pendingNotice = document.getElementById('pendingPlanNotice');
     if(billing.pending_plan_id && billing.pending_plan_id !== billing.plan_id){
       var pendingPlan = PLAN_CATALOG[billing.pending_plan_id];
-      var pendingCost = billing.pending_plan_id === 'team' ? (14 * billing.pending_seat_count) : 19;
-      pendingNotice.textContent = 'Switching to ' + pendingPlan.name + (billing.pending_plan_id==='team' ? (' (' + billing.pending_seat_count + ' stylists, $' + pendingCost + '/month)') : ' ($19/month)') + ' on ' + fmtRenewal(billing.pending_effective_at) + ' — you keep your current plan until then.';
+      var pendingCost = billing.pending_plan_id === 'team' ? (19 * billing.pending_seat_count) : 24;
+      pendingNotice.textContent = 'Switching to ' + pendingPlan.name + (billing.pending_plan_id==='team' ? (' (' + billing.pending_seat_count + ' stylists, $' + pendingCost + '/month)') : ' ($24/month)') + ' on ' + fmtRenewal(billing.pending_effective_at) + ' — you keep your current plan until then.';
       pendingNotice.style.display = 'block';
     } else {
       pendingNotice.style.display = 'none';
