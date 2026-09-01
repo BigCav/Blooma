@@ -214,7 +214,7 @@
             <tr><td>In-person payments</td><td class="blooma-col">1.79% + $0.20 per transaction</td><td>2.49% + $0.05 per transaction, plus terminal cost</td></tr>
             <tr><td>Online payments</td><td class="blooma-col">2.30% + $0.30 per transaction</td><td>2.90% + $0.30 per transaction</td></tr>
             <tr><td>Tap to pay</td><td class="blooma-col">Free</td><td>Included in the in-person rate, no terminal needed</td></tr>
-            <tr><td>SMS notifications</td><td class="blooma-col">$0.11 per SMS</td><td>$0.15 per SMS (100/month included on Build)</td></tr>
+            <tr><td>SMS notifications</td><td class="blooma-col">$0.11 per SMS (60/month included)</td><td>$0.15 per SMS (100/month included on Build)</td></tr>
             <tr><td>Currency</td><td class="blooma-col">Priced in NZD</td><td>Priced in NZD</td></tr>
             <tr><td>Contract</td><td class="blooma-col">Month-to-month, cancel any time</td><td>Month-to-month, cancel any time</td></tr>
           </tbody>
@@ -279,7 +279,7 @@
           <div class="amt" id="calcSavingsAmt">$0/month saved with Blooma</div>
           <div class="sub" id="calcSavingsSub">$0/year</div>
         </div>
-        <p class="calc-note">Estimate only, based on the publicly listed pricing in the table above (Timely plan price includes GST; Timely's first 100 SMS/month on the Build plan are treated as included). Actual costs depend on your real transaction mix and any plan-specific terms. Confirm current pricing directly with each provider.</p>
+        <p class="calc-note">Estimate only, based on the publicly listed pricing in the table above (Timely plan price includes GST; Blooma's first 60 SMS/month and Timely's first 100 SMS/month on the Build plan are treated as included). Actual costs depend on your real transaction mix and any plan-specific terms. Confirm current pricing directly with each provider.</p>
       </div>
     </div>
   </section>
@@ -391,7 +391,7 @@
   var BLOOMA_INPERSON_PCT=0.0179, BLOOMA_INPERSON_FLAT=0.20;
   var TIMELY_INPERSON_PCT=0.0249, TIMELY_INPERSON_FLAT=0.05;
   var TIMELY_ONLINE_PCT=0.029, TIMELY_ONLINE_FLAT=0.30;
-  var BLOOMA_SMS=0.11, TIMELY_SMS=0.15, TIMELY_SMS_INCLUDED=100;
+  var BLOOMA_SMS=0.11, BLOOMA_SMS_INCLUDED=60, TIMELY_SMS=0.15, TIMELY_SMS_INCLUDED=100;
   var GST=1.15;
 
   var stylistsInput=document.getElementById('calcStylists');
@@ -428,7 +428,7 @@
     var timelyProcessing = (onlineVol*TIMELY_ONLINE_PCT + onlineTxns*TIMELY_ONLINE_FLAT) + (inPersonVol*TIMELY_INPERSON_PCT + inPersonTxns*TIMELY_INPERSON_FLAT);
 
     var smsCount=Math.max(0, parseFloat(smsInput.value)||0);
-    var bloomaSms = smsCount*BLOOMA_SMS;
+    var bloomaSms = Math.max(0, smsCount-BLOOMA_SMS_INCLUDED)*BLOOMA_SMS;
     var timelySms = Math.max(0, smsCount-TIMELY_SMS_INCLUDED)*TIMELY_SMS;
 
     var bloomaTotal=bloomaPlan+bloomaProcessing+bloomaSms;

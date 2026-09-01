@@ -141,6 +141,7 @@
   .calc-field .calc-input-wrap{position:relative;}
   .calc-field .calc-input-wrap span{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:#8A80AD;font-weight:700;}
   .calc-field input{width:100%;border:1px solid #E9E4F7;border-radius:12px;padding:11px 14px 11px 28px;font-size:14px;font-weight:700;color:#241F33;background:#fff;}
+  .calc-field.no-prefix input{padding-left:14px;}
   .calc-field input:focus{border-color:#7C5CD9;}
   .calc-avgtxn{margin-top:10px;font-size:12px;color:#8A80AD;}
   .calc-avgtxn input{width:56px;border:1px solid #E9E4F7;border-radius:8px;padding:3px 6px;font-size:12px;font-weight:700;color:#241F33;text-align:center;margin:0 3px;}
@@ -221,6 +222,7 @@
             <tr><td>In-person payments</td><td class="blooma-col">1.79% + $0.20 per transaction</td><td>2.49% + $0.30 per transaction</td></tr>
             <tr><td>Online payments</td><td class="blooma-col">2.30% + $0.30 per transaction</td><td>2.49% + $0.30 per transaction</td></tr>
             <tr><td>Tap to pay</td><td class="blooma-col">Free</td><td>$0.20 per transaction</td></tr>
+            <tr><td>SMS notifications</td><td class="blooma-col">$0.11 per SMS (60/month included)</td><td>$0.18 per SMS (20/month included)</td></tr>
             <tr><td>Contract</td><td class="blooma-col">Month-to-month, cancel any time</td><td>Month-to-month, cancel any time</td></tr>
           </tbody>
         </table>
@@ -304,6 +306,15 @@
           </div>
           <p class="calc-avgtxn">Assumes an average transaction of $<input type="number" id="calcAvgTxn" value="80" min="1" inputmode="numeric"> to estimate transaction count for the per-transaction fee.</p>
         </div>
+        <div class="calc-row">
+          <p class="calc-label">Roughly how many SMS do you send a month?</p>
+          <div class="calc-vol-grid" style="grid-template-columns:minmax(200px,260px);">
+            <div class="calc-field no-prefix">
+              <label for="calcSmsCount">Booking confirmations, reminders, etc.</label>
+              <input type="number" id="calcSmsCount" value="150" min="0" inputmode="numeric">
+            </div>
+          </div>
+        </div>
         <div class="calc-results">
           <div class="calc-result-card blooma">
             <p class="calc-result-tag">Blooma</p>
@@ -320,7 +331,7 @@
           <div class="amt" id="calcSavingsAmt">$0/month saved with Blooma</div>
           <div class="sub" id="calcSavingsSub">$0/year</div>
         </div>
-        <p class="calc-note">Estimate only, based on the publicly listed pricing in the tables above (Fresha plan prices include GST). Actual costs depend on your real transaction mix and any plan-specific terms. Confirm current pricing directly with each provider.</p>
+        <p class="calc-note">Estimate only, based on the publicly listed pricing in the tables above (Fresha plan prices include GST; Blooma's first 60 SMS/month and Fresha's first 20 SMS/month are treated as included). Actual costs depend on your real transaction mix and any plan-specific terms. Confirm current pricing directly with each provider.</p>
       </div>
     </div>
   </section>
@@ -431,6 +442,7 @@
   var BLOOMA_ONLINE_PCT=0.023, BLOOMA_ONLINE_FLAT=0.30;
   var BLOOMA_INPERSON_PCT=0.0179, BLOOMA_INPERSON_FLAT=0.20;
   var FRESHA_PCT=0.0249, FRESHA_FLAT=0.30;
+  var BLOOMA_SMS=0.11, BLOOMA_SMS_INCLUDED=60, FRESHA_SMS=0.18, FRESHA_SMS_INCLUDED=20;
   var GST=1.15;
 
   var stylistsInput=document.getElementById('calcStylists');
@@ -441,6 +453,7 @@
   var onlineVolInput=document.getElementById('calcOnlineVol');
   var inPersonVolInput=document.getElementById('calcInPersonVol');
   var avgTxnInput=document.getElementById('calcAvgTxn');
+  var smsInput=document.getElementById('calcSmsCount');
   var money=function(n){ return '$'+n.toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2}); };
 
   function clampStylists(){
@@ -475,8 +488,12 @@
     var bloomaProcessing = (onlineVol*BLOOMA_ONLINE_PCT + onlineTxns*BLOOMA_ONLINE_FLAT) + (inPersonVol*BLOOMA_INPERSON_PCT + inPersonTxns*BLOOMA_INPERSON_FLAT);
     var freshaProcessing = (onlineVol+inPersonVol)*FRESHA_PCT + (onlineTxns+inPersonTxns)*FRESHA_FLAT;
 
-    var bloomaTotal=bloomaPlan+bloomaAddons+bloomaProcessing;
-    var freshaTotal=freshaPlan+freshaAddons+freshaProcessing;
+    var smsCount=Math.max(0, parseFloat(smsInput.value)||0);
+    var bloomaSms = Math.max(0, smsCount-BLOOMA_SMS_INCLUDED)*BLOOMA_SMS;
+    var freshaSms = Math.max(0, smsCount-FRESHA_SMS_INCLUDED)*FRESHA_SMS;
+
+    var bloomaTotal=bloomaPlan+bloomaAddons+bloomaProcessing+bloomaSms;
+    var freshaTotal=freshaPlan+freshaAddons+freshaProcessing+freshaSms;
 
     document.getElementById('calcBloomaTotal').innerHTML=money(bloomaTotal)+'<span>/month</span>';
     document.getElementById('calcFreshaTotal').innerHTML=money(freshaTotal)+'<span>/month</span>';
@@ -484,11 +501,13 @@
     document.getElementById('calcBloomaBreakdown').innerHTML=
       '<div><span>Plan</span><strong>'+money(bloomaPlan)+'</strong></div>'+
       '<div><span>Add-ons</span><strong>'+money(bloomaAddons)+'</strong></div>'+
-      '<div><span>Processing</span><strong>'+money(bloomaProcessing)+'</strong></div>';
+      '<div><span>Processing</span><strong>'+money(bloomaProcessing)+'</strong></div>'+
+      '<div><span>SMS</span><strong>'+money(bloomaSms)+'</strong></div>';
     document.getElementById('calcFreshaBreakdown').innerHTML=
       '<div><span>Plan</span><strong>'+money(freshaPlan)+'</strong></div>'+
       '<div><span>Add-ons</span><strong>'+money(freshaAddons)+'</strong></div>'+
-      '<div><span>Processing</span><strong>'+money(freshaProcessing)+'</strong></div>';
+      '<div><span>Processing</span><strong>'+money(freshaProcessing)+'</strong></div>'+
+      '<div><span>SMS</span><strong>'+money(freshaSms)+'</strong></div>';
 
     var diff=freshaTotal-bloomaTotal;
     var savingsBox=document.getElementById('calcSavings');
@@ -511,6 +530,7 @@
   onlineVolInput.addEventListener('input',calculate);
   inPersonVolInput.addEventListener('input',calculate);
   avgTxnInput.addEventListener('input',calculate);
+  smsInput.addEventListener('input',calculate);
   addonChecks.forEach(function(cb){
     cb.addEventListener('change',function(){ cb.closest('.calc-addon').classList.toggle('checked',cb.checked); calculate(); });
   });
