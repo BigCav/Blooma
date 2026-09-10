@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Chat — Blooma Business</title>
+<title>Support — Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -171,9 +171,6 @@
       transition:transform .25s ease;
     }
     .sidebar.open{transform:translateY(0) translateZ(0);}
-    /* The sidebar doubles as a mobile bottom sheet, so it (not the nav list inside it) owns
-       scrolling here — nav no longer has its own independent scroll container, which was
-       fighting the sheet's during the open transition and causing a one-frame scroll glitch. */
     .sb-nav{overflow:visible; flex:none;}
   }
 
@@ -195,55 +192,7 @@
   @media (min-width:1080px){ .menu-btn{display:none;} }
   .tb-logo-mobile{font-weight:800; font-size:16px; letter-spacing:-0.01em; flex:none; white-space:nowrap;}
   @media (min-width:1080px){ .tb-logo-mobile{display:none;} }
-
-  .tb-search{
-    flex:1; max-width:360px;
-    display:flex; align-items:center; gap:9px;
-    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
-    padding:9px 13px;
-  }
-  .tb-search svg{color:var(--text-faint); flex:none;}
-  .tb-search input{
-    border:none; background:none; outline:none; color:var(--text);
-    font-family:inherit; font-size:13.5px; width:100%;
-  }
-  .tb-search input::placeholder{color:var(--text-faint);}
   .tb-right{display:flex; align-items:center; gap:10px; margin-left:auto;}
-  .tb-right .btn{height:36px; padding:0 16px;}
-  .tb-icon-btn{
-    width:36px; height:36px; border-radius:9px; background:var(--surface-2);
-    border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    color:var(--text-soft); position:relative; flex:none;
-  }
-  .tb-search-mobile-hide{display:none;}
-  @media (min-width:640px){ .tb-search-mobile-hide{display:flex;} }
-  .tb-search{position:relative;}
-  .tb-search-results{
-    display:none; position:absolute; top:calc(100% + 8px); left:0; right:0;
-    background:var(--surface); border:1px solid var(--border); border-radius:12px;
-    box-shadow:0 12px 32px rgba(0,0,0,0.4); max-height:360px; overflow-y:auto; z-index:60;
-    padding:6px;
-  }
-  .tb-search-results.open{display:block;}
-  .tb-sr-heading{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
-    color:var(--text-faint); padding:8px 10px 4px;
-  }
-  .tb-sr-row{
-    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;
-    text-decoration:none; color:var(--text);
-  }
-  .tb-sr-row:hover{background:var(--surface-2);}
-  .tb-sr-avatar{
-    width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
-    color:var(--text-soft); flex:none;
-  }
-  .tb-sr-info{min-width:0;}
-  .tb-sr-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .tb-sr-sub{font-size:11.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .tb-sr-empty{padding:14px 10px; font-size:12.5px; color:var(--text-faint); text-align:center;}
 
   /* ---------- CONTENT ---------- */
   .content{padding:22px 16px 60px;}
@@ -254,7 +203,7 @@
   .page-head .sub{font-size:13px; color:var(--text-soft); margin-top:3px;}
   @media (min-width:900px){ .page-head h1{font-size:26px;} }
 
-  /* ---------- TEAM CHAT ---------- */
+  /* ---------- SUPPORT CHAT (mirrors Team Chat's structure/behaviour) ---------- */
   .tc-shell{
     display:flex; flex-direction:column; height:calc(100vh - 220px); min-height:440px;
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
@@ -264,19 +213,16 @@
     display:flex; align-items:center; gap:12px;
     padding:16px 20px; border-bottom:1px solid var(--border);
   }
+  .tc-head-avatar{
+    width:36px; height:36px; border-radius:10px; flex:none;
+    background:linear-gradient(155deg,#6D5FE8,#3ED598);
+    display:flex; align-items:center; justify-content:center;
+  }
   .tc-head-title{font-size:14.5px; font-weight:700;}
   .tc-head-sub{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
-  .tc-roster{display:flex; margin-left:auto;}
-  .tc-roster-avatar{
-    width:28px; height:28px; border-radius:50%; flex:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:10.5px; font-weight:700; color:var(--white);
-    border:2px solid var(--surface); margin-left:-8px;
-  }
-  .tc-roster-avatar:first-child{margin-left:0;}
 
   .tc-thread{flex:1; overflow-y:auto; overflow-x:hidden; touch-action:pan-y; padding:22px 20px; display:flex; flex-direction:column; gap:4px;}
-  .tc-empty{margin:auto; text-align:center; color:var(--text-faint); font-size:13px;}
+  .tc-empty{margin:auto; text-align:center; color:var(--text-faint); font-size:13px; max-width:280px; line-height:1.5;}
   .tc-date-sep{text-align:center; font-size:11px; color:var(--text-faint); font-weight:600; margin:14px 0 6px;}
   .tc-row{display:flex; gap:10px; max-width:78%; margin-top:12px;}
   .tc-row.out{align-self:flex-end; flex-direction:row-reverse;}
@@ -292,7 +238,7 @@
   .tc-sender{font-size:11px; font-weight:700; color:var(--text-faint); margin-bottom:3px;}
   .tc-bubble{
     padding:10px 14px; border-radius:14px; font-size:13.5px; line-height:1.5;
-    background:var(--surface-2); color:var(--text); word-break:break-word;
+    background:var(--surface-2); color:var(--text); word-break:break-word; white-space:pre-wrap;
   }
   .tc-row.out .tc-bubble{background:var(--violet); color:var(--white); border-bottom-right-radius:4px;}
   .tc-row.in .tc-bubble{border-bottom-left-radius:4px;}
@@ -328,7 +274,6 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
 </head>
-
 
 
 <body>
@@ -372,11 +317,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
       </a>
-      <a href="/venue/admin/team-chat" class="sb-link active">
+      <a href="/venue/admin/team-chat" class="sb-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.5 0-2.92-.32-4.16-.9L3 20l1.05-3.16A7.94 7.94 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
         Team Chat
       </a>
-      <a href="/venue/admin/support" class="sb-link">
+      <a href="/venue/admin/support" class="sb-link active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 1.7-2.4 3.7"/><path d="M12 17h.01"/></svg>
         Support
       </a>
@@ -438,16 +383,7 @@
 
     <header class="topbar">
       <div class="tb-logo-mobile">blooma.</div>
-      <div class="tb-search tb-search-mobile-hide">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="tbSearchInput" placeholder="Search clients, bookings…" autocomplete="off">
-        <div id="tbSearchResults" class="tb-search-results"></div>
-      </div>
       <div class="tb-right">
-        <a href="/venue/admin/new-booking" class="btn btn-violet">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-          New booking
-        </a>
         <div class="menu-btn" id="menuBtn">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </div>
@@ -457,17 +393,19 @@
     <div class="content">
 
   <div class="page-head">
-    <h1>Team Chat</h1>
-    <div class="sub">A private channel for your team — clients never see this</div>
+    <h1>Support</h1>
+    <div class="sub">Message the Blooma team directly — we usually reply within a business day</div>
   </div>
 
   <div class="tc-shell">
     <div class="tc-head">
-      <div>
-        <div class="tc-head-title" id="tcHeadTitle">Team channel</div>
-        <div class="tc-head-sub" id="tcHeadSub">Loading team…</div>
+      <div class="tc-head-avatar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 1.7-2.4 3.7"/><path d="M12 17h.01"/></svg>
       </div>
-      <div class="tc-roster" id="tcRoster"></div>
+      <div>
+        <div class="tc-head-title">Blooma Support</div>
+        <div class="tc-head-sub" id="tcHeadSub">We're here to help</div>
+      </div>
     </div>
 
     <div class="tc-thread" id="tcThread">
@@ -475,7 +413,7 @@
     </div>
 
     <div class="tc-composer">
-      <input type="text" id="tcInput" placeholder="Message your team…" disabled>
+      <input type="text" id="tcInput" placeholder="Message the Blooma team…" disabled>
       <button class="tc-send" id="tcSendBtn" disabled onclick="doSend()">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 3 18 9-18 9 4-9-4-9Z"/></svg>
       </button>
@@ -521,32 +459,19 @@
 <script>
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
-     One shared channel per salon. get_team_messages() / send_team_message()
-     are SECURITY DEFINER RPCs that check the caller is a staff member of
-     this salon via owner_profiles, same membership check used everywhere
-     else in the admin panel — there's no direct table access to
-     team_messages, matching the bookings/messages RLS pattern.
+     A single thread per venue with the Blooma platform team, not a roster —
+     get_support_messages()/send_support_message() are SECURITY DEFINER RPCs
+     gated only by owner_profiles membership (deliberately NOT behind
+     require_venue_access()'s trial/subscription check — a venue with a
+     billing problem is exactly who needs to still reach support).
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
   let currentSalonId = null;
-  let currentUserId = null;
-  var teamRoster = [];
   var chatMessages = [];
   var pollTimer = null;
 
-  function initialsFor(name){
-    var parts = String(name||'').trim().split(/\s+/);
-    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
-  }
-  var AVATAR_COLORS = ['#6D5FE8','#5FA8E8','#E85F9E','#5FE8A0'];
-  function colorFor(seed){
-    var hash = 0; var s = String(seed||'?');
-    for(var i=0;i<s.length;i++){ hash = (hash*31 + s.charCodeAt(i)) >>> 0; }
-    var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
-    return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
-  }
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
@@ -572,10 +497,10 @@
     `;
   }
 
-  async function bootTeamChatPage(){
+  async function bootSupportPage(){
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(!session){
-      showLoginRequired("Log in to your venue","Use your venue account before opening Team Chat.","Log in","/business-auth?view=login");
+      showLoginRequired("Log in to your venue","Use your venue account before opening Support.","Log in","/business-auth?view=login");
       return;
     }
     const [{data:profile},{data:owner}] = await Promise.all([
@@ -593,25 +518,19 @@
       return;
     }
     currentSalonId=owner.salon_id;
-    currentUserId=session.user.id;
     var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
     document.getElementById('sbAvatar').textContent = initialsFor(displayName);
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
 
     try{
-      const [{data:salonRow},{data:roster}] = await Promise.all([
-        supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle(),
-        supabaseClient.rpc("list_staff_members",{p_salon_id:currentSalonId})
-      ]);
+      const {data:salonRow} = await supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle();
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-        document.title = salonRow.name ? `Team Chat — ${salonRow.name}` : "Team Chat — Blooma Business";
+        document.title = salonRow.name ? `Support — ${salonRow.name}` : "Support — Blooma Business";
       }
-      teamRoster = roster||[];
-      renderRoster();
-    }catch(err){ showToast(err.message||"Unable to load team"); }
+    }catch(err){}
 
     await reloadMessages();
     var input = document.getElementById('tcInput');
@@ -619,40 +538,29 @@
     input.disabled = false; sendBtn.disabled = !input.value.trim();
     input.addEventListener('input', function(){ sendBtn.disabled = !input.value.trim(); });
     input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSend(); } });
-    pollTimer = setInterval(function(){ reloadMessages(true); }, 6000);
+    pollTimer = setInterval(function(){ reloadMessages(true); }, 8000);
   }
 
-  function rosterName(userId){
-    var m = teamRoster.find(function(x){ return x.user_id===userId; });
-    if(!m) return userId===currentUserId ? 'You' : 'Team member';
-    var name = [m.first_name,m.last_name].filter(Boolean).join(' ').trim() || m.email || 'Team member';
-    return userId===currentUserId ? 'You' : name;
-  }
-
-  function renderRoster(){
-    document.getElementById('tcHeadSub').textContent = teamRoster.length + ' team member' + (teamRoster.length===1?'':'s') + ' can see this channel';
-    document.getElementById('tcRoster').innerHTML = teamRoster.slice(0,6).map(function(m){
-      var name = [m.first_name,m.last_name].filter(Boolean).join(' ').trim() || m.email || '?';
-      var col = colorFor(name);
-      return '<div class="tc-roster-avatar" style="background:' + col.color + ';color:' + col.text + ';" title="' + escapeHtml(name) + '">' + initialsFor(name) + '</div>';
-    }).join('');
+  function initialsFor(name){
+    var parts = String(name||'').trim().split(/\s+/);
+    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
   }
 
   async function reloadMessages(silent){
     try{
-      const {data,error} = await supabaseClient.rpc("get_team_messages");
+      const {data,error} = await supabaseClient.rpc("get_support_messages");
       if(error) throw error;
       var grew = (data||[]).length > chatMessages.length;
       chatMessages = data||[];
       renderThread();
       if(grew || !silent) scrollThreadToBottom();
-    }catch(err){ if(!silent) showToast(err.message||"Unable to load team chat"); }
+    }catch(err){ if(!silent) showToast(err.message||"Unable to load messages"); }
   }
 
   function renderThread(){
     var wrap = document.getElementById('tcThread');
     if(!chatMessages.length){
-      wrap.innerHTML = '<div class="tc-empty">No messages yet — say hi to your team.</div>';
+      wrap.innerHTML = '<div class="tc-empty">Need help with anything — billing, a bug, a feature request? Send us a message and we\'ll get back to you.</div>';
       return;
     }
     var html = '';
@@ -663,19 +571,19 @@
         html += '<div class="tc-date-sep">' + dateSepLabel(dateKey) + '</div>';
         lastDateKey = dateKey; lastSender = null;
       }
-      var isOut = m.sender_user_id === currentUserId;
-      var stacked = lastSender === m.sender_user_id;
-      var name = m.sender_name || rosterName(m.sender_user_id);
-      var col = colorFor(name);
+      var isOut = m.sender_type === 'venue';
+      var stacked = lastSender === m.sender_type;
+      var name = isOut ? 'You' : 'Blooma Support';
+      var col = isOut ? {color:'#6D5FE8',text:'#fff'} : {color:'#3ED598',text:'#131218'};
       html += '<div class="tc-row ' + (isOut?'out':'in') + (stacked?' stacked':'') + '">' +
-        '<div class="tc-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(name) + '</div>' +
+        '<div class="tc-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + (isOut?initialsFor(name):'B') + '</div>' +
         '<div class="tc-bubble-col">' +
-          (stacked ? '' : '<div class="tc-sender">' + (isOut?'You':escapeHtml(name)) + '</div>') +
+          (stacked ? '' : '<div class="tc-sender">' + name + '</div>') +
           '<div class="tc-bubble">' + escapeHtml(m.body) + '</div>' +
           '<div class="tc-time">' + localTimeLabel(m.created_at) + '</div>' +
         '</div>' +
       '</div>';
-      lastSender = m.sender_user_id;
+      lastSender = m.sender_type;
     });
     wrap.innerHTML = html;
   }
@@ -694,7 +602,7 @@
     input.disabled = true;
     document.getElementById('tcSendBtn').disabled = true;
     try{
-      const {error} = await supabaseClient.rpc("send_team_message_gated",{p_body:body});
+      const {error} = await supabaseClient.rpc("send_support_message",{p_body:body});
       if(error) throw error;
       input.value = '';
       await reloadMessages();
@@ -705,117 +613,7 @@
     input.focus();
   }
 
-  bootTeamChatPage();
-</script>
-
-<script>
-(function(){
-  var tbInput = document.getElementById('tbSearchInput');
-  var tbResults = document.getElementById('tbSearchResults');
-  if(!tbInput || !tbResults) return;
-  var debounceTimer = null;
-
-  function escHtml(s){
-    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-  function initials(name){
-    var parts = String(name||'?').trim().split(/\s+/);
-    return ((parts[0]||'?')[0] + (parts[1]?parts[1][0]:'')).toUpperCase();
-  }
-  function hideResults(){ tbResults.classList.remove('open'); tbResults.innerHTML=''; }
-
-  function renderResults(clients, bookings, q){
-    if(!clients.length && !bookings.length){
-      tbResults.innerHTML = '<div class="tb-sr-empty">No matches for "'+escHtml(q)+'"</div>';
-      tbResults.classList.add('open');
-      return;
-    }
-    var html = '';
-    if(clients.length){
-      html += '<div class="tb-sr-heading">Clients</div>';
-      clients.slice(0,5).forEach(function(c){
-        html += '<a class="tb-sr-row" href="/venue/admin/client?key='+encodeURIComponent(c.key)+'">'
-          + '<div class="tb-sr-avatar">'+escHtml(initials(c.name))+'</div>'
-          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(c.name||'Unnamed')+'</div><div class="tb-sr-sub">'+escHtml(c.phone||c.email||'Client')+'</div></div>'
-          + '</a>';
-      });
-    }
-    if(bookings.length){
-      html += '<div class="tb-sr-heading">Bookings</div>';
-      bookings.slice(0,5).forEach(function(b){
-        var when = '';
-        try{ when = new Date(b.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
-        html += '<a class="tb-sr-row" href="/venue/admin/booking?id='+encodeURIComponent(b.id)+'">'
-          + '<div class="tb-sr-avatar">'+escHtml(initials(b.customer_name))+'</div>'
-          + '<div class="tb-sr-info"><div class="tb-sr-name">'+escHtml(b.customer_name||'Booking')+'</div><div class="tb-sr-sub">'+escHtml(b.service_name_snapshot||'')+(when?' • '+when:'')+'</div></div>'
-          + '</a>';
-      });
-    }
-    tbResults.innerHTML = html;
-    tbResults.classList.add('open');
-  }
-
-  function clientKeyForRow(r){
-    return r.phone ? 'ph:'+String(r.phone).trim()
-      : r.email ? 'em:'+String(r.email).trim().toLowerCase()
-      : 'nm:'+String(r.name||'Customer').trim().toLowerCase();
-  }
-  function clientKeyForBooking(b){
-    return b.customer_user_id ? 'uid:'+b.customer_user_id
-      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
-      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
-      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
-  }
-
-  function runSearch(q){
-    if(typeof currentSalonId === 'undefined' || !currentSalonId){ hideResults(); return; }
-    var safeQ = q.replace(/[,()%*]/g,'');
-    if(!safeQ){ hideResults(); return; }
-    var pattern = '%'+safeQ+'%';
-    Promise.all([
-      supabaseClient.from('bookings').select('id,customer_user_id,customer_name,customer_phone,customer_email,service_name_snapshot,starts_at')
-        .eq('salon_id',currentSalonId)
-        .or('customer_name.ilike.'+pattern+',customer_phone.ilike.'+pattern+',customer_email.ilike.'+pattern+',service_name_snapshot.ilike.'+pattern)
-        .order('starts_at',{ascending:false}).limit(20),
-      supabaseClient.rpc('get_venue_clients')
-    ]).then(function(res){
-      if(tbInput.value.trim().toLowerCase()!==q) return;
-      var bookingRows = (res[0] && res[0].data) || [];
-      var manual = (res[1] && res[1].data) || [];
-      var seen = {};
-      var clientMatches = [];
-      bookingRows.forEach(function(b){
-        var key = clientKeyForBooking(b);
-        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:b.customer_name,phone:b.customer_phone,email:b.customer_email}); }
-      });
-      manual.forEach(function(r){
-        var hay = ((r.name||'')+' '+(r.phone||'')+' '+(r.email||'')).toLowerCase();
-        if(hay.indexOf(q)===-1) return;
-        var key = clientKeyForRow(r);
-        if(!seen[key]){ seen[key]=true; clientMatches.push({key:key,name:r.name,phone:r.phone,email:r.email}); }
-      });
-      var bookingMatches = bookingRows.slice(0,8);
-      renderResults(clientMatches, bookingMatches, q);
-    }).catch(function(){ hideResults(); });
-  }
-
-  tbInput.addEventListener('input', function(){
-    var q = tbInput.value.trim().toLowerCase();
-    clearTimeout(debounceTimer);
-    if(q.length < 2){ hideResults(); return; }
-    debounceTimer = setTimeout(function(){ runSearch(q); }, 250);
-  });
-  tbInput.addEventListener('focus', function(){
-    if(tbInput.value.trim().length>=2 && tbResults.innerHTML) tbResults.classList.add('open');
-  });
-  document.addEventListener('click', function(e){
-    if(e.target===tbInput) return;
-    if(!tbResults.contains(e.target)) hideResults();
-  });
-  tbInput.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hideResults(); tbInput.blur(); } });
-})();
+  bootSupportPage();
 </script>
 
 <script src="/trial-banner.js"></script>

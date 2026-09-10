@@ -1,5 +1,5 @@
 /* ---------------------------------------------------
-   Blooma — shared sidebar badge counts (Bookings / Messages).
+   Blooma — shared sidebar badge counts (Bookings / Messages / Support).
    Included on every /venue/admin/* page via a single
    <script src="/sidebar-badges.js"> tag, same pattern as
    trial-banner.js: self-contained, reads the page's own
@@ -11,11 +11,15 @@
    Messages badge = count of distinct conversations with at least
    one unread customer message (sender='customer', read_by_venue=false),
    via the existing get_venue_messages() RPC.
+   Support badge = count of unread replies from the Blooma team, via
+   get_support_unread_count() — a read-only counter, separate from
+   get_support_messages() itself, which marks messages read as a side
+   effect of actually opening the Support page.
 
    Previously every admin page hardcoded or half-wired these badges
    independently, so they showed different (often fake, e.g. a
    permanently-baked-in "24"/"3") numbers depending on which tab you
-   were on. This is the single source of truth for both.
+   were on. This is the single source of truth for all three.
 --------------------------------------------------- */
 (function(){
   function ensureBadge(link){
@@ -36,7 +40,7 @@
   }
 
   async function computeCounts(salonId){
-    var upcoming = 0, unread = 0;
+    var upcoming = 0, unread = 0, supportUnread = 0;
     try{
       const { count } = await supabaseClient.from('bookings').select('id', {count:'exact', head:true}).eq('salon_id', salonId).eq('status','upcoming');
       upcoming = count || 0;
@@ -49,7 +53,11 @@
       });
       unread = Object.keys(seen).length;
     }catch(e){}
-    return { upcoming: upcoming, unread: unread };
+    try{
+      const { data } = await supabaseClient.rpc('get_support_unread_count');
+      supportUnread = Number(data) || 0;
+    }catch(e){}
+    return { upcoming: upcoming, unread: unread, supportUnread: supportUnread };
   }
 
   function init(){
@@ -66,8 +74,10 @@
       if(!counts) return;
       var bookingsLink = document.querySelector('a.sb-link[href="/venue/admin/bookings"]');
       var messagesLink = document.querySelector('a.sb-link[href="/venue/admin/messages"]');
+      var supportLink = document.querySelector('a.sb-link[href="/venue/admin/support"]');
       if(bookingsLink) setBadge(ensureBadge(bookingsLink), counts.upcoming);
       if(messagesLink) setBadge(ensureBadge(messagesLink), counts.unread);
+      if(supportLink) setBadge(ensureBadge(supportLink), counts.supportUnread);
     }).catch(function(){ /* badges are a nice-to-have — never break the page over this */ });
   }
 

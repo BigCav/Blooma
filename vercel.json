@@ -64,6 +64,10 @@
       "destination": "/team-chat"
     },
     {
+      "source": "/venue/admin/support",
+      "destination": "/support"
+    },
+    {
       "source": "/venue/admin/loyalty",
       "destination": "/loyalty"
     },
