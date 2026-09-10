@@ -94,14 +94,19 @@
   tr:hover td{background:var(--surface-hover);}
   .venue-name{font-weight:700;}
   .venue-city{font-size:11.5px; color:var(--text-faint); margin-top:2px;}
-  .owner-email{color:var(--text-soft); font-size:12.5px;}
+  .owner-name{color:var(--text); font-size:13px; font-weight:600;}
+  .owner-email{color:var(--text-soft); font-size:12.5px; margin-top:1px;}
   .row-empty{padding:36px 20px; text-align:center; color:var(--text-faint); font-size:13px;}
 
   .pill{display:inline-flex; align-items:center; padding:4px 10px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; background:var(--surface-2); color:var(--text-soft);}
   .pill-active{background:var(--accent-soft); color:var(--accent-text);}
-  .pill-trialing{background:var(--warning-soft); color:var(--warning);}
+  .pill-trialing{background:rgba(124,92,217,0.14); color:#7C5CD9;}
   .pill-past_due,.pill-incomplete{background:var(--danger-soft); color:var(--danger);}
   .pill-canceled,.pill-unpaid{background:var(--surface-2); color:var(--text-faint);}
+
+  .btn-mark-paid{background:var(--accent-soft); color:var(--accent-text); border:1px solid transparent; padding:7px 12px; border-radius:8px; font-size:12px; font-weight:700;}
+  .btn-mark-paid:hover{background:var(--accent); color:var(--bg);}
+  .btn-mark-paid:disabled{opacity:0.5; cursor:default;}
 
   .gate{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;}
   .gate-card{max-width:380px; text-align:center;}
@@ -125,6 +130,8 @@
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-venue-auth"}});
   let venues = [];
+  let depositOwed = [];
+  let revenue = [];
   let searchQuery = "";
 
   function escapeHtml(s){
@@ -134,15 +141,22 @@
     if(!iso) return '—';
     try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '—'; }
   }
+  // venue_billing.status defaults to 'inactive' the moment a venue is created — before they've
+  // done anything with billing at all — so it must never be trusted over an active trial. Only
+  // a status Stripe/the app has actually set to something definitive (active/past_due/etc)
+  // should override what the trial dates say.
+  var DEFINITIVE_STATUSES = ['active','past_due','unpaid','incomplete','canceled'];
+  function inTrial(v){ return !!v.trial_ends_at && new Date(v.trial_ends_at) > new Date(); }
   function statusLabel(v){
-    if(v.status) return v.status.replace(/_/g,' ');
-    if(v.trial_ends_at && new Date(v.trial_ends_at) > new Date()) return 'trialing';
-    if(v.trial_ends_at) return 'trial expired';
-    return 'no plan';
+    if(v.status && DEFINITIVE_STATUSES.indexOf(v.status)!==-1) return v.status.replace(/_/g,' ').replace(/^./,function(c){return c.toUpperCase();});
+    if(inTrial(v)) return 'Trial';
+    if(v.trial_ends_at) return 'Trial expired';
+    return 'No plan';
   }
   function statusPillClass(v){
-    var s = v.status || (v.trial_ends_at && new Date(v.trial_ends_at) > new Date() ? 'trialing' : 'canceled');
-    return 'pill-' + s;
+    if(v.status && DEFINITIVE_STATUSES.indexOf(v.status)!==-1) return 'pill-' + v.status;
+    if(inTrial(v)) return 'pill-trialing';
+    return 'pill-canceled';
   }
 
   function showGate(title, message, ctaLabel, ctaHref){
@@ -163,6 +177,29 @@
       '<div class="content">' +
         '<div class="page-head"><h1>All venues</h1><div class="sub">Every venue on Blooma, across every plan and trial state</div></div>' +
         '<div class="stats-grid" id="statsGrid"></div>' +
+        '<div class="panel" id="revenuePanel" style="margin-bottom:22px;">' +
+          '<div class="panel-head">' +
+            '<div><div class="panel-title">Platform revenue</div><div class="panel-sub">In-store card payments (1.79% + $0.30) are pure profit. Online deposits (2.49% + $0.30) are charged at cost — $0 profit — shown for volume only.</div></div>' +
+          '</div>' +
+          '<div class="stats-grid" id="revenueStatsGrid" style="padding:18px 20px 0;"></div>' +
+          '<div class="table-wrap">' +
+            '<table>' +
+              '<thead><tr><th>Venue</th><th>In-store card processed</th><th>In-store profit</th><th>Online deposits (at cost)</th><th>Total profit</th></tr></thead>' +
+              '<tbody id="revenueTbody"><tr><td colspan="5" class="row-empty">Loading…</td></tr></tbody>' +
+            '</table>' +
+          '</div>' +
+        '</div>' +
+        '<div class="panel" id="depositPanel" style="margin-bottom:22px;">' +
+          '<div class="panel-head">' +
+            '<div><div class="panel-title">Deposit payouts owed</div><div class="panel-sub">Online deposits held by Blooma, not yet sent to the venue</div></div>' +
+          '</div>' +
+          '<div class="table-wrap">' +
+            '<table>' +
+              '<thead><tr><th>Venue</th><th>Owed</th><th></th></tr></thead>' +
+              '<tbody id="depositTbody"><tr><td colspan="3" class="row-empty">Loading…</td></tr></tbody>' +
+            '</table>' +
+          '</div>' +
+        '</div>' +
         '<div class="panel">' +
           '<div class="panel-head">' +
             '<div><div class="panel-title" id="panelTitle">Venues</div><div class="panel-sub" id="panelSub">Loading…</div></div>' +
@@ -192,7 +229,7 @@
   function renderStats(){
     var total = venues.length;
     var active = venues.filter(function(v){ return v.status==='active'; }).length;
-    var trialing = venues.filter(function(v){ return statusLabel(v)==='trialing'; }).length;
+    var trialing = venues.filter(function(v){ return statusLabel(v)==='Trial'; }).length;
     var pastDue = venues.filter(function(v){ return v.status==='past_due' || v.status==='canceled' || v.status==='unpaid'; }).length;
     document.getElementById('statsGrid').innerHTML =
       '<div class="stat-card"><div class="stat-label">Total venues</div><div class="stat-value">' + total + '</div></div>' +
@@ -215,14 +252,90 @@
     tbody.innerHTML = filtered.map(function(v){
       return '<tr>' +
         '<td><div class="venue-name">' + escapeHtml(v.name||'Unnamed venue') + '</div><div class="venue-city">' + escapeHtml([v.city,v.region].filter(Boolean).join(', ')) + '</div></td>' +
-        '<td class="owner-email">' + escapeHtml(v.owner_email||'—') + '</td>' +
+        '<td><div class="owner-name">' + escapeHtml(v.owner_name||'—') + '</div><div class="owner-email">' + escapeHtml(v.owner_email||'—') + '</div></td>' +
         '<td>' + escapeHtml(v.plan_id ? (v.plan_id + (v.seat_count>1?' · '+v.seat_count+' seats':'')) : '—') + '</td>' +
         '<td><span class="pill ' + statusPillClass(v) + '">' + escapeHtml(statusLabel(v)) + '</span></td>' +
         '<td>' + fmtDate(v.trial_ends_at) + '</td>' +
-        '<td>' + fmtDate(v.subscribed_at) + '</td>' +
+        '<td>' + (v.status==='active' ? fmtDate(v.subscribed_at) : '—') + '</td>' +
         '<td>' + fmtDate(v.signup_at) + '</td>' +
       '</tr>';
     }).join('');
+  }
+
+  function renderDepositOwed(){
+    var tbody = document.getElementById('depositTbody');
+    if(!tbody) return;
+    if(!depositOwed.length){
+      tbody.innerHTML = '<tr><td colspan="3" class="row-empty">Nothing owed right now.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = depositOwed.map(function(v){
+      return '<tr>' +
+        '<td><div class="venue-name">' + escapeHtml(v.name||v.salon_id) + '</div></td>' +
+        '<td>$' + (Number(v.owed_cents||0)/100).toFixed(2) + '</td>' +
+        '<td><button class="btn-mark-paid" data-salon="' + escapeHtml(v.salon_id) + '" data-amt="' + (Number(v.owed_cents||0)/100).toFixed(2) + '" data-name="' + escapeHtml(v.name||v.salon_id) + '">Mark paid out</button></td>' +
+      '</tr>';
+    }).join('');
+    tbody.querySelectorAll('.btn-mark-paid').forEach(function(btn){
+      btn.addEventListener('click', function(){ markPaidOut(btn.dataset.salon, btn.dataset.name, btn.dataset.amt, btn); });
+    });
+  }
+
+  async function loadDepositOwed(){
+    try{
+      const {data,error} = await supabaseClient.rpc("get_platform_admin_deposit_summary");
+      if(error) throw error;
+      depositOwed = (data && data.venues) || [];
+    }catch(err){ depositOwed = []; }
+    renderDepositOwed();
+  }
+
+  function renderRevenue(){
+    var totalInStore = revenue.reduce(function(s,v){ return s+Number(v.in_store_card_total||0); },0);
+    var totalProfit = revenue.reduce(function(s,v){ return s+Number(v.in_store_profit||0); },0);
+    var totalDeposits = revenue.reduce(function(s,v){ return s+Number(v.deposits_total||0); },0);
+    document.getElementById('revenueStatsGrid').innerHTML =
+      '<div class="stat-card"><div class="stat-label">Total profit</div><div class="stat-value">$' + totalProfit.toFixed(2) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">In-store card volume</div><div class="stat-value">$' + totalInStore.toFixed(2) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">Deposits processed (at cost)</div><div class="stat-value">$' + totalDeposits.toFixed(2) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">Venues with activity</div><div class="stat-value">' + revenue.length + '</div></div>';
+
+    var tbody = document.getElementById('revenueTbody');
+    if(!revenue.length){
+      tbody.innerHTML = '<tr><td colspan="5" class="row-empty">No card payments or deposits yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = revenue.map(function(v){
+      return '<tr>' +
+        '<td><div class="venue-name">' + escapeHtml(v.name||v.salon_id) + '</div></td>' +
+        '<td>$' + Number(v.in_store_card_total||0).toFixed(2) + ' <span style="color:var(--text-faint);">(' + (v.in_store_card_count||0) + ')</span></td>' +
+        '<td>$' + Number(v.in_store_profit||0).toFixed(2) + '</td>' +
+        '<td>$' + Number(v.deposits_total||0).toFixed(2) + ' <span style="color:var(--text-faint);">(' + (v.deposits_count||0) + ')</span></td>' +
+        '<td style="font-weight:700;">$' + Number(v.in_store_profit||0).toFixed(2) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  async function loadRevenue(){
+    try{
+      const {data,error} = await supabaseClient.rpc("get_platform_admin_revenue");
+      if(error) throw error;
+      revenue = (data && data.venues) || [];
+    }catch(err){ revenue = []; }
+    renderRevenue();
+  }
+
+  async function markPaidOut(salonId, name, amt, btn){
+    if(!confirm('Mark $' + amt + ' as paid out to ' + name + '? This assumes you\'ve already sent the bank transfer.')) return;
+    btn.disabled = true; btn.textContent = 'Marking…';
+    try{
+      const {error} = await supabaseClient.rpc("platform_mark_deposit_payout", {p_salon_id:salonId, p_note:'Marked paid via Platform Admin'});
+      if(error) throw error;
+      await loadDepositOwed();
+    }catch(err){
+      alert(err.message || 'Could not mark as paid out');
+      btn.disabled = false; btn.textContent = 'Mark paid out';
+    }
   }
 
   async function boot(){
@@ -238,6 +351,8 @@
       renderShell();
       renderStats();
       renderVenues();
+      loadDepositOwed();
+      loadRevenue();
     }catch(err){
       showGate("Access denied", "This account doesn't have access to this page.", "Go to Blooma", "/");
     }
