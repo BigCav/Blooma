@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/for-business"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },
@@ -105,7 +109,7 @@
     },
     {
       "source": "/venue",
-      "destination": "/"
+      "destination": "/explore"
     },
     {
       "source": "/privacy",
@@ -121,7 +125,15 @@
     },
     {
       "source": "/venue/:slug",
-      "destination": "/?venue=:slug"
+      "destination": "/explore?venue=:slug"
+    },
+    {
+      "source": "/book-now/:slug",
+      "destination": "/customer-checkout?venue=:slug"
+    },
+    {
+      "source": "/:slug",
+      "destination": "/explore?venue=:slug"
     }
   ]
 }
