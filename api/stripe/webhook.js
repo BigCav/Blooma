@@ -16,67 +16,6 @@ function readRawBody(req) {
   });
 }
 
-function generateGiftCardCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid misreads
-  let code = '';
-  for (let i = 0; i < 10; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return `${code.slice(0, 5)}-${code.slice(5)}`;
-}
-
-async function fulfillGiftCardPurchase(svc, session) {
-  // Stripe can redeliver checkout.session.completed, so guard against double-issuing.
-  const { data: already } = await svc.from('gift_cards').select('id').eq('stripe_checkout_session_id', session.id).maybeSingle();
-  if (already) return;
-
-  const meta = session.metadata || {};
-  const amount = Number(meta.amount);
-  let code, existing;
-  // Extremely unlikely, but guard against a code collision anyway.
-  do {
-    code = generateGiftCardCode();
-    ({ data: existing } = await svc.from('gift_cards').select('id').eq('code', code).maybeSingle());
-  } while (existing);
-
-  await svc.from('gift_cards').insert({
-    salon_id: meta.salon_id,
-    code,
-    purchaser_user_id: meta.purchaser_user_id || null,
-    purchaser_name: meta.purchaser_name || null,
-    purchaser_email: session.customer_details?.email || null,
-    recipient_name: meta.recipient_name || null,
-    recipient_email: meta.recipient_email || null,
-    initial_value: amount,
-    remaining_balance: amount,
-    currency: 'nzd',
-    status: 'active',
-    stripe_checkout_session_id: session.id,
-    expires_at: new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000).toISOString(),
-  });
-}
-
-async function fulfillPackagePurchase(svc, session) {
-  const { data: already } = await svc.from('customer_packages').select('id').eq('stripe_checkout_session_id', session.id).maybeSingle();
-  if (already) return;
-
-  const meta = session.metadata || {};
-  const sessionsTotal = parseInt(meta.sessions_total, 10) || 1;
-
-  await svc.from('customer_packages').insert({
-    salon_id: meta.salon_id,
-    package_offer_id: meta.package_offer_id || null,
-    service_id: meta.service_id || null,
-    service_name_snapshot: meta.service_name_snapshot || null,
-    customer_user_id: meta.customer_user_id,
-    customer_name: session.customer_details?.name || null,
-    customer_email: session.customer_details?.email || null,
-    sessions_total: sessionsTotal,
-    sessions_remaining: sessionsTotal,
-    price_paid: Number(meta.price) || 0,
-    status: 'active',
-    stripe_checkout_session_id: session.id,
-  });
-}
-
 const REFERRAL_PAYOUT_CENTS = 12000;
 
 // Pushes any not-yet-applied wallet ledger credits (or debits) for a venue onto its Stripe
@@ -235,14 +174,13 @@ module.exports = async (req, res) => {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
+        // Only ever a Blooma subscription checkout now — booking deposits, gift cards and
+        // packages moved to Windcave (see api/windcave.js), so this event no longer fires
+        // for those at all.
         const session = event.data.object;
         if (session.mode === 'subscription' && session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription);
           await syncSubscriptionToDb(svc, subscription);
-        } else if (session.mode === 'payment') {
-          const purchaseType = session.metadata?.blooma_purchase_type;
-          if (purchaseType === 'gift_card') await fulfillGiftCardPurchase(svc, session);
-          else if (purchaseType === 'package') await fulfillPackagePurchase(svc, session);
         }
         break;
       }
