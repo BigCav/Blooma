@@ -1628,7 +1628,7 @@
     var seatSuffix = plan_id_is_team() ? (' · ' + billing.seat_count + ' stylist' + (billing.seat_count===1?'':'s')) : '';
     document.getElementById('planNameLabel').innerHTML = plan.name + seatSuffix + ' <span class="plan-badge">Current plan</span>';
     var renewLabel = billing.current_period_end ? (' · renews ' + fmtRenewal(billing.current_period_end)) : '';
-    var monthlyTotal = plan_id_is_team() ? (19 * billing.seat_count) : 29;
+    var monthlyTotal = plan_id_is_team() ? (19 * billing.seat_count) : 24;
     document.getElementById('planPriceLabel').textContent = plan.price + (plan_id_is_team() ? (' × ' + billing.seat_count + ' = $' + monthlyTotal + '/month') : '') + renewLabel;
     if(billing.status === 'past_due'){
       document.getElementById('planPriceLabel').textContent += ' — payment failed, please update your card';

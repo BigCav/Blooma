@@ -829,10 +829,11 @@
             <div class="info-row total"><span class="info-label">Total due</span><span class="info-value">$${Number(b.total||0).toFixed(2)}</span></div>
             ${b.deposit_status && b.deposit_status!=='none' ? `
             <div class="info-row"><span class="info-label">Deposit</span><span class="info-value">
-              <span class="status-badge status-${b.deposit_status==='paid'?'completed':'pending'}" style="${b.deposit_status==='paid'?'background:var(--violet-soft);color:var(--violet-text);':''}">${b.deposit_status==='paid'?'Paid':'Awaiting payment'}</span>
-              $${Number(b.deposit_amount||0).toFixed(2)}
+              <span class="status-badge status-${b.deposit_status==='paid'?'completed':(b.deposit_status==='refunded'?'noshow':'pending')}" style="${b.deposit_status==='paid'?'background:var(--violet-soft);color:var(--violet-text);':''}">${b.deposit_status==='paid'?'Paid':b.deposit_status==='refunded'?'Refunded':'Awaiting payment'}</span>
+              $${Number(b.deposit_status==='refunded'?(b.deposit_refund_amount||b.deposit_amount||0):(b.deposit_amount||0)).toFixed(2)}
             </span></div>` : ''}
             ${b.deposit_status==='pending' && b.status==='upcoming' ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" id="depositHoldNote" style="font-size:12.5px;font-weight:400;color:var(--text-faint);"></span></div>` : ''}
+            ${b.deposit_status==='paid' ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value"><div class="btn btn-ghost" id="refundDepositBtn" onclick="refundDeposit()" style="font-size:12.5px;padding:7px 12px;display:inline-flex;">Refund deposit</div></span></div>` : ''}
           </div>
         </div>
 
@@ -930,6 +931,30 @@
     }).catch(function(err){
       showToast(err.message || 'Could not cancel booking');
       closeCancelModal();
+    });
+  }
+
+  function refundDeposit(){
+    if(!confirm('Refund the $' + Number(booking.deposit_amount||0).toFixed(2) + ' deposit to the customer? This can\'t be undone.')) return;
+    var btn = document.getElementById('refundDepositBtn');
+    if(btn){ btn.style.pointerEvents='none'; btn.textContent='Refunding…'; }
+    supabaseClient.auth.getSession().then(function(res){
+      var session = res.data.session;
+      return fetch('/api/windcave?action=refund-deposit', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body: JSON.stringify({booking_id: booking.id})
+      }).then(function(r){ return r.json().catch(function(){ return null; }).then(function(out){ return {ok:r.ok, out:out}; }); });
+    }).then(function(r){
+      if(!r.ok) throw new Error(r.out && r.out.error || 'Could not refund deposit');
+      booking.deposit_status = 'refunded';
+      booking.deposit_refund_amount = booking.deposit_amount;
+      return loadClientSince().then(renderBooking);
+    }).then(function(){
+      showToast('Deposit refunded');
+    }).catch(function(err){
+      showToast(err.message || 'Could not refund deposit');
+      if(btn){ btn.style.pointerEvents=''; btn.textContent='Refund deposit'; }
     });
   }
 

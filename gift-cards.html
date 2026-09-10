@@ -484,8 +484,8 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Customer</th><th>Package</th><th>Sessions</th><th>Paid</th><th>Status</th><th>Purchased</th></tr></thead>
-          <tbody id="packagesTbody"><tr><td colspan="6" class="row-empty">Loading…</td></tr></tbody>
+          <thead><tr><th>Customer</th><th>Package</th><th>Sessions</th><th>Paid</th><th>Status</th><th>Purchased</th><th></th></tr></thead>
+          <tbody id="packagesTbody"><tr><td colspan="7" class="row-empty">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -501,8 +501,8 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Code</th><th>Purchaser</th><th>Recipient</th><th>Initial</th><th>Balance</th><th>Status</th><th>Issued</th></tr></thead>
-          <tbody id="giftCardsTbody"><tr><td colspan="7" class="row-empty">Loading…</td></tr></tbody>
+          <thead><tr><th>Code</th><th>Purchaser</th><th>Recipient</th><th>Initial</th><th>Balance</th><th>Status</th><th>Issued</th><th></th></tr></thead>
+          <tbody id="giftCardsTbody"><tr><td colspan="8" class="row-empty">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -724,8 +724,9 @@
   function renderIssuedPackages(){
     document.getElementById('packagesSub').textContent = issuedPackages.length + ' package' + (issuedPackages.length===1?'':'s') + ' sold';
     var tbody = document.getElementById('packagesTbody');
-    if(!issuedPackages.length){ tbody.innerHTML = '<tr><td colspan="6" class="row-empty">No packages purchased yet.</td></tr>'; return; }
+    if(!issuedPackages.length){ tbody.innerHTML = '<tr><td colspan="7" class="row-empty">No packages purchased yet.</td></tr>'; return; }
     tbody.innerHTML = issuedPackages.map(function(p){
+      var canVoid = p.status==='active' && Number(p.sessions_remaining)===Number(p.sessions_total);
       return '<tr>' +
         '<td>' + escapeHtml(p.customer_name||'Customer') + '</td>' +
         '<td>' + escapeHtml(p.service_name_snapshot||'—') + '</td>' +
@@ -733,6 +734,7 @@
         '<td>' + fmtMoney(p.price_paid) + '</td>' +
         '<td>' + statusPill(p.status) + '</td>' +
         '<td>' + fmtDate(p.purchased_at) + '</td>' +
+        '<td>' + (canVoid ? '<div class="btn btn-ghost" style="padding:6px 10px;font-size:12px;" onclick="voidPackage(\'' + p.id + '\')">Void &amp; refund</div>' : '') + '</td>' +
       '</tr>';
     }).join('');
   }
@@ -740,8 +742,9 @@
   function renderIssuedGiftCards(){
     document.getElementById('giftCardsSub').textContent = issuedGiftCards.length + ' gift card' + (issuedGiftCards.length===1?'':'s') + ' sold';
     var tbody = document.getElementById('giftCardsTbody');
-    if(!issuedGiftCards.length){ tbody.innerHTML = '<tr><td colspan="7" class="row-empty">No gift cards purchased yet.</td></tr>'; return; }
+    if(!issuedGiftCards.length){ tbody.innerHTML = '<tr><td colspan="8" class="row-empty">No gift cards purchased yet.</td></tr>'; return; }
     tbody.innerHTML = issuedGiftCards.map(function(g){
+      var canVoid = g.status==='active' && Number(g.remaining_balance)>0;
       return '<tr>' +
         '<td><span class="code-chip">' + escapeHtml(g.code) + '</span></td>' +
         '<td>' + escapeHtml(g.purchaser_name||g.purchaser_email||'—') + '</td>' +
@@ -750,8 +753,47 @@
         '<td>' + fmtMoney(g.remaining_balance) + '</td>' +
         '<td>' + statusPill(g.status) + '</td>' +
         '<td>' + fmtDate(g.created_at) + '</td>' +
+        '<td>' + (canVoid ? '<div class="btn btn-ghost" style="padding:6px 10px;font-size:12px;" onclick="voidGiftCard(\'' + g.id + '\')">Void &amp; refund</div>' : '') + '</td>' +
       '</tr>';
     }).join('');
+  }
+
+  async function windcaveVenueAction(action, body){
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    const res = await fetch('/api/windcave?action=' + action, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body: JSON.stringify(body)
+    });
+    const out = await res.json().catch(function(){ return null; });
+    if(!res.ok) throw new Error(out && out.error || 'Request failed');
+    return out;
+  }
+
+  async function voidGiftCard(id){
+    var card = issuedGiftCards.find(function(g){ return g.id===id; });
+    if(!card) return;
+    if(!confirm('Void this gift card and refund $' + Number(card.remaining_balance||0).toFixed(2) + ' to the original payment method? This can\'t be undone.')) return;
+    try{
+      await windcaveVenueAction('void-gift-card', {gift_card_id:id});
+      const {data:cards,error} = await supabaseClient.rpc('get_venue_gift_cards');
+      if(!error) issuedGiftCards = cards || [];
+      renderIssuedGiftCards();
+      showToast('Gift card refunded and voided');
+    }catch(err){ showToast(err.message || 'Could not refund gift card'); }
+  }
+
+  async function voidPackage(id){
+    var pkg = issuedPackages.find(function(p){ return p.id===id; });
+    if(!pkg) return;
+    if(!confirm('Void this package and refund $' + Number(pkg.price_paid||0).toFixed(2) + ' to the original payment method? This can\'t be undone.')) return;
+    try{
+      await windcaveVenueAction('void-package', {package_id:id});
+      const {data:pkgs,error} = await supabaseClient.rpc('get_venue_packages');
+      if(!error) issuedPackages = pkgs || [];
+      renderIssuedPackages();
+      showToast('Package refunded and voided');
+    }catch(err){ showToast(err.message || 'Could not refund package'); }
   }
 
   function openOfferModal(offerId){

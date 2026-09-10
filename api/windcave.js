@@ -35,8 +35,12 @@ function authHeader() {
   return 'Basic ' + Buffer.from(`${username}:${key}`).toString('base64');
 }
 
-async function windcaveFetch(path, opts = {}) {
-  const res = await fetch(`${WINDCAVE_BASE_URL}${path}`, {
+async function windcaveFetch(pathOrUrl, opts = {}) {
+  // Accepts either a path relative to WINDCAVE_BASE_URL or a full URL — Windcave hands back
+  // absolute links (hpp, refund, ...) on session/transaction responses, and those must be
+  // followed as-is rather than re-based, per their own HATEOAS-style API design.
+  const url = /^https?:\/\//i.test(pathOrUrl) ? pathOrUrl : `${WINDCAVE_BASE_URL}${pathOrUrl}`;
+  const res = await fetch(url, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Authorization: authHeader(), ...(opts.headers || {}) },
   });
@@ -63,6 +67,37 @@ function hppRedirectUrl(sessionData) {
 
 function originOf(req) {
   return req.headers['origin'] || `https://${req.headers['host']}`;
+}
+
+// Issues a refund against a previously completed purchase transaction. Windcave returns a
+// "refund" link directly on the transaction resource (self-discovered, same pattern as
+// hppRedirectUrl above) — confirmed live against a real UAT transaction that this points at the
+// general /transactions endpoint, and the original transaction is referenced via a
+// `transactionId` field in the POST body (not the URL), with `type: "refund"` alongside it. A
+// successful refund comes back as its own transaction resource with `authorised`/`responseText`,
+// same shape as a purchase — checked explicitly here since a declined refund can still come back
+// as a 2xx with authorised:false rather than an HTTP error.
+async function refundWindcaveTransaction(transactionId, amount) {
+  const txn = await windcaveFetch(`/transactions/${encodeURIComponent(transactionId)}`, { method: 'GET' });
+  const refundLink = (txn.links || []).find(l => l.rel === 'refund' && String(l.method || '').toUpperCase() === 'POST');
+  if (!refundLink) {
+    const e = new Error('This payment cannot be refunded automatically — refund it directly in Payline instead.');
+    e.statusCode = 400;
+    e.details = txn;
+    throw e;
+  }
+  const refundResult = await windcaveFetch(refundLink.href, {
+    method: 'POST',
+    body: JSON.stringify({ type: 'refund', transactionId, amount: amount.toFixed(2), currency: 'NZD' }),
+  });
+  console.log('[windcave refund] transaction', transactionId, 'amount', amount, 'result', JSON.stringify(refundResult));
+  if (refundResult.authorised !== true) {
+    const e = new Error(refundResult.responseText || 'Refund was declined by Windcave.');
+    e.statusCode = 502;
+    e.details = refundResult;
+    throw e;
+  }
+  return refundResult;
 }
 
 /* ---------------------------------------------------
@@ -289,6 +324,7 @@ async function finalizeGiftCard(req, res) {
     currency: 'nzd',
     status: 'active',
     windcave_session_id: sessionId,
+    windcave_transaction_id: txn?.id || null,
     expires_at: new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000).toISOString(),
   });
   if (insertErr) {
@@ -428,11 +464,102 @@ async function finalizePackage(req, res) {
     price_paid: amount,
     status: 'active',
     windcave_session_id: sessionId,
+    windcave_transaction_id: txn?.id || null,
   });
   if (insertErr) {
     if (insertErr.code === '23505') { res.status(200).json({ ok: true, alreadyFulfilled: true }); return; }
     throw insertErr;
   }
+
+  res.status(200).json({ ok: true });
+}
+
+/* ---------------------------------------------------
+   REFUNDS — venue-initiated. Each of these looks up the real Windcave transaction id captured
+   at payment time (never a client-supplied one) and refunds through refundWindcaveTransaction,
+   only updating our own records once Windcave has actually accepted the refund.
+--------------------------------------------------- */
+async function refundDeposit(req, res) {
+  if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+  const { salonId } = await requireVenueAuth(req);
+  const { booking_id } = req.body || {};
+  if (!booking_id) { const e = new Error('booking_id is required'); e.statusCode = 400; throw e; }
+
+  const svc = serviceClient();
+  const { data: booking } = await svc.from('bookings').select('*').eq('id', booking_id).eq('salon_id', salonId).maybeSingle();
+  if (!booking) { const e = new Error('Booking not found'); e.statusCode = 404; throw e; }
+  if (booking.deposit_status !== 'paid') { const e = new Error('This deposit is not marked as paid.'); e.statusCode = 400; throw e; }
+  if (!booking.windcave_transaction_id) { const e = new Error('No payment record found for this deposit — it may predate online payments. Refund it directly in Payline.'); e.statusCode = 400; throw e; }
+  const amount = Number(booking.deposit_amount || 0);
+  if (!(amount > 0)) { const e = new Error('Invalid deposit amount'); e.statusCode = 400; throw e; }
+
+  await refundWindcaveTransaction(booking.windcave_transaction_id, amount);
+
+  await svc.from('bookings').update({
+    deposit_status: 'refunded',
+    deposit_refunded_at: new Date().toISOString(),
+    deposit_refund_amount: amount,
+  }).eq('id', booking_id);
+
+  res.status(200).json({ ok: true });
+}
+
+async function voidGiftCard(req, res) {
+  if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+  const { salonId } = await requireVenueAuth(req);
+  const { gift_card_id } = req.body || {};
+  if (!gift_card_id) { const e = new Error('gift_card_id is required'); e.statusCode = 400; throw e; }
+
+  const svc = serviceClient();
+  const { data: card } = await svc.from('gift_cards').select('*').eq('id', gift_card_id).eq('salon_id', salonId).maybeSingle();
+  if (!card) { const e = new Error('Gift card not found'); e.statusCode = 404; throw e; }
+  if (card.status !== 'active') { const e = new Error('This gift card is not active.'); e.statusCode = 400; throw e; }
+  const amount = Number(card.remaining_balance || 0);
+  if (!(amount > 0)) { const e = new Error('Nothing left to refund on this gift card.'); e.statusCode = 400; throw e; }
+  if (!card.windcave_transaction_id) { const e = new Error('No payment record found for this gift card — it may predate online payments. Refund it directly in Payline.'); e.statusCode = 400; throw e; }
+
+  await refundWindcaveTransaction(card.windcave_transaction_id, amount);
+
+  await svc.from('gift_cards').update({
+    status: 'cancelled',
+    remaining_balance: 0,
+    refunded_amount: amount,
+    refunded_at: new Date().toISOString(),
+  }).eq('id', gift_card_id);
+
+  res.status(200).json({ ok: true });
+}
+
+async function voidPackage(req, res) {
+  if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+  const { salonId } = await requireVenueAuth(req);
+  const { package_id } = req.body || {};
+  if (!package_id) { const e = new Error('package_id is required'); e.statusCode = 400; throw e; }
+
+  const svc = serviceClient();
+  const { data: pkg } = await svc.from('customer_packages').select('*').eq('id', package_id).eq('salon_id', salonId).maybeSingle();
+  if (!pkg) { const e = new Error('Package not found'); e.statusCode = 404; throw e; }
+  if (pkg.status !== 'active') { const e = new Error('This package is not active.'); e.statusCode = 400; throw e; }
+  // Kept deliberately conservative: a partially-used package's fair refund value is a business
+  // decision, not something to compute automatically. Only a fully-unused package can be voided
+  // here; anything else needs a manual call on the remaining value.
+  if (Number(pkg.sessions_remaining) !== Number(pkg.sessions_total)) {
+    const e = new Error('This package has sessions already used — partial refunds aren’t supported here. Refund the remaining value directly in Payline.');
+    e.statusCode = 400;
+    throw e;
+  }
+  const amount = Number(pkg.price_paid || 0);
+  if (!(amount > 0)) { const e = new Error('Invalid package amount'); e.statusCode = 400; throw e; }
+  if (!pkg.windcave_transaction_id) { const e = new Error('No payment record found for this package — it may predate online payments. Refund it directly in Payline.'); e.statusCode = 400; throw e; }
+
+  await refundWindcaveTransaction(pkg.windcave_transaction_id, amount);
+
+  await svc.from('customer_packages').update({
+    status: 'cancelled',
+    sessions_remaining: 0,
+    refunded_amount: amount,
+    refunded_at: new Date().toISOString(),
+  }).eq('id', package_id);
 
   res.status(200).json({ ok: true });
 }
@@ -564,6 +691,9 @@ module.exports = async (req, res) => {
     if (action === 'create-package-session') return await createPackageSession(req, res);
     if (action === 'finalize-package') return await finalizePackage(req, res);
     if (action === 'notification') return await notification(req, res);
+    if (action === 'refund-deposit') return await refundDeposit(req, res);
+    if (action === 'void-gift-card') return await voidGiftCard(req, res);
+    if (action === 'void-package') return await voidPackage(req, res);
     res.status(400).json({ error: 'Unknown or missing ?action=' });
   } catch (err) {
     console.error(`windcave [${action}] error:`, err.message, err.details || '');
