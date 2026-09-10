@@ -26,21 +26,24 @@
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}
 @keyframes bloomaPageIn{from{opacity:0;}to{opacity:1;}}
 body{animation:bloomaPageIn .28s ease both;}
+@keyframes bloomaShimmer{0%{background-position:-400px 0;}100%{background-position:400px 0;}}
+.skel{background:linear-gradient(90deg,var(--lav) 25%,#efe9fb 37%,var(--lav) 63%) !important;background-size:400px 100% !important;animation:bloomaShimmer 1.4s ease infinite;border:none !important;box-shadow:none !important;}
+.skel-bar{border-radius:8px;}
 #panel{transition:opacity .16s ease, transform .16s ease;}
 #panel.step-transitioning{opacity:0; transform:translateY(8px);}
 body{background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px;margin:0 auto;padding:0 32px}.topbar{position:sticky;top:0;z-index:50;background:rgba(250,249,252,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(235,231,243,.92)}
+button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px;margin:0 auto;padding:0 32px}.topbar{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line)}
 .topbar-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-size:22px;font-weight:800;letter-spacing:-.6px}.header-right{display:flex;align-items:center;gap:12px}.secure{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12.5px;font-weight:700}.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--ink)}
 .page-head{padding:34px 0 24px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--purple);font-weight:800;margin:0 0 8px}.page-head h1{font-size:42px;line-height:1.05;letter-spacing:-1.5px;margin:0}.page-head p{font-size:15px;color:var(--muted);line-height:1.6;margin:10px 0 0;max-width:620px}
 .checkout-layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:44px;align-items:start;padding:0 0 100px}.main{min-width:0}.aside{position:sticky;top:102px}.step-nav{display:flex;gap:8px;overflow:auto;scrollbar-width:none;padding-bottom:18px;margin-bottom:22px;border-bottom:1px solid var(--line)}.step-nav::-webkit-scrollbar{display:none}.step-pill{border:1px solid var(--line);background:#fff;border-radius:999px;height:38px;padding:0 14px;color:var(--muted);font-size:12.5px;font-weight:800;white-space:nowrap;display:flex;align-items:center;gap:8px}.step-pill .num{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--lav);color:var(--purple);font-size:10px}.step-pill .num svg{display:block}.step-pill.active{background:var(--ink);border-color:var(--ink);color:#fff}.step-pill.active .num{background:#fff;color:var(--ink)}.step-pill.done{color:var(--purple);border-color:#ded3f8;background:#fbf9ff}
 .panel{background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 1px 0 rgba(30,20,50,.02)}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:24px}.panel h2{font-size:30px;letter-spacing:-.8px;margin:0}.panel-sub{font-size:14px;color:var(--muted);line-height:1.55;margin:7px 0 0}.section-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin:0 0 11px}.stack{display:flex;flex-direction:column;gap:12px}
 .service-cats{display:flex;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:0 0 18px;padding:1px 1px 3px;scroll-padding-inline:1px}.service-cats::-webkit-scrollbar{display:none}.service-cat{flex:0 0 auto;min-height:38px;padding:7px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s,color .15s;box-shadow:none}.service-cat:hover{border-color:#d9cffa}.service-cat.selected{background:var(--ink);border-color:var(--ink);color:#fff}.service-empty{border:1px dashed var(--line);border-radius:18px;padding:22px 18px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.5;background:#fff}
-.choice-card{width:100%;min-height:76px;border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;transition:box-shadow .15s,border-color .15s,background .15s;outline:none}.choice-card:hover{border-color:#d9cffa;box-shadow:var(--shadow-sm)}.choice-card.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);background:#fdfcff}.choice-left{display:flex;align-items:center;gap:13px;min-width:0}.radio{width:20px;height:20px;border-radius:50%;border:1.5px solid #d8d0e6;display:grid;place-items:center;flex:none}.selected .radio{border-color:var(--purple)}.selected .radio:after{content:"";width:9px;height:9px;border-radius:50%;background:var(--purple)}.avatar{width:48px;height:48px;border-radius:15px;background:var(--lav);display:grid;place-items:center;color:var(--purple);font-weight:800;flex:none}.choice-title{font-size:14px;font-weight:800;margin:0}.choice-sub{font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.35}.choice-price{font-size:13.5px;font-weight:800;white-space:nowrap}
-.days{display:flex;gap:9px;overflow:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:22px}.days::-webkit-scrollbar{display:none}.day{min-width:66px;height:72px;border-radius:16px;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink);flex:none}.day span:first-child{font-size:10.5px;color:var(--soft);font-weight:700}.day span:last-child{font-size:17px;font-weight:800;margin-top:4px}.day.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple);background:#fdfcff}.day.selected span:first-child{color:var(--purple)}.day:disabled{opacity:.35;cursor:not-allowed}
-.time-list{max-height:390px;overflow:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:9px;padding-right:1px}.time-list::-webkit-scrollbar{display:none}.time{height:52px;min-height:52px;border:1px solid var(--line);background:#fff;border-radius:15px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:700}.time span{font-size:12px;color:var(--soft);font-weight:600}.time.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple);background:#fdfcff}.time:disabled{text-decoration:line-through;opacity:.35;cursor:not-allowed}
+.choice-card{width:100%;min-height:76px;border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;transition:box-shadow .15s,border-color .15s,background .15s;outline:none}.choice-card:hover{border-color:#d9cffa;box-shadow:var(--shadow-sm)}.choice-card.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple)}.choice-left{display:flex;align-items:center;gap:13px;min-width:0}.radio{width:20px;height:20px;border-radius:50%;border:1.5px solid #d8d0e6;display:grid;place-items:center;flex:none}.selected .radio{border-color:var(--purple)}.selected .radio:after{content:"";width:9px;height:9px;border-radius:50%;background:var(--purple)}.avatar{width:48px;height:48px;border-radius:15px;background:var(--lav);display:grid;place-items:center;color:var(--purple);font-weight:800;flex:none}.choice-title{font-size:14px;font-weight:800;margin:0}.choice-sub{font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.35}.choice-price{font-size:13.5px;font-weight:800;white-space:nowrap}
+.days{display:flex;gap:9px;overflow:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:22px}.days::-webkit-scrollbar{display:none}.day{min-width:66px;height:72px;border-radius:16px;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink);flex:none}.day span:first-child{font-size:10.5px;color:var(--soft);font-weight:700}.day span:last-child{font-size:17px;font-weight:800;margin-top:4px}.day.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple)}.day.selected span:first-child{color:var(--purple)}.day:disabled{opacity:.35;cursor:not-allowed}
+.time-list{display:flex;flex-direction:column;gap:9px;padding-right:1px}.time{height:52px;min-height:52px;border:1px solid var(--line);background:#fff;border-radius:15px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:700}.time span{font-size:12px;color:var(--soft);font-weight:600}.time.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple)}.time:disabled{text-decoration:line-through;opacity:.35;cursor:not-allowed}
 .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:12.5px;font-weight:700}.field input,.field textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 15px;outline:none;color:var(--ink);font-size:14px;transition:border-color .15s,box-shadow .15s}.field textarea{resize:vertical;min-height:96px}.field input:focus,.field textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,92,217,.09)}
-.yesno{display:grid;grid-template-columns:1fr 1fr;gap:10px}.yesno button{height:50px;border:1px solid var(--line);border-radius:15px;background:#fff;color:var(--ink);font-size:13px;font-weight:800}.yesno button.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple);background:#fdfcff}
-.inline-note{padding:14px 16px;background:var(--lav);border:1px solid #e7defa;border-radius:16px;font-size:12.5px;color:var(--muted);line-height:1.55}.actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px}.btn{height:50px;border-radius:999px;padding:0 24px;font-size:13.5px;font-weight:800;border:1px solid var(--line);background:#fff;color:var(--ink)}.btn.primary{border:none;background:var(--purple);color:#fff;min-width:160px}.btn.primary:hover{background:var(--purple-dark)}.btn.ghost:hover{background:var(--lav)}
+.yesno{display:grid;grid-template-columns:1fr 1fr;gap:10px}.yesno button{height:50px;border:1px solid var(--line);border-radius:15px;background:#fff;color:var(--ink);font-size:13px;font-weight:800}.yesno button.selected{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple);color:var(--purple)}
+.inline-note{padding:14px 16px;background:var(--lav);border:1px solid #e7defa;border-radius:16px;font-size:12.5px;color:var(--muted);line-height:1.55}.actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px}.btn{height:50px;border-radius:999px;padding:0 24px;font-size:13.5px;font-weight:800;border:1px solid var(--line);background:#fff;color:var(--ink)}.btn.primary{border:none;background:var(--purple);color:#fff;min-width:160px}.btn.primary:hover{background:var(--purple-dark)}.btn.ghost:hover{background:var(--lav)}.btn.loading{display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-spinner{width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:btn-spin .7s linear infinite;flex:none}@keyframes btn-spin{to{transform:rotate(360deg)}}
 .summary-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}.venue-row{display:flex;gap:12px;align-items:center}.venue-img{width:60px;height:60px;border-radius:16px;overflow:hidden;background:var(--lav);flex:none}.venue-img img{width:100%;height:100%;object-fit:cover}.venue-name{font-size:15px;font-weight:800;margin:0}.venue-meta{font-size:12px;color:var(--muted);margin:4px 0 0}.divider{height:1px;background:var(--line);margin:18px 0}.summary-line{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-top:12px}.summary-line:first-child{margin-top:0}.summary-name{font-size:13.5px;font-weight:700}.summary-sub{font-size:12px;color:var(--muted);margin-top:3px}.summary-price{font-size:13.5px;font-weight:800;white-space:nowrap}.datebox{background:var(--lav);border-radius:16px;padding:14px;margin-top:16px}.date-row{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}.date-row+.date-row{margin-top:8px}.total{display:flex;justify-content:space-between;align-items:end}.total span:first-child{font-size:13px;color:var(--muted);font-weight:700}.total strong{font-size:23px;letter-spacing:-.5px}.reward-card{margin-top:14px;background:linear-gradient(145deg,#251d35,#15111d);color:#fff;border-radius:22px;padding:20px}.reward-card .eyebrow{color:#cdbcf7}.reward-points{font-size:20px;font-weight:800}.reward-note{font-size:12px;color:#bdb4ca;line-height:1.5;margin:7px 0 0}.reward-bar{height:6px;background:rgba(255,255,255,.15);border-radius:999px;margin-top:12px;overflow:hidden}.reward-bar span{display:block;width:62%;height:100%;background:#fff;border-radius:999px}
 .review-block{display:flex;flex-direction:column;gap:14px}.review-card{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}.review-card h3{font-size:14px;margin:0}.review-card p{font-size:12.5px;color:var(--muted);line-height:1.55;margin:7px 0 0}.mini-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:7px 0}.mini-row span:first-child{color:var(--muted)}.promo-row{display:flex;gap:10px}.promo-row input{flex:1;min-width:0;border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}.small-btn{border:none;border-radius:14px;background:var(--purple);color:#fff;padding:0 18px;font-size:12.5px;font-weight:800}.offer-card{border:1px solid var(--line);border-radius:17px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;text-align:left;width:100%}.offer-card>div{flex:1;min-width:0}.offer-card strong{font-size:13.5px}.offer-card p{font-size:12px;color:var(--muted);margin:4px 0 0}.toggle{width:42px;height:24px;border-radius:999px;background:#dfd9e8;padding:3px;transition:.15s;flex:none}.toggle:after{content:"";display:block;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);transition:.15s}.toggle.on{background:var(--purple)}.toggle.on:after{transform:translateX(18px)}
 .success{display:none;text-align:center;padding:30px 0}.success-mark{width:68px;height:68px;border-radius:50%;background:var(--lav2);color:var(--purple);display:grid;place-items:center;margin:0 auto 18px;font-size:30px;font-weight:800}.success h2{font-size:32px;margin:0}.success p{font-size:14px;color:var(--muted);line-height:1.6;max-width:480px;margin:10px auto 0}.success .review-card{max-width:520px;margin:24px auto 0;text-align:left}.success-booking-btn{margin:26px auto 0;min-width:180px;height:50px;padding:0 28px;border:none;border-radius:999px;background:var(--purple);color:#fff;font-size:14px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.success-booking-btn:hover{background:var(--purple-dark)}
@@ -58,7 +61,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 .review-appt-mobile .date-row{font-weight:400}
 @media(max-width:900px){.review-appt-desktop{display:none}.review-appt-mobile{display:block}}
 @media(max-width:900px){
- .shell{padding:0 18px}.topbar-inner{height:66px}.secure{display:none}.page-head{display:none}.checkout-layout{display:block;padding-top:20px;padding-bottom:112px}.aside{display:none}.step-nav{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px;margin-bottom:18px}.panel{border-radius:20px;padding:20px 17px;box-shadow:none}.panel h2{font-size:25px}.panel-head{margin-bottom:20px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.choice-card{min-height:72px;padding:14px}.actions{display:none}.mobile-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:11px 18px calc(11px + env(safe-area-inset-bottom))}.mobile-bar-inner{max-width:650px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.mobile-copy strong{font-size:13.5px;display:block}.mobile-copy span{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}.mobile-bar .btn{height:48px;min-width:130px;padding:0 20px}.time-list{max-height:330px}.yesno{grid-template-columns:1fr 1fr}.success{padding-top:14px}
+ .shell{padding:0 18px}.topbar-inner{height:66px}.secure{display:none}.page-head{display:none}.checkout-layout{display:block;padding-top:20px;padding-bottom:112px}.aside{display:none}.step-nav{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px;margin-bottom:18px}.panel{border-radius:20px;padding:20px 17px;box-shadow:none}.panel h2{font-size:25px}.panel-head{margin-bottom:20px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.choice-card{min-height:72px;padding:14px}.actions{display:none}.mobile-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:11px 18px calc(11px + env(safe-area-inset-bottom))}.mobile-bar-inner{max-width:650px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.mobile-copy strong{font-size:13.5px;display:block}.mobile-copy span{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}.mobile-bar .btn{height:48px;min-width:130px;padding:0 20px}.yesno{grid-template-columns:1fr 1fr}.success{padding-top:14px}
 }
 @media(max-width:520px){.shell{padding:0 16px}.step-nav{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}.page-head h1{font-size:29px}.panel{padding:18px 15px}.panel h2{font-size:23px}.choice-price{font-size:13px}.avatar{width:44px;height:44px;border-radius:14px}.day{min-width:62px}.mobile-copy{max-width:150px}}
 </style>
@@ -72,11 +75,39 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
  <section class="page-head"><p class="eyebrow">Booking</p><h1>Complete your appointment</h1><p>Choose the extras, artist and time that suit you, then review everything before confirming.</p></section>
  <div class="checkout-layout">
   <div class="main">
-   <div class="step-nav" id="stepNav"></div>
-   <section class="panel" id="panel"></section>
+   <div class="step-nav" id="stepNav">
+    <div class="step-pill skel" style="width:126px;"></div>
+    <div class="step-pill skel" style="width:104px;"></div>
+    <div class="step-pill skel" style="width:96px;"></div>
+    <div class="step-pill skel" style="width:114px;"></div>
+   </div>
+   <section class="panel" id="panel">
+    <div class="panel-head">
+     <div>
+      <div class="skel skel-bar" style="width:170px;height:26px;margin-bottom:10px;"></div>
+      <div class="skel skel-bar" style="width:230px;height:13px;"></div>
+     </div>
+    </div>
+    <div class="stack">
+     <div class="choice-card skel"></div>
+     <div class="choice-card skel"></div>
+     <div class="choice-card skel"></div>
+    </div>
+   </section>
   </div>
   <aside class="aside">
-   <div class="summary-card" id="summary"></div>
+   <div class="summary-card" id="summary">
+    <div class="venue-row">
+     <div class="venue-img skel"></div>
+     <div style="flex:1;min-width:0;">
+      <div class="skel skel-bar" style="width:70%;height:15px;margin-bottom:8px;"></div>
+      <div class="skel skel-bar" style="width:45%;height:12px;"></div>
+     </div>
+    </div>
+    <div class="divider"></div>
+    <div class="skel skel-bar" style="width:100%;height:14px;margin-bottom:10px;"></div>
+    <div class="skel skel-bar" style="width:80%;height:14px;"></div>
+   </div>
    <div class="reward-card" id="rewardCard" style="display:none;"><p class="eyebrow">Blooma rewards</p><div class="reward-points" id="rewardPoints"></div><div class="reward-bar"><span id="rewardBarFill"></span></div><p class="reward-note" id="rewardNote"></p></div>
   </aside>
  </div>
@@ -85,7 +116,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 <script>
 /* ---------------------------------------------------
    Blooma — standalone checkout page.
-   Reached via /venue/:slug/checkout (vercel.json rewrites this to
+   Reached via /book-now/:slug (vercel.json rewrites this to
    /customer-checkout?venue=:slug, optionally with &service=:id to
    pre-select a service). Ports the same booking business logic used by
    the in-app checkout in index.html (availability, discounts, intake
@@ -112,6 +143,14 @@ function makeClientRequestId(){
   if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{ const r=Math.random()*16|0,v=c==="x"?r:(r&3|8); return v.toString(16); });
 }
+
+// Several buttons on this page disable themselves and say "Redirecting…" right before a full
+// page navigation to Windcave's hosted payment page. If the customer hits the browser Back
+// button instead of completing payment, some browsers restore this page from the bfcache —
+// the exact frozen DOM from the moment we navigated away — without re-running any JS, so the
+// button is stuck disabled forever until a manual refresh. Reloading on a bfcache restore
+// forces a real re-run of boot()/handleDepositReturn() so the page reflects reality again.
+window.addEventListener('pageshow', (e)=>{ if(e.persisted) location.reload(); });
 
 /* ---------- NZ date/time helpers (same logic as the main app) ---------- */
 const NZ_TIME_ZONE = "Pacific/Auckland";
@@ -262,6 +301,7 @@ const state={
   intakeQuestionsByService:{},
   saving:false, bookingError:'', done:false, lastBooking:null,
   rescheduleToken:null, rescheduleBookingId:null,
+  waitlistJoining:false, waitlistJoinedKey:null, waitlistError:'',
 };
 
 function currentService(){ return state.service; }
@@ -347,7 +387,7 @@ function renderSummary(){
   document.getElementById('mobileTotal').textContent=`$${finalTotal()} total`;
   document.getElementById('mobileStep').textContent=`Step ${state.step+1} of ${stepDefs().length}`;
 }
-function panelHead(title,sub){ return `<div class="panel-head"><div><p class="section-label">${esc(stepDefs()[state.step]?.label||'')}</p><h2>${esc(title)}</h2><p class="panel-sub">${esc(sub)}</p></div></div>`; }
+function panelHead(title,sub){ return `<div class="panel-head"><div><p class="section-label" style="display:none;">${esc(stepDefs()[state.step]?.label||'')}</p><h2>${esc(title)}</h2><p class="panel-sub" style="display:none;">${esc(sub)}</p></div></div>`; }
 
 function renderPanel(){
   const salon=state.salon; const svc=state.service;
@@ -373,7 +413,17 @@ function renderPanel(){
     h = panelHead('Choose a time','Pick a day first, then choose from the available appointment times below.')
       + `<p class="section-label">Day</p><div class="days">${DAYS.map((d,i)=>{ const open=!!customerDayHours(salon,nzDayIndex(d)); return `<button class="day ${state.day===i?'selected':''}" data-day="${i}" ${open?'':'disabled'}><span>${dayShort(d)}</span><span>${nzDayNumber(d)}</span></button>`; }).join('')}</div>`
       + `<p class="section-label">Available times</p><div class="time-list">${slots.length?slots.map(t=>{ const blocked=isTimeBlocked(salon,state.day,state.stylist,t,totalDurationMins()); return `<button class="time ${state.time===t?'selected':''}" data-time="${esc(t)}" ${blocked?'disabled':''}><strong>${esc(t)}</strong><span>${blocked?'Unavailable':'Available'}</span></button>`; }).join(''):'<p class="panel-sub">This venue is closed on this day.</p>'}</div>`
-      + (allBlocked ? `<div class="inline-note" style="margin-top:16px;">No times are available ${esc(stylistAvailabilityPhrase(state.stylist))} on ${esc(dayLabel(DAYS[state.day]))}. Try another day or stylist.</div>` : '');
+      + (allBlocked ? (()=>{
+          const wKey=state.day+'|'+(state.stylist?state.stylist.id:'');
+          const joined=state.waitlistJoinedKey===wKey;
+          return `<div class="inline-note" style="margin-top:16px;">
+            <p style="margin:0 0 ${joined?'0':'12px'};">No times are available ${esc(stylistAvailabilityPhrase(state.stylist))} on ${esc(dayLabel(DAYS[state.day]))}. Try another day or stylist${state.rescheduleToken?'.':', or join the waitlist and we\'ll text you if a spot opens up.'}</p>
+            ${state.rescheduleToken ? '' : joined
+              ? `<p style="margin:0;font-weight:700;color:var(--purple);">You're on the waitlist for this day. We'll be in touch if a spot opens up.</p>`
+              : `<button class="btn primary" type="button" id="joinWaitlistBtn" style="width:100%;" ${state.waitlistJoining?'disabled':''}>${state.waitlistJoining?'Joining…':'Join waitlist for this day'}</button>
+                 ${state.waitlistError?`<p style="margin:8px 0 0;color:var(--red);font-size:12.5px;">${esc(state.waitlistError)}</p>`:''}`}
+          </div>`;
+        })() : '');
   } else if(key==='intake'){
     h = panelHead('A few questions',`These help ${salon.name} prepare for your appointment.`)
       + `<div class="stack">${intakeQuestionsForCurrent().map(q=>`
@@ -428,6 +478,7 @@ function renderPanel(){
           <p class="section-label">Rewards & offers</p>
           <div class="stack">
             ${eligibleForReward ? `<button class="offer-card" id="rewardToggle" type="button"><div><strong>${state.appliedLoyaltyReward?'Reward applied':'Redeem '+esc(state.loyaltyAccount.rewardText||'reward')}</strong><p>${state.loyaltyAccount.points} points available</p></div><span class="toggle ${state.appliedLoyaltyReward?'on':''}"></span></button>` : ''}
+            <div class="promo-row"><input id="promoInput" placeholder="Promo code" value="${esc(state.promoCode)}" ${state.appliedPromo?'disabled':''} style="${state.promoFlash?'border-color:var(--red);box-shadow:0 0 0 3px rgba(193,59,59,.12);':''}"><button class="small-btn" id="promoBtn" type="button">${state.promoChecking?'Checking…':state.appliedPromo?'Remove':'Apply'}</button></div>
             <div class="promo-row"><input id="giftInput" placeholder="Gift card code" value="${esc(state.giftCode)}" style="${state.giftFlash?'border-color:var(--red);box-shadow:0 0 0 3px rgba(193,59,59,.12);':''}"><button class="small-btn" id="giftBtn" type="button">${state.giftChecking?'Checking…':state.appliedGiftCard?'Remove':'Apply'}</button></div>
           </div>
         </div>
@@ -440,13 +491,11 @@ function renderPanel(){
       </div>`;
   }
 
-  // Re-rendering swaps in fresh .days/.time-list nodes, which would otherwise reset their
-  // scroll position to 0 on every click (picking a day/time visibly "snapped back to the start").
+  // Re-rendering swaps in a fresh .days node, which would otherwise reset its
+  // scroll position to 0 on every click (picking a day visibly "snapped back to the start").
   const prevDaysScroll = document.querySelector('.days')?.scrollLeft;
-  const prevTimeScroll = document.querySelector('.time-list')?.scrollTop;
-  document.getElementById('panel').innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary" id="next" ${state.saving?'disabled':''}>${state.saving?'Confirming…':(key==='review'?(state.rescheduleToken?'Confirm changes':'Confirm booking'):'Continue')}</button></div>`;
+  document.getElementById('panel').innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary${state.saving?' loading':''}" id="next" ${state.saving?'disabled':''}>${state.saving?'<span class="btn-spinner"></span>Confirming…':(key==='review'?(state.rescheduleToken?'Confirm changes':'Confirm booking'):'Continue')}</button></div>`;
   const newDays = document.querySelector('.days'); if(newDays && prevDaysScroll) newDays.scrollLeft = prevDaysScroll;
-  const newTimeList = document.querySelector('.time-list'); if(newTimeList && prevTimeScroll) newTimeList.scrollTop = prevTimeScroll;
   bind();
 }
 
@@ -477,6 +526,7 @@ function bind(){
   });
   document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{ state.day=+b.dataset.day; state.time=null; render(); });
   document.querySelectorAll('[data-time]').forEach(b=>b.onclick=()=>{ state.time=b.dataset.time; render(); });
+  const joinWaitlistBtn=document.getElementById('joinWaitlistBtn'); if(joinWaitlistBtn) joinWaitlistBtn.onclick=joinCheckoutWaitlist;
   document.querySelectorAll('[data-intaketext]').forEach(el=>el.oninput=()=>{ state.intake[el.getAttribute('data-intaketext')]=el.value; });
   document.querySelectorAll('[data-intakeyesno]').forEach(b=>b.onclick=()=>{ const [qid,val]=b.getAttribute('data-intakeyesno').split('|'); state.intake[qid]=val; render(); });
   document.querySelectorAll('[data-intakechoice]').forEach(b=>b.onclick=()=>{ const idx=b.getAttribute('data-intakechoice').indexOf('|'); const qid=b.getAttribute('data-intakechoice').slice(0,idx); const val=b.getAttribute('data-intakechoice').slice(idx+1); state.intake[qid]=val; render(); });
@@ -490,6 +540,20 @@ function bind(){
     render();
   };
   function flashError(field){ state[field]=true; render(); setTimeout(()=>{ state[field]=false; render(); },900); }
+  const pb=document.getElementById('promoBtn');
+  if(pb) pb.onclick=async ()=>{
+    if(state.appliedPromo){ state.appliedPromo=null; state.promoCode=''; render(); return; }
+    const raw=(document.getElementById('promoInput').value||'').trim().toUpperCase();
+    if(!raw){ flashError('promoFlash'); return; }
+    state.promoChecking=true; render();
+    try{
+      const {data,error}=await supabaseClient.rpc('validate_promo_code',{p_salon_id:state.salon.id,p_code:raw});
+      if(error) throw error;
+      if(!data) throw new Error('Invalid code');
+      state.appliedPromo=data; state.promoCode=raw;
+    }catch(e){ state.appliedPromo=null; state.promoChecking=false; render(); flashError('promoFlash'); return; }
+    state.promoChecking=false; render();
+  };
   const gb=document.getElementById('giftBtn');
   if(gb) gb.onclick=async ()=>{
     if(state.appliedGiftCard){ state.appliedGiftCard=null; state.giftCode=''; render(); return; }
@@ -508,8 +572,8 @@ function bind(){
   document.getElementById('next').onclick=next;
   const viewBtn=document.getElementById('viewBookingBtn');
   if(viewBtn) viewBtn.onclick=()=>{
-    if(state.authenticated && state.lastBooking?.id) navigateWithFade('/?openBooking='+encodeURIComponent(state.lastBooking.id));
-    else navigateWithFade('/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id));
+    if(state.authenticated && state.lastBooking?.id) navigateWithFade('/explore?openBooking='+encodeURIComponent(state.lastBooking.id));
+    else navigateWithFade('/'+encodeURIComponent(state.salon.publicSlug||state.salon.id));
   };
 }
 
@@ -517,7 +581,9 @@ function shakePanel(){
   document.getElementById('panel').animate([{transform:'translateX(0)'},{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(0)'}],{duration:180});
 }
 
+let stepTransitioning=false;
 async function next(){
+  if(stepTransitioning) return;
   const defs=stepDefs();
   const key=defs[state.step]?.key;
   if(key==='review'){
@@ -546,9 +612,11 @@ async function next(){
 function animateStepChange(applyChange){
   const panel=document.getElementById('panel');
   if(!panel){ applyChange(); return; }
+  stepTransitioning=true;
   panel.classList.add('step-transitioning');
   setTimeout(()=>{
     applyChange();
+    stepTransitioning=false;
     window.scrollTo({top:0,behavior:'smooth'});
     requestAnimationFrame(()=>{ document.getElementById('panel')?.classList.remove('step-transitioning'); });
   },160);
@@ -593,7 +661,7 @@ function restorePendingCheckoutState(){
   state.step = resumeIdx>=0 ? resumeIdx : Math.max(0, defs.length-1);
   return true;
 }
-function back(){ if(state.step>0){ animateStepChange(()=>{ state.step--; render({smoothNav:true}); }); } }
+function back(){ if(!stepTransitioning && state.step>0){ animateStepChange(()=>{ state.step--; render({smoothNav:true}); }); } }
 
 async function confirmBooking(){
   if(state.saving) return;
@@ -603,6 +671,17 @@ async function confirmBooking(){
   if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins())){ state.bookingError='That time is no longer available — please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
   state.saving=true; state.bookingError=''; render();
   try{
+    // Already created this booking on a previous attempt (e.g. the customer tapped back from
+    // Stripe without paying, then hit Pay again) — don't create a second, duplicate booking,
+    // just start a fresh checkout session for the one that already exists.
+    if(state.lastBooking?.id && state.lastBooking?.deposit_status==='pending'){
+      const res=await fetch('/api/windcave?action=create-deposit-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:state.lastBooking.id})});
+      const out=await res.json().catch(()=>null);
+      if(!res.ok || !out?.url){ throw new Error(out?.error || "Couldn't start the deposit payment. Please try again."); }
+      state.saving=false; render();
+      navigateWithFade(out.url);
+      return;
+    }
     const notes=[state.notes, state.appliedLoyaltyReward?`[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]`:'', state.appliedGiftCard?`[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]`:''].filter(Boolean).join(' ').trim();
     let data, error;
     if(state.rescheduleToken){
@@ -643,14 +722,16 @@ async function confirmBooking(){
         preferences: state.firstVisit==='Yes' ? ['First time here'] : [],
         addons: selectedAddonsList(),
         client_request_id: makeClientRequestId(),
+        applied_loyalty: !!state.appliedLoyaltyReward,
+        applied_gift_card_id: state.appliedGiftCard ? state.appliedGiftCard.id : null,
       };
       ({data,error}=await supabaseClient.rpc('create_public_booking',{payload}));
     }
     if(error) throw error;
     state.lastBooking=data||{};
 
-    if(state.appliedLoyaltyReward){ try{ await supabaseClient.rpc('redeem_loyalty_reward',{p_salon_id:state.salon.id}); }catch(e){} }
-    if(state.appliedGiftCard && giftCardDiscount()>0){ try{ await supabaseClient.rpc('redeem_gift_card',{p_gift_card_id:state.appliedGiftCard.id,p_amount:giftCardDiscount(),p_booking_id:state.lastBooking.id||null}); }catch(e){} }
+    if(state.appliedLoyaltyReward){ try{ await supabaseClient.rpc('redeem_loyalty_reward',{p_salon_id:state.salon.id}); }catch(e){ console.error('redeem_loyalty_reward failed after booking was created with the discount applied — points not deducted', e); } }
+    if(state.appliedGiftCard && giftCardDiscount()>0){ try{ await supabaseClient.rpc('redeem_gift_card',{p_gift_card_id:state.appliedGiftCard.id,p_amount:giftCardDiscount(),p_booking_id:state.lastBooking.id||null}); }catch(e){ console.error('redeem_gift_card failed after booking was created with the discount applied — balance not deducted', e); } }
     const intakeQs=intakeQuestionsForCurrent();
     if(intakeQs.length && state.lastBooking.public_token){
       const answers=intakeQs.filter(q=>state.intake[q.id]!==undefined && String(state.intake[q.id]).trim()!=='').map(q=>({question_id:q.id,label:q.label,answer:state.intake[q.id]}));
@@ -658,9 +739,15 @@ async function confirmBooking(){
     }
 
     if(state.lastBooking.deposit_status==='pending' && Number(state.lastBooking.deposit_amount)>0){
-      const res=await fetch('/api/stripe/create-booking-deposit-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:state.lastBooking.id})});
+      const res=await fetch('/api/windcave?action=create-deposit-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:state.lastBooking.id})});
       const out=await res.json().catch(()=>null);
       if(!res.ok || !out?.url){ throw new Error(out?.error || "Booking was saved, but we couldn't start the deposit payment. Please try again."); }
+      // The booking itself is already saved at this point — leaving state.saving=true (and the
+      // Pay button disabled in the already-rendered DOM) here would permanently block the button
+      // if the browser restores this page from bfcache when the customer taps back from Stripe
+      // without paying (see the pageshow listener below too).
+      state.saving=false;
+      render();
       navigateWithFade(out.url);
       return;
     }
@@ -673,6 +760,33 @@ async function confirmBooking(){
     window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
     state.saving=false; state.bookingError=err?.message||"We couldn't save this booking. Please try again.";
+    render();
+  }
+}
+
+async function joinCheckoutWaitlist(){
+  if(state.waitlistJoining || !state.salon || !state.service) return;
+  const contact=bookingContact();
+  if(contact.name.length<2 || contact.phone.length<6){ state.waitlistError="We couldn't find your contact details — please refresh and try again."; render(); return; }
+  const wKey=state.day+'|'+(state.stylist?state.stylist.id:'');
+  state.waitlistJoining=true; state.waitlistError=''; render();
+  try{
+    const payload={
+      salon_id:state.salon.id,
+      service_id:state.service.id,
+      stylist_id:isAnyAvailableStylist(state.stylist)?null:(state.stylist?.id||null),
+      desired_date:nzDateKey(DAYS[state.day]),
+      customer_name:contact.name,
+      customer_phone:contact.phone,
+      time_preference:'Any',
+      client_request_id:makeClientRequestId(),
+    };
+    const {error}=await supabaseClient.rpc('create_public_waitlist',{payload});
+    if(error) throw error;
+    state.waitlistJoining=false; state.waitlistJoinedKey=wKey;
+    render();
+  }catch(err){
+    state.waitlistJoining=false; state.waitlistError=err?.message||"Couldn't join the waitlist. Please try again.";
     render();
   }
 }
@@ -719,15 +833,28 @@ async function loadAuth(){
 
 function requestedSlug(){
   const q=new URLSearchParams(location.search).get('venue'); if(q) return q;
-  const m=location.pathname.replace(/\/+$/,'').match(/^\/venue\/([^/]+)\/checkout$/i);
+  const cleanPath=location.pathname.replace(/\/+$/,'');
+  let m=cleanPath.match(/^\/book-now\/([^/]+)$/i);
+  if(m) return decodeURIComponent(m[1]);
+  // Backward compat: /venue/:slug/checkout links shared before the /book-now/:slug rename.
+  m=cleanPath.match(/^\/venue\/([^/]+)\/checkout$/i);
   return m ? decodeURIComponent(m[1]) : '';
 }
 
+// Clears the skeleton placeholders in #stepNav and #summary — used on boot() error paths,
+// which otherwise only replace #panel and leave the rest shimmering forever.
+function clearBootSkeleton(){
+  const nav=document.getElementById('stepNav'); if(nav) nav.innerHTML='';
+  const summary=document.getElementById('summary'); if(summary) summary.innerHTML='';
+}
 async function boot(){
   const slug=requestedSlug();
   const requestedServiceId=new URLSearchParams(location.search).get('service');
-  if(!slug){ document.getElementById('panel').innerHTML='<div class="panel-head"><h2>Venue not found</h2><p class="panel-sub">This checkout link is missing a venue.</p></div>'; return; }
+  if(!slug){ clearBootSkeleton(); document.getElementById('panel').innerHTML='<div class="panel-head"><h2>Venue not found</h2><p class="panel-sub">This checkout link is missing a venue.</p></div>'; return; }
   try{
+    // Sweep expired deposit holds first, so a slot someone abandoned mid-checkout shows as
+    // available again in the same load rather than waiting for whoever loads next.
+    try{ await fetch('/api/bookings/expire-stale-holds',{method:'POST'}); }catch(e){}
     const {data,error}=await supabaseClient.rpc('get_marketplace_venues');
     if(error) throw error;
     const wanted=slug.toLowerCase();
@@ -735,6 +862,7 @@ async function boot(){
     if(!match) throw new Error('not found');
     state.salon=liveVenueToSalon(match);
   }catch(e){
+    clearBootSkeleton();
     document.getElementById('panel').innerHTML='<div class="panel-head"><h2>We couldn\'t load this venue</h2><p class="panel-sub">Please go back and try again.</p></div>';
     return;
   }
@@ -754,7 +882,12 @@ async function boot(){
       const startDate = new Date(booking.starts_at);
       const idx = dayIndexForDate(startDate);
       state.day = idx>=0 ? idx : firstOpenDayIndex(state.salon);
-      state.time = formatTimeMins(nzMinutesOfDay(startDate));
+      // The booking's original date can fall outside the 21-day rolling window DAYS covers
+      // (e.g. rescheduling a booking made months ago). In that case we fall back to the
+      // first open day, but the original time is very unlikely to still be a valid slot on
+      // that different day — leave it unselected so the customer actively picks a real one,
+      // instead of silently pre-selecting a time that was never checked against the new day.
+      state.time = idx>=0 ? formatTimeMins(nzMinutesOfDay(startDate)) : '';
       state.addons = Array.isArray(booking.addons) ? booking.addons.map(a=>a && a.id).filter(Boolean) : [];
       state.notes = booking.notes || '';
       state.firstVisit = (Array.isArray(booking.preferences) && booking.preferences.length) ? 'Yes' : 'No';
@@ -762,6 +895,7 @@ async function boot(){
       state.phone = booking.customer_phone || '';
       state.email = booking.customer_email || '';
     }catch(e){
+      clearBootSkeleton();
       document.getElementById('panel').innerHTML='<div class="panel-head"><h2>We couldn\'t load that booking</h2><p class="panel-sub">This reschedule link may have expired — please go back to Activity and try again.</p></div>';
       return;
     }
@@ -773,9 +907,11 @@ async function boot(){
     state.day = firstOpenDayIndex(state.salon);
     const requestedStylistId=new URLSearchParams(location.search).get('stylist');
     state.stylist = (requestedStylistId && state.salon.stylists.find(st=>st.id===requestedStylistId)) || anyAvailable;
+    const requestedCategory=new URLSearchParams(location.search).get('category');
+    if(requestedCategory && state.salon.services.some(s=>s.category===requestedCategory)) state.serviceCategory=requestedCategory;
   }
-  document.getElementById('closeBtn').onclick=()=>{ navigateWithFade('/venue/'+encodeURIComponent(state.salon.publicSlug||state.salon.id)); };
-  document.getElementById('brandBtn').onclick=()=>{ navigateWithFade('/'); };
+  document.getElementById('closeBtn').onclick=()=>{ navigateWithFade('/'+encodeURIComponent(state.salon.publicSlug||state.salon.id)); };
+  document.getElementById('brandBtn').onclick=()=>{ navigateWithFade('/explore'); };
   if(state.service) loadIntakeQuestionsFor(state.service);
   if(state.rescheduleToken){
     const timeIdx=stepDefs().findIndex(d=>d.key==='time');
@@ -784,7 +920,7 @@ async function boot(){
   render();
   loadAuth();
 }
-function render(opts){ renderNav(opts&&opts.smoothNav); renderPanel(); renderSummary(); const mn=document.getElementById('mobileNext'); mn.textContent = stepDefs()[state.step]?.key==='review' ? 'Confirm' : 'Continue'; mn.onclick=next; }
+function render(opts){ renderNav(opts&&opts.smoothNav); renderPanel(); renderSummary(); const mn=document.getElementById('mobileNext'); mn.disabled=!!state.saving; mn.classList.toggle('loading',!!state.saving); mn.innerHTML = state.saving ? '<span class="btn-spinner"></span>Confirming…' : (stepDefs()[state.step]?.key==='review' ? 'Confirm' : 'Continue'); mn.onclick=next; }
 
 // Stripe redirects back here after a deposit payment (or cancellation) with no venue/service
 // context in the URL, so this renders a standalone confirmation instead of running the normal
@@ -799,33 +935,44 @@ async function handleDepositReturn(){
   document.querySelector('.step-nav').style.display='none';
   document.querySelector('.aside').style.display='none';
   const mb=document.querySelector('.mobile-bar'); if(mb) mb.style.display='none';
+  // This whole return path skips boot() entirely (see the bottom of this file), which is the
+  // only place the brand logo's click handler otherwise gets wired up — bind it here too so it
+  // isn't silently dead on every deposit-return/hold screen.
+  document.getElementById('brandBtn').onclick=()=>{ navigateWithFade('/explore'); };
   const panel=document.getElementById('panel');
   panel.innerHTML='<div class="panel-head"><h2>Loading your booking…</h2></div>';
 
   try{
-    const {data,error}=await supabaseClient.rpc('get_booking_by_public_token',{p_token:token});
-    if(error) throw error;
-    const b=data;
+    let b, attempts=0;
+    // Stripe redirects back here the instant checkout completes, but the row's deposit_status
+    // only flips to 'paid' once the async webhook lands — which can trail the redirect by a
+    // second or more. Poll briefly before ever showing "hasn't been paid yet" to someone who
+    // just paid, rather than alarming them (and risking a double-charge if they retry).
+    while(true){
+      const {data,error}=await supabaseClient.rpc('get_booking_by_public_token',{p_token:token});
+      if(error) throw error;
+      b=data;
+      if(status!=='success' || b.deposit_status==='paid' || attempts>=6) break;
+      attempts++;
+      panel.innerHTML='<div class="panel-head"><h2>Confirming your payment…</h2></div>';
+      await new Promise(r=>setTimeout(r,1200));
+    }
     const when=b.starts_at ? new Date(b.starts_at).toLocaleString(undefined,{weekday:'long',day:'numeric',month:'long',hour:'numeric',minute:'2-digit',timeZone:NZ_TIME_ZONE}) : '';
     if(status==='success' && b.deposit_status==='paid'){
-      panel.innerHTML=`<div class="success" style="display:block;">
-        <div class="success-mark">✓</div>
-        <h2>Deposit paid — you're booked in</h2>
-        <p>${esc(b.salon_name)} has received your $${Number(b.deposit_amount).toFixed(2)} deposit for ${esc(b.service_name_snapshot||'your appointment')}${when?', '+esc(when):''}. The rest is due at your appointment.</p>
-        <button class="success-booking-btn" type="button" onclick="navigateWithFade('/')">Back to Blooma</button>
-      </div>`;
+      navigateWithFade('/explore?openBooking='+encodeURIComponent(b.public_token||token));
     } else {
-      panel.innerHTML=`<div class="panel-head"><h2>Your booking is on hold</h2><p class="panel-sub">${esc(b.salon_name)} is holding ${esc(b.service_name_snapshot||'your appointment')}${when?' for '+esc(when):''}, but the $${Number(b.deposit_amount).toFixed(2)} deposit hasn't been paid yet — pay now to confirm it.</p></div>
-        <div class="actions" style="display:flex;"><button class="btn ghost" type="button" onclick="navigateWithFade('/')">Cancel</button><button class="btn primary" type="button" id="retryDepositBtn">Pay deposit</button></div>`;
+      document.getElementById('closeBtn').onclick=()=>{ navigateWithFade('/explore?openBooking='+encodeURIComponent(b.public_token||token)); };
+      panel.innerHTML=`<div class="panel-head"><div><h2>Your booking is on hold</h2><p class="panel-sub">${esc(b.salon_name)} is holding ${esc(b.service_name_snapshot||'your appointment')}${when?' for '+esc(when):''}, but the $${Number(b.deposit_amount).toFixed(2)} deposit hasn't been paid yet. Pay now to confirm it. Unpaid holds are only kept for 15 minutes after booking, after which the time may be given up.</p></div></div>
+        <div class="actions" style="display:flex;"><button class="btn primary" type="button" id="retryDepositBtn" style="width:100%;">Pay deposit</button></div>`;
       const retryBtn=document.getElementById('retryDepositBtn');
       if(retryBtn) retryBtn.onclick=async ()=>{
         retryBtn.disabled=true; retryBtn.textContent='Redirecting…';
         try{
-          const res=await fetch('/api/stripe/create-booking-deposit-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:b.id})});
+          const res=await fetch('/api/windcave?action=create-deposit-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:b.id})});
           const out=await res.json().catch(()=>null);
           if(!res.ok || !out?.url) throw new Error(out?.error||'Could not start checkout');
           navigateWithFade(out.url);
-        }catch(e){ retryBtn.disabled=false; retryBtn.textContent='Pay deposit'; alert(e.message||'Something went wrong — please try again.'); }
+        }catch(e){ retryBtn.disabled=false; retryBtn.textContent='Pay deposit'; alert(e.message||'Something went wrong. Please try again.'); }
       };
     }
   }catch(e){
@@ -835,6 +982,13 @@ async function handleDepositReturn(){
 }
 
 handleDepositReturn().then(handled=>{ if(!handled) boot(); });
+
+// Safety net: if the browser restores this page from bfcache (e.g. the customer tapped back
+// from Stripe without paying), make sure a stuck "saving" flag from before the navigation away
+// can never permanently disable the Pay/Confirm button.
+window.addEventListener('pageshow', (e)=>{
+  if(e.persisted && state.saving){ state.saving=false; render(); }
+});
 </script>
 </body>
 </html>

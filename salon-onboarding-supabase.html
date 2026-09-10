@@ -49,13 +49,31 @@
   .no-scrollbar::-webkit-scrollbar{display:none;}
 
   .shell{width:100%;max-width:460px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
-  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;}
+  @keyframes authShellIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;animation:authShellIn .28s cubic-bezier(.16,1,.3,1);}
 
+  .auth-brand-panel{display:none;}
   @media (min-width:1024px){
     body{background:linear-gradient(135deg,#F1ECFB 0%,#FAF9FD 60%);min-height:100vh;}
-    #root{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 0;}
+    .auth-page-wrap{display:flex;min-height:100vh;}
+    .auth-brand-panel{
+      display:flex;align-items:center;justify-content:center;flex:1;padding:60px;
+      background:linear-gradient(155deg,#1C1826 0%,#0B0910 100%);
+      position:relative;overflow:hidden;
+    }
+    .auth-brand-panel::before{
+      content:"";position:absolute;inset:0;
+      background:radial-gradient(circle at 20% 20%,rgba(124,92,217,.22),transparent 45%),
+                 radial-gradient(circle at 85% 80%,rgba(124,92,217,.14),transparent 40%);
+    }
+    .auth-brand-inner{position:relative;max-width:400px;color:#fff;}
+    .auth-brand-logo{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:28px;}
+    .auth-brand-logo span{font-weight:500;color:rgba(255,255,255,.55);font-size:15px;}
+    .auth-brand-inner h2{font-size:32px;font-weight:800;letter-spacing:-.6px;line-height:1.25;margin:0 0 14px;}
+    .auth-brand-inner p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.72);margin:0;}
+    #root{flex:1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px;}
     .shell{
-      max-width:640px;height:auto;min-height:600px;max-height:calc(100dvh - 80px);
+      max-width:440px;height:auto;min-height:600px;max-height:calc(100dvh - 80px);
       border-radius:28px;box-shadow:0 24px 70px rgba(36,31,51,.14);
     }
   }
@@ -78,6 +96,7 @@
 
   .step-title{font-size:22px;font-weight:800;color:var(--ink);margin:4px 0 4px;letter-spacing:-.3px;}
   .step-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 22px;line-height:1.5;}
+  .signup-promo{background:var(--purple);color:#fff;border-radius:12px;padding:11px 14px;font-size:12.5px;font-weight:600;margin:0 0 20px;line-height:1.4;text-align:center;}
 
   .field{margin-bottom:16px;}
   .field label{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:6px;}
@@ -101,12 +120,20 @@
 
   .chip{
     padding:9px 15px;border-radius:999px;border:1.5px solid var(--border-2);background:var(--white);
-    font-size:13px;font-weight:700;color:var(--ink);transition:all .15s;flex:none;white-space:nowrap;
+    font-size:13px;font-weight:600;color:var(--ink);transition:all .15s;flex:none;white-space:nowrap;
   }
   .chip:hover{border-color:var(--border-hover);}
   .chip.active{border-color:var(--purple);background:var(--purple);color:#fff;}
-  .chip-row-scroll{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
-  .chip-row-scroll::-webkit-scrollbar{display:none;}
+  .chip-row-scroll{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:10px;}
+  /* Hidden scrollbar reads fine on mobile (swipe is the obvious affordance) but leaves PC/mouse
+     users with no way to reach the off-screen chips — give pointer devices a visible thin bar. */
+  @media (hover:hover) and (pointer:fine){
+    .chip-row-scroll{scrollbar-width:thin;scrollbar-color:var(--border-2) transparent;}
+    .chip-row-scroll::-webkit-scrollbar{display:block;height:6px;}
+    .chip-row-scroll::-webkit-scrollbar-track{background:transparent;}
+    .chip-row-scroll::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:999px;}
+    .chip-row-scroll::-webkit-scrollbar-thumb:hover{background:var(--border-hover);}
+  }
 
   .icon{display:inline-flex;align-items:center;justify-content:center;}
 
@@ -245,6 +272,8 @@
   .password-toggle:hover{background:var(--purple-pastel-2);color:var(--purple);}
 
   .auth-footnote{font-size:12.5px;color:var(--ink-soft);text-align:center;margin:14px 0 0;}
+  .auth-footnote span{transition:color .12s;}
+  .auth-footnote:hover span{color:var(--purple-dark);text-decoration:underline;}
 
   .page.no-scroll{overflow:hidden;}
 
@@ -266,14 +295,59 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
 </head>
 <body>
-<div id="root"></div>
+<div class="auth-page-wrap">
+  <div class="auth-brand-panel">
+    <div class="auth-brand-inner">
+      <div class="auth-brand-logo">blooma. <span>business</span></div>
+      <h2>Run your venue from one clean dashboard.</h2>
+      <p>Online bookings, calendar, staff, payments, gift cards and loyalty, all built for New Zealand salons and studios.</p>
+    </div>
+  </div>
+  <div id="root"></div>
+</div>
 <script>
 const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:"blooma-venue-auth" }
 });
+const VENUE_AUTH_FUNCTION = `${SUPABASE_URL}/functions/v1/venue-auth`;
+async function venueAuthRequest(action,payload){
+  const res=await fetch(VENUE_AUTH_FUNCTION,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${SUPABASE_PUBLISHABLE_KEY}`, "apikey":SUPABASE_PUBLISHABLE_KEY },
+    body:JSON.stringify({ action, ...payload })
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok){ const err=new Error(data?.error||"Something went wrong. Please try again."); err.code=data?.code; err.status=res.status; throw err; }
+  return data;
+}
+async function applyVenueSession(session){
+  if(!session?.access_token||!session?.refresh_token) throw new Error("We couldn't start your venue session.");
+  const {data,error}=await supabaseClient.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token});
+  if(error) throw error;
+  return data.session||null;
+}
+// A back-navigation into this page can be served entirely from the browser's bfcache —
+// a frozen snapshot of the DOM from when the tab was still authenticated — with no script
+// re-running to notice a logout that happened since. Force a fresh load so state matches reality.
+window.addEventListener("pageshow", e=>{ if(e.persisted) location.reload(); });
 let inPasswordRecovery = /type=recovery/.test(location.hash) || new URLSearchParams(location.search).get("type")==="recovery";
+// There's no separate "region" field in this form — venues only ever type a city — so derive
+// NZ region from city automatically (same lookup the customer-facing city picker uses) rather
+// than requiring the owner to fill in a field that was never actually shown to them.
+const NZ_CITY_REGIONS = {
+  "auckland":"Auckland","wellington":"Wellington","christchurch":"Canterbury","hamilton":"Waikato",
+  "tauranga":"Bay of Plenty","napier":"Hawke's Bay","napier-hastings":"Hawke's Bay","hastings":"Hawke's Bay",
+  "dunedin":"Otago","palmerston north":"Manawatū-Whanganui","nelson":"Nelson","rotorua":"Bay of Plenty",
+  "new plymouth":"Taranaki","whangarei":"Northland","whangārei":"Northland","invercargill":"Southland",
+  "whanganui":"Manawatū-Whanganui","gisborne":"Gisborne","queenstown":"Otago","timaru":"Canterbury",
+  "taupo":"Waikato","taupō":"Waikato","masterton":"Wellington","levin":"Manawatū-Whanganui",
+  "blenheim":"Marlborough","ashburton":"Canterbury","cambridge":"Waikato","pukekohe":"Auckland",
+  "whakatane":"Bay of Plenty","whakatāne":"Bay of Plenty","kerikeri":"Northland","wanaka":"Otago",
+  "greymouth":"West Coast","oamaru":"Otago","motueka":"Tasman"
+};
+function regionForCity(city){ return NZ_CITY_REGIONS[String(city||"").trim().toLowerCase()] || ""; }
 const REFERRAL_CODE_KEY = "blooma_venue_referral_code";
 (function rememberReferralCodeFromUrl(){
   const fromUrl = new URLSearchParams(location.search).get("ref");
@@ -333,7 +407,7 @@ async function tryAcceptStaffInviteFromUrl(){
     return null;
   }
 }
-function customerDestination(){ return location.protocol === "file:" ? "index.html" : "/"; }
+function customerDestination(){ return location.protocol === "file:" ? "explore.html" : "/explore"; }
 async function bloomaAccountEmailExists(email){
   const {data,error}=await supabaseClient.rpc("venue_email_exists",{p_email:String(email||"").trim()});
   if(error) throw error;
@@ -429,6 +503,7 @@ let state = {
   address: "",
   city: "",
   region: "",
+  suburb: "",
   postcode: "",
   phone: "",
   description: "",
@@ -510,6 +585,7 @@ function venueDraftPayload(){
     address:state.address,
     city:state.city,
     region:state.region,
+    suburb:state.suburb,
     postcode:state.postcode,
     phone:state.phone,
     description:state.description,
@@ -558,7 +634,10 @@ function restoreVenueDraft(email){
 function applyVenueDraftPayload(d){
   if(!d||typeof d!=="object") return false;
   if(Number.isInteger(d.step)) state.step=Math.max(0,Math.min(STEP_META.length-1,d.step));
-  ["name","address","city","region","postcode","phone","description"].forEach(k=>{ if(typeof d[k]==="string") state[k]=d[k]; });
+  ["name","address","city","region","suburb","postcode","phone","description"].forEach(k=>{ if(typeof d[k]==="string") state[k]=d[k]; });
+  // Backfill region for a draft saved before region-from-city derivation existed, or one that
+  // otherwise never picked one up — same fallback the live cityInput handler applies.
+  if(!state.region) state.region=regionForCity(state.city);
   if(Array.isArray(d.categories)) state.categories=d.categories;
   if(d.hours&&typeof d.hours==="object") state.hours=d.hours;
   if(Array.isArray(d.services)) state.services=d.services;
@@ -616,13 +695,29 @@ async function loadMyVenueDraftRemote(){
   return data||null;
 }
 async function finalizeVenueDraftRemote(){
-  if(!state.draftId) throw new Error("Venue draft not found. Please reopen Blooma for Business and try again.");
-  const {data,error}=await supabaseClient.rpc("finalize_venue_onboarding_draft",{p_draft_id:state.draftId});
+  ensureVenueDraftId();
+  // Always send the CURRENT in-memory form data (exactly what's shown on the Review & finish
+  // screen) along with the draft id. The server claims/overwrites the draft row under the
+  // signed-in account's own email and this payload before creating the venue, so finalize can
+  // never fail with a stale "belongs to a different account" mismatch from some earlier saved
+  // draft — whatever's on screen right now is authoritative.
+  const {data,error}=await supabaseClient.rpc("finalize_venue_onboarding_draft",{p_draft_id:state.draftId,p_payload:venueDraftPayload()});
   if(error) throw error;
   state.salonId=data?.salon_id||state.salonId;
   state.draftStatus="completed";
   state.draftReady=true;
+  grantWelcomeCreditRemote();
   return data;
+}
+function grantWelcomeCreditRemote(){
+  supabaseClient.auth.getSession().then(function(res){
+    var session = res && res.data && res.data.session;
+    if(!session) return null;
+    return fetch('/api/venue/grant-welcome-credit', {
+      method:'POST',
+      headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'}
+    });
+  }).catch(function(){ /* non-critical — venue creation already succeeded */ });
 }
 function setState(patch){ Object.assign(state, patch); persistVenueDraft(); queueVenueDraftSync(); render(); }
 function bindEnterKeyAdvance(fieldIds, onSubmit){
@@ -686,7 +781,7 @@ function validateBusinessStep(){
   if (state.categories.length===0) errors.categories = "Pick at least one category";
   if (!state.address.trim()) errors.address = "Enter your address";
   if (!state.city.trim()) errors.city = "Enter your city";
-  if (!state.region.trim()) errors.region = "Enter your region";
+  if (!state.suburb.trim()) errors.suburb = "Enter your suburb";
   if (!state.phone.trim()) errors.phone = "Enter a contact number";
   return errors;
 }
@@ -694,25 +789,27 @@ function validateBusinessStep(){
 async function createVenueAccount(){
   const email = state.email.trim();
   ensureVenueDraftId();
-  const options = { data:{
-    account_type:"venue",
-    first_name:state.firstName.trim(),
-    last_name:state.lastName.trim(),
-    phone:state.regPhone.trim()
-  } };
-  const redirectTo = authRedirectUrl(state.draftId);
-  if (redirectTo) options.emailRedirectTo = redirectTo;
-  const { data, error } = await supabaseClient.auth.signUp({ email, password:state.password, options });
-  if (error) throw error;
-  await saveVenueDraftRemote(false);
-  if (data?.user?.identities && data.user.identities.length===0){
-    const resendOptions={}; if(redirectTo) resendOptions.emailRedirectTo=redirectTo;
-    const {error:resendError}=await supabaseClient.auth.resend({type:"signup",email,options:resendOptions});
-    if(!resendError) throw new Error("A confirmation email has already been sent to this address. Your venue setup can still be saved while you confirm it.");
-    throw new Error("An account already exists with this email. Venue and customer accounts are separate, so use the matching login or a different email.");
+  let result;
+  try{
+    result = await venueAuthRequest("signup",{
+      email, password:state.password,
+      first_name:state.firstName.trim(),
+      last_name:state.lastName.trim(),
+      phone:state.regPhone.trim()
+    });
+  }catch(err){
+    if(err.code==="venue_exists") throw new Error("An account already exists with this email. Venue and customer accounts are separate, so use the matching login or a different email.");
+    throw err;
   }
-  return data;
+  await applyVenueSession(result.session);
+  await saveVenueDraftRemote(false);
+  try{
+    await supabaseClient.functions.invoke("send-email",{body:{type:"venue_welcome",to:email,data:{firstName:state.firstName.trim(),appUrl:`${location.origin}${adminDestination()}`}}});
+  }catch(err){ console.warn("Blooma venue welcome email",err); }
+  return result;
 }
+// Only reachable for accounts created before the alias-email switchover that are still
+// sitting unconfirmed — new signups never enter the awaitingEmailConfirmation screen.
 async function resendVenueConfirmationEmail(){
   const email=state.email.trim();
   if(!email) throw new Error("Enter your email first.");
@@ -755,6 +852,7 @@ async function createVenueRecord(){
     p_description: state.description.trim(),
     p_hours: state.hours,
     p_postcode: state.postcode.trim(),
+    p_suburb: state.suburb.trim(),
   });
   if (error) throw error;
   state.salonId = data;
@@ -864,9 +962,9 @@ function renderBusinessStep(){
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="field">
-        <label>City</label>
-        <input id="cityInput" class="${e.city?'error':''}" value="${escapeAttr(state.city)}" />
-        ${e.city?`<p class="hint" style="color:var(--red);">${e.city}</p>`:""}
+        <label>Suburb</label>
+        <input id="suburbInput" class="${e.suburb?'error':''}" value="${escapeAttr(state.suburb)}" />
+        ${e.suburb?`<p class="hint" style="color:var(--red);">${e.suburb}</p>`:""}
       </div>
       <div class="field">
         <label>Postcode</label>
@@ -874,18 +972,14 @@ function renderBusinessStep(){
       </div>
     </div>
     <div class="field">
-      <label>Region</label>
-      <input id="regionInput" class="${e.region?'error':''}" value="${escapeAttr(state.region)}" />
-      ${e.region?`<p class="hint" style="color:var(--red);">${e.region}</p>`:""}
+      <label>City</label>
+      <input id="cityInput" class="${e.city?'error':''}" value="${escapeAttr(state.city)}" />
+      ${e.city?`<p class="hint" style="color:var(--red);">${e.city}</p>`:""}
     </div>
-    <div class="field">
+    <div class="field" style="margin-bottom:0;">
       <label>Contact phone</label>
       <input id="phoneInput" class="${e.phone?'error':''}" value="${escapeAttr(state.phone)}" inputmode="tel" />
       ${e.phone?`<p class="hint" style="color:var(--red);">${e.phone}</p>`:""}
-    </div>
-    <div class="field" style="margin-bottom:0;">
-      <label>Description <span style="font-weight:400;color:var(--ink-soft);">(optional)</span></label>
-      <textarea id="descInput">${escapeHtml(state.description)}</textarea>
     </div>
   `;
 }
@@ -989,7 +1083,7 @@ function renderReviewStep(){
         <div class="summary-row"><span class="label">Name</span><span class="value">${escapeHtml(state.name)}</span></div>
         <div class="summary-row"><span class="label">Categories</span><span class="value">${state.categories.map(escapeHtml).join(", ")}</span></div>
         <div class="summary-row"><span class="label">Address</span><span class="value">${escapeHtml(state.address)}</span></div>
-        <div class="summary-row"><span class="label">Location</span><span class="value">${escapeHtml(state.city)}${state.postcode?` ${escapeHtml(state.postcode)}`:""}, ${escapeHtml(state.region)}</span></div>
+        <div class="summary-row"><span class="label">Location</span><span class="value">${escapeHtml(state.suburb)}${state.postcode?` ${escapeHtml(state.postcode)}`:""}, ${escapeHtml(state.city)}</span></div>
         <div class="summary-row"><span class="label">Phone</span><span class="value">${escapeHtml(state.phone)}</span></div>
       </div>
     </div>
@@ -1184,6 +1278,7 @@ function renderAuthFlow(root){
       <div style="flex:1;overflow-y:${isEmailStep?'hidden':'auto'};padding:20px 20px 24px;min-height:0;">
         <h1 class="step-title">${meta.title}</h1>
         <p class="step-sub">${meta.sub}</p>
+        ${isEmailStep ? `<div class="signup-promo">🎉 New venues get <strong>$60 free credit</strong></div>` : ""}
         ${body}
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
@@ -1284,7 +1379,7 @@ function renderForgotPassword(root){
     state.forgotBusy = true; state.forgotEmail = email;
     if (sendBtn){ sendBtn.disabled=true; sendBtn.textContent="Sending…"; }
     try{
-      await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/business-auth` });
+      await venueAuthRequest("forgot_password",{ email, redirectTo:`${location.origin}/business-auth` });
       state.forgotBusy = false;
       setState({ forgotSent:true, forgotErrors:{} });
     }catch(err){
@@ -1406,7 +1501,12 @@ function render(){
     </div>
   `;
 
+  // Re-rendering swaps in a fresh .chip-row-scroll node, which would otherwise reset its
+  // scroll position to 0 on every category toggle (visibly snapping back to the first chip).
+  const prevChipScroll = root.querySelector(".chip-row-scroll")?.scrollLeft;
   root.innerHTML = `<div class="shell">${html}</div>`;
+  const newChipRow = root.querySelector(".chip-row-scroll");
+  if (newChipRow && prevChipScroll) newChipRow.scrollLeft = prevChipScroll;
   resetScroll(root);
   bindEvents();
 }
@@ -1513,8 +1613,14 @@ function bindLoginEvents(){
     const errors = validateLoginStep();
     if (Object.keys(errors).length){ setState({ loginErrors: errors }); return; }
     loginNextBtn.disabled = true; loginNextBtn.textContent = "Logging in…";
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email:state.loginEmail.trim(), password:state.loginPassword });
-    if (error){ setState({ loginErrors:{ loginPassword:error.message || "Unable to log in" } }); return; }
+    let result;
+    try{
+      result = await venueAuthRequest("login",{ email:state.loginEmail.trim(), password:state.loginPassword });
+    }catch(err){
+      if(err.code==="no_venue"){ setState({ loginErrors:{ loginPassword:"No venue account exists with this email." } }); return; }
+      setState({ loginErrors:{ loginPassword:err.message || "Unable to log in" } }); return;
+    }
+    const data = { user: await applyVenueSession(result.session).then(s=>s.user) };
     const [{data:profile},{data:owner}]=await Promise.all([
       supabaseClient.from("user_profiles").select("account_type,first_name,last_name,phone").eq("user_id",data.user.id).maybeSingle(),
       supabaseClient.from("owner_profiles").select("salon_id").eq("user_id",data.user.id).maybeSingle()
@@ -1530,7 +1636,7 @@ function bindLoginEvents(){
       ownerSalonId=await tryAcceptStaffInviteFromUrl();
     }
     if (ownerSalonId){ clearVenueDraft(); window.location.href = adminDestination(); return; }
-    const signedEmail=data.user.email||state.loginEmail.trim();
+    const signedEmail=result.actual_email||state.loginEmail.trim();
     state.email=signedEmail;
     try{
       const remoteDraft=await loadMyVenueDraftRemote();
@@ -1541,7 +1647,7 @@ function bindLoginEvents(){
       restoreVenueDraft(signedEmail);
     }
     setState({
-      registered:true, awaitingEmailConfirmation:false, loginErrors:{}, email:signedEmail, emailConfirmed:!!data.user.email_confirmed_at,
+      registered:true, awaitingEmailConfirmation:false, loginErrors:{}, email:signedEmail, emailConfirmed:true,
       firstName:profile?.first_name||"", lastName:profile?.last_name||"", regPhone:profile?.phone||"",
       phone:state.phone||profile?.phone||""
     });
@@ -1626,21 +1732,28 @@ function bindEvents(){
   const addressInput = document.getElementById("addressInput");
   if (addressInput) addressInput.addEventListener("input", e=>{ state.address = e.target.value; syncNextBtn(); });
   const cityInput = document.getElementById("cityInput");
-  if (cityInput) cityInput.addEventListener("input", e=>{ state.city = e.target.value; syncNextBtn(); });
+  if (cityInput) cityInput.addEventListener("input", e=>{ state.city = e.target.value; state.region = regionForCity(state.city); syncNextBtn(); });
   const postcodeInput = document.getElementById("postcodeInput");
   if (postcodeInput) postcodeInput.addEventListener("input", e=>{ state.postcode = e.target.value; syncNextBtn(); });
-  const regionInput = document.getElementById("regionInput");
-  if (regionInput) regionInput.addEventListener("input", e=>{ state.region = e.target.value; syncNextBtn(); });
+  const suburbInput = document.getElementById("suburbInput");
+  if (suburbInput) suburbInput.addEventListener("input", e=>{ state.suburb = e.target.value; syncNextBtn(); });
   const phoneInput = document.getElementById("phoneInput");
   if (phoneInput) phoneInput.addEventListener("input", e=>{ state.phone = e.target.value; syncNextBtn(); });
-  const descInput = document.getElementById("descInput");
-  if (descInput) descInput.addEventListener("input", e=>{ state.description = e.target.value; });
   document.querySelectorAll("[data-togglecat]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
+      // Scoped update, not setState()/render() — this is a chip-row toggle among many other
+      // business-step fields (name/address/etc.) that already update state.* directly and call
+      // syncNextBtn() without a full re-render; the category chips were the one exception,
+      // needlessly re-rendering (and reflowing/flickering) the entire step on every click.
       const cat = btn.getAttribute("data-togglecat");
       const set = new Set(state.categories);
       if (set.has(cat)) set.delete(cat); else set.add(cat);
-      setState({ categories: Array.from(set) });
+      state.categories = Array.from(set);
+      btn.classList.toggle("active", set.has(cat));
+      const hint = btn.closest(".field")?.querySelector(".hint");
+      if (hint && state.categories.length){ delete state.errors.categories; hint.remove(); }
+      queueVenueDraftSync();
+      syncNextBtn();
     });
   });
 
@@ -1828,7 +1941,7 @@ async function bootstrapVenuePage(){
     ]);
     const accountType=String(profile?.account_type||session.user.user_metadata?.account_type||(owner?.salon_id?"venue":"customer")).toLowerCase();
     if(accountType!=="venue"){
-      const wrongEmail=session.user.email||"";
+      const wrongEmail=session.user.user_metadata?.actual_email||session.user.email||"";
       try{ await supabaseClient.auth.signOut(); }catch(e){}
       state.authView="login";
       state.loginEmail=wrongEmail;
@@ -1839,7 +1952,7 @@ async function bootstrapVenuePage(){
       return;
     }
 
-    state.email=session.user.email||state.email;
+    state.email=session.user.user_metadata?.actual_email||session.user.email||state.email;
     state.firstName=profile?.first_name||state.firstName;
     state.lastName=profile?.last_name||state.lastName;
     state.regPhone=profile?.phone||state.regPhone;

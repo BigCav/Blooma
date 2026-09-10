@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Blooma — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *{-webkit-tap-highlight-color:transparent;}
+  :focus{outline:none;}
+  :focus-visible{outline:2px solid #6C4FD6;outline-offset:2px;}
+
+:root{
+  --ink:#201a2e; --muted:#766e8f; --soft:#a39ab9; --purple:#7c5cd9; --purple-dark:#6948c4;
+  --lav:#f4f0fc; --lav2:#ece5fb; --line:#ebe7f3; --bg:#faf9fc; --card:#fff; --green:#18874b;
+  --red:#b94a55; --shadow:0 16px 44px rgba(44,31,72,.08); --shadow-sm:0 8px 24px rgba(44,31,72,.06);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}html,body{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}button,input{font:inherit}.shell{max-width:1400px;margin:0 auto;padding:0 32px}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(250,249,252,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(235,231,243,.9)}
+.topbar-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-size:22px;font-weight:800;letter-spacing:-.6px;background:none;border:0;padding:0;font-family:inherit;color:var(--ink);cursor:pointer;}
+.top-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{border:1px solid var(--line);background:#fff;color:var(--ink);width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;}
+.icon-btn:hover{background:var(--lav2);}
+.icon-btn svg{display:block}
+.menu-overlay{position:fixed;inset:0;background:rgba(20,10,40,.4);z-index:49;animation:menuOverlayIn .22s ease;}
+.menu-overlay.closing{animation:menuOverlayOut .22s ease forwards;pointer-events:none;}
+.menu-sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:420px;margin:0 auto;background:var(--bg);border-radius:24px 24px 0 0;box-shadow:0 -14px 36px rgba(36,31,51,.14);padding:22px 20px calc(24px + env(safe-area-inset-bottom));animation:menuSheetUp .22s ease;will-change:transform;}
+.menu-sheet.closing{animation:menuSheetDown .22s ease forwards;pointer-events:none;}
+.menu-sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.menu-sheet-title{font-size:22px;font-weight:800;color:var(--ink);margin:0;letter-spacing:-.01em;}
+.menu-sheet-close{width:32px;height:32px;border-radius:50%;background:var(--lav2);border:0;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;flex-shrink:0;}
+.menu-list{background:#fff;border:1px solid var(--line);border-radius:16px;padding:6px;}
+.menu-row{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:14px 12px;border-radius:12px;font-size:15px;font-weight:600;color:var(--ink);background:none;border:0;font-family:inherit;cursor:pointer;transition:background .12s;}
+.menu-row:hover{background:var(--lav2);}
+.menu-row.current{color:var(--purple);}
+@keyframes menuSheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+@keyframes menuSheetDown{from{transform:translateY(0);}to{transform:translateY(100%);}}
+@keyframes menuOverlayIn{from{opacity:0;}to{opacity:1;}}
+@keyframes menuOverlayOut{from{opacity:1;}to{opacity:0;}}
+@media(min-width:900px){
+  .menu-overlay{background:transparent;}
+  .menu-sheet{
+    left:auto;bottom:auto;right:max(32px,calc((100vw - 1400px)/2 + 32px));top:88px;
+    max-width:288px;width:288px;border-radius:18px;padding:10px;
+    box-shadow:0 16px 44px rgba(44,31,72,.16),0 2px 8px rgba(44,31,72,.06);
+    border:1px solid var(--line);
+    animation:menuDropdownIn .14s ease;
+    transform-origin:top right;
+  }
+  .menu-sheet.closing{animation:menuDropdownOut .12s ease forwards;}
+  .menu-sheet-header{display:none;}
+  .menu-list{border:none;padding:0;}
+  .menu-row{padding:11px 12px;font-size:14px;}
+}
+@keyframes menuDropdownIn{from{transform:scale(.96) translateY(-4px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+@keyframes menuDropdownOut{from{transform:scale(1) translateY(0);opacity:1;}to{transform:scale(.96) translateY(-4px);opacity:0;}}
+.page-head{padding:46px 0 26px;border-bottom:1px solid var(--line)}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--purple);font-weight:800;margin:0 0 8px}.page-title{font-size:42px;line-height:1.04;letter-spacing:-1.6px;margin:0;font-weight:800}.page-sub{font-size:15px;color:var(--muted);line-height:1.65;margin:12px 0 0;max-width:560px}
+
+.profile-layout{max-width:600px;padding:34px 0 88px;display:flex;flex-direction:column;gap:20px;}
+.p-left-col{display:contents;}
+.p-wallet-balance{font-size:32px;font-weight:800;letter-spacing:-1px;margin:2px 0 4px;}
+.p-wallet-empty{font-size:13px;color:var(--muted);margin-top:12px;}
+@media(min-width:900px){
+  .profile-layout{max-width:100%;display:grid;grid-template-columns:1fr 1fr;gap:20px 40px;align-items:start;}
+  .profile-layout > *{grid-column:1;}
+  .profile-layout > .p-wallet-section{grid-column:2;grid-row:1;position:sticky;top:96px;}
+  .profile-layout > .p-left-col{display:flex;flex-direction:column;gap:20px;grid-column:1;}
+  .profile-layout > .p-left-col-a{grid-row:1;}
+  .profile-layout > .p-left-col-b{grid-row:2;}
+}
+.p-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow-sm);}
+.p-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.p-hero-name{font-size:23px;font-weight:800;letter-spacing:-.5px;margin:0;}
+.p-hero-sub{font-size:13.5px;color:var(--muted);margin:4px 0 0;}
+.p-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;flex-shrink:0;}
+.p-verify{background:linear-gradient(135deg,var(--purple),var(--purple-dark));border-radius:22px;padding:22px;color:#fff;}
+.p-verify h3{font-size:17px;font-weight:800;margin:0 0 6px;}
+.p-verify p{font-size:13.5px;color:rgba(255,255,255,.85);margin:0 0 16px;line-height:1.5;}
+.p-verify-error{color:#ffe1e1 !important;}
+.p-verify-btn{background:transparent;border:1.5px solid rgba(255,255,255,.7);color:#fff;font-size:13.5px;font-weight:700;padding:10px 20px;border-radius:999px;cursor:pointer;font-family:inherit;}
+.p-verify-btn:hover{background:rgba(255,255,255,.14);}
+.p-verify-btn:disabled{opacity:.6;cursor:default;}
+.p-section-title{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin:0 0 10px;}
+.p-list{background:#fff;border:1px solid var(--line);border-radius:22px;padding:0 18px;box-shadow:var(--shadow-sm);}
+.p-row{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;background:none;border:0;text-align:left;font-family:inherit;cursor:pointer;}
+.p-row + .p-row{border-top:1px solid var(--line);}
+.p-row-icon{width:34px;height:34px;border-radius:10px;background:var(--lav2);color:var(--purple);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.p-row-text{min-width:0;flex:1;}
+.p-row-title{font-size:14.5px;font-weight:600;color:var(--ink);margin:0;}
+.p-row-sub{font-size:12.5px;color:var(--muted);margin:2px 0 0;}
+.p-row-chev{margin-left:auto;color:var(--soft);flex-shrink:0;display:flex;}
+.p-row:hover .p-row-chev{color:var(--purple);}
+.p-field label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px;}
+.p-field input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14.5px;color:var(--ink);background:#fff;font-family:inherit;}
+.p-field input:focus{border-color:var(--purple);}
+.p-save-btn{width:100%;background:var(--ink);color:#fff;border:0;border-radius:999px;padding:13px;font-size:14.5px;font-weight:800;cursor:pointer;margin-top:16px;font-family:inherit;}
+.p-save-btn:hover{background:#000;}
+.p-logout-row{color:var(--red);}
+.p-logout-row .p-row-icon{background:#FBEAEA;color:#C13B3B;}
+.loading-state{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
+@media(max-width:900px){.shell{padding:0 18px}.topbar-inner{height:66px}.page-head{display:none}.profile-layout{padding:24px 0 60px}}
+@media(max-width:520px){.shell{padding:0 16px}}
+</style>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
+</head>
+<body>
+<header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/explore">blooma.</a><div class="top-actions"><button class="icon-btn" id="menuBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button></div></div></header>
+
+<div id="menuOverlay"></div>
+<main class="shell">
+  <section class="page-head">
+    <p class="eyebrow">Your account</p><h1 class="page-title">Profile</h1><p class="page-sub">Manage your details, confirm your email, and jump back into your bookings.</p>
+  </section>
+  <div id="profileContent" class="profile-layout"><div class="loading-state">Loading your profile…</div></div>
+</main>
+
+<script>
+const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
+const customerSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"blooma-customer-auth"}});
+// Separate client/storage key — sending the verification OTP through the main client would
+// overwrite the customer's active logged-in session with the OTP's own temporary one.
+const customerVerifierClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:"blooma-email-verification-auth"}});
+
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s); }
+
+let authUserId = null;
+let profile = { name:"", email:"", phone:"", emailVerified:true };
+let giftCards = [];
+let packages = [];
+let walletError = false;
+let verificationSending = false;
+let verificationSent = false;
+let verificationError = "";
+
+const iconChevron = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+const iconHeart = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg>`;
+const iconCalendar = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
+const iconSparkles = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"></path></svg>`;
+const iconLogout = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`;
+const iconX = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+
+function initials(name){ return (name||"").trim().split(/\s+/).map(w=>w[0]).filter(Boolean).slice(0,2).join("").toUpperCase() || "?"; }
+function walletBalance(){ return giftCards.filter(g=>g.status==='active').reduce((sum,g)=>sum+Number(g.remaining_balance||0),0); }
+
+function renderProfilePage(){
+  const p = profile;
+  document.getElementById("profileContent").innerHTML = `
+    <div class="p-left-col p-left-col-a">
+    <div class="p-card p-hero">
+      <div style="min-width:0;">
+        <p class="p-hero-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name||"Your account")}</p>
+        <p class="p-hero-sub">Personal account</p>
+        ${p.email?`<p class="p-hero-sub" style="margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.email)}</p>`:""}
+      </div>
+      <div class="p-avatar">${escapeHtml(initials(p.name))}</div>
+    </div>
+
+    ${!p.emailVerified ? `
+    <div class="p-verify">
+      <h3>Confirm your email address</h3>
+      <p>${verificationSent?`We've sent a link to ${escapeHtml(p.email)} — click it to confirm.`:`We'll send a link to ${escapeHtml(p.email)}.`}</p>
+      ${verificationError?`<p class="p-verify-error" style="margin-top:-8px;margin-bottom:14px;">${escapeHtml(verificationError)}</p>`:""}
+      <button class="p-verify-btn" id="verifyEmailBtn" ${verificationSending?'disabled':''}>${verificationSending?'Sending…':verificationSent?'Resend email':'Confirm email'}</button>
+    </div>` : ""}
+
+    <div>
+      <p class="p-section-title">Menu</p>
+      <div class="p-list">
+        <button class="p-row" id="favoritesRow">
+          <div class="p-row-icon">${iconHeart}</div>
+          <div class="p-row-text"><p class="p-row-title">Favourites</p></div>
+          <span class="p-row-chev">${iconChevron}</span>
+        </button>
+        <button class="p-row" id="appointmentsRow">
+          <div class="p-row-icon">${iconCalendar}</div>
+          <div class="p-row-text"><p class="p-row-title">My appointments</p></div>
+          <span class="p-row-chev">${iconChevron}</span>
+        </button>
+      </div>
+    </div>
+    </div>
+
+    <div class="p-wallet-section">
+      <p class="p-section-title">Wallet</p>
+      <div class="p-card" style="margin:0;">
+        <p class="p-row-sub" style="margin:0;font-weight:700;">Wallet balance</p>
+        <p class="p-wallet-balance">$${walletBalance().toFixed(2)}</p>
+        <p class="p-row-sub" style="margin:0;">${giftCards.length ? `Across ${giftCards.length} gift card${giftCards.length===1?'':'s'}` : "No gift cards yet"}${packages.length ? ` · ${packages.length} active package${packages.length===1?'':'s'}` : ""}</p>
+      </div>
+      ${giftCards.length ? `
+      <div class="p-list" style="margin-top:14px;">
+        ${giftCards.map(g=>`
+        <div class="p-row" style="cursor:default;">
+          <div class="p-row-icon">${iconSparkles}</div>
+          <div class="p-row-text">
+            <p class="p-row-title">$${Number(g.remaining_balance).toFixed(2)} <span style="font-weight:500;color:var(--muted);font-size:12.5px;">of $${Number(g.initial_value).toFixed(2)}</span></p>
+            <p class="p-row-sub">${escapeHtml(g.salon_name||"")}${g.salon_name?" · ":""}Code ${escapeHtml(g.code)} · ${g.status==='active'?'Active':g.status==='depleted'?'Used up':'Cancelled'}</p>
+          </div>
+        </div>`).join("")}
+      </div>` : ""}
+      ${packages.length ? `
+      <p class="p-section-title" style="margin-top:16px;">Packages</p>
+      <div class="p-list">
+        ${packages.map(p=>`
+        <div class="p-row" style="cursor:default;">
+          <div class="p-row-icon">${iconCalendar}</div>
+          <div class="p-row-text">
+            <p class="p-row-title">${escapeHtml(p.service_name_snapshot||"Package")}</p>
+            <p class="p-row-sub">${escapeHtml(p.salon_name||"")}${p.salon_name?" · ":""}${p.sessions_remaining} of ${p.sessions_total} sessions left</p>
+          </div>
+        </div>`).join("")}
+      </div>` : ""}
+      ${!giftCards.length && !packages.length ? (walletError
+        ? `<p class="p-wallet-empty">Couldn't load your wallet right now. <a href="#" id="walletRetryLink" style="color:var(--purple);font-weight:700;">Try again</a></p>`
+        : `<p class="p-wallet-empty">Gift cards and packages you buy will show up here.</p>`) : ""}
+    </div>
+
+    <div class="p-left-col p-left-col-b">
+    <div>
+      <p class="p-section-title">Contact details</p>
+      <div class="p-card p-field" style="margin:0;">
+        <label>Phone</label>
+        <input id="profilePhoneInput" value="${escapeAttr(p.phone)}" placeholder="Your phone number" inputmode="tel" autocomplete="tel" />
+        <button class="p-save-btn" id="profileSaveBtn">Save changes</button>
+      </div>
+    </div>
+
+    <div>
+      <p class="p-section-title">Account</p>
+      <div class="p-list">
+        <button class="p-row p-logout-row" id="profileLogoutBtn">
+          <div class="p-row-icon">${iconLogout}</div>
+          <div class="p-row-text"><p class="p-row-title" style="color:inherit;">Log out</p></div>
+        </button>
+      </div>
+    </div>
+    </div>
+  `;
+  bindProfilePage();
+}
+
+function bindProfilePage(){
+  const verifyBtn = document.getElementById("verifyEmailBtn");
+  if (verifyBtn) verifyBtn.addEventListener("click", resendVerificationEmail);
+  const favoritesRow = document.getElementById("favoritesRow");
+  if (favoritesRow) favoritesRow.addEventListener("click", ()=>{ window.location.href = "/explore?openFavorites=1"; });
+  const appointmentsRow = document.getElementById("appointmentsRow");
+  if (appointmentsRow) appointmentsRow.addEventListener("click", ()=>{ window.location.href = "/activity"; });
+  const walletRetryLink = document.getElementById("walletRetryLink");
+  if (walletRetryLink) walletRetryLink.addEventListener("click", (e)=>{ e.preventDefault(); loadWallet(); });
+  const phoneInput = document.getElementById("profilePhoneInput");
+  if (phoneInput) phoneInput.addEventListener("input", (e)=>{ profile.phone = e.target.value; });
+  const saveBtn = document.getElementById("profileSaveBtn");
+  if (saveBtn) saveBtn.addEventListener("click", async ()=>{
+    const phone = (profile.phone||"").trim();
+    if (phone && phone.replace(/\D/g,"").length<6){
+      saveBtn.textContent = "Enter a valid phone number";
+      setTimeout(()=>{ saveBtn.textContent = "Save changes"; }, 1600);
+      return;
+    }
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving…";
+    try{
+      const {error} = await customerSupabaseClient.from("user_profiles").update({phone,updated_at:new Date().toISOString()}).eq("user_id",authUserId);
+      if (error) throw error;
+      await customerSupabaseClient.auth.updateUser({data:{phone}});
+      saveBtn.textContent = "Saved";
+    }catch(err){
+      saveBtn.textContent = "Try again";
+    }
+    setTimeout(()=>{ saveBtn.textContent = "Save changes"; saveBtn.disabled = false; }, 1200);
+  });
+  const logoutBtn = document.getElementById("profileLogoutBtn");
+  if (logoutBtn) logoutBtn.addEventListener("click", async ()=>{
+    logoutBtn.disabled = true;
+    try{ await customerSupabaseClient.auth.signOut(); }catch(e){}
+    window.location.href = "/explore";
+  });
+}
+
+async function resendVerificationEmail(){
+  if (verificationSending || !authUserId || !profile.email) return;
+  verificationSending = true; verificationError = ""; renderProfilePage();
+  try{
+    try{ await customerVerifierClient.auth.signOut(); }catch(e){}
+    const redirectTo = `${location.origin}/signup?verify_customer=1&customer=${encodeURIComponent(authUserId)}`;
+    const {error} = await customerVerifierClient.auth.signInWithOtp({ email:profile.email, options:{ shouldCreateUser:true, data:{account_type:"verification"}, emailRedirectTo:redirectTo } });
+    if (error) throw error;
+    verificationSending = false; verificationSent = true; renderProfilePage();
+  }catch(err){
+    verificationSending = false; verificationError = err?.message||"We couldn't send that email. Please try again."; renderProfilePage();
+  }
+}
+
+async function loadWallet(){
+  try{
+    const [{data:gcData,error:gcError},{data:pkgData,error:pkgError}] = await Promise.all([
+      customerSupabaseClient.rpc("get_my_gift_cards"),
+      customerSupabaseClient.rpc("get_my_packages_all"),
+    ]);
+    if (gcError) throw gcError;
+    if (pkgError) throw pkgError;
+    giftCards = gcData||[];
+    packages = pkgData||[];
+    walletError = false;
+  }catch(e){ giftCards = []; packages = []; walletError = true; }
+  renderProfilePage();
+}
+
+function openMenuSheet(){
+  document.getElementById("menuBtn").setAttribute("aria-expanded","true");
+  document.getElementById("menuOverlay").innerHTML = `
+    <div class="menu-overlay" id="menuOverlayBg"></div>
+    <div class="menu-sheet" id="menuSheetCard">
+      <div class="menu-sheet-header">
+        <h2 class="menu-sheet-title">Menu</h2>
+        <button class="menu-sheet-close" id="closeMenuSheet" aria-label="Close menu">${iconX}</button>
+      </div>
+      <div class="menu-list">
+        <button class="menu-row current" id="menuProfileBtn"><span>Profile</span>${iconChevron}</button>
+        <button class="menu-row" id="menuActivityBtn"><span>Activity</span>${iconChevron}</button>
+        <button class="menu-row" id="menuBusinessBtn"><span>Blooma for Business</span>${iconChevron}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById("menuOverlayBg").addEventListener("click", closeMenuSheet);
+  document.getElementById("closeMenuSheet").addEventListener("click", closeMenuSheet);
+  document.getElementById("menuProfileBtn").addEventListener("click", closeMenuSheet);
+  document.getElementById("menuActivityBtn").addEventListener("click", ()=>{ window.location.href = "/activity"; });
+  document.getElementById("menuBusinessBtn").addEventListener("click", ()=>{ window.location.href = "/for-business"; });
+}
+let menuCloseTimer=null;
+function closeMenuSheet(){
+  const sheet = document.getElementById("menuSheetCard");
+  const overlay = document.getElementById("menuOverlayBg");
+  if (!sheet) return;
+  if (sheet.classList.contains("closing")) return;
+  document.getElementById("menuBtn").setAttribute("aria-expanded","false");
+  sheet.classList.add("closing");
+  overlay?.classList.add("closing");
+  clearTimeout(menuCloseTimer);
+  menuCloseTimer = setTimeout(()=>{ document.getElementById("menuOverlay").innerHTML = ""; }, 230);
+}
+document.getElementById("menuBtn").addEventListener("click", openMenuSheet);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeMenuSheet(); });
+
+async function boot(){
+  const {data:{session}} = await customerSupabaseClient.auth.getSession();
+  if (!session){
+    window.location.href = "/login?next="+encodeURIComponent(location.pathname+location.search);
+    return;
+  }
+  const meta = session.user.user_metadata||{};
+  let row = null;
+  try{
+    const result = await customerSupabaseClient.from("user_profiles").select("account_type,first_name,last_name,phone").eq("user_id",session.user.id).maybeSingle();
+    if (!result.error) row = result.data;
+  }catch(e){}
+  const accountType = String(row?.account_type||meta.account_type||"customer").toLowerCase();
+  if (accountType!=="customer"){
+    try{ await customerSupabaseClient.auth.signOut(); }catch(e){}
+    window.location.href = "/login?next="+encodeURIComponent(location.pathname+location.search);
+    return;
+  }
+  const first=(row?.first_name||meta.first_name||meta.firstName||"").trim();
+  const last=(row?.last_name||meta.last_name||meta.lastName||"").trim();
+  authUserId = session.user.id;
+  profile = {
+    name: [first,last].filter(Boolean).join(" ").trim(),
+    email: (meta.actual_email||session.user.email||"").trim(),
+    phone: (row?.phone||meta.phone||"").trim(),
+    emailVerified: !!session.user.email_confirmed_at,
+  };
+  renderProfilePage();
+  loadWallet();
+  // The cached session's JWT can be stale right after confirming via the /signup verification
+  // link (that flow updates auth.users directly, not this tab's token) — refetch from the
+  // server in the background so the "Confirm your email" card clears without a hard reload.
+  customerSupabaseClient.auth.getUser().then(({data})=>{
+    const v = !!data?.user?.email_confirmed_at;
+    if (v!==profile.emailVerified){ profile.emailVerified=v; renderProfilePage(); }
+  }).catch(()=>{});
+}
+boot();
+</script>
+</body>
+</html>

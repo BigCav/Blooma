@@ -53,14 +53,31 @@
   input{font-family:inherit;}
 
   .shell{width:100%;max-width:460px;height:100vh;height:100dvh;margin:0 auto;position:relative;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
-  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;}
+  @keyframes authShellIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .page{height:100%;display:flex;flex-direction:column;overflow-y:auto;animation:authShellIn .28s cubic-bezier(.16,1,.3,1);}
   .page.no-scroll{overflow:hidden;}
 
+  .auth-brand-panel{display:none;}
   @media (min-width:1024px){
     body{background:linear-gradient(135deg,#F1ECFB 0%,#FAF9FD 60%);min-height:100vh;}
-    #root{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 0;}
+    .auth-page-wrap{display:flex;min-height:100vh;}
+    .auth-brand-panel{
+      display:flex;align-items:center;justify-content:center;flex:1;padding:60px;
+      background:linear-gradient(155deg,var(--purple) 0%,var(--purple-dark) 100%);
+      position:relative;overflow:hidden;
+    }
+    .auth-brand-panel::before{
+      content:"";position:absolute;inset:0;
+      background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.14),transparent 45%),
+                 radial-gradient(circle at 85% 80%,rgba(255,255,255,.1),transparent 40%);
+    }
+    .auth-brand-inner{position:relative;max-width:400px;color:#fff;}
+    .auth-brand-logo{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:28px;}
+    .auth-brand-inner h2{font-size:32px;font-weight:800;letter-spacing:-.6px;line-height:1.25;margin:0 0 14px;}
+    .auth-brand-inner p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.86);margin:0;}
+    #root{flex:1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px;}
     .shell{
-      max-width:640px;height:auto;min-height:600px;max-height:calc(100dvh - 80px);
+      max-width:440px;height:auto;min-height:600px;max-height:calc(100dvh - 80px);
       border-radius:28px;box-shadow:0 24px 70px rgba(36,31,51,.14);
     }
   }
@@ -121,7 +138,9 @@
   }
   .password-toggle:hover{background:var(--purple-pastel-2);color:var(--purple);}
 
-  .auth-footnote{font-size:12.5px;color:var(--ink-soft);text-align:center;margin:14px 0 0;-webkit-tap-highlight-color:transparent;}
+  .auth-footnote{font-size:12.5px;color:var(--ink-soft);text-align:center;margin:14px 0 0;-webkit-tap-highlight-color:transparent;cursor:pointer;}
+  .auth-footnote span{transition:color .12s;}
+  .auth-footnote:hover span{color:var(--purple-dark);text-decoration:underline;}
 
   .welcome-screen{
     flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;text-align:center;
@@ -148,7 +167,16 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
 </head>
 <body>
-<div id="root"></div>
+<div class="auth-page-wrap">
+  <div class="auth-brand-panel">
+    <div class="auth-brand-inner">
+      <div class="auth-brand-logo">blooma.</div>
+      <h2>Book your next appointment in seconds.</h2>
+      <p>Real-time availability, secure deposits, gift cards and more, all in one place, at salons and studios near you.</p>
+    </div>
+  </div>
+  <div id="root"></div>
+</div>
 <script>
 const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
@@ -159,7 +187,7 @@ function customerVerificationRedirectUrl(customerUserId){
   if(!/^https?:$/.test(location.protocol) || !customerUserId) return undefined;
   return `${location.origin}/signup?verify_customer=1&customer=${encodeURIComponent(customerUserId)}`;
 }
-function customerAppDestination(){ return location.protocol === "file:" ? "index.html" : "/"; }
+function customerAppDestination(){ return location.protocol === "file:" ? "explore.html" : "/explore"; }
 // A ?next=/venue/foo/checkout param lets a page that requires login (e.g. checkout) send the
 // customer back to exactly where they were, instead of always dropping them at the home feed.
 // Only ever trust a same-origin relative path here — never let this become an open redirect.
@@ -167,7 +195,14 @@ function customerAppDestination(){ return location.protocol === "file:" ? "index
 // the user moves between login/register steps — re-reading location.search later would lose it.
 const CUSTOMER_NEXT_DESTINATION = (()=>{
   const raw=new URLSearchParams(location.search).get("next")||"";
-  return (raw && raw.startsWith("/") && !raw.startsWith("//")) ? raw : "";
+  if(!raw || !raw.startsWith("/")) return "";
+  // Resolve through the browser's own URL parser rather than string-checking raw — a prefix
+  // check alone misses tricks like "/\evil.com", which browsers normalize to "//evil.com"
+  // (protocol-relative) for special schemes, silently turning this into an open redirect.
+  try{
+    const resolved=new URL(raw, location.origin);
+    return resolved.origin===location.origin ? (resolved.pathname+resolved.search+resolved.hash) : "";
+  }catch(e){ return ""; }
 })();
 function customerNextDestination(){
   return CUSTOMER_NEXT_DESTINATION || customerAppDestination();
@@ -333,7 +368,7 @@ function validatePasswordStep(){
   if (!state.lastName.trim()) errors.lastName = "Enter your last name";
   if (!state.regPhone.trim()) errors.regPhone = "Enter your mobile number";
   if (!state.password) errors.password = "Create a password";
-  else if (state.password.length < 6) errors.password = "Use at least 6 characters";
+  else if (state.password.length < 8) errors.password = "Use at least 8 characters";
   if (!state.acceptedTerms) errors.acceptedTerms = "You need to accept the terms to continue";
   return errors;
 }
@@ -452,7 +487,7 @@ function renderLoginEmailStep(){
     <div class="field" style="margin-bottom:0;">
       <label>Email address</label>
       <input id="loginEmailInput" class="${e.loginEmail?'error':''}" type="email" enterkeyhint="next" autocomplete="email" value="${escapeAttr(state.loginEmail)}" />
-      ${e.loginEmail?`<p class="hint" style="color:var(--red);">${e.loginEmail}</p>`:""}
+      ${e.loginEmail?`<p class="hint" style="color:var(--red);">${escapeHtml(e.loginEmail)}</p>`:""}
     </div>
   `;
 }
@@ -467,7 +502,7 @@ function renderLoginPasswordStep(){
         <input id="loginPasswordInput" class="${e.loginPassword?'error':''}" type="${state.showLoginPassword?'text':'password'}" autocomplete="current-password" enterkeyhint="go" value="${escapeAttr(state.loginPassword)}" />
         <button type="button" class="password-toggle" id="toggleLoginPasswordBtn" aria-label="${state.showLoginPassword?'Hide password':'Show password'}">${icon(state.showLoginPassword?'eyeOff':'eye')}</button>
       </div>
-      ${e.loginPassword?`<p class="hint" style="color:var(--red);">${e.loginPassword}</p>`:""}
+      ${e.loginPassword?`<p class="hint" style="color:var(--red);">${escapeHtml(e.loginPassword)}</p>`:""}
     </div>
     <button type="button" id="forgotPasswordLink" style="margin-top:12px;border:0;background:transparent;padding:2px;color:var(--purple);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">Forgot password?</button>
   `;
@@ -602,7 +637,7 @@ function renderForgotPassword(root){
         <div class="field" style="margin-bottom:0;">
           <label>Email address</label>
           <input id="forgotEmailInput" class="${e.forgotEmail?'error':''}" type="email" autocomplete="email" inputmode="email" enterkeyhint="go" value="${escapeAttr(state.forgotEmail)}" />
-          ${e.forgotEmail?`<p class="hint" style="color:var(--red);">${e.forgotEmail}</p>`:""}
+          ${e.forgotEmail?`<p class="hint" style="color:var(--red);">${escapeHtml(e.forgotEmail)}</p>`:""}
         </div>
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
@@ -660,7 +695,7 @@ function renderResetPassword(root){
             <input id="newPasswordInput" class="${e.newPassword?'error':''}" type="${state.showNewPassword?'text':'password'}" autocomplete="new-password" enterkeyhint="go" value="${escapeAttr(state.newPassword)}" />
             <button type="button" class="password-toggle" id="toggleNewPasswordBtn" aria-label="${state.showNewPassword?'Hide password':'Show password'}">${icon(state.showNewPassword?'eyeOff':'eye')}</button>
           </div>
-          ${e.newPassword?`<p class="hint" style="color:var(--red);">${e.newPassword}</p>`:""}
+          ${e.newPassword?`<p class="hint" style="color:var(--red);">${escapeHtml(e.newPassword)}</p>`:""}
         </div>
       </div>
       <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0;">
@@ -869,6 +904,7 @@ async function consumeCustomerPasswordRecovery(){
   }
   if(!session) session=(await verifierClient.auth.getSession()).data.session||null;
   if(!session) throw new Error("This password reset link has expired. Please request a new one.");
+  if(session.user?.email){ state.email=session.user.email; state.loginEmail=session.user.email; }
 
   try{
     const {data:profile}=await verifierClient.from("user_profiles").select("account_type").eq("user_id",session.user.id).maybeSingle();
@@ -920,8 +956,12 @@ async function bootstrapAuthPage(){
         return;
       }
       const actualEmail=String(session.user.user_metadata?.actual_email||state.email||"");
-      if(state.authView==="login"){ navigateWithFade(customerNextDestination()); return; }
       if(state.registered){ render(); return; }
+      // Any already-authenticated visit to an auth view (login, register, forgot-password) should
+      // bounce straight to the app — not just /login. Without this, a signed-in customer opening
+      // a stale /signup link or email could submit the registration form and silently create a
+      // brand-new account, overwriting their active session with no warning.
+      if(state.authView==="login" || state.authView==="register" || state.authView==="forgotPassword"){ navigateWithFade(customerNextDestination()); return; }
       if(actualEmail) state.email=actualEmail;
     }
   }catch(e){
