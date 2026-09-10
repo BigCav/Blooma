@@ -72,7 +72,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -92,12 +92,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -105,24 +107,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -270,6 +282,8 @@
   .status-pending{background:rgba(244,201,58,0.16); color:var(--warning);}
   .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
   .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
+  .status-upcoming{background:var(--violet-soft); color:var(--violet-text);}
+  .status-noshow{background:rgba(157,152,176,0.16); color:var(--text-soft);}
 
   /* ---------- BREADCRUMB ---------- */
   .crumb{
@@ -295,8 +309,31 @@
     background:var(--violet-soft); padding:3px 9px; border-radius:99px;
   }
   .bk-meta{font-size:12.5px; color:var(--text-soft); margin-top:4px;}
+  .bk-link{color:var(--violet-text); font-weight:700; text-decoration:none;}
+  .bk-link:hover{text-decoration:underline;}
   .bk-meta a{color:var(--violet-text); font-weight:700;}
   .bk-actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto;}
+  .bk-actions-trigger{display:none;}
+  .bk-actions-wrap{display:contents;}
+  @media (max-width:699px){
+    .bk-head-panel{position:relative;}
+    /* The actions trigger is pulled out of flow (absolute) below, so nothing reserves
+       space for it in the flex row any more — without this, a long service name plus
+       the status pill can render right underneath the floating trigger button. */
+    .bk-head{padding-right:52px;}
+    .bk-actions-wrap{
+      display:block; position:absolute; top:18px; right:18px; z-index:20;
+    }
+    .bk-actions-trigger{display:flex;}
+    .bk-actions-wrap .bk-actions{
+      display:none; flex-direction:column; flex-wrap:nowrap; gap:6px;
+      position:absolute; top:calc(100% + 8px); right:0; margin-left:0; z-index:30;
+      background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+      padding:8px; min-width:210px; box-shadow:0 16px 36px rgba(0,0,0,.45);
+    }
+    .bk-actions-wrap .bk-actions.open{display:flex;}
+    .bk-actions-wrap .bk-actions .btn{width:100%; justify-content:flex-start;}
+  }
 
   /* ---------- INFO ROWS ---------- */
   .info-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; gap:10px;}
@@ -435,7 +472,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -455,11 +492,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -524,6 +561,20 @@
     <div class="modal-actions">
       <div class="btn btn-ghost" onclick="closeCancelModal()">Keep booking</div>
       <div class="btn btn-danger" onclick="confirmCancelBooking()">Cancel booking</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="noShowOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </div>
+    <h2>Mark as no-show?</h2>
+    <p id="noShowModalMessage">This appointment will be marked as a no-show. This can't be undone.</p>
+    <div class="modal-actions">
+      <div class="btn btn-ghost" onclick="closeNoShowModal()">Keep booking</div>
+      <div class="btn btn-danger" onclick="confirmNoShow()">Mark as no-show</div>
     </div>
   </div>
 </div>
@@ -598,8 +649,28 @@
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function dateKeyDayDiff(aKey,bKey){ const [ay,am,ad]=aKey.split("-").map(Number),[by,bm,bd]=bKey.split("-").map(Number); return Math.round((Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000); }
-  function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
-  function localFullDate(iso){ return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:"long",month:"long",day:"numeric"}).format(new Date(iso)); }
+  function localTimeLabel(iso){
+    var s = new Date(iso).toLocaleTimeString('en-US',{hour:"numeric",minute:"2-digit",hour12:true,timeZone:"Pacific/Auckland"});
+    return s.replace(' ','').toLowerCase();
+  }
+  function ordinalSuffix(n){
+    var v = n % 100;
+    if(v >= 11 && v <= 13) return 'th';
+    switch(n % 10){ case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; }
+  }
+  function clientKeyForBooking(b){
+    return b.customer_user_id ? 'uid:'+b.customer_user_id
+      : b.customer_phone ? 'ph:'+String(b.customer_phone).trim()
+      : b.customer_email ? 'em:'+String(b.customer_email).trim().toLowerCase()
+      : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
+  }
+  function localFullDate(iso){
+    var d = new Date(iso);
+    var weekday = new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:"long"}).format(d);
+    var month = new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",month:"long"}).format(d);
+    var day = Number(new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",day:"numeric"}).format(d));
+    return weekday + ', ' + month + ' ' + day + ordinalSuffix(day);
+  }
   function whenShortLabel(iso){
     const diff = dateKeyDayDiff(nzDateKeyForIso(iso), nzTodayKey());
     if(diff===0) return 'Today, ' + localTimeLabel(iso);
@@ -663,15 +734,20 @@
   async function loadClientSince(){
     const key = booking.customer_user_id ? {col:'customer_user_id', val:booking.customer_user_id} : {col:'customer_phone', val:booking.customer_phone};
     if(!key.val) return null;
-    const {data} = await supabaseClient.from("bookings").select("created_at").eq("salon_id",currentSalonId).eq(key.col,key.val).order("created_at",{ascending:true}).limit(1).maybeSingle();
+    const {data} = await supabaseClient.from("bookings").select("id,created_at").eq("salon_id",currentSalonId).eq(key.col,key.val).order("created_at",{ascending:true}).limit(1).maybeSingle();
     if(!data?.created_at) return null;
-    return new Intl.DateTimeFormat("en-US",{month:"short",year:"numeric"}).format(new Date(data.created_at));
+    return {
+      label: new Intl.DateTimeFormat("en-US",{month:"short",year:"numeric"}).format(new Date(data.created_at)),
+      isFirstVisit: String(data.id) === String(booking.id)
+    };
   }
 
   function renderBooking(clientSince){
     const b = booking;
     const c = colorFor(b.customer_name);
-    const shortCode = 'BK-' + String(b.id).replace(/-/g,'').slice(0,6).toUpperCase();
+    const clientSinceLabel = clientSince ? clientSince.label : null;
+    const isFirstVisit = !!(clientSince && clientSince.isFirstVisit);
+    const shortCode = 'B-' + String(b.public_token||b.id).replace(/-/g,'').slice(0,5).toUpperCase();
     const isUpcoming = b.status === 'upcoming';
     const addonsTotal = (b.addons||[]).reduce((sum,a)=>sum+Number(a.price||0),0);
     const priceRows = [
@@ -694,11 +770,15 @@
             <div class="bk-title-row">
               <h1>${escapeHtml(b.service_name_snapshot||'Service')}</h1>
               ${statusBadge(b.status)}
-              <span class="bk-number">#${shortCode}</span>
             </div>
-            <div class="bk-meta">with ${escapeHtml(b.customer_name)} · ${escapeHtml(b.stylist_name_snapshot||'Venue team')} · ${whenShortLabel(b.starts_at)}</div>
+            <div class="bk-meta">with <a class="bk-link" href="/venue/admin/client?key=${encodeURIComponent(clientKeyForBooking(b))}">${escapeHtml(b.customer_name)}</a> · ${b.stylist_id ? `<a class="bk-link" href="/venue/admin/team-member?id=${encodeURIComponent(b.stylist_id)}">${escapeHtml(b.stylist_name_snapshot||'Venue team')}</a>` : escapeHtml(b.stylist_name_snapshot||'Venue team')}</div>
+            <div class="bk-meta" style="margin-top:2px;">${whenShortLabel(b.starts_at)}</div>
           </div>
-          <div class="bk-actions">
+          <div class="bk-actions-wrap">
+          <div class="btn btn-ghost bk-actions-trigger" id="bkActionsTrigger" onclick="toggleBkActionsMenu(event)" aria-label="Actions">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+          </div>
+          <div class="bk-actions" id="bkActions">
             <div class="btn btn-ghost" onclick="messageClient()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               Message
@@ -708,7 +788,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v4M10 16h4"/></svg>
               Reschedule
             </div>
-            <div class="btn btn-ghost" onclick="handleStatusAction('no_show')">
+            <div class="btn btn-ghost" onclick="noShowBooking()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
               No-show
             </div>
@@ -726,6 +806,7 @@
               Receipt
             </div>` : ''}
           </div>
+          </div>
         </div>
       </div>
 
@@ -736,27 +817,32 @@
             <div class="info-row"><span class="info-label">Booking #</span><span class="info-value">${shortCode}</span></div>
             <div class="info-row"><span class="info-label">Service</span><span class="info-value">${escapeHtml(b.service_name_snapshot||'Service')}</span></div>
             <div class="info-row"><span class="info-label">Duration</span><span class="info-value">${formatDurationMinutes(b.duration_minutes)}</span></div>
-            <div class="info-row"><span class="info-label">Stylist</span><span class="info-value">${escapeHtml(b.stylist_name_snapshot||'Venue team')}</span></div>
+            <div class="info-row"><span class="info-label">Stylist</span><span class="info-value">${b.stylist_id ? `<a class="bk-link" href="/venue/admin/team-member?id=${encodeURIComponent(b.stylist_id)}">${escapeHtml(b.stylist_name_snapshot||'Venue team')}</a>` : escapeHtml(b.stylist_name_snapshot||'Venue team')}</span></div>
             <div class="info-row"><span class="info-label">Date</span><span class="info-value">${localFullDate(b.starts_at)}</span></div>
-            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${localTimeLabel(b.starts_at)} – ${localTimeLabel(new Date(new Date(b.starts_at).getTime()+Number(b.duration_minutes||0)*60000).toISOString())}</span></div>
-            <div class="info-row"><span class="info-label">Booked via</span><span class="info-value">Online booking</span></div>
+            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${localTimeLabel(b.starts_at)} – ${localTimeLabel(new Date(new Date(b.starts_at).getTime()+Number(b.duration_minutes||0)*60000).toISOString())} (${formatDurationMinutes(b.duration_minutes)})</span></div>
+            <div class="info-row"><span class="info-label">Booked via</span><span class="info-value">${b.is_walk_in ? 'Walk-in / manual' : 'Online booking'}</span></div>
           </div>
 
           <div class="panel">
             <div class="panel-head"><h2>Price</h2></div>
             ${priceRows.join('')}
-            <div class="info-row" style="border-bottom:none;"><span class="info-label">Tax</span><span class="info-value">$0.00</span></div>
             <div class="info-row total"><span class="info-label">Total due</span><span class="info-value">$${Number(b.total||0).toFixed(2)}</span></div>
+            ${b.deposit_status && b.deposit_status!=='none' ? `
+            <div class="info-row"><span class="info-label">Deposit</span><span class="info-value">
+              <span class="status-badge status-${b.deposit_status==='paid'?'completed':'pending'}" style="${b.deposit_status==='paid'?'background:var(--violet-soft);color:var(--violet-text);':''}">${b.deposit_status==='paid'?'Paid':'Awaiting payment'}</span>
+              $${Number(b.deposit_amount||0).toFixed(2)}
+            </span></div>` : ''}
+            ${b.deposit_status==='pending' && b.status==='upcoming' ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" id="depositHoldNote" style="font-size:12.5px;font-weight:400;color:var(--text-faint);"></span></div>` : ''}
           </div>
         </div>
 
         <div class="side-col">
           <div class="panel">
-            <div class="panel-head"><h2>Client</h2></div>
-            <div class="info-row"><span class="info-label">Name</span><span class="info-value">${escapeHtml(b.customer_name)}</span></div>
+            <div class="panel-head"><h2>Client</h2>${isFirstVisit ? '<span class="status-badge status-upcoming">✨ First visit</span>' : ''}</div>
+            <div class="info-row"><span class="info-label">Name</span><span class="info-value"><a class="bk-link" href="/venue/admin/client?key=${encodeURIComponent(clientKeyForBooking(b))}">${escapeHtml(b.customer_name)}</a></span></div>
             <div class="info-row"><span class="info-label">Email</span><span class="info-value">${escapeHtml(b.customer_email||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${escapeHtml(b.customer_phone||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Client since</span><span class="info-value">${clientSince||'—'}</span></div>
+            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${b.customer_phone ? `<a class="bk-link" href="tel:${escapeHtml(b.customer_phone.replace(/\s+/g,''))}">${escapeHtml(b.customer_phone)}</a>` : '—'}</span></div>
+            <div class="info-row"><span class="info-label">Client since</span><span class="info-value">${clientSinceLabel||'—'}</span></div>
           </div>
 
           <div class="panel">
@@ -772,7 +858,42 @@
         </div>
       </div>
     `;
+    startDepositHoldCountdown(b);
   }
+  const DEPOSIT_HOLD_MINUTES = 15;
+  let depositHoldTimer = null;
+  function depositHoldMsLeft(b){
+    if(!b.created_at) return null;
+    return (new Date(b.created_at).getTime() + DEPOSIT_HOLD_MINUTES*60000) - Date.now();
+  }
+  function depositHoldLabel(b){
+    const ms = depositHoldMsLeft(b);
+    if(ms==null) return 'Unpaid deposit holds are only kept for 15 minutes after booking.';
+    if(ms<=0) return 'This hold has expired. The time may have been released for other bookings.';
+    const mins=Math.floor(ms/60000), secs=Math.floor((ms%60000)/1000);
+    return 'Hold expires in ' + mins + 'm ' + String(secs).padStart(2,'0') + 's if unpaid.';
+  }
+  function startDepositHoldCountdown(b){
+    clearInterval(depositHoldTimer);
+    const el = document.getElementById('depositHoldNote');
+    if(!el || b.deposit_status!=='pending' || b.status!=='upcoming') return;
+    const tick = () => { el.textContent = depositHoldLabel(b); if(depositHoldMsLeft(b)<=0) clearInterval(depositHoldTimer); };
+    tick();
+    depositHoldTimer = setInterval(tick, 1000);
+  }
+
+  function toggleBkActionsMenu(e){
+    if(e) e.stopPropagation();
+    var menu = document.getElementById('bkActions');
+    if(menu) menu.classList.toggle('open');
+  }
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('bkActions');
+    if(!menu || !menu.classList.contains('open')) return;
+    if(e.target.closest('#bkActionsTrigger')) return;
+    // Clicking an action inside the menu closes it too — the action itself already fired.
+    menu.classList.remove('open');
+  });
 
   function handleStatusAction(status){
     persistBookingStatus(status).then(function(){
@@ -785,7 +906,13 @@
   }
 
   function messageClient(){
-    window.location.href = '/venue/admin/messages';
+    const params = new URLSearchParams();
+    params.set('booking', booking.id);
+    if(booking.customer_user_id) params.set('uid', booking.customer_user_id);
+    if(booking.customer_name) params.set('name', booking.customer_name);
+    if(booking.customer_phone) params.set('phone', booking.customer_phone);
+    if(booking.customer_email) params.set('email', booking.customer_email);
+    window.location.href = '/venue/admin/messages?' + params.toString();
   }
   function cancelBooking(){
     document.getElementById('cancelModalMessage').textContent = escapeHtml(booking.customer_name) + "'s " + (booking.service_name_snapshot||'appointment') + ' (' + whenShortLabel(booking.starts_at) + ') will be cancelled and they\'ll be notified automatically. This can\'t be undone.';
@@ -808,6 +935,31 @@
 
   document.getElementById('cancelOverlay').addEventListener('click', function(e){
     if(e.target === this) closeCancelModal();
+  });
+
+  function noShowBooking(){
+    document.getElementById('noShowModalMessage').textContent = escapeHtml(booking.customer_name) + "'s " + (booking.service_name_snapshot||'appointment') + ' (' + whenShortLabel(booking.starts_at) + ') will be marked as a no-show. This can\'t be undone.';
+    document.getElementById('noShowOverlay').classList.add('open');
+  }
+  function closeNoShowModal(){
+    document.getElementById('noShowOverlay').classList.remove('open');
+  }
+  function confirmNoShow(){
+    persistBookingStatus('no_show').then(function(){
+      booking.status = 'no_show';
+      return loadClientSince();
+    }).then(function(clientSince){
+      renderBooking(clientSince);
+      showToast('Marked as no-show');
+      closeNoShowModal();
+    }).catch(function(err){
+      showToast(err.message || 'Could not update booking');
+      closeNoShowModal();
+    });
+  }
+
+  document.getElementById('noShowOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeNoShowModal();
   });
 
   /* ---------- RESCHEDULE ---------- */
@@ -939,13 +1091,13 @@
   });
 
   document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape') closeCancelModal();
+    if(e.key === 'Escape'){ closeCancelModal(); closeNoShowModal(); }
   });
 
   var FEE_PCT = 0.0179, FEE_FLAT = 0.20;
   function receiptModalHtml(b){
     const c = colorFor(b.customer_name);
-    const shortCode = 'BK-' + String(b.id).replace(/-/g,'').slice(0,6).toUpperCase();
+    const shortCode = 'B-' + String(b.public_token||b.id).replace(/-/g,'').slice(0,5).toUpperCase();
     const addonsSum = (b.addons||[]).reduce((s,a)=>s+Number(a.price||0),0);
     const method = b.payment_method || 'card';
     const tip = Number(b.tip_amount||0);
@@ -1010,6 +1162,7 @@
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
 
+    try{ await fetch('/api/bookings/expire-stale-holds',{method:'POST'}); }catch(e){}
     const {data:row,error} = await supabaseClient.from("bookings").select("*").eq("id",bookingId).eq("salon_id",currentSalonId).maybeSingle();
     if(error || !row){ showNotFound(); return; }
     booking = row;
@@ -1149,7 +1302,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

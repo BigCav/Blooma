@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -416,6 +428,11 @@
   }
   .filter-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
   .filter-search input::placeholder{color:var(--text-faint);}
+  @media (max-width:899px){
+    .filter-actions{flex-wrap:wrap; row-gap:10px;}
+    .filter-search{flex:1 1 100%; max-width:none;}
+    .filter-actions > .btn, .filter-actions > a.btn, .filter-actions > .filters-wrap{flex:1 1 0; min-width:0; white-space:nowrap; justify-content:center;}
+  }
   @media (min-width:900px){
     .filter-bar{flex-direction:row; align-items:center;}
     .filter-tabs{flex:none;}
@@ -433,6 +450,7 @@
   table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
   table.data tr:last-child td{border-bottom:none;}
   table.data tr:hover td{background:var(--surface-hover);}
+  table.data tr.row-clickable{cursor:pointer;}
   .cell-person{display:flex; align-items:center; gap:10px;}
   .cell-avatar{
     width:32px; height:32px; border-radius:50%; flex:none;
@@ -594,7 +612,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -614,11 +632,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -712,7 +730,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
           Add stylist
         </div>
-        <div class="btn btn-violet" onclick="openInviteModal()">
+        <div class="btn btn-violet" id="inviteTeamMemberBtn" onclick="openInviteModal()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
           Invite team member
         </div>
@@ -875,12 +893,13 @@
   let currentSalonId = null;
   let currentConfigVersion = null;
   let currentUserId = null;
+  let currentUserRole = null;
 
   const salon = {
     name:"", tag:"", visible:true, mainImage:"", galleryImages:[],
     hours:{}, phone:"", address:"", city:"", region:"", bufferTime:15,
     lat:null, lng:null, addressVerified:false, suburb:"", postcode:"",
-    about:"", cancellationPolicy:"", categories:[], stylists:[], services:[], addons:[], promos:[],
+    about:"", cancellationPolicy:"", categories:[], serviceCategories:[], stylists:[], services:[], addons:[], promos:[],
     loyalty:{enabled:false, pointsPerDollar:1, rewardThreshold:100, rewardText:"$10 off your next visit", rewardValue:10}
   };
   let teamMembers = [];
@@ -924,6 +943,10 @@
     if(sc.loyalty && typeof sc.loyalty==="object") salon.loyalty={enabled:!!sc.loyalty.enabled, pointsPerDollar:Number(sc.loyalty.pointsPerDollar)||1, rewardThreshold:Number(sc.loyalty.rewardThreshold)||100, rewardText:sc.loyalty.rewardText||"$10 off your next visit", rewardValue:Number(sc.loyalty.rewardValue)||0};
     if(sc.hours) salon.hours=sc.hours;
     if(Array.isArray(sc.categories)) salon.categories=sc.categories.slice();
+    // This page never manages menu-organization categories — carry cfg.serviceCategories through
+    // unchanged so saving from Team doesn't wipe out categories added on the Services page (the
+    // save RPC replaces the whole config, it doesn't merge).
+    if(Array.isArray(cfg.serviceCategories)) salon.serviceCategories=cfg.serviceCategories.slice();
     if(Array.isArray(cfg.stylists)) salon.stylists=cfg.stylists.map(x=>({...x}));
     if(Array.isArray(cfg.services)) salon.services=cfg.services.map(x=>({...x}));
     if(Array.isArray(cfg.addons)) salon.addons=cfg.addons.map(x=>({...x}));
@@ -963,8 +986,9 @@
     const legacyClose=openHours.length?Math.max(...openHours.map(h=>parseTimeMins(h.end))):null;
     const mins24=(m)=>m==null?"":`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}:00`;
     return {
-      salon:{name:salon.name,tag:(salon.categories.length?salon.categories.join(" · "):salon.tag),phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
-      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x}))
+      salon:{name:salon.name,tag:salon.tag,phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
+      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x})),
+      serviceCategories:salon.serviceCategories.slice()
     };
   }
 
@@ -1103,10 +1127,16 @@
       return;
     }
     currentSalonId=owner.salon_id;
+    currentUserRole=owner.role||'staff';
     var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
     document.getElementById('sbAvatar').textContent = initialsFor(displayName);
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    // Inviting/revoking a dashboard login is owner-only server-side (create_staff_invite /
+    // revoke_staff_member both reject non-owners) — hide the button rather than let a staff
+    // account click it and hit a raw "Not authorised" error.
+    var inviteBtn=document.getElementById('inviteTeamMemberBtn');
+    if(inviteBtn) inviteBtn.style.display = currentUserRole==='owner' ? '' : 'none';
     try{
       await reloadAdminConfigFromCloud();
       await loadTeamData();
@@ -1164,7 +1194,7 @@
           '<td><span class="status-badge status-confirmed">Active</span></td>' +
           '<td><div style="display:flex; gap:6px; justify-content:flex-end;">' +
             (isYou ? '<div class="row-action" onclick="openEditNameModal()" title="Edit your name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>' : '') +
-            ((m.role==='staff' && !isYou) ? '<div class="row-action" onclick="handleRemoveTeamMember(\'' + m.user_id + '\')" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></div>' : '') +
+            ((m.role==='staff' && !isYou && currentUserRole==='owner') ? '<div class="row-action" onclick="handleRemoveTeamMember(\'' + m.user_id + '\')" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></div>' : '') +
           '</div></td></tr>'
         );
       });
@@ -1175,12 +1205,12 @@
         var c = colorFor(st.name||st.id);
         var avatarInner = st.imageUrl ? '<img src="' + escapeHtml(st.imageUrl) + '" alt="' + escapeHtml(st.name) + '">' : initialsFor(st.name);
         rows.push(
-          '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + avatarInner + '</div>' +
+          '<tr class="row-clickable" onclick="location.href=\'/venue/admin/team-member?id=' + encodeURIComponent(st.id) + '\'"><td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + avatarInner + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(st.name) + '</div><div class="cell-sub">Service profile</div></div></div></td>' +
           '<td>' + escapeHtml(st.specialty||'Stylist') + '</td>' +
-          '<td><button type="button" class="switch ' + (st.availableToday!==false?'on':'') + '" onclick="toggleStylistAvailable(\'' + st.id + '\')" aria-label="Toggle available today"><span class="knob"></span></button></td>' +
+          '<td onclick="event.stopPropagation()"><button type="button" class="switch ' + (st.availableToday!==false?'on':'') + '" onclick="toggleStylistAvailable(\'' + st.id + '\')" aria-label="Toggle available today"><span class="knob"></span></button></td>' +
           '<td>' + (st.availableToday!==false ? '<span class="status-badge status-confirmed">Active</span>' : '<span class="status-badge status-completed">Off today</span>') + '</td>' +
-          '<td><div style="display:flex; gap:6px; justify-content:flex-end;">' +
+          '<td onclick="event.stopPropagation()"><div style="display:flex; gap:6px; justify-content:flex-end;">' +
             '<div class="row-action" onclick="openEditStylist(\'' + st.id + '\')" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>' +
             '<a href="/venue/admin/team-member?id=' + encodeURIComponent(st.id) + '" class="row-action" title="View profile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a>' +
             '<div class="row-action" onclick="removeStylist(\'' + st.id + '\')" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></div>' +
@@ -1512,7 +1542,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

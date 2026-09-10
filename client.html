@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -440,7 +452,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -460,11 +472,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -623,6 +635,14 @@
   }
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  // For free-text values (e.g. a storage path derived from a customer-supplied name) embedded
+  // inside an inline onclick="fn('...')" handler: JS-string-escapes first, then HTML-encodes
+  // & and " so the value also survives the surrounding double-quoted HTML attribute.
+  function escapeJsAttr(s){
+    return String(s==null?'':s)
+      .replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,'\\n')
+      .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
   function tagPill(tag){
     if(tag === 'vip') return '<span class="tag-pill tag-vip">VIP</span>';
@@ -826,12 +846,12 @@
     if(!rows.length){ list.innerHTML = '<p style="font-size:12.5px;color:var(--text-faint);">No photos or documents yet.</p>'; return; }
     list.innerHTML = '<div class="attachment-rows">' + rows.map(function(r){
       return '<div class="attachment-row">'
-        + '<div class="attachment-info" onclick="viewClientAttachment(\'' + r.storage_path.replace(/'/g,"\\'") + '\')">'
+        + '<div class="attachment-info" onclick="viewClientAttachment(\'' + escapeJsAttr(r.storage_path) + '\')">'
         + attachmentIcon(r.mime_type)
         + '<div><div class="attachment-name">' + escapeHtml(r.file_name) + '</div>'
         + '<div class="attachment-meta">' + (ATTACHMENT_MIME_LABELS[r.mime_type]||"Image") + ' · ' + attachmentSizeLabel(r.size_bytes) + '</div></div>'
         + '</div>'
-        + '<div class="attachment-delete" title="Delete" onclick="deleteClientAttachment(\'' + r.id + '\',\'' + r.storage_path.replace(/'/g,"\\'") + '\')">'
+        + '<div class="attachment-delete" title="Delete" onclick="deleteClientAttachment(\'' + r.id + '\',\'' + escapeJsAttr(r.storage_path) + '\')">'
         + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>'
         + '</div></div>';
     }).join('') + '</div>';
@@ -865,7 +885,8 @@
   async function deleteClientAttachment(id,path){
     if(!confirm("Delete this file? This can't be undone.")) return;
     try{
-      await supabaseClient.storage.from(ATTACHMENTS_BUCKET).remove([path]);
+      const {error:storageErr} = await supabaseClient.storage.from(ATTACHMENTS_BUCKET).remove([path]);
+      if(storageErr) throw storageErr;
       const {error} = await supabaseClient.from("client_attachments").delete().eq("id",id);
       if(error) throw error;
       showToast("File deleted");
@@ -1063,7 +1084,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

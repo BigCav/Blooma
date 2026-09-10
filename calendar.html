@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -297,13 +309,17 @@
   .panel-tab.active{background:var(--violet); color:var(--white);}
 
   /* ---------- TIMELINE ---------- */
-  .timeline-wrap{overflow-x:auto; overflow-y:hidden; scrollbar-width:none; touch-action:pan-x;}
+  /* overflow-x:auto so day columns can be swiped horizontally on narrow screens, but the grid
+     itself can run well past one screen's height (a full day of hours) — it must never block
+     vertical scrolling. touch-action:pan-x alone told the browser a vertical swipe here isn't a
+     scroll gesture at all, so the page underneath wouldn't move either — pan-y restores that. */
+  .timeline-wrap{overflow-x:auto; overflow-y:visible; scrollbar-width:none; touch-action:pan-x pan-y;}
   .timeline-wrap::-webkit-scrollbar{display:none;}
   .timeline{
     display:flex; min-width:560px;
   }
   .tl-times{
-    flex:none; width:52px; position:relative; height:690px;
+    flex:none; width:52px; position:relative; height:var(--tl-grid-h, 690px);
   }
   .tl-times span{
     position:absolute; left:0; transform:translateY(-50%);
@@ -311,7 +327,7 @@
   }
   .tl-staff{flex:1; display:flex; gap:10px;}
   .tl-col{
-    flex:1; position:relative; height:690px; min-width:118px;
+    flex:1; position:relative; height:var(--tl-grid-h, 690px); min-width:118px;
     background-image:repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent 60px);
     border-left:1px solid var(--border);
   }
@@ -323,6 +339,7 @@
     position:absolute; left:3px; right:3px;
     border-radius:8px; padding:6px 8px;
     border-left:3px solid; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:center;
   }
   .tl-appt .t1{font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .tl-appt .t2{font-size:10px; opacity:0.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -415,7 +432,7 @@
 
   /* ---------- STAFF FILTER ---------- */
   .staff-filter-row{
-    display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; touch-action:pan-x;
+    display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; touch-action:pan-x pan-y;
     margin-bottom:18px;
   }
   .staff-filter-row::-webkit-scrollbar{display:none;}
@@ -507,7 +524,7 @@
   .cal-month-cell:hover{background:var(--surface-hover);}
   @media (max-width:600px){
     .cal-month-scroll{
-      overflow-x:auto; overflow-y:hidden; touch-action:pan-x;
+      overflow-x:auto; overflow-y:visible; touch-action:pan-x pan-y;
       scrollbar-width:none; -webkit-overflow-scrolling:touch;
       border-radius:12px;
     }
@@ -596,7 +613,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -616,11 +633,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -687,20 +704,7 @@
     <div class="timeline-wrap">
       <div class="tl-heads" id="tlHeads"></div>
       <div class="timeline">
-        <div class="tl-times">
-          <span style="top:0">9 AM</span>
-          <span style="top:60px">10 AM</span>
-          <span style="top:120px">11 AM</span>
-          <span style="top:180px">12 PM</span>
-          <span style="top:240px">1 PM</span>
-          <span style="top:300px">2 PM</span>
-          <span style="top:360px">3 PM</span>
-          <span style="top:420px">4 PM</span>
-          <span style="top:480px">5 PM</span>
-          <span style="top:540px">6 PM</span>
-          <span style="top:600px">7 PM</span>
-          <span style="top:660px">8 PM</span>
-        </div>
+        <div class="tl-times" id="tlTimes"></div>
         <div class="tl-staff" id="tlStaff"></div>
       </div>
     </div>
@@ -780,6 +784,57 @@
   const salon = { name:"", stylists:[], hours:{} };
   var bookingsByDate = {};
 
+  // The timeline used to hardcode a 9 AM–8 PM grid, so any booking before 9 AM
+  // (a venue can legitimately open earlier, e.g. 8:30 AM) rendered with a negative
+  // top offset — bleeding up over the header row instead of showing in its own row.
+  // Compute the grid's bounds from the venue's actual opening hours instead.
+  // Grid bounds are tracked in minutes-of-day, not whole hours — a venue opening at a
+  // half hour (e.g. 8:30) shouldn't render a dead "8 AM" row for the 8:00-8:30 slot before
+  // it's actually open (matches the same approach admin.html's dashboard timeline uses, so
+  // the two views of the same day line up instead of disagreeing on where the day starts).
+  var GRID_START_MIN = 540, GRID_END_MIN = 1200, GRID_OFFSET_PX = 0;
+  function parseTimeToHour(str){
+    var m = /^(\d+):(\d+)\s*(AM|PM)$/i.exec(String(str||'').trim());
+    if(!m) return null;
+    var h = Number(m[1]) % 12, min = Number(m[2]);
+    if(/PM/i.test(m[3])) h += 12;
+    return h + min/60;
+  }
+  function computeGridHours(){
+    var foundStart = null, foundEnd = null;
+    Object.keys(salon.hours||{}).forEach(function(k){
+      var d = salon.hours[k];
+      if(!d || d.open === false) return;
+      var s = parseTimeToHour(d.start), e = parseTimeToHour(d.end);
+      if(s != null) foundStart = foundStart == null ? s : Math.min(foundStart, s);
+      if(e != null) foundEnd = foundEnd == null ? e : Math.max(foundEnd, e);
+    });
+    GRID_START_MIN = foundStart != null ? Math.round(foundStart * 60) : 540;
+    GRID_END_MIN = foundEnd != null ? Math.round(foundEnd * 60) : 1200;
+    if(GRID_END_MIN <= GRID_START_MIN) GRID_END_MIN = GRID_START_MIN + 60;
+    // The hour gridlines drawn via CSS background-image start at the top of each column
+    // (0px); when the open time isn't a whole hour, shift the repeating pattern down by
+    // the fractional offset so the lines still land on the hour instead of on the half.
+    GRID_OFFSET_PX = (60 - (GRID_START_MIN % 60)) % 60;
+  }
+  function hourLabel(h){
+    var period = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12; if(h12 === 0) h12 = 12;
+    return h12 + ' ' + period;
+  }
+  function buildTimeLabels(){
+    // Runs 30min past closing (unlabeled), mirroring the unlabeled partial hour before the
+    // first tick at the top, so the last appointment slot isn't flush against the bottom edge.
+    var gridPx = GRID_END_MIN - GRID_START_MIN + 30;
+    document.documentElement.style.setProperty('--tl-grid-h', gridPx + 'px');
+    var html = '';
+    for(var m = Math.floor(GRID_START_MIN/60)*60; m <= GRID_END_MIN; m += 60){
+      var top = m - GRID_START_MIN; if(top < 0) continue;
+      html += '<span style="top:' + top + 'px">' + hourLabel(Math.floor(m/60)%24) + '</span>';
+    }
+    document.getElementById('tlTimes').innerHTML = html;
+  }
+
   function applyAdminConfig(cfg){
     if(!cfg) return;
     const sc=cfg.salon||{};
@@ -823,7 +878,7 @@
     (data||[]).forEach(function(r){
       var dateKey = nzDateKeyForIso(r.starts_at);
       var t = nzTimeParts(r.starts_at);
-      var top = (t.h - 9) * 60 + t.m;
+      var top = Math.max(0, (t.h * 60 + t.m) - GRID_START_MIN);
       var height = Math.max(20, Number(r.duration_minutes||30));
       var staffKey = r.stylist_id || 'unassigned';
       if(!bookingsByDate[dateKey]) bookingsByDate[dateKey] = [];
@@ -882,6 +937,8 @@
       ]);
       if(cfgRow) applyAdminConfig(cfgRow.config);
       if(salonRow) document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
+      computeGridHours();
+      buildTimeLabels();
       await loadBookings();
     }catch(err){ showToast(err.message||"Unable to load calendar"); }
     STAFF = buildStaffList();
@@ -895,7 +952,7 @@
 
   function renderStaffLegend(){
     document.getElementById('staffLegend').innerHTML = STAFF.map(function(s){
-      return '<div class="legend-item"><span class="legend-dot" style="background:' + s.dot + ';"></span>' + s.name + '</div>';
+      return '<div class="legend-item"><span class="legend-dot" style="background:' + s.dot + ';"></span>' + escapeHtml(s.name) + '</div>';
     }).join('') || '<div class="legend-item" style="color:var(--text-faint);">No stylists added yet</div>';
   }
 
@@ -1005,6 +1062,10 @@
   var MAX_VISIBLE_OVERLAP = 3;
   var moreClusters = [];
 
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+
   function hexToRgba(hex, alpha){
     var h = hex.replace('#','');
     var r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
@@ -1016,7 +1077,8 @@
     var dimmed = staffFilter && staffFilter !== a.staffKey;
     var cls = 'tl-appt' + (dimmed ? ' dimmed' : '');
     var style = 'top:' + top + 'px; height:' + height + 'px; left:calc(' + leftPct + '% + 2px); width:calc(' + widthPct + '% - 4px); right:auto; background:' + hexToRgba(staff.dot,0.18) + '; border-color:' + staff.dot + ';';
-    return '<div class="' + cls + '" style="' + style + '" onclick="goToBooking(\'' + a.dbId + '\')"><div class="t1">' + a.name + '</div><div class="t2">' + a.service + ' · ' + staff.name + '</div></div>';
+    var body = '<div class="t1">' + escapeHtml(a.name) + '</div>' + (height < 32 ? '' : '<div class="t2">' + escapeHtml(a.service) + ' · ' + escapeHtml(staff.name) + '</div>');
+    return '<div class="' + cls + '" style="' + style + '" onclick="goToBooking(\'' + a.dbId + '\')">' + body + '</div>';
   }
 
   function buildCols(dateKeys){
@@ -1025,8 +1087,9 @@
       var info = getDateInfo(dk);
       var isToday = dk === TODAY_KEY;
       var classes = 'tl-col' + (isToday ? ' today' : '') + (info.closed ? ' closed' : '');
+      var bgPos = ' style="background-position:0 ' + GRID_OFFSET_PX + 'px;"';
       if(info.closed){
-        return '<div class="' + classes + '"><div class="closed-label">Closed</div></div>';
+        return '<div class="' + classes + '"' + bgPos + '><div class="closed-label">Closed</div></div>';
       }
       var clusters = computeClusters(info.appts);
       var apptsHtml = clusters.map(function(cluster){
@@ -1054,7 +1117,7 @@
         html += '<div class="tl-more" style="left:calc(' + leftPct + '% + 2px); width:calc(' + widthPct + '% - 4px); top:' + clusterTop + 'px; height:' + clusterHeight + 'px;" onclick="openMorePopover(' + idx + ')">+' + hidden.length + ' more</div>';
         return html;
       }).join('');
-      return '<div class="' + classes + '">' + apptsHtml + '</div>';
+      return '<div class="' + classes + '"' + bgPos + '>' + apptsHtml + '</div>';
     }).join('');
   }
 
@@ -1063,7 +1126,7 @@
     document.getElementById('moreOverlayTitle').textContent = hidden.length + ' more booking' + (hidden.length === 1 ? '' : 's');
     document.getElementById('moreOverlayList').innerHTML = hidden.map(function(a){
       var staff = staffByKey(a.staffKey);
-      return '<div class="more-row" onclick="goToBooking(\'' + a.dbId + '\')"><span class="more-row-dot" style="background:' + staff.dot + ';"></span><div><div class="more-row-name">' + a.name + '</div><div class="more-row-sub">' + a.service + ' · ' + staff.name + '</div></div></div>';
+      return '<div class="more-row" onclick="goToBooking(\'' + a.dbId + '\')"><span class="more-row-dot" style="background:' + staff.dot + ';"></span><div><div class="more-row-name">' + escapeHtml(a.name) + '</div><div class="more-row-sub">' + escapeHtml(a.service) + ' · ' + escapeHtml(staff.name) + '</div></div></div>';
     }).join('');
     document.getElementById('moreOverlay').classList.add('open');
   }
@@ -1103,7 +1166,7 @@
     var row = document.getElementById('staffFilterRow');
     var html = '<div class="staff-chip' + (staffFilter === null ? ' active' : '') + '" onclick="setStaffFilter(null)"><div class="staff-chip-avatar" style="background:#8C8798;"></div>All staff</div>';
     STAFF.forEach(function(s){
-      html += '<div class="staff-chip' + (staffFilter === s.key ? ' active' : '') + '" onclick="setStaffFilter(\'' + s.key + '\')"><div class="staff-chip-avatar" style="background:' + s.avatar + ';"></div>' + s.name + '</div>';
+      html += '<div class="staff-chip' + (staffFilter === s.key ? ' active' : '') + '" onclick="setStaffFilter(\'' + s.key + '\')"><div class="staff-chip-avatar" style="background:' + s.avatar + ';"></div>' + escapeHtml(s.name) + '</div>';
     });
     row.innerHTML = html;
   }
@@ -1308,7 +1371,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

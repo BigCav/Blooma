@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -647,7 +659,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -667,11 +679,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -781,6 +793,7 @@
   let currentSalonId = null;
   let booking = null;
   let salonLoyalty = null;
+  let salonName = "";
   let ckMethod = 'card';
   let ckTipPct = 0;
 
@@ -853,6 +866,9 @@
     if(Number(booking.discount||0) > 0){
       rows.push(`<div class="line-item"><div><div class="li-name">Discount${booking.promo_code?' ('+escapeHtml(booking.promo_code)+')':''}</div></div><div class="li-price">-$${Number(booking.discount).toFixed(2)}</div></div>`);
     }
+    if(booking.deposit_status==='paid' && Number(booking.deposit_amount||0) > 0){
+      rows.push(`<div class="line-item"><div><div class="li-name">Deposit paid online</div></div><div class="li-price">-$${Number(booking.deposit_amount).toFixed(2)}</div></div>`);
+    }
     return rows.join('');
   }
 
@@ -879,7 +895,7 @@
 
         <div class="total-row">
           <div class="t-label">Total due</div>
-          <div class="t-amount" id="totalAmt">$${Number(booking.total||0).toFixed(2)}</div>
+          <div class="t-amount" id="totalAmt">$${ckTotal().toFixed(2)}</div>
         </div>
 
         <div class="pm-label">Payment method</div>
@@ -895,7 +911,7 @@
         </div>
 
         <div class="btn btn-violet co-charge-btn" onclick="goToTerminal()">
-          Charge <span id="chargeBtnAmt">&nbsp;$${Number(booking.total||0).toFixed(2)}</span>
+          Charge <span id="chargeBtnAmt">&nbsp;$${ckTotal().toFixed(2)}</span>
         </div>
       </div>
     `;
@@ -903,7 +919,10 @@
 
   function ckTotal(){
     const base = Number(booking.total||0);
-    return Math.round((base + base*ckTipPct) * 100) / 100;
+    const depositPaid = booking.deposit_status==='paid' ? Number(booking.deposit_amount||0) : 0;
+    // Tip is a % of the full service price, not the reduced balance — the deposit is a
+    // prepayment toward the same total, not a discount, so it shouldn't shrink the tip base.
+    return Math.round((base - depositPaid + base*ckTipPct) * 100) / 100;
   }
 
   function setTip(pct, el){
@@ -921,7 +940,11 @@
     ckMethod = method;
   }
 
+  // Card charges go straight to Windcave's hosted payment page (see chargeViaWindcave()) —
+  // this manual accept/decline simulator is now only for Cash, until the physical Windcave
+  // HIT terminal arrives and takes over the card path too.
   function goToTerminal(){
+    if(ckMethod==='card'){ chargeViaWindcave(); return; }
     const total = ckTotal();
     document.getElementById('coWrap').innerHTML = `
       <div class="panel" id="ckTerminal">
@@ -929,11 +952,9 @@
           <div class="terminal-eyebrow">Processing transaction</div>
           <div class="terminal-amount">$${total.toFixed(2)}</div>
           <div class="terminal-method">
-            ${ckMethod==='cash'
-              ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg> Cash payment'
-              : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card payment'}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg> Cash payment
           </div>
-          <div class="terminal-hint">Confirm the outcome once payment has been taken${ckMethod==='card'?' on your card reader':''}.</div>
+          <div class="terminal-hint">Confirm the outcome once payment has been taken.</div>
           <div class="terminal-actions">
             <div class="term-btn accept" onclick="txAccept()">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>
@@ -950,6 +971,17 @@
     `;
   }
 
+  async function checkAndAwardMilestone(){
+    if(!salonLoyalty?.enabled || !booking.customer_user_id) return;
+    try{
+      const {data,error} = await supabaseClient.rpc("check_and_award_milestone",{p_booking_id:booking.id});
+      if(error) throw error;
+      if(data?.milestone && booking.customer_phone){
+        await supabaseClient.functions.invoke("send-sms",{body:{type:"loyalty_milestone",to:booking.customer_phone,data:{salonName:salonName,visitCount:data.milestone,bonusPoints:data.bonus_points}}});
+      }
+    }catch(e){ console.warn("Milestone award failed", e); }
+  }
+
   function txAccept(){
     const btn = document.querySelector('.term-btn.accept');
     if(btn){ btn.textContent = 'Processing…'; btn.style.pointerEvents = 'none'; }
@@ -957,6 +989,8 @@
     persistBookingStatus('completed', ckMethod, tipAmount).then(function(){
       booking.status = 'completed';
       return awardLoyaltyPoints();
+    }).then(function(){
+      return checkAndAwardMilestone();
     }).then(function(){
       renderAccepted();
     }).catch(function(err){
@@ -976,16 +1010,51 @@
           <div class="result-sub">${escapeHtml(booking.customer_name)}'s appointment is marked complete.</div>
           <div class="receipt-box">
             <div class="receipt-row"><span>${escapeHtml(booking.service_name_snapshot||'Service')}</span><span>$${Number(booking.subtotal||0).toFixed(2)}</span></div>
+            ${booking.deposit_status==='paid' && Number(booking.deposit_amount||0)>0 ? `<div class="receipt-row"><span>Deposit paid online</span><span>-$${Number(booking.deposit_amount).toFixed(2)}</span></div>` : ''}
             <div class="receipt-row"><span>Tip (${Math.round(ckTipPct*100)}%)</span><span>$${tip.toFixed(2)}</span></div>
-            <div class="receipt-row total"><span>Total paid</span><span>$${total.toFixed(2)}</span></div>
+            <div class="receipt-row total"><span>Charged today</span><span>$${total.toFixed(2)}</span></div>
           </div>
           <div class="result-actions">
             <a href="/venue/admin/bookings" class="btn btn-violet">Back to bookings</a>
-            <div class="btn btn-ghost" onclick="showToast('${booking.customer_email ? ('Receipt emailed to ' + escapeHtml(booking.customer_email)) : 'No email on file for this client'}')">Email receipt</div>
+            <div class="btn btn-ghost" id="emailReceiptBtn" onclick="sendReceiptEmail()">Email receipt</div>
           </div>
         </div>
       </div>
     `;
+  }
+
+  async function sendReceiptEmail(){
+    if(!booking.customer_email){ showToast('No email on file for this client'); return; }
+    const btn = document.getElementById('emailReceiptBtn');
+    if(btn){ btn.style.pointerEvents='none'; btn.textContent='Sending…'; }
+    try{
+      const addonsSum = (booking.addons||[]).reduce((s,a)=>s+Number(a.price||0),0);
+      const tip = Math.round((Number(booking.total||0) * ckTipPct) * 100) / 100;
+      const { error } = await supabaseClient.functions.invoke("send-email", {
+        body: {
+          type: 'receipt',
+          to: booking.customer_email,
+          data: {
+            customerName: booking.customer_name,
+            salonName: salonName,
+            serviceName: booking.service_name_snapshot || 'Service',
+            servicePrice: Number(booking.subtotal||0) - addonsSum,
+            addons: booking.addons || [],
+            discount: Number(booking.discount||0),
+            depositAmount: booking.deposit_status==='paid' ? Number(booking.deposit_amount||0) : 0,
+            tip: tip,
+            method: booking.payment_method || ckMethod,
+            chargedToday: ckTotal(),
+          }
+        }
+      });
+      if(error) throw error;
+      showToast('Receipt emailed to ' + booking.customer_email);
+    }catch(err){
+      showToast(err.message || 'Could not send receipt');
+    }finally{
+      if(btn){ btn.style.pointerEvents=''; btn.textContent='Email receipt'; }
+    }
   }
 
   function txDecline(){
@@ -1031,14 +1100,14 @@
     `;
   }
 
-  async function bootCheckoutPage(){
-    const bookingId = new URLSearchParams(window.location.search).get('id');
-    if(!bookingId){ showNotFound(); return; }
-
+  // Shared by both a normal page load and landing back here after a Windcave card charge —
+  // resolves the logged-in venue session and loads the salon's name/loyalty config into the
+  // sidebar. Returns the session, or null after it has already rendered a login/error screen.
+  async function loadVenueContext(){
     const {data:{session}} = await supabaseClient.auth.getSession();
     if(!session){
       showLoginRequired("Log in to your venue","Use your venue account before opening Checkout.","Log in","/business-auth?view=login");
-      return;
+      return null;
     }
     const [{data:profile},{data:owner}] = await Promise.all([
       supabaseClient.from("user_profiles").select("account_type,first_name,last_name").eq("user_id",session.user.id).maybeSingle(),
@@ -1048,11 +1117,11 @@
     if(accountType!=="venue"){
       try{ await supabaseClient.auth.signOut(); }catch(e){}
       showLoginRequired("Venue account required","Customer accounts cannot be used in Blooma for Business.","Venue log in","/business-auth?view=login");
-      return;
+      return null;
     }
     if(!owner?.salon_id){
       showLoginRequired("Finish venue setup","This account doesn't have a venue yet.","Set up venue","/business-auth?view=register");
-      return;
+      return null;
     }
     currentSalonId=owner.salon_id;
     var displayName = [profile?.first_name,profile?.last_name].filter(Boolean).join(' ').trim() || session.user.email || 'Owner';
@@ -1060,26 +1129,105 @@
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
 
-    const {data:row,error} = await supabaseClient.from("bookings").select("*").eq("id",bookingId).eq("salon_id",currentSalonId).maybeSingle();
-    if(error || !row){ showNotFound(); return; }
-    booking = row;
-
     const [{data:salonRow},{data:cfgRow}] = await Promise.all([
       supabaseClient.from("salons").select("name,city,suburb").eq("id",currentSalonId).maybeSingle(),
       supabaseClient.from("app_config").select("config").eq("salon_id",currentSalonId).maybeSingle()
     ]);
     if(salonRow){
+      salonName = salonRow.name || "";
       document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
       document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
       document.title = salonRow.name ? `Checkout — ${salonRow.name}` : "Checkout — Blooma Business";
     }
     salonLoyalty = cfgRow?.config?.salon?.loyalty || null;
+    return session;
+  }
+
+  async function bootCheckoutPage(){
+    const bookingId = new URLSearchParams(window.location.search).get('id');
+    if(!bookingId){ showNotFound(); return; }
+
+    const session = await loadVenueContext();
+    if(!session) return;
+
+    const {data:row,error} = await supabaseClient.from("bookings").select("*").eq("id",bookingId).eq("salon_id",currentSalonId).maybeSingle();
+    if(error || !row){ showNotFound(); return; }
+    booking = row;
 
     if(booking.status !== 'upcoming'){ renderAlreadyDone(); return; }
     renderSummary();
   }
 
-  bootCheckoutPage();
+  // Windcave redirects the browser straight back here after a card charge (see
+  // chargeViaWindcave()), well before the async FPRN notification that actually marks the
+  // booking completed necessarily lands — so this polls briefly rather than risking showing
+  // "not paid" to someone who just paid. Mirrors handleDepositReturn() in customer-checkout.html.
+  async function handleChargeReturn(){
+    const params = new URLSearchParams(location.search);
+    const status = params.get('chargeReturn');
+    const bookingId = params.get('id');
+    if(!status || !bookingId) return false;
+
+    const session = await loadVenueContext();
+    if(!session) return true;
+
+    document.getElementById('coWrap').innerHTML = '<div class="panel" style="text-align:center;padding:60px 24px;"><h1 style="font-size:18px;">Confirming payment…</h1></div>';
+
+    let row, attempts=0;
+    while(true){
+      const {data} = await supabaseClient.from("bookings").select("*").eq("id",bookingId).eq("salon_id",currentSalonId).maybeSingle();
+      row = data;
+      if(!row){ showNotFound(); return true; }
+      if(status!=='success' || row.status==='completed' || attempts>=6) break;
+      attempts++;
+      document.getElementById('coWrap').innerHTML = '<div class="panel" style="text-align:center;padding:60px 24px;"><h1 style="font-size:18px;">Confirming payment…</h1></div>';
+      await new Promise(r=>setTimeout(r,1200));
+    }
+    booking = row;
+
+    if(status==='success' && booking.status==='completed'){
+      ckTipPct = Number(booking.total)>0 ? Number(booking.tip_amount||0)/Number(booking.total) : 0;
+      try{ await awardLoyaltyPoints(); await checkAndAwardMilestone(); }catch(e){ console.warn(e); }
+      renderAccepted();
+    } else if(status==='declined'){
+      txDecline();
+    } else if(status==='cancelled'){
+      txCancel();
+    } else {
+      document.getElementById('coWrap').innerHTML = `
+        <div class="panel" style="text-align:center;padding:48px 24px;">
+          <h1 style="font-size:18px;margin-bottom:8px;">Still confirming your payment…</h1>
+          <p style="font-size:13.5px;color:var(--text-soft);margin-bottom:20px;">This can take a few extra seconds. Refresh to check again.</p>
+          <div class="btn btn-violet" onclick="location.reload()">Refresh</div>
+        </div>`;
+    }
+    return true;
+  }
+
+  async function chargeViaWindcave(){
+    const btn = document.querySelector('.co-charge-btn');
+    if(btn){ btn.style.pointerEvents='none'; btn.textContent='Redirecting…'; }
+    try{
+      const {data:{session}} = await supabaseClient.auth.getSession();
+      const res = await fetch('/api/windcave?action=create-checkout-charge-session', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body: JSON.stringify({booking_id: booking.id, tip_pct: ckTipPct})
+      });
+      const out = await res.json().catch(()=>null);
+      if(!res.ok || !out?.url) throw new Error(out?.error || 'Could not start checkout');
+      location.href = out.url;
+    }catch(e){
+      showToast(e.message || 'Could not start payment');
+      if(btn){ btn.style.pointerEvents=''; btn.innerHTML = 'Charge <span id="chargeBtnAmt">&nbsp;$'+ckTotal().toFixed(2)+'</span>'; }
+    }
+  }
+
+  // Chrome/Safari can restore this exact frozen page (button stuck on "Redirecting…") from
+  // the bfcache if the browser Back button is used instead of completing the Windcave charge.
+  window.addEventListener('pageshow', function(e){ if(e.persisted) location.reload(); });
+
+  handleChargeReturn().then(function(handled){ if(!handled) bootCheckoutPage(); });
 </script>
 
 <script>
@@ -1193,7 +1341,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

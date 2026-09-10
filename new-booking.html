@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -535,7 +547,7 @@
   .stylist-pick .sp-avatar{width:36px; height:36px; border-radius:50%; flex:none;}
   .stylist-pick .sp-info{flex:1; min-width:0;}
   .stylist-pick .sp-name{font-size:13px; font-weight:700;}
-  .stylist-pick .sp-status{font-size:11px; margin-top:2px; font-weight:600;}
+  .stylist-pick .sp-status{font-size:11px; margin-top:2px; font-weight:600; color:var(--text-faint);}
   .stylist-pick .sp-status.free{color:var(--success);}
   .stylist-pick .sp-status.busy{color:var(--warning);}
   .sp-recommend{
@@ -723,7 +735,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -743,11 +755,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -803,7 +815,6 @@
     <div class="panel" id="nbForm">
 
       <div class="ci-section">
-        <div class="ci-step-label">Step 1</div>
         <h3>Client</h3>
         <div class="client-search-row">
           <div class="filter-search">
@@ -821,7 +832,6 @@
       </div>
 
       <div class="ci-section">
-        <div class="ci-step-label">Step 2</div>
         <h3>Service</h3>
         <div class="svc-pick-grid" id="servicePickGrid">
           <div class="nb-empty">Loading services…</div>
@@ -829,7 +839,6 @@
       </div>
 
       <div class="ci-section">
-        <div class="ci-step-label">Step 3</div>
         <h3>Stylist</h3>
         <div class="stylist-grid" id="stylistPickGrid">
           <div class="nb-empty">Loading team…</div>
@@ -837,14 +846,13 @@
       </div>
 
       <div class="ci-section">
-        <div class="ci-step-label">Step 4</div>
         <h3>Date &amp; time</h3>
         <div class="date-row" id="datePickRow">
           <div class="nb-empty">Loading dates…</div>
         </div>
 
         <div class="time-grid" id="timeSlotGrid">
-          <div class="nb-empty">Pick a service and date to see available times.</div>
+          
         </div>
       </div>
 
@@ -893,6 +901,10 @@
       <div class="form-group">
         <label class="form-label">Phone</label>
         <input type="tel" class="form-input" id="ncPhone" placeholder="e.g. 021 234 5678" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span style="font-weight:500; color:var(--text-faint); text-transform:none; letter-spacing:0;">(optional)</span></label>
+        <input type="email" class="form-input" id="ncEmail" placeholder="e.g. taylor@email.com">
       </div>
       <div class="modal-actions">
         <div class="btn btn-ghost" onclick="closeNewClient()">Cancel</div>
@@ -1090,18 +1102,18 @@
   function renderClientResults(search){
     var q = (search||'').trim().toLowerCase();
     var wrap = document.getElementById('clientResultList');
+    var selectedClient = nb.clientKey ? clientsData.find(function(c){ return c.key===nb.clientKey; }) : null;
+    if(selectedClient){
+      var col0 = colorFor(selectedClient.name);
+      wrap.innerHTML = '<div class="client-result selected" onclick="pickClientByKey(null)" title="Click to change client">' +
+        '<div class="cr-avatar" style="background:' + col0.color + ';color:' + col0.text + ';">' + initialsFor(selectedClient.name) + '</div>' +
+        '<div><div class="cr-name">' + escapeHtml(selectedClient.name) + '</div><div class="cr-sub">' + relativeLastVisit(selectedClient.lastVisit) + '</div></div>' +
+        '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>' +
+      '</div>';
+      return;
+    }
     if(!q){
-      var selectedClient = nb.clientKey ? clientsData.find(function(c){ return c.key===nb.clientKey; }) : null;
-      if(selectedClient){
-        var col0 = colorFor(selectedClient.name);
-        wrap.innerHTML = '<div class="client-result selected">' +
-          '<div class="cr-avatar" style="background:' + col0.color + ';color:' + col0.text + ';">' + initialsFor(selectedClient.name) + '</div>' +
-          '<div><div class="cr-name">' + escapeHtml(selectedClient.name) + '</div><div class="cr-sub">' + relativeLastVisit(selectedClient.lastVisit) + '</div></div>' +
-          '<div class="cr-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>' +
-        '</div>';
-      } else {
-        wrap.innerHTML = '<div class="nb-empty">Search to find an existing client, or use New client to book a first-timer.</div>';
-      }
+      wrap.innerHTML = '<div class="nb-empty">Search to find an existing client, or use New client to book a first-timer.</div>';
       return;
     }
     var filtered = clientsData.filter(function(c){
@@ -1122,6 +1134,15 @@
     }).join('');
   }
   function pickClientByKey(key){
+    if(key===null){
+      nb.clientKey = null; nb.clientName = ''; nb.clientPhone = ''; nb.clientEmail = ''; nb.customerUserId = null;
+      var input = document.getElementById('clientSearchInput');
+      input.value = '';
+      renderClientResults('');
+      input.focus();
+      updateSummary();
+      return;
+    }
     var c = clientsData.find(function(x){ return x.key===key; });
     if(!c) return;
     nb.clientKey = c.key; nb.clientName = c.name; nb.clientPhone = c.phone; nb.clientEmail = c.email; nb.customerUserId = c.customer_user_id;
@@ -1138,15 +1159,17 @@
     evt.preventDefault();
     var name = document.getElementById('ncName').value.trim();
     var phone = document.getElementById('ncPhone').value.trim();
+    var email = document.getElementById('ncEmail').value.trim();
     if(!name || name.length<2){ showToast('Enter a full name'); return false; }
     if(phone.replace(/\D/g,'').length<6){ showToast('Enter a valid phone number'); return false; }
     var key = 'ph:'+phone;
     var existing = clientsData.find(function(c){ return c.key===key; });
     if(!existing){
-      existing = { key:key, name:name, email:'', phone:phone, customer_user_id:null, lastVisit:null };
+      existing = { key:key, name:name, email:email, phone:phone, customer_user_id:null, lastVisit:null };
       clientsData.unshift(existing);
     } else {
       existing.name = name;
+      if(email) existing.email = email;
     }
     pickClientByKey(existing.key);
     closeNewClient();
@@ -1187,7 +1210,7 @@
       var avatarStyle = st.image_url ? ('background-image:url(' + st.image_url + ');background-size:cover;background-position:center;') : ('background:' + col.color + ';');
       return '<div class="stylist-pick' + (active?' active':'') + '" onclick="pickStaffById(\'' + st.id + '\')">' +
         '<div class="sp-avatar" style="' + avatarStyle + '"></div>' +
-        '<div class="sp-info"><div class="sp-name">' + escapeHtml(st.name) + '</div><div class="sp-status free">' + escapeHtml(st.specialty||'') + '</div></div>' +
+        '<div class="sp-info"><div class="sp-name">' + escapeHtml(st.name) + '</div><div class="sp-status">' + escapeHtml(st.specialty||'') + '</div></div>' +
       '</div>';
     }).join('');
   }
@@ -1245,7 +1268,7 @@
   function renderTimeSlots(){
     var wrap = document.getElementById('timeSlotGrid');
     var service = servicesData.find(function(s){ return s.id===nb.serviceId; });
-    if(!service || !nb.dateKey){ wrap.innerHTML = '<div class="nb-empty">Pick a service and date to see available times.</div>'; return; }
+    if(!service || !nb.dateKey){ wrap.innerHTML = ''; return; }
     var dow = weekdayIndexForKey(nb.dateKey);
     if(salonHours.openDays.indexOf(dow) === -1){ wrap.innerHTML = '<div class="nb-empty">Venue is closed that day.</div>'; return; }
     var duration = Number(service.duration_minutes||30);
@@ -1502,7 +1525,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

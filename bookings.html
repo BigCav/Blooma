@@ -62,6 +62,8 @@
   .btn-violet:hover{background:#5C4EDB;}
   .btn-ghost{background:var(--surface-2); color:var(--text); border-color:var(--border);}
   .btn-ghost:hover{background:var(--surface-hover);}
+  .btn-danger{background:rgba(255,107,129,0.14); color:var(--danger); border-color:rgba(255,107,129,0.3);}
+  .btn-danger:hover{background:rgba(255,107,129,0.22);}
 
   /* ---------- SHELL ---------- */
   .shell{display:flex; min-height:100vh;}
@@ -69,7 +71,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +91,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +106,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -416,6 +430,11 @@
   }
   .filter-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
   .filter-search input::placeholder{color:var(--text-faint);}
+  @media (max-width:899px){
+    .filter-actions{flex-wrap:wrap; row-gap:10px;}
+    .filter-search{flex:1 1 100%; max-width:none;}
+    .filter-actions > .btn, .filter-actions > a.btn, .filter-actions > .filters-wrap{flex:1 1 0; min-width:0; white-space:nowrap; justify-content:center;}
+  }
   @media (min-width:900px){
     .filter-bar{flex-direction:row; align-items:center;}
     .filter-tabs{flex:none;}
@@ -433,6 +452,7 @@
   table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
   table.data tr:last-child td{border-bottom:none;}
   table.data tr:hover td{background:var(--surface-hover);}
+  table.data tr.row-clickable{cursor:pointer;}
   .cell-person{display:flex; align-items:center; gap:10px;}
   .cell-avatar{
     width:32px; height:32px; border-radius:50%; flex:none;
@@ -448,7 +468,7 @@
   .status-upcoming{background:var(--success-soft); color:var(--success);}
   .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
   .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
-  .status-noshow{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .status-noshow{background:rgba(157,152,176,0.16); color:var(--text-soft);}
   .row-action{
     width:30px; height:30px; border-radius:8px; background:var(--surface-2);
     border:1px solid var(--border);
@@ -538,6 +558,16 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     color:var(--text-soft); flex:none;
   }
+  .modal-confirm{max-width:380px; text-align:center;}
+  .modal-icon{
+    width:48px; height:48px; border-radius:50%; margin:0 auto 14px;
+    background:rgba(255,107,129,0.14); color:var(--danger);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-confirm h2{font-size:16px; font-weight:700; margin-bottom:6px;}
+  .modal-confirm p{font-size:13px; color:var(--text-soft); line-height:1.5; margin-bottom:20px;}
+  .modal-actions{display:flex; gap:10px;}
+  .modal-actions .btn{flex:1; justify-content:center;}
   .info-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; gap:10px;}
   .info-row:last-child{border-bottom:none; padding-bottom:0;}
   .info-row .info-label{color:var(--text-faint); font-weight:600; flex:none;}
@@ -606,7 +636,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -626,11 +656,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -716,6 +746,7 @@
       <div class="filter-tabs" id="filterTabs">
         <div class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</div>
         <div class="filter-tab" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</div>
+        <div class="filter-tab" data-filter="pending" onclick="setFilter('pending')">Pending</div>
         <div class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed</div>
         <div class="filter-tab" data-filter="cancelled" onclick="setFilter('cancelled')">Cancelled</div>
         <div class="filter-tab" data-filter="noshow" onclick="setFilter('noshow')">No-show</div>
@@ -769,6 +800,34 @@
 
 <div class="modal-overlay" id="receiptOverlay">
   <div class="modal-box" id="receiptModalBox"></div>
+</div>
+
+<div class="modal-overlay" id="cancelOverlay">
+  <div class="modal-box modal-confirm">
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </div>
+    <h2>Cancel this booking?</h2>
+    <p id="cancelModalMessage">This appointment will be cancelled and the client will be notified. This can't be undone.</p>
+    <div class="modal-actions">
+      <div class="btn btn-ghost" onclick="closeCancelModal()">Keep booking</div>
+      <div class="btn btn-danger" onclick="confirmCancelBooking()">Cancel booking</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="noShowOverlay">
+  <div class="modal-box modal-confirm">
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </div>
+    <h2>Mark as no-show?</h2>
+    <p id="noShowModalMessage">This appointment will be marked as a no-show. This can't be undone.</p>
+    <div class="modal-actions">
+      <div class="btn btn-ghost" onclick="closeNoShowModal()">Keep booking</div>
+      <div class="btn btn-danger" onclick="confirmNoShow()">Mark as no-show</div>
+    </div>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -843,6 +902,7 @@
   }
 
   async function loadBookings(){
+    try{ await fetch('/api/bookings/expire-stale-holds',{method:'POST'}); }catch(e){}
     const {data,error} = await supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId).order("starts_at",{ascending:true});
     if(error) throw error;
     bookingsData = (data||[]).map(function(r){
@@ -850,6 +910,7 @@
       const st = salon.stylists.find(function(s){return s.id===r.stylist_id;});
       return {
         dbId: r.id,
+        publicToken: r.public_token,
         name: r.customer_name || 'Customer',
         email: r.customer_phone || '',
         service: r.service_name_snapshot || (svc?svc.name:'Service'),
@@ -862,7 +923,9 @@
         discount: Number(r.discount||0),
         addons: Array.isArray(r.addons)?r.addons:[],
         tipAmount: Number(r.tip_amount||0),
-        paymentMethod: r.payment_method||'card'
+        paymentMethod: r.payment_method||'card',
+        depositStatus: r.deposit_status||'none',
+        depositAmount: Number(r.deposit_amount||0)
       };
     });
     bookingsData.sort(function(a,b){
@@ -1008,7 +1071,8 @@
   var currentStaff = null;
   var currentPage = 1;
 
-  function statusBadge(status){
+  function statusBadge(status,depositStatus){
+    if(status==='upcoming' && depositStatus==='pending') return '<span class="status-badge status-pending">Pending</span>';
     var map = { upcoming:'Upcoming', completed:'Completed', cancelled:'Cancelled', no_show:'No-show' };
     var cls = status==='no_show' ? 'noshow' : status;
     return '<span class="status-badge status-' + cls + '">' + (map[status]||status) + '</span>';
@@ -1035,7 +1099,7 @@
     var b = bookingsData.find(function(x){ return x.dbId===dbId; });
     if(!b) return;
     var c = colorFor(b.name);
-    var shortCode = 'BK-' + String(b.dbId).replace(/-/g,'').slice(0,6).toUpperCase();
+    var shortCode = 'B-' + String(b.publicToken||b.dbId).replace(/-/g,'').slice(0,5).toUpperCase();
     var addonsSum = (b.addons||[]).reduce(function(s,a){ return s+Number(a.price||0); },0);
     var method = b.paymentMethod||'card';
     var tip = Number(b.tipAmount||0);
@@ -1066,15 +1130,22 @@
   document.getElementById('receiptOverlay').addEventListener('click', function(e){
     if(e.target === this) closeReceiptModal();
   });
+  document.getElementById('cancelOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeCancelModal();
+  });
+  document.getElementById('noShowOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeNoShowModal();
+  });
 
   function matchesFilter(b){
     if(currentFilter === 'all') return true;
     if(currentFilter === 'noshow') return b.status === 'no_show';
+    if(currentFilter === 'pending') return b.status === 'upcoming' && b.depositStatus === 'pending';
     return b.status === currentFilter;
   }
 
   function getFiltered(){
-    return bookingsData.filter(function(b){
+    var result = bookingsData.filter(function(b){
       if(!matchesFilter(b)) return false;
       if(currentStaff && b.staff !== currentStaff) return false;
       if(currentSearch){
@@ -1083,13 +1154,67 @@
       }
       return true;
     });
+    // "All" ignores the upcoming-first grouping used elsewhere (see bookingsData.sort above) —
+    // it's a chronological feed, most recent first, regardless of status or deposit state.
+    if(currentFilter === 'all'){
+      result = result.slice().sort(function(a,b){ return new Date(b.startsAt) - new Date(a.startsAt); });
+    }
+    return result;
   }
 
+  var pendingCancelId = null;
+  var pendingNoShowId = null;
   function handleBookingAction(dbId, status){
+    if(status === 'cancelled'){ openCancelConfirm(dbId); return; }
+    if(status === 'no_show'){ openNoShowConfirm(dbId); return; }
     persistBookingStatus(dbId, status).then(function(){
       var b = bookingsData.find(function(x){ return x.dbId===dbId; });
       if(b) b.status = status;
-      showToast(status==='completed'?'Marked completed':status==='cancelled'?'Booking cancelled':'Marked as no-show');
+      showToast(status==='completed'?'Marked completed':'Marked as no-show');
+      renderStatsCards();
+      renderBookings();
+    }).catch(function(err){ showToast(err.message || 'Could not update booking'); });
+  }
+  function openCancelConfirm(dbId){
+    var b = bookingsData.find(function(x){ return x.dbId===dbId; });
+    pendingCancelId = dbId;
+    document.getElementById('cancelModalMessage').textContent = (b ? (b.name + ' — ' + b.service) : 'This booking') + " will be cancelled and the client will be notified. This can't be undone.";
+    document.getElementById('cancelOverlay').classList.add('open');
+  }
+  function closeCancelModal(){
+    document.getElementById('cancelOverlay').classList.remove('open');
+    pendingCancelId = null;
+  }
+  function confirmCancelBooking(){
+    var dbId = pendingCancelId;
+    closeCancelModal();
+    if(!dbId) return;
+    persistBookingStatus(dbId, 'cancelled').then(function(){
+      var b = bookingsData.find(function(x){ return x.dbId===dbId; });
+      if(b) b.status = 'cancelled';
+      showToast('Booking cancelled');
+      renderStatsCards();
+      renderBookings();
+    }).catch(function(err){ showToast(err.message || 'Could not update booking'); });
+  }
+  function openNoShowConfirm(dbId){
+    var b = bookingsData.find(function(x){ return x.dbId===dbId; });
+    pendingNoShowId = dbId;
+    document.getElementById('noShowModalMessage').textContent = (b ? (b.name + ' — ' + b.service) : 'This booking') + " will be marked as a no-show. This can't be undone.";
+    document.getElementById('noShowOverlay').classList.add('open');
+  }
+  function closeNoShowModal(){
+    document.getElementById('noShowOverlay').classList.remove('open');
+    pendingNoShowId = null;
+  }
+  function confirmNoShow(){
+    var dbId = pendingNoShowId;
+    closeNoShowModal();
+    if(!dbId) return;
+    persistBookingStatus(dbId, 'no_show').then(function(){
+      var b = bookingsData.find(function(x){ return x.dbId===dbId; });
+      if(b) b.status = 'no_show';
+      showToast('Marked as no-show');
       renderStatsCards();
       renderBookings();
     }).catch(function(err){ showToast(err.message || 'Could not update booking'); });
@@ -1109,17 +1234,17 @@
     } else {
       tbody.innerHTML = list.map(function(w){
         var c = colorFor(w.name);
-        var telLink = w.phone ? '<a href="tel:' + w.phone.replace(/\s+/g,'') + '" class="cell-sub" style="text-decoration:underline;">' + w.phone + '</a>' : '';
+        var telLink = w.phone ? '<a href="tel:' + escapeHtml(w.phone.replace(/\s+/g,'')) + '" class="cell-sub" style="text-decoration:underline;">' + escapeHtml(w.phone) + '</a>' : '';
         var statusHtml = w.status==='notified' ? '<span class="status-badge status-confirmed">Notified</span>' : '<span class="status-badge status-pending">Waiting</span>';
         var actions = '<div class="row-status-actions">' +
           (w.status!=='notified' ? '<div class="row-icon-btn" title="Mark notified" onclick="handleWaitlistAction(\'' + w.id + '\',\'notified\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>' : '') +
           '<div class="row-icon-btn cancel" title="Remove from waitlist" onclick="handleWaitlistAction(\'' + w.id + '\',\'remove\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
         '</div>';
         return '<tr>' +
-          '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + initialsFor(w.name) + '</div>' +
-          '<div><div class="cell-name">' + w.name + '</div>' + telLink + '</div></div></td>' +
-          '<td>' + w.service + '</td>' +
-          '<td>' + w.staff + '</td>' +
+          '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + escapeHtml(initialsFor(w.name)) + '</div>' +
+          '<div><div class="cell-name">' + escapeHtml(w.name) + '</div>' + telLink + '</div></div></td>' +
+          '<td>' + escapeHtml(w.service) + '</td>' +
+          '<td>' + escapeHtml(w.staff) + '</td>' +
           '<td>' + w.when + '</td>' +
           '<td>' + whenLabel(w.createdAt) + '</td>' +
           '<td>' + statusHtml + '</td>' +
@@ -1157,15 +1282,15 @@
               viewLink +
             '</div>'
           : '<div class="row-status-actions">' + (b.status==='completed' ? receiptBtn : '') + viewLink + '</div>';
-        return '<tr>' +
-          '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + initialsFor(b.name) + '</div>' +
-          '<div><div class="cell-name">' + b.name + '</div><div class="cell-sub">' + (b.email||'') + '</div></div></div></td>' +
-          '<td>' + b.service + '</td>' +
-          '<td>' + b.staff + '</td>' +
+        return '<tr class="row-clickable" onclick="location.href=\'/venue/admin/booking?id=' + b.dbId + '\'">' +
+          '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + escapeHtml(initialsFor(b.name)) + '</div>' +
+          '<div><div class="cell-name">' + escapeHtml(b.name) + '</div><div class="cell-sub">' + escapeHtml(b.email||'') + '</div></div></div></td>' +
+          '<td>' + escapeHtml(b.service) + '</td>' +
+          '<td>' + escapeHtml(b.staff) + '</td>' +
           '<td>' + b.when + '</td>' +
-          '<td>' + (b.price ? '$' + b.price : '—') + '</td>' +
-          '<td>' + statusBadge(b.status) + '</td>' +
-          '<td>' + actionCell + '</td>' +
+          '<td>' + (b.price ? '$' + b.price : '—') + (b.depositStatus && b.depositStatus!=='none' ? '<div style="margin-top:3px;font-size:11px;font-weight:700;' + (b.depositStatus==='paid' ? 'color:var(--violet-text);' : 'color:var(--warning);') + '">' + (b.depositStatus==='paid' ? 'Deposit paid' : 'Deposit pending') + ' · $' + b.depositAmount.toFixed(2) + '</div>' : '') + '</td>' +
+          '<td>' + statusBadge(b.status,b.depositStatus) + '</td>' +
+          '<td onclick="event.stopPropagation()">' + actionCell + '</td>' +
         '</tr>';
       }).join('');
     }
@@ -1354,7 +1479,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

@@ -71,7 +71,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -91,12 +91,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -104,24 +106,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -418,6 +430,11 @@
   }
   .filter-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
   .filter-search input::placeholder{color:var(--text-faint);}
+  @media (max-width:899px){
+    .filter-actions{flex-wrap:wrap; row-gap:10px;}
+    .filter-search{flex:1 1 100%; max-width:none;}
+    .filter-actions > .btn, .filter-actions > a.btn, .filter-actions > .filters-wrap{flex:1 1 0; min-width:0; white-space:nowrap; justify-content:center;}
+  }
   @media (min-width:900px){
     .filter-bar{flex-direction:row; align-items:center;}
     .filter-tabs{flex:none;}
@@ -446,6 +463,7 @@
   table.data td{padding:13px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
   table.data tr:last-child td{border-bottom:none;}
   table.data tr:hover td{background:var(--surface-hover);}
+  table.data tr.row-clickable{cursor:pointer;}
   .cell-person{display:flex; align-items:center; gap:10px;}
   .cell-avatar{
     width:32px; height:32px; border-radius:50%; flex:none;
@@ -634,7 +652,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link active">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -654,11 +672,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -1032,7 +1050,7 @@
     name:"", tag:"", visible:true, mainImage:"", galleryImages:[],
     hours:{}, phone:"", address:"", city:"", region:"", bufferTime:15,
     lat:null, lng:null, addressVerified:false, suburb:"", postcode:"",
-    about:"", cancellationPolicy:"", categories:[], stylists:[], services:[], addons:[], promos:[],
+    about:"", cancellationPolicy:"", categories:[], serviceCategories:[], stylists:[], services:[], addons:[], promos:[],
     loyalty:{enabled:false, pointsPerDollar:1, rewardThreshold:100, rewardText:"$10 off your next visit", rewardValue:10}
   };
 
@@ -1043,11 +1061,31 @@
     salon.galleryImages=Array.isArray(salon.galleryImages)?salon.galleryImages:[];
     if(sc.loyalty && typeof sc.loyalty==="object") salon.loyalty={enabled:!!sc.loyalty.enabled, pointsPerDollar:Number(sc.loyalty.pointsPerDollar)||1, rewardThreshold:Number(sc.loyalty.rewardThreshold)||100, rewardText:sc.loyalty.rewardText||"$10 off your next visit", rewardValue:Number(sc.loyalty.rewardValue)||0};
     if(sc.hours) salon.hours=sc.hours;
+    // salon.categories is the venue's marketplace business-type tags (set once at onboarding,
+    // used for the customer-facing home page filter chips) — this page never touches it.
+    // salon.serviceCategories is purely for grouping services in the booking menu here; it
+    // starts from the business tags (reasonable default set of dropdown options) plus whatever
+    // custom category names existing services already use, but from here on the two lists are
+    // fully independent, so organizing your menu can never leak into marketplace filter chips.
     if(Array.isArray(sc.categories)) salon.categories=sc.categories.slice();
     if(Array.isArray(cfg.stylists)) salon.stylists=cfg.stylists.map(x=>({...x}));
     if(Array.isArray(cfg.services)) salon.services=cfg.services.map(x=>({...x}));
     if(Array.isArray(cfg.addons)) salon.addons=cfg.addons.map(x=>({...x}));
     if(Array.isArray(cfg.promos)) salon.promos=cfg.promos.map(x=>({...x}));
+    // Categories the owner has explicitly added (even ones with zero services assigned yet) are
+    // persisted in cfg.serviceCategories — without this, a category created via "Add category"
+    // would silently vanish on reload until a service was actually filed under it. Older configs
+    // saved before this field existed fall back to the marketplace tags as before.
+    var svcCats=Array.isArray(cfg.serviceCategories)?cfg.serviceCategories.slice():salon.categories.slice();
+    salon.categories.forEach(function(name){
+      name=String(name||"").trim();
+      if(name && !svcCats.some(function(c){return c.toLowerCase()===name.toLowerCase();})) svcCats.push(name);
+    });
+    salon.services.forEach(function(s){
+      var name=String(s.category||"").trim();
+      if(name && !svcCats.some(function(c){return c.toLowerCase()===name.toLowerCase();})) svcCats.push(name);
+    });
+    salon.serviceCategories=svcCats;
   }
 
   async function reloadAdminConfigFromCloud(){
@@ -1083,8 +1121,12 @@
     const legacyClose=openHours.length?Math.max(...openHours.map(h=>parseTimeMins(h.end))):null;
     const mins24=(m)=>m==null?"":`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}:00`;
     return {
-      salon:{name:salon.name,tag:(salon.categories.length?salon.categories.join(" · "):salon.tag),phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
-      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x}))
+      // tag/categories are the venue's marketplace business-type tags, set once at onboarding —
+      // this page only ever manages salon.serviceCategories (menu organization), so tag and
+      // categories are passed through completely unchanged rather than rederived here.
+      salon:{name:salon.name,tag:salon.tag,phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
+      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x})),
+      serviceCategories:salon.serviceCategories.slice()
     };
   }
 
@@ -1097,7 +1139,7 @@
       s.price=Math.round(Math.max(0,Number(s.price)||0)*100)/100;
       s.category=String(s.category||"").trim()||"Uncategorized";
       s.description=String(s.description||"").trim();
-      if(!salon.categories.some(c=>c.toLowerCase()===s.category.toLowerCase())) salon.categories.push(s.category);
+      if(!salon.serviceCategories.some(c=>c.toLowerCase()===s.category.toLowerCase())) salon.serviceCategories.push(s.category);
       s.active=s.active!==false;
     });
     const serviceIds=new Set(salon.services.map(s=>String(s.id)));
@@ -1210,6 +1252,14 @@
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
+  // For free-text values embedded inside an inline onclick="fn('...')" handler: escapes for the
+  // single-quoted JS string first (backslash, then quote), then HTML-encodes & and " so the value
+  // also survives the surrounding double-quoted HTML attribute.
+  function escapeJsAttr(s){
+    return String(s==null?'':s)
+      .replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,'\\n')
+      .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
   function parsePriceValue(str){
     var m = String(str||'').match(/[\d.]+/);
     return m ? Number(m[0]) : 0;
@@ -1264,7 +1314,7 @@
 
   function renderServicesUI(){
     var services = salon.services;
-    var categories = salon.categories.length ? salon.categories : Array.from(new Set(services.map(function(s){return s.category;}).filter(Boolean)));
+    var categories = salon.serviceCategories.length ? salon.serviceCategories : Array.from(new Set(services.map(function(s){return s.category;}).filter(Boolean)));
 
     document.getElementById('svcCountValue').textContent = services.length;
     document.getElementById('svcSub').textContent = services.length + ' service' + (services.length===1?'':'s') + ' across ' + categories.length + ' categor' + (categories.length===1?'y':'ies');
@@ -1277,7 +1327,7 @@
     var addBtn = tabsHost.querySelector('.add-category-btn');
     tabsHost.innerHTML = '<div class="filter-tab' + (currentServiceFilter==='all'?' active':'') + '" data-category="all" onclick="setServiceFilter(\'all\')">All</div>' +
       categories.map(function(c){
-        return '<div class="filter-tab' + (currentServiceFilter===c?' active':'') + '" data-category="' + c.replace(/"/g,'&quot;') + '" onclick="setServiceFilter(\'' + c.replace(/'/g,"\\'") + '\')">' + c + '</div>';
+        return '<div class="filter-tab' + (currentServiceFilter===c?' active':'') + '" data-category="' + escapeAttrLocal(c) + '" onclick="setServiceFilter(\'' + escapeJsAttr(c) + '\')">' + escapeHtml(c) + '</div>';
       }).join('');
     tabsHost.appendChild(addBtn);
 
@@ -1286,20 +1336,20 @@
       var slug = slugify(cat);
       var rows = services.filter(function(s){ return s.category === cat; });
       var display = (currentServiceFilter==='all' || currentServiceFilter===cat) ? '' : 'display:none;';
-      return '<div class="panel cat-panel" data-category="' + cat.replace(/"/g,'&quot;') + '" style="' + display + '">' +
-        '<div class="cat-panel-head"><h2>' + cat + ' <span class="count">' + rows.length + ' service' + (rows.length===1?'':'s') + '</span></h2>' +
-          '<div class="cat-add" onclick="openAddService(\'' + cat.replace(/'/g,"\\'") + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>' +
+      return '<div class="panel cat-panel" data-category="' + escapeAttrLocal(cat) + '" style="' + display + '">' +
+        '<div class="cat-panel-head"><h2>' + escapeHtml(cat) + ' <span class="count">' + rows.length + ' service' + (rows.length===1?'':'s') + '</span></h2>' +
+          '<div class="cat-add" onclick="openAddService(\'' + escapeJsAttr(cat) + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add</div>' +
         '</div>' +
         '<div class="table-wrap"><table class="data"><thead><tr><th>Service</th><th>Duration</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>' +
         rows.map(function(s){
           var subText = serviceStylistSubText(s.id);
           var descHtml = s.description ? '<div class="svc-cell-desc">' + escapeHtml(s.description) + '</div>' : '';
-          return '<tr>' +
-            '<td><div class="svc-cell-name">' + s.name + (s.isNew?' <span class="tag-pill tag-new">New</span>':'') + '</div><div class="svc-cell-sub">' + subText + '</div>' + descHtml + '</td>' +
+          return '<tr class="row-clickable" onclick="openEditService(\'' + s.id + '\')">' +
+            '<td><div class="svc-cell-name">' + escapeHtml(s.name) + (s.isNew?' <span class="tag-pill tag-new">New</span>':'') + '</div><div class="svc-cell-sub">' + escapeHtml(subText) + '</div>' + descHtml + '</td>' +
             '<td>' + formatDurationMinutes(s.duration) + '</td>' +
             '<td>' + formatPrice(s.price) + '</td>' +
-            '<td><div class="toggle' + (s.active!==false?' on':'') + '" onclick="toggleServiceActive(\'' + s.id + '\')"></div></td>' +
-            '<td><div class="row-action" onclick="openEditService(\'' + s.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
+            '<td onclick="event.stopPropagation()"><div class="toggle' + (s.active!==false?' on':'') + '" onclick="toggleServiceActive(\'' + s.id + '\')"></div></td>' +
+            '<td onclick="event.stopPropagation()"><div class="row-action" onclick="openEditService(\'' + s.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
           '</tr>';
         }).join('') +
         '</tbody></table></div></div>';
@@ -1310,12 +1360,12 @@
     addonsBody.innerHTML = salon.addons.map(function(a){
       var names = (a.serviceIds||[]).map(function(id){ var s=services.find(function(x){return x.id===id;}); return s?s.name:null; }).filter(Boolean);
       var descHtml = a.description ? '<div class="svc-cell-desc">' + escapeHtml(a.description) + '</div>' : '';
-      return '<tr>' +
-        '<td><div class="svc-cell-name">' + a.name + '</div><div class="svc-cell-sub">' + (names.length?names.join(', '):'Not linked to a service yet') + '</div>' + descHtml + '</td>' +
+      return '<tr class="row-clickable" onclick="openEditAddon(\'' + a.id + '\')">' +
+        '<td><div class="svc-cell-name">' + escapeHtml(a.name) + '</div><div class="svc-cell-sub">' + (names.length?escapeHtml(names.join(', ')):'Not linked to a service yet') + '</div>' + descHtml + '</td>' +
         '<td>' + (a.duration ? formatDurationMinutes(a.duration) : '—') + '</td>' +
         '<td>+' + formatPrice(a.price) + '</td>' +
-        '<td><div class="toggle' + (a.active!==false?' on':'') + '" onclick="toggleAddonActive(\'' + a.id + '\')"></div></td>' +
-        '<td><div class="row-action" onclick="openEditAddon(\'' + a.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
+        '<td onclick="event.stopPropagation()"><div class="toggle' + (a.active!==false?' on':'') + '" onclick="toggleAddonActive(\'' + a.id + '\')"></div></td>' +
+        '<td onclick="event.stopPropagation()"><div class="row-action" onclick="openEditAddon(\'' + a.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
       '</tr>';
     }).join('');
   }
@@ -1355,7 +1405,7 @@
 
   function populateCategorySelect(selectId, current){
     var select = document.getElementById(selectId);
-    select.innerHTML = salon.categories.map(function(c){ return '<option value="' + c.replace(/"/g,'&quot;') + '">' + c + '</option>'; }).join('');
+    select.innerHTML = salon.serviceCategories.map(function(c){ return '<option value="' + escapeAttrLocal(c) + '">' + escapeHtml(c) + '</option>'; }).join('');
     if(current) select.value = current;
   }
 
@@ -1370,8 +1420,8 @@
       var id = containerId + 'Opt' + st.id;
       return '<label class="addon-service-option" for="' + id + '">' +
         '<input type="checkbox" id="' + id + '" value="' + st.id + '"' + checked + '>' +
-        '<span>' + st.name + '</span>' +
-        (st.specialty ? '<span class="cat">' + st.specialty + '</span>' : '') +
+        '<span>' + escapeHtml(st.name) + '</span>' +
+        (st.specialty ? '<span class="cat">' + escapeHtml(st.specialty) + '</span>' : '') +
       '</label>';
     }).join('');
   }
@@ -1389,14 +1439,14 @@
       var id = containerId + 'Opt' + s.id;
       return '<label class="addon-service-option" for="' + id + '">' +
         '<input type="checkbox" id="' + id + '" value="' + s.id + '"' + checked + '>' +
-        '<span>' + s.name + '</span>' +
-        '<span class="cat">' + s.category + '</span>' +
+        '<span>' + escapeHtml(s.name) + '</span>' +
+        '<span class="cat">' + escapeHtml(s.category) + '</span>' +
       '</label>';
     }).join('');
   }
 
   function openAddService(category){
-    populateCategorySelect('svcCategory', category || salon.categories[0] || '');
+    populateCategorySelect('svcCategory', category || salon.serviceCategories[0] || '');
     populateStylistOptions('svcStylistList', []);
     document.getElementById('svcDuration').value = '';
     document.getElementById('svcDescription').value = '';
@@ -1437,12 +1487,12 @@
     evt.preventDefault();
     var name = document.getElementById('catName').value.trim();
     if(!name) return false;
-    if(salon.categories.some(function(c){return c.toLowerCase()===name.toLowerCase();})){
+    if(salon.serviceCategories.some(function(c){return c.toLowerCase()===name.toLowerCase();})){
       closeAddCategory();
       setServiceFilter(name);
       return false;
     }
-    salon.categories.push(name);
+    salon.serviceCategories.push(name);
     closeAddCategory();
     persist('Category added');
     setServiceFilter(name);
@@ -1776,7 +1826,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

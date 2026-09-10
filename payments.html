@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -309,6 +321,7 @@
   }
   .payout-account .pa-name{font-size:12.5px; font-weight:700;}
   .payout-account .pa-sub{font-size:11px; color:var(--text-faint); margin-top:1px;}
+  @media (max-width:899px){ .payout-account{display:none;} }
 
   /* ---------- FILTER BAR ---------- */
   .filter-bar{
@@ -335,6 +348,11 @@
   }
   .filter-search input{border:none; background:none; outline:none; color:var(--text); font-family:inherit; font-size:13px; width:100%;}
   .filter-search input::placeholder{color:var(--text-faint);}
+  @media (max-width:899px){
+    .filter-actions{flex-wrap:wrap; row-gap:10px;}
+    .filter-search{flex:1 1 100%; max-width:none;}
+    .filter-actions > .btn, .filter-actions > a.btn, .filter-actions > .filters-wrap{flex:1 1 0; min-width:0; white-space:nowrap; justify-content:center;}
+  }
   @media (min-width:900px){
     .filter-bar{flex-direction:row; align-items:center;}
     .filter-tabs{flex:none;}
@@ -493,7 +511,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -513,11 +531,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -563,24 +581,22 @@
     <div class="sub" id="pmSub">Transactions for your venue</div>
   </div>
 
-  <div class="panel" style="margin-bottom:16px; background:linear-gradient(155deg, var(--violet-soft), var(--surface) 65%);">
-    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--violet-text);">How payments work</div>
-    <div style="font-size:13px; color:var(--text-soft); margin-top:6px; line-height:1.55; max-width:640px;">Blooma doesn't hold or move your money — clients pay with cash or your own card terminal at checkout, and funds settle directly to your bank. This page tracks what's been collected and the card-processing fees you're covering, computed at 1.79% + $0.20 per card transaction.</div>
+  <div class="panel payout-panel">
+    <div class="payout-info">
+      <div class="eyebrow">Owed to you</div>
+      <div class="amount" id="pmDepositOwed">—</div>
+      <div class="meta" id="pmDepositMeta">Held by Blooma from online deposits, not yet paid out.</div>
+    </div>
+    <div class="payout-account">
+      <div class="payout-account-icon">B</div>
+      <div>
+        <div class="pa-name">Paid out by Blooma</div>
+        <div class="pa-sub">Reconciled daily</div>
+      </div>
+    </div>
   </div>
 
-  <a href="/venue/admin/refer-earn" class="panel" style="margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; background:radial-gradient(120% 140% at 100% 0%, rgba(245,196,81,0.14), transparent 55%), var(--surface); cursor:pointer;">
-    <div>
-      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#F5C451;">Blooma admin wallet</div>
-      <div style="font-size:13px; color:var(--text-soft); margin-top:6px; line-height:1.55; max-width:520px;">Earned from referring other venues to Blooma, applied automatically as credit to your Blooma subscription. Refer a venue that goes live on a paid plan and you both get $120.</div>
-    </div>
-    <div style="display:flex; align-items:center; gap:14px; flex:none;">
-      <div style="font-size:26px; font-weight:800; color:#F5C451;" id="pmWalletBalance">—</div>
-      <div class="btn btn-ghost" style="pointer-events:none;">Refer & Earn</div>
-    </div>
-  </a>
-
-  <div class="stats-grid" id="pmStatsGrid1"><div class="pm-empty">Loading…</div></div>
-  <div class="stats-grid" id="pmStatsGrid2" style="margin-top:-4px;"></div>
+  <div class="stats-grid" id="pmStatsGrid"><div class="pm-empty">Loading…</div></div>
 
   <div class="panel" style="margin-top:16px;">
     <div class="filter-bar">
@@ -588,6 +604,7 @@
         <div class="filter-tab active" data-method="all" onclick="setPmFilter(this,'all')">All</div>
         <div class="filter-tab" data-method="card" onclick="setPmFilter(this,'card')">Card</div>
         <div class="filter-tab" data-method="cash" onclick="setPmFilter(this,'cash')">Cash</div>
+        <div class="filter-tab" data-method="deposit" onclick="setPmFilter(this,'deposit')">Deposits</div>
       </div>
       <div class="filter-actions">
         <div class="filter-search">
@@ -675,11 +692,12 @@
 <script>
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
-     There's no payment-processor integration here (see the banner above) --
-     every "transaction" is a real completed booking, priced at its own
+     Every "transaction" here is a real completed booking, priced at its own
      total + tip_amount, with the real payment_method recorded at checkout
      (see checkout.html's txAccept -> admin_update_booking_status). Card
      transactions carry a processing fee (1.79% + $0.20); cash does not.
+     Online deposits (Windcave, see api/windcave.js)
+     are tracked separately via the payout panel above, not in this table.
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
@@ -690,9 +708,6 @@
   var currentSearch = '';
   var currentPage = 1;
   var PAGE_SIZE = 8;
-
-  var FEE_PCT = 0.0179;
-  var FEE_FLAT = 0.20;
 
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
@@ -708,7 +723,7 @@
     var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
     return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
   }
-  function bookingRefFor(id){ return 'BK-' + String(id||'').replace(/-/g,'').slice(0,6).toUpperCase(); }
+  function bookingRefFor(publicToken,id){ return 'B-' + String(publicToken||id||'').replace(/-/g,'').slice(0,5).toUpperCase(); }
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function addDaysToKey(key,n){ var p=key.split('-').map(Number); var dt=new Date(Date.UTC(p[0],p[1]-1,p[2])); dt.setUTCDate(dt.getUTCDate()+n); return dt.toISOString().slice(0,10); }
@@ -721,7 +736,6 @@
     return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:'short',month:'short',day:'numeric'}).format(new Date(iso)) + ', ' + time;
   }
   function fullDateLabel(iso){ return new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Auckland",weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(new Date(iso)) + ' at ' + localTimeLabel(iso); }
-  function feeFor(gross, method){ return method==='card' ? Math.round((gross*FEE_PCT + FEE_FLAT)*100)/100 : 0; }
 
   function showLoginRequired(title, message, ctaLabel, ctaHref){
     document.querySelector('.shell').innerHTML = `
@@ -760,14 +774,26 @@
     document.getElementById('sbAvatar').textContent = initialsFor(displayName);
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
-    supabaseClient.rpc("get_referral_dashboard").then(function(res){
-      var cents = res && res.data ? Number(res.data.wallet_balance_cents||0) : 0;
-      document.getElementById('pmWalletBalance').textContent = '$' + (cents/100).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2});
-    }).catch(function(){ document.getElementById('pmWalletBalance').textContent = '$0'; });
+    supabaseClient.rpc("get_venue_deposit_summary").then(function(res){
+      var d = res && res.data ? res.data : {};
+      var owedCents = Number(d.owed_cents||0);
+      document.getElementById('pmDepositOwed').textContent = '$' + (owedCents/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      var metaEl = document.getElementById('pmDepositMeta');
+      if(d.last_payout_at){
+        var when = new Date(d.last_payout_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+        metaEl.textContent = 'Last paid out $' + (Number(d.last_payout_cents||0)/100).toFixed(2) + ' on ' + when + '.';
+      } else {
+        metaEl.textContent = 'Held by Blooma from online deposits, not yet paid out.';
+      }
+    }).catch(function(){ document.getElementById('pmDepositOwed').textContent = '$0.00'; });
     try{
-      const [{data:salonRow},{data:bookings}] = await Promise.all([
+      const [{data:salonRow},{data:bookings},{data:deposits}] = await Promise.all([
         supabaseClient.from("salons").select("name,suburb,city").eq("id",currentSalonId).maybeSingle(),
-        supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId).eq("status","completed").order("starts_at",{ascending:false})
+        supabaseClient.from("bookings").select("*").eq("salon_id",currentSalonId).eq("status","completed").order("starts_at",{ascending:false}),
+        // Online deposits are real money already collected via Windcave — often weeks before
+        // the booking itself is ever marked completed (or it's cancelled and never is), so
+        // without a separate query for these, that income is invisible here forever.
+        supabaseClient.from("bookings").select("id,public_token,customer_name,customer_email,customer_phone,service_name_snapshot,stylist_name_snapshot,deposit_amount,deposit_paid_at,deposit_paid_out").eq("salon_id",currentSalonId).eq("deposit_status","paid").order("deposit_paid_at",{ascending:false})
       ]);
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
@@ -775,18 +801,30 @@
         document.title = salonRow.name ? `Payments — ${salonRow.name}` : "Payments — Blooma Business";
         document.getElementById('pmSub').textContent = 'Transactions for ' + (salonRow.name||'your venue');
       }
-      transactions = (bookings||[]).map(function(b){
+      var checkoutTx = (bookings||[]).map(function(b){
         var gross = Math.round((Number(b.total||0) + Number(b.tip_amount||0))*100)/100;
         var method = b.payment_method || 'card';
-        var fee = feeFor(gross, method);
         return {
-          id: b.id, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
+          key: 'chk-'+b.id, type: 'checkout',
+          id: b.id, publicToken: b.public_token, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
           service: b.service_name_snapshot||'Service', stylist: b.stylist_name_snapshot||'Venue team',
           subtotal: Number(b.subtotal||0), discount: Number(b.discount||0), addons: Array.isArray(b.addons)?b.addons:[],
-          tip: Number(b.tip_amount||0), total: Number(b.total||0), gross: gross, method: method, fee: fee, net: Math.round((gross-fee)*100)/100,
+          tip: Number(b.tip_amount||0), total: Number(b.total||0), gross: gross, method: method,
           startsAt: b.starts_at
         };
       });
+      var depositTx = (deposits||[]).map(function(b){
+        return {
+          key: 'dep-'+b.id, type: 'deposit',
+          id: b.id, publicToken: b.public_token, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
+          service: b.service_name_snapshot||'Service', stylist: b.stylist_name_snapshot||'Venue team',
+          subtotal: Number(b.deposit_amount||0), discount: 0, addons: [],
+          tip: 0, total: Number(b.deposit_amount||0), gross: Number(b.deposit_amount||0), method: 'deposit',
+          paidOut: !!b.deposit_paid_out,
+          startsAt: b.deposit_paid_at
+        };
+      });
+      transactions = checkoutTx.concat(depositTx).sort(function(a,b){ return new Date(b.startsAt) - new Date(a.startsAt); });
     }catch(err){ showToast(err.message||"Unable to load payments"); }
 
     renderStats();
@@ -796,25 +834,26 @@
 
   function renderStats(){
     var monthKey = nzTodayKey().slice(0,7);
-    var monthTx = transactions.filter(function(t){ return nzDateKeyForIso(t.startsAt).slice(0,7)===monthKey; });
+    var monthAll = transactions.filter(function(t){ return nzDateKeyForIso(t.startsAt).slice(0,7)===monthKey; });
+    // Checkout-completed transactions and online deposits are kept separate here — a
+    // deposit's value is already folded into its booking's total once that booking is
+    // completed, so summing both together in the same figure would double-count it.
+    var monthTx = monthAll.filter(function(t){ return t.type!=='deposit'; });
+    var monthDeposits = monthAll.filter(function(t){ return t.type==='deposit'; });
     var cardTx = monthTx.filter(function(t){ return t.method==='card'; });
     var cashTx = monthTx.filter(function(t){ return t.method==='cash'; });
     var processed = monthTx.reduce(function(s,t){ return s+t.gross; },0);
     var cardTotal = cardTx.reduce(function(s,t){ return s+t.gross; },0);
     var cashTotal = cashTx.reduce(function(s,t){ return s+t.gross; },0);
-    var fees = monthTx.reduce(function(s,t){ return s+t.fee; },0);
-    var net = processed - fees;
     var tips = monthTx.reduce(function(s,t){ return s+t.tip; },0);
     var avgTx = monthTx.length ? processed/monthTx.length : 0;
+    var depositsTotal = monthDeposits.reduce(function(s,t){ return s+t.gross; },0);
 
-    document.getElementById('pmStatsGrid1').innerHTML =
+    document.getElementById('pmStatsGrid').innerHTML =
       statCard('Total processed','$'+processed.toFixed(2),'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>') +
+      statCard('Deposits collected','$'+depositsTotal.toFixed(2), monthDeposits.length+' deposit'+(monthDeposits.length===1?'':'s')+' this month','violet','<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
       statCard('Card payments','$'+cardTotal.toFixed(2), cardTx.length+' transaction'+(cardTx.length===1?'':'s'),'violet','<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>') +
       statCard('Cash payments','$'+cashTotal.toFixed(2), cashTx.length+' transaction'+(cashTx.length===1?'':'s'),'success','<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>') +
-      statCard('Processing fees','$'+fees.toFixed(2),'1.79% + $0.20 per card tx','danger','<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>');
-
-    document.getElementById('pmStatsGrid2').innerHTML =
-      statCard('Net revenue','$'+net.toFixed(2),'After processing fees','success','<path d="M20 6 9 17l-5-5"/>') +
       statCard('Avg. transaction','$'+avgTx.toFixed(2), monthTx.length+' this month',null,'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>') +
       statCard('Tips collected','$'+tips.toFixed(2),'This month','warning','<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>') +
       statCard('Transactions','' + monthTx.length,'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>');
@@ -852,9 +891,9 @@
   }
 
   function methodCellHtml(method){
-    return method==='cash'
-      ? '<div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div>'
-      : '<div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div>';
+    if(method==='cash') return '<div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div>';
+    if(method==='deposit') return '<div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Deposit</div>';
+    return '<div class="cell-method"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Card</div>';
   }
 
   function renderTransactions(){
@@ -870,14 +909,17 @@
     } else {
       tbody.innerHTML = pageItems.map(function(t){
         var col = colorFor(t.name);
+        var statusHtml = t.type==='deposit'
+          ? (t.paidOut ? '<span class="status-badge status-paid">Paid out</span>' : '<span class="status-badge status-pending">Awaiting payout</span>')
+          : '<span class="status-badge status-paid">Paid</span>';
         return '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(t.name) + '</div><div class="cell-sub">' + escapeHtml(t.email||t.phone||'') + '</div></div></div></td>' +
           '<td>' + escapeHtml(t.service) + '</td>' +
           '<td class="cell-amount">$' + t.gross.toFixed(2) + '</td>' +
           '<td>' + methodCellHtml(t.method) + '</td>' +
-          '<td><span class="status-badge status-paid">Paid</span></td>' +
+          '<td>' + statusHtml + '</td>' +
           '<td>' + whenLabel(t.startsAt) + '</td>' +
-          '<td><div class="row-action" onclick="openTxModal(\'' + t.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td></tr>';
+          '<td><div class="row-action" onclick="openTxModal(\'' + t.key + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td></tr>';
       }).join('');
     }
 
@@ -898,26 +940,38 @@
     renderTransactions();
   }
 
-  function openTxModal(id){
-    var t = transactions.find(function(x){ return x.id===id; });
+  function openTxModal(key){
+    var t = transactions.find(function(x){ return x.key===key; });
     if(!t) return;
     var col = colorFor(t.name);
+
+    if(t.type==='deposit'){
+      document.getElementById('txModalBox').innerHTML =
+        '<div class="modal-head"><h2>Deposit details</h2><div class="modal-close" onclick="closeTxModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
+        '<div class="tx-client-row"><div class="tx-client-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
+          '<div><div class="tx-client-name">' + escapeHtml(t.name) + '</div><div class="tx-client-sub">' + escapeHtml(t.service) + '</div></div></div>' +
+        '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.publicToken,t.id) + '</a></span></div>' +
+        '<div class="schedule-row"><span class="sr-sub">Paid online</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
+        '<div class="schedule-row"><span class="sr-sub">Payout status</span><span class="sr-amt">' + (t.paidOut ? 'Paid out' : 'Held by Blooma, awaiting payout') + '</span></div>' +
+        '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Deposit collected</span><span class="sr-amt">$' + t.gross.toFixed(2) + '</span></div>';
+      document.getElementById('txOverlay').classList.add('open');
+      return;
+    }
+
     var addonsRows = t.addons.map(function(a){ return '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(a.name) + '</span><span class="sr-amt">$' + Number(a.price||0).toFixed(2) + '</span></div>'; }).join('');
     var discountRow = t.discount>0 ? '<div class="schedule-row"><span class="sr-sub">Discount</span><span class="sr-amt" style="color:var(--success);">-$' + t.discount.toFixed(2) + '</span></div>' : '';
     var tipRow = t.tip>0 ? '<div class="schedule-row"><span class="sr-sub">Tip</span><span class="sr-amt">$' + t.tip.toFixed(2) + '</span></div>' : '';
-    var feeRow = t.method==='card' ? '<div class="schedule-row"><span class="sr-sub">Processing fee (1.79% + $0.20)</span><span class="sr-amt" style="color:var(--danger);">-$' + t.fee.toFixed(2) + '</span></div>' : '<div class="schedule-row"><span class="sr-sub">Processing fee</span><span class="sr-amt" style="color:var(--success);">$0.00 (cash)</span></div>';
 
     document.getElementById('txModalBox').innerHTML =
       '<div class="modal-head"><h2>Transaction details</h2><div class="modal-close" onclick="closeTxModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
       '<div class="tx-client-row"><div class="tx-client-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
         '<div><div class="tx-client-name">' + escapeHtml(t.name) + '</div><div class="tx-client-sub">' + escapeHtml(t.service) + ' · ' + escapeHtml(t.stylist) + '</div></div></div>' +
-      '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.id) + '</a></span></div>' +
+      '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.publicToken,t.id) + '</a></span></div>' +
       '<div class="schedule-row"><span class="sr-sub">Date</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
       '<div class="schedule-row"><span class="sr-sub">Payment method</span><span class="sr-amt">' + (t.method==='cash'?'Cash':'Card') + '</span></div>' +
       '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(t.service) + '</span><span class="sr-amt">$' + (t.subtotal - t.addons.reduce(function(s,a){return s+Number(a.price||0);},0)).toFixed(2) + '</span></div>' +
       addonsRows + discountRow + tipRow +
-      feeRow +
-      '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Net to you</span><span class="sr-amt">$' + t.net.toFixed(2) + '</span></div>';
+      '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Total</span><span class="sr-amt">$' + t.gross.toFixed(2) + '</span></div>';
     document.getElementById('txOverlay').classList.add('open');
   }
 
@@ -925,9 +979,9 @@
   function exportTransactions(){
     var filtered = getFiltered();
     if(!filtered.length){ showToast('No transactions to export'); return; }
-    var lines = [['Date','Client','Email','Service','Method','Gross','Tip','Fee','Net','Booking'].map(csvEscape).join(',')];
+    var lines = [['Date','Client','Email','Service','Method','Gross','Tip','Booking'].map(csvEscape).join(',')];
     filtered.forEach(function(t){
-      lines.push([fullDateLabel(t.startsAt), t.name, t.email, t.service, t.method, t.gross.toFixed(2), t.tip.toFixed(2), t.fee.toFixed(2), t.net.toFixed(2), bookingRefFor(t.id)].map(csvEscape).join(','));
+      lines.push([fullDateLabel(t.startsAt), t.name, t.email, t.service, t.method, t.gross.toFixed(2), t.tip.toFixed(2), bookingRefFor(t.publicToken,t.id)].map(csvEscape).join(','));
     });
     var blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
     var url = URL.createObjectURL(blob);
@@ -1052,7 +1106,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

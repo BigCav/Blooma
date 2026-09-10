@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -519,7 +531,7 @@
   .field-hint{font-size:11.5px; color:var(--text-faint);}
 
   .logo-row{display:flex; align-items:center; gap:16px; margin-bottom:22px;}
-  .logo-box{width:64px; height:64px; border-radius:14px; flex:none; background:linear-gradient(155deg,#A9865F,#6E8268);}
+  .logo-box{width:64px; height:64px; border-radius:14px; flex:none; background:linear-gradient(155deg,#7C5CD9,#E85F9E);}
   .form-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border);}
 
   /* ---------- HOURS ROW ---------- */
@@ -680,7 +692,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -700,11 +712,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -897,6 +909,57 @@
         </select>
       </div>
     </div>
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-head"><h2>Client retention</h2></div>
+      <div class="setting-row" style="align-items:flex-start;">
+        <div style="flex:1;">
+          <h4>Require deposit after repeat no-shows</h4>
+          <p>Forgive a client's first no-shows, but once they hit this many at your venue, require a deposit on their future bookings — even if you don't normally ask for one.</p>
+          <div id="earnedTrustAmountRow" style="display:none; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
+            <span style="font-size:12.5px; color:var(--text-soft);">After</span>
+            <input type="number" id="earnedTrustThresholdInput" min="1" step="1" style="width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            <span style="font-size:12.5px; color:var(--text-soft);">no-shows, require</span>
+            <input type="number" id="earnedTrustPercentInput" min="0" max="100" step="1" style="width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            <span style="font-size:12.5px; color:var(--text-soft);">% deposit</span>
+            <button type="button" class="btn btn-violet" style="padding:9px 16px; font-size:12.5px;" onclick="saveEarnedTrustSettings()">Save</button>
+          </div>
+        </div>
+        <div class="toggle" id="earnedTrustToggle" onclick="toggleEarnedTrustEnabled()"></div>
+      </div>
+      <div class="setting-row" style="align-items:flex-start;">
+        <div style="flex:1;">
+          <h4>Milestone loyalty perks</h4>
+          <p>Automatically award bonus loyalty points when a client hits a visit-count milestone at your venue.</p>
+          <div id="milestoneAmountRow" style="display:none; flex-direction:column; gap:8px; margin-top:12px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:12.5px; color:var(--text-soft); width:80px;">1st tier</span>
+              <span style="font-size:12.5px; color:var(--text-soft);">Visit</span>
+              <input type="number" id="milestoneTier1VisitsInput" min="1" step="1" style="width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+              <span style="font-size:12.5px; color:var(--text-soft);">→ bonus points</span>
+              <input type="number" id="milestoneTier1BonusInput" min="0" step="1" style="width:80px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:12.5px; color:var(--text-soft); width:80px;">2nd tier</span>
+              <span style="font-size:12.5px; color:var(--text-soft);">Visit</span>
+              <input type="number" id="milestoneTier2VisitsInput" min="1" step="1" style="width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+              <span style="font-size:12.5px; color:var(--text-soft);">→ bonus points</span>
+              <input type="number" id="milestoneTier2BonusInput" min="0" step="1" style="width:80px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:12.5px; color:var(--text-soft); width:80px;">Then repeat</span>
+              <span style="font-size:12.5px; color:var(--text-soft);">every</span>
+              <input type="number" id="milestoneRepeatEveryInput" min="1" step="1" style="width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+              <span style="font-size:12.5px; color:var(--text-soft);">visits → bonus points</span>
+              <input type="number" id="milestoneRepeatBonusInput" min="0" step="1" style="width:80px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            </div>
+            <div>
+              <button type="button" class="btn btn-violet" style="padding:9px 16px; font-size:12.5px;" onclick="saveMilestoneSettings()">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="toggle" id="milestoneToggle" onclick="toggleMilestoneEnabled()"></div>
+      </div>
+    </div>
   </div>
 
   <div class="st-panel" id="stNotifications">
@@ -943,6 +1006,13 @@
           <p>Text the client if their booking time changes.</p>
         </div>
         <div class="toggle" id="notifToggle_sms_rescheduled" onclick="toggleNotifPref('sms_rescheduled')"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <h4>SMS: New booking (you)</h4>
+          <p>Text your venue's phone number as soon as a new booking comes in.</p>
+        </div>
+        <div class="toggle" id="notifToggle_sms_new_booking_owner" onclick="toggleNotifPref('sms_new_booking_owner')"></div>
       </div>
       <div class="setting-row">
         <div>
@@ -1075,7 +1145,7 @@
     name:"", tag:"", visible:true, mainImage:"", galleryImages:[],
     hours:defaultHours(), phone:"", address:"", city:"", region:"", bufferTime:15,
     lat:null, lng:null, addressVerified:false, suburb:"", postcode:"",
-    about:"", cancellationPolicy:"", categories:[], stylists:[], services:[], addons:[], promos:[],
+    about:"", cancellationPolicy:"", categories:[], serviceCategories:[], stylists:[], services:[], addons:[], promos:[],
     loyalty:{enabled:false, pointsPerDollar:1, rewardThreshold:100, rewardText:"$10 off your next visit", rewardValue:10}
   };
 
@@ -1087,13 +1157,17 @@
     if(sc.loyalty && typeof sc.loyalty==="object") salon.loyalty={enabled:!!sc.loyalty.enabled, pointsPerDollar:Number(sc.loyalty.pointsPerDollar)||1, rewardThreshold:Number(sc.loyalty.rewardThreshold)||100, rewardText:sc.loyalty.rewardText||"$10 off your next visit", rewardValue:Number(sc.loyalty.rewardValue)||0};
     if(sc.hours) salon.hours=sc.hours;
     if(Array.isArray(sc.categories)) salon.categories=sc.categories.slice();
+    // This page never manages menu-organization categories — carry cfg.serviceCategories through
+    // unchanged so saving from Settings doesn't wipe out categories added on the Services page
+    // (the save RPC replaces the whole config, it doesn't merge).
+    if(Array.isArray(cfg.serviceCategories)) salon.serviceCategories=cfg.serviceCategories.slice();
     if(Array.isArray(cfg.stylists)) salon.stylists=cfg.stylists.map(x=>({...x}));
     if(Array.isArray(cfg.services)) salon.services=cfg.services.map(x=>({...x}));
     if(Array.isArray(cfg.addons)) salon.addons=cfg.addons.map(x=>({...x}));
     if(Array.isArray(cfg.promos)) salon.promos=cfg.promos.map(x=>({...x}));
   }
 
-  var notifPrefs = {booking_confirmations:true, sms_booking_confirmation:false, sms_reminder_24h:true, sms_reminder_1h:true, sms_cancelled:false, sms_rescheduled:false, new_review_alerts:true, daily_summary_email:true, product_tips:false};
+  var notifPrefs = {booking_confirmations:true, sms_booking_confirmation:false, sms_reminder_24h:true, sms_reminder_1h:true, sms_cancelled:false, sms_rescheduled:false, sms_new_booking_owner:false, new_review_alerts:true, daily_summary_email:true, product_tips:false};
   var notifPrefKeys = Object.keys(notifPrefs);
   var notifSaving = {};
 
@@ -1158,14 +1232,85 @@
     }
   }
 
+  var earnedTrustSettings = { enabled:true, threshold:2, percent:50 };
+  var earnedTrustSaving = false;
+  function renderEarnedTrustSettings(){
+    var t=document.getElementById('earnedTrustToggle'); if(t) t.classList.toggle('on', earnedTrustSettings.enabled);
+    var row=document.getElementById('earnedTrustAmountRow'); if(row) row.style.display = earnedTrustSettings.enabled ? 'flex' : 'none';
+    var thInput=document.getElementById('earnedTrustThresholdInput'); if(thInput && document.activeElement!==thInput) thInput.value=earnedTrustSettings.threshold;
+    var pctInput=document.getElementById('earnedTrustPercentInput'); if(pctInput && document.activeElement!==pctInput) pctInput.value=earnedTrustSettings.percent;
+  }
+  function toggleEarnedTrustEnabled(){
+    earnedTrustSettings.enabled = !earnedTrustSettings.enabled;
+    renderEarnedTrustSettings();
+    saveEarnedTrustSettings();
+  }
+  async function saveEarnedTrustSettings(){
+    if(earnedTrustSaving) return;
+    earnedTrustSaving = true;
+    var threshold = Math.max(1, Number(document.getElementById('earnedTrustThresholdInput').value)||2);
+    var percent = Math.max(0, Math.min(100, Number(document.getElementById('earnedTrustPercentInput').value)||0));
+    try{
+      const {error} = await supabaseClient.rpc('admin_set_earned_trust_settings', {p_enabled:earnedTrustSettings.enabled, p_threshold:threshold, p_deposit_percent:percent});
+      if(error) throw error;
+      earnedTrustSettings.threshold = threshold; earnedTrustSettings.percent = percent;
+      renderEarnedTrustSettings();
+      showToast('Earned-trust settings saved');
+    }catch(err){
+      showToast(err.message||'Could not save earned-trust settings');
+    }finally{
+      earnedTrustSaving = false;
+    }
+  }
+
+  var milestoneSettings = { enabled:true, tier1Visits:5, tier1Bonus:25, tier2Visits:10, tier2Bonus:50, repeatEvery:25, repeatBonus:100 };
+  var milestoneSaving = false;
+  function renderMilestoneSettings(){
+    var t=document.getElementById('milestoneToggle'); if(t) t.classList.toggle('on', milestoneSettings.enabled);
+    var row=document.getElementById('milestoneAmountRow'); if(row) row.style.display = milestoneSettings.enabled ? 'flex' : 'none';
+    var map={milestoneTier1VisitsInput:'tier1Visits',milestoneTier1BonusInput:'tier1Bonus',milestoneTier2VisitsInput:'tier2Visits',milestoneTier2BonusInput:'tier2Bonus',milestoneRepeatEveryInput:'repeatEvery',milestoneRepeatBonusInput:'repeatBonus'};
+    Object.keys(map).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el && document.activeElement!==el) el.value=milestoneSettings[map[id]];
+    });
+  }
+  function toggleMilestoneEnabled(){
+    milestoneSettings.enabled = !milestoneSettings.enabled;
+    renderMilestoneSettings();
+    saveMilestoneSettings();
+  }
+  async function saveMilestoneSettings(){
+    if(milestoneSaving) return;
+    milestoneSaving = true;
+    var tier1Visits = Math.max(1, Number(document.getElementById('milestoneTier1VisitsInput').value)||5);
+    var tier1Bonus = Math.max(0, Number(document.getElementById('milestoneTier1BonusInput').value)||0);
+    var tier2Visits = Math.max(1, Number(document.getElementById('milestoneTier2VisitsInput').value)||10);
+    var tier2Bonus = Math.max(0, Number(document.getElementById('milestoneTier2BonusInput').value)||0);
+    var repeatEvery = Math.max(1, Number(document.getElementById('milestoneRepeatEveryInput').value)||25);
+    var repeatBonus = Math.max(0, Number(document.getElementById('milestoneRepeatBonusInput').value)||0);
+    try{
+      const {error} = await supabaseClient.rpc('admin_set_milestone_settings', {p_enabled:milestoneSettings.enabled, p_tier1_visits:tier1Visits, p_tier1_bonus:tier1Bonus, p_tier2_visits:tier2Visits, p_tier2_bonus:tier2Bonus, p_repeat_every:repeatEvery, p_repeat_bonus:repeatBonus});
+      if(error) throw error;
+      milestoneSettings.tier1Visits=tier1Visits; milestoneSettings.tier1Bonus=tier1Bonus; milestoneSettings.tier2Visits=tier2Visits; milestoneSettings.tier2Bonus=tier2Bonus; milestoneSettings.repeatEvery=repeatEvery; milestoneSettings.repeatBonus=repeatBonus;
+      renderMilestoneSettings();
+      showToast('Milestone settings saved');
+    }catch(err){
+      showToast(err.message||'Could not save milestone settings');
+    }finally{
+      milestoneSaving = false;
+    }
+  }
+
   async function reloadAdminConfigFromCloud(){
     if(!currentSalonId) return;
-    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow},{data:depositRow}]=await Promise.all([
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow},{data:depositRow},{data:earnedTrustRow},{data:milestoneRow}]=await Promise.all([
       supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
       supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle(),
       supabaseClient.rpc("get_notification_prefs"),
       supabaseClient.rpc("get_venue_billing"),
-      supabaseClient.rpc("get_deposit_settings")
+      supabaseClient.rpc("get_deposit_settings"),
+      supabaseClient.rpc("get_earned_trust_settings"),
+      supabaseClient.rpc("get_milestone_settings")
     ]);
     if(cfgError) throw cfgError;
     if(salonError) throw salonError;
@@ -1176,6 +1321,22 @@
       depositSettings.type = depositRow.deposit_type || 'percent';
       depositSettings.value = Number(depositRow.deposit_value)||0;
       renderDepositSettings();
+    }
+    if(earnedTrustRow){
+      earnedTrustSettings.enabled = earnedTrustRow.earned_trust_enabled!==false;
+      earnedTrustSettings.threshold = Number(earnedTrustRow.earned_trust_no_show_threshold)||2;
+      earnedTrustSettings.percent = Number(earnedTrustRow.earned_trust_deposit_percent)||50;
+      renderEarnedTrustSettings();
+    }
+    if(milestoneRow){
+      milestoneSettings.enabled = milestoneRow.milestone_perks_enabled!==false;
+      milestoneSettings.tier1Visits = Number(milestoneRow.milestone_tier1_visits)||5;
+      milestoneSettings.tier1Bonus = Number(milestoneRow.milestone_tier1_bonus)||25;
+      milestoneSettings.tier2Visits = Number(milestoneRow.milestone_tier2_visits)||10;
+      milestoneSettings.tier2Bonus = Number(milestoneRow.milestone_tier2_bonus)||50;
+      milestoneSettings.repeatEvery = Number(milestoneRow.milestone_repeat_every)||25;
+      milestoneSettings.repeatBonus = Number(milestoneRow.milestone_repeat_bonus)||100;
+      renderMilestoneSettings();
     }
     if(billingRow){
       billing.plan_id = billingRow.plan_id || null;
@@ -1210,8 +1371,9 @@
     const legacyClose=openHours.length?Math.max(...openHours.map(h=>parseTimeMins(h.end))):null;
     const mins24=(m)=>m==null?"":`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}:00`;
     return {
-      salon:{name:salon.name,tag:(salon.categories.length?salon.categories.join(" · "):salon.tag),phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
-      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x}))
+      salon:{name:salon.name,tag:salon.tag,phone:salon.phone,address:salon.address,city:salon.city||"",region:salon.region||"",suburb:salon.suburb||"",postcode:salon.postcode||"",lat:salon.lat,lng:salon.lng,addressVerified:!!salon.addressVerified,about:salon.about,cancellationPolicy:salon.cancellationPolicy,bufferTime:salon.bufferTime,categories:salon.categories,hours:salon.hours,openDays,openTime:mins24(legacyOpen),closeTime:mins24(legacyClose),visible:salon.visible!==false,mainImage:salon.mainImage||"",galleryImages:Array.isArray(salon.galleryImages)?salon.galleryImages:[],loyalty:salon.loyalty},
+      stylists:salon.stylists.map(x=>({...x})), services:salon.services.map(x=>({...x})), addons:salon.addons.map(x=>({...x})), promos:salon.promos.map(x=>({...x})),
+      serviceCategories:salon.serviceCategories.slice()
     };
   }
 
@@ -1637,7 +1799,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>

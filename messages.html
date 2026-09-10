@@ -69,7 +69,7 @@
   /* ---------- SIDEBAR ---------- */
   .sidebar{
     width:240px; flex:none;
-    background:var(--surface);
+    background:linear-gradient(180deg,#201F2B,#17161F);
     border-right:1px solid var(--border);
     display:flex; flex-direction:column;
     position:fixed; top:0; bottom:0; left:-240px; z-index:60;
@@ -89,12 +89,14 @@
   }
   .sb-venue{
     margin:6px 14px 14px; padding:10px 12px;
-    background:var(--surface-2); border-radius:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
     display:flex; align-items:center; gap:10px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
+  .sb-venue:hover{background:var(--surface-hover); border-color:#3A3850;}
   .sb-venue-avatar{
     width:32px; height:32px; border-radius:8px; flex:none;
-    background:linear-gradient(155deg,#A9865F,#6E8268);
+    background:linear-gradient(155deg,#7C5CD9,#E85F9E);
   }
   .sb-venue-name{font-size:13px; font-weight:700;}
   .sb-venue-sub{font-size:11px; color:var(--text-faint);}
@@ -102,24 +104,34 @@
 
   .sb-nav{padding:6px 12px; flex:1; min-height:0; overflow-y:auto;}
   .sb-section-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-faint); padding:14px 10px 8px;
+    font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
+    color:#57536B; padding:16px 10px 8px; margin-top:4px;
+    border-top:1px solid var(--border);
   }
+  .sb-section-label:first-child{border-top:none; margin-top:0;}
   .sb-link{
+    position:relative;
     display:flex; align-items:center; gap:11px;
     padding:9px 10px; border-radius:9px;
-    font-size:13.5px; font-weight:600; color:var(--text-soft);
+    font-size:13.5px; font-weight:600; color:#B4B0C6;
     margin-bottom:2px;
+    transition:background .15s, color .15s;
   }
-  .sb-link svg{flex:none; color:var(--text-faint);}
+  .sb-link svg{flex:none; color:#716D87;}
   .sb-link:hover{background:var(--surface-hover); color:var(--text);}
-  .sb-link.active{background:var(--violet-soft); color:var(--white);}
-  .sb-link.active svg{color:var(--violet-text);}
+  .sb-link:hover svg{color:var(--text-soft);}
+  .sb-link.active{background:var(--violet); color:#fff; box-shadow:0 6px 16px -6px rgba(109,95,232,.55);}
+  .sb-link.active svg{color:#fff;}
+  .sb-link.active::before{
+    content:""; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--violet-text);
+  }
   .sb-badge{
     margin-left:auto; font-size:10px; font-weight:700;
     background:var(--violet); color:var(--white);
     padding:2px 7px; border-radius:99px;
   }
+  .sb-link.active .sb-badge{background:#fff; color:var(--violet);}
 
   .sb-bottom{
     padding:14px; border-top:1px solid var(--border);
@@ -483,7 +495,7 @@
   @media (max-width:760px){ .msg-shell{height:560px;} }
 
   .msg-list{
-    width:320px; flex:none; border-right:1px solid var(--border);
+    width:40%; min-width:340px; max-width:480px; flex:none; border-right:1px solid var(--border);
     display:flex; flex-direction:column; background:var(--surface);
   }
   .msg-list-head{padding:18px 18px 14px; border-bottom:1px solid var(--border);}
@@ -513,6 +525,7 @@
   .msg-item-top{display:flex; justify-content:space-between; gap:8px;}
   .msg-item-name{font-size:13.5px; font-weight:700;}
   .msg-item-time{font-size:11px; color:var(--text-faint); flex:none;}
+  .msg-item-booking{font-size:11.5px; font-weight:600; color:var(--text-soft); margin-top:1px;}
   .msg-item-preview{
     font-size:12px; color:var(--text-soft); margin-top:2px;
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -566,7 +579,7 @@
   }
 
   @media (max-width:760px){
-    .msg-list{width:100%; border-right:none;}
+    .msg-list{width:100%; min-width:0; max-width:none; border-right:none;}
     .msg-chat{display:none;}
     .msg-back{display:flex;}
     .msg-shell.show-chat .msg-list{display:none;}
@@ -648,7 +661,7 @@
         Team
       </a>
       <a href="/venue/admin/services" class="sb-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 0 6 3 6 7v11M18 3c-4 0-6 3-6 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/></svg>
         Services
       </a>
       <a href="/venue/admin/loyalty" class="sb-link">
@@ -668,11 +681,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
         Payments
       </a>
-      <a href="/venue/admin/refer-earn" class="sb-link">
+      <a href="/venue/admin/refer-earn" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
         Refer &amp; Earn
       </a>
-      <a href="/venue/admin/addons" class="sb-link">
+      <a href="/venue/admin/addons" class="sb-link" style="display:none;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Add-ons
       </a>
@@ -777,14 +790,15 @@
 <script>
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
-     There's no conversations table split by customer; every row in
-     "messages" carries a customer_key (same uid/phone/email/name priority
-     as clients.html's clientKeyFor()) computed server-side by the
-     send_booking_message / send_venue_message RPCs, so a customer's
-     conversation with this venue stays one continuous thread across all
-     of their bookings. get_venue_messages() returns the raw rows for this
-     salon; conversations are grouped from that client-side, same approach
-     as clients.html grouping raw bookings into clients.
+     Every row in "messages" carries a customer_key (same uid/phone/email/name
+     priority as clients.html's clientKeyFor()) AND a booking_id, computed
+     server-side by the send_booking_message / send_venue_message RPCs.
+     Conversations are grouped client-side by customer_key + booking_id, so
+     each booking gets its own separate thread even for a repeat client —
+     booking a second appointment starts a fresh conversation rather than
+     continuing the old one. get_venue_messages() returns the raw rows for
+     this salon; grouping happens here, same approach as clients.html
+     grouping raw bookings into clients.
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";
@@ -793,12 +807,51 @@
   var conversations = [];
   var activeKey = null;
   var pollTimer = null;
+  var pendingSyntheticConvo = null;
+
+  // Mirrors the customer_key priority the server computes in send_booking_message /
+  // get_booking_messages (uid > phone > email > name), so a deep-linked booking with no
+  // messages yet can be opened under the same key a real message for it would use.
+  function computeCustomerKey(uid, phone, email, name){
+    if(uid) return 'uid:'+uid;
+    if(phone && String(phone).trim()) return 'ph:'+String(phone).trim();
+    if(email && String(email).trim()) return 'em:'+String(email).trim().toLowerCase();
+    return 'nm:'+String(name||'Customer').trim().toLowerCase();
+  }
+
+  // Deep-link support for the "Message" button on an individual booking (booking.html),
+  // which links here as /venue/admin/messages?booking=<id>&uid=&name=&phone=&email=.
+  // If a thread for that booking already exists, open it directly. If not (the customer
+  // hasn't messaged yet), open an empty compose-ready thread scoped to that booking so the
+  // venue can send the first message — it becomes a real conversation once sent.
+  function applyBookingDeepLink(){
+    var params = new URLSearchParams(location.search);
+    var bookingId = params.get('booking');
+    if(!bookingId) return;
+    var existing = conversations.find(function(c){ return c.bookingId===bookingId; });
+    if(existing){ openThread(existing.key); return; }
+    var uid = params.get('uid') || null;
+    var name = params.get('name') || 'Customer';
+    var phone = params.get('phone') || '';
+    var email = params.get('email') || '';
+    var customerKey = computeCustomerKey(uid, phone, email, name);
+    var convo = {
+      key: customerKey + '::' + bookingId, customerKey: customerKey, bookingId: bookingId,
+      name: name, phone: phone, email: email, customer_user_id: uid, messages: [],
+      last: {created_at: new Date().toISOString(), sender:'venue', body:''}, unread: 0
+    };
+    pendingSyntheticConvo = convo;
+    conversations.unshift(convo);
+    renderList();
+    openThread(convo.key);
+  }
 
   function buildConversations(messages){
     var groups = {};
     messages.forEach(function(m){
-      var key = m.customer_key;
-      if(!groups[key]) groups[key] = { key:key, name:'Customer', phone:'', email:'', customer_user_id:null, messages:[] };
+      var bookingId = m.booking_id || null;
+      var key = m.customer_key + '::' + (bookingId || 'none');
+      if(!groups[key]) groups[key] = { key:key, customerKey:m.customer_key, bookingId:bookingId, name:'Customer', phone:'', email:'', customer_user_id:null, messages:[] };
       var g = groups[key];
       g.messages.push(m);
       if(m.customer_name) g.name = m.customer_name;
@@ -810,8 +863,6 @@
       g.messages.sort(function(a,b){ return new Date(a.created_at) - new Date(b.created_at); });
       g.last = g.messages[g.messages.length - 1];
       g.unread = g.messages.filter(function(m){ return m.sender === 'customer' && !m.read_by_venue; }).length;
-      var withBooking = g.messages.filter(function(m){ return m.booking_id; });
-      g.bookingId = withBooking.length ? withBooking[withBooking.length-1].booking_id : null;
       return g;
     }).sort(function(a,b){ return new Date(b.last.created_at) - new Date(a.last.created_at); });
   }
@@ -830,8 +881,19 @@
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
+  // get_venue_messages() returns raw message rows (no public_token — that lives on
+  // bookings), so refs shown here are looked up separately and cached by booking id.
+  var publicTokenByBookingId = {};
+  async function ensurePublicTokens(bookingIds){
+    var missing = bookingIds.filter(function(id){ return id && !(id in publicTokenByBookingId); });
+    if(!missing.length) return;
+    var {data} = await supabaseClient.from('bookings').select('id,public_token').in('id', missing);
+    (data||[]).forEach(function(r){ publicTokenByBookingId[r.id] = r.public_token; });
+    missing.forEach(function(id){ if(!(id in publicTokenByBookingId)) publicTokenByBookingId[id] = null; });
+  }
   function bookingRefFor(id){
-    return 'BK-' + String(id||'').replace(/-/g,'').slice(0,6).toUpperCase();
+    var token = publicTokenByBookingId[id];
+    return 'B-' + String(token||id||'').replace(/-/g,'').slice(0,5).toUpperCase();
   }
 
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
@@ -890,6 +952,7 @@
       document.title = salonRow.name ? `Messages — ${salonRow.name}` : "Messages — Blooma Business";
     }
     await reloadConversations();
+    applyBookingDeepLink();
     document.getElementById('msgSearchInput').addEventListener('input', function(e){ setSearch(e.target.value); });
     pollTimer = setInterval(function(){ reloadConversations(true); }, 20000);
   }
@@ -902,6 +965,12 @@
       const {data,error} = await supabaseClient.rpc("get_venue_messages");
       if(error) throw error;
       conversations = buildConversations(data||[]);
+      await ensurePublicTokens(conversations.map(function(c){ return c.bookingId; }).filter(Boolean));
+      if(pendingSyntheticConvo){
+        var stillMissing = !conversations.some(function(c){ return c.key===pendingSyntheticConvo.key; });
+        if(stillMissing) conversations.unshift(pendingSyntheticConvo);
+        else pendingSyntheticConvo = null;
+      }
       renderList();
       if(activeKey) renderChat();
     }catch(err){ if(!silent) showToast(err.message||"Unable to load messages"); }
@@ -928,6 +997,7 @@
         '<div class="msg-item-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(c.name) + '</div>' +
         '<div class="msg-item-body">' +
           '<div class="msg-item-top"><span class="msg-item-name">' + escapeHtml(c.name) + '</span><span class="msg-item-time">' + listTimeLabel(c.last.created_at) + '</span></div>' +
+          (c.bookingId ? '<div class="msg-item-booking">' + bookingRefFor(c.bookingId) + '</div>' : '') +
           '<div class="msg-item-preview">' + (c.last.sender==='venue'?'You: ':'') + escapeHtml(c.last.body) + '</div>' +
         '</div>' +
         (c.unread>0?'<div class="msg-unread-dot"></div>':'') +
@@ -943,7 +1013,7 @@
     var convo = conversations.find(function(c){ return c.key===key; });
     if(convo && convo.unread>0){
       try{
-        await supabaseClient.rpc("mark_venue_messages_read",{p_customer_key:key});
+        await supabaseClient.rpc("mark_venue_messages_read",{p_booking_id:convo.bookingId,p_customer_key:convo.customerKey});
         convo.messages.forEach(function(m){ m.read_by_venue = true; });
         convo.unread = 0;
         renderList();
@@ -982,7 +1052,7 @@
         '<div class="msg-back" onclick="closeThread()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></div>' +
         '<div class="msg-chat-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(convo.name) + '</div>' +
         '<div><div class="msg-chat-name">' + escapeHtml(convo.name) + '</div><div class="msg-chat-sub">' + subHtml + '</div></div>' +
-        (convo.key.indexOf('uid:')===0 ? '<div class="msg-chat-actions"><a href="/venue/admin/client?key=' + encodeURIComponent(convo.key) + '" class="row-action" title="View client"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/></svg></a></div>' : '') +
+        (convo.customerKey.indexOf('uid:')===0 ? '<div class="msg-chat-actions"><a href="/venue/admin/client?key=' + encodeURIComponent(convo.customerKey) + '" class="row-action" title="View client"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/></svg></a></div>' : '') +
       '</div>' +
       '<div class="msg-thread" id="msgThreadScroll">' +
         groupedByDay.map(function(grp){
@@ -1001,6 +1071,8 @@
     var input = document.getElementById('msgComposeInput');
     var sendBtn = document.getElementById('msgSendBtn');
     var doSend = function(){ sendMessage(convo); };
+    sendBtn.disabled = true;
+    input.addEventListener('input', function(){ sendBtn.disabled = !input.value.trim(); });
     sendBtn.addEventListener('click', doSend);
     input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSend(); } });
     input.focus();
@@ -1008,18 +1080,21 @@
 
   async function sendMessage(convo){
     var input = document.getElementById('msgComposeInput');
+    var sendBtn = document.getElementById('msgSendBtn');
     var text = input.value.trim();
     if(!text) return;
     input.value = '';
+    if(sendBtn) sendBtn.disabled = true;
     input.disabled = true;
     try{
       const {error} = await supabaseClient.rpc("send_venue_message",{
-        p_customer_key: convo.key,
+        p_customer_key: convo.customerKey,
         p_customer_user_id: convo.customer_user_id,
         p_customer_name: convo.name,
         p_customer_phone: convo.phone,
         p_customer_email: convo.email,
-        p_body: text
+        p_body: text,
+        p_booking_id: convo.bookingId
       });
       if(error) throw error;
       await reloadConversations(true);
@@ -1028,6 +1103,7 @@
       input.value = text;
     }
     input.disabled = false;
+    if(sendBtn) sendBtn.disabled = !input.value.trim();
     input.focus();
   }
 
@@ -1145,7 +1221,11 @@
 </script>
 
 <script src="/trial-banner.js"></script>
+<script src="/modal-scroll-lock.js"></script>
+<script src="/scroll-fade.js"></script>
+<script src="/form-validation.js"></script>
 <script src="/sidebar-badges.js"></script>
+<script src="/admin-logo-link.js"></script>
 
 </body>
 </html>
