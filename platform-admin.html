@@ -197,20 +197,23 @@
     if(!iso) return '—';
     try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '—'; }
   }
-  // venue_billing.status defaults to 'inactive' the moment a venue is created — before they've
-  // done anything with billing at all — so it must never be trusted over an active trial. Only
-  // a status Stripe/the app has actually set to something definitive (active/past_due/etc)
-  // should override what the trial dates say.
-  var DEFINITIVE_STATUSES = ['active','past_due','unpaid','incomplete','canceled'];
+  // Billing is manual Windcave payments now (no autobill, no webhook) — venue_billing.status
+  // gets set to 'active' by a payment but never gets flipped back automatically once
+  // current_period_end passes, so it can't be trusted as a live status. Status is derived
+  // purely from dates: current_period_end (paid through), trial_ends_at (trial window) and
+  // subscribed_at (has this venue ever paid at all).
   function inTrial(v){ return !!v.trial_ends_at && new Date(v.trial_ends_at) > new Date(); }
+  function isActive(v){ return !!v.current_period_end && new Date(v.current_period_end) > new Date(); }
   function statusLabel(v){
-    if(v.status && DEFINITIVE_STATUSES.indexOf(v.status)!==-1) return v.status.replace(/_/g,' ').replace(/^./,function(c){return c.toUpperCase();});
+    if(isActive(v)) return 'Active';
+    if(v.subscribed_at) return 'Payment overdue';
     if(inTrial(v)) return 'Trial';
     if(v.trial_ends_at) return 'Trial expired';
     return 'No plan';
   }
   function statusPillClass(v){
-    if(v.status && DEFINITIVE_STATUSES.indexOf(v.status)!==-1) return 'pill-' + v.status;
+    if(isActive(v)) return 'pill-active';
+    if(v.subscribed_at) return 'pill-past_due';
     if(inTrial(v)) return 'pill-trialing';
     return 'pill-canceled';
   }
@@ -317,9 +320,9 @@
 
   function renderStats(){
     var total = venues.length;
-    var active = venues.filter(function(v){ return v.status==='active'; }).length;
+    var active = venues.filter(function(v){ return isActive(v); }).length;
     var trialing = venues.filter(function(v){ return statusLabel(v)==='Trial'; }).length;
-    var pastDue = venues.filter(function(v){ return v.status==='past_due' || v.status==='canceled' || v.status==='unpaid'; }).length;
+    var pastDue = venues.filter(function(v){ return statusLabel(v)==='Payment overdue'; }).length;
     document.getElementById('statsGrid').innerHTML =
       '<div class="stat-card"><div class="stat-label">Total venues</div><div class="stat-value">' + total + '</div></div>' +
       '<div class="stat-card"><div class="stat-label">Paying</div><div class="stat-value">' + active + '</div></div>' +
@@ -467,7 +470,7 @@
         '<td>' + escapeHtml(v.plan_id ? (v.plan_id + (v.seat_count>1?' · '+v.seat_count+' seats':'')) : '—') + '</td>' +
         '<td><span class="pill ' + statusPillClass(v) + '">' + escapeHtml(statusLabel(v)) + '</span></td>' +
         '<td>' + fmtDate(v.trial_ends_at) + '</td>' +
-        '<td>' + (v.status==='active' ? fmtDate(v.subscribed_at) : '—') + '</td>' +
+        '<td>' + fmtDate(v.subscribed_at) + '</td>' +
         '<td>' + fmtDate(v.signup_at) + '</td>' +
       '</tr>';
     }).join('');

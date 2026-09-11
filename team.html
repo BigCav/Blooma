@@ -1021,45 +1021,21 @@
     return data;
   }
 
-  function syncStripeSeats(){
-    // Keeps an existing Stripe subscription's price/quantity in step with the real
-    // stylist roster (hiring a 2nd stylist moves Solo $24/mo -> Team $19/mo/seat
-    // immediately; dropping back down defers to the next renewal, no proration).
-    // No-ops server-side if this venue hasn't subscribed yet. Resolves to a short
-    // human-readable note about what changed (or null if there's nothing to say),
-    // so callers can fold the billing impact into their own toast instead of firing
-    // a second, disconnected one.
-    return supabaseClient.auth.getSession().then(function(res){
-      var session = res && res.data && res.data.session;
-      if(!session) return null;
-      return fetch('/api/stripe/sync-seats', {
-        method: 'POST',
-        headers: {'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json'}
-      }).then(function(r){ return r.json(); }).then(function(data){
-        if(!data || !data.synced) return null;
-        var planLabel = data.planId === 'team' ? 'Team' : 'Solo';
-        if(data.effective === 'immediate'){
-          var cost = data.planId === 'team' ? ('$' + (19*data.quantity) + '/month (' + data.quantity + ' stylists)') : '$24/month';
-          return 'now on ' + planLabel + ', ' + cost;
-        }
-        if(data.effective === 'next_renewal'){
-          var when = data.effectiveAt ? new Date(data.effectiveAt*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'your next renewal';
-          return 'moving to ' + planLabel + ' on ' + when;
-        }
-        if(data.effective === 'cancelled_pending'){
-          return 'staying on ' + planLabel + ', scheduled change cancelled';
-        }
-        return null;
-      }).catch(function(){ return null; });
-    }).catch(function(){ return null; });
+  function nextPaymentNote(){
+    // Blooma bills manually (no stored card, no autobill) — this is a purely
+    // client-side heads-up about what the next manual payment on Settings >
+    // Billing would cost given the roster as it now stands. It doesn't touch
+    // any subscription or trigger a payment itself.
+    var seatCount = Math.max(1, salon.stylists.length);
+    var planLabel = seatCount >= 2 ? 'Team' : 'Solo';
+    var cost = seatCount >= 2 ? ('$' + (19*seatCount) + '/month (' + seatCount + ' stylists)') : '$24/month';
+    return 'next payment: ' + planLabel + ', ' + cost;
   }
 
-  function persist(successMessage){
+  function persist(successMessage, showBillingNote){
     return saveAdminCloud().then(function(){
       renderTeamUI();
-      return syncStripeSeats().then(function(billingNote){
-        showToast(billingNote ? (successMessage + ' — ' + billingNote) : successMessage);
-      });
+      showToast(showBillingNote ? (successMessage + ' — ' + nextPaymentNote()) : successMessage);
     }).catch(function(err){
       showToast(err.message || "Save failed");
       renderTeamUI();
@@ -1276,7 +1252,7 @@
     if(!confirm(msg)) return;
 
     salon.stylists = salon.stylists.filter(function(x){ return x.id!==id; });
-    persist(st.name + ' removed');
+    persist(st.name + ' removed', true);
   }
 
   function openInviteModal(){ document.getElementById('inviteOverlay').classList.add('open'); }
@@ -1393,7 +1369,7 @@
       salon.stylists.push({ id: randId('sty'), name: name, specialty: specialty, availableToday: true, imageUrl: imageUrl });
     }
     closeStylistModal();
-    persist(id ? 'Stylist updated' : 'Stylist added');
+    persist(id ? 'Stylist updated' : 'Stylist added', !id);
     return false;
   }
 

@@ -7,10 +7,13 @@
    check independently of each page's own boot sequence, so it works
    the same way everywhere without each page having to wire it up.
 
-   Trial state lives in venue_billing (trial_ends_at, banner_dismissed),
-   started once per venue by a DB trigger on first owner_profiles insert
-   (see start_venue_trial()). Pre-existing venues have trial_ends_at =
-   null, which this script treats as "never show banner, never gate".
+   Trial state lives in venue_billing (trial_ends_at, banner_dismissed,
+   current_period_end), started once per venue by a DB trigger on first
+   owner_profiles insert (see start_venue_trial()). Pre-existing venues
+   have trial_ends_at = null, which this script treats as "never show
+   banner, never gate". current_period_end in the future means a real
+   manual Windcave payment (api/windcave.js, no autobill) is still in
+   effect, which also skips the banner/gate regardless of trial dates.
 --------------------------------------------------- */
 (function(){
   var PURPLE = '#6D5FE8';
@@ -97,7 +100,7 @@
     supabaseClient.auth.getSession().then(function(res){
       var session = res && res.data && res.data.session;
       if(!session) throw new Error('Please log in again.');
-      return fetch('/api/stripe/create-checkout-session', {
+      return fetch('/api/windcave?action=create-subscription-session', {
         method: 'POST',
         headers: {'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json'}
       }).then(function(r){ return r.json().then(function(body){ if(!r.ok) throw new Error(body.error||'Could not start checkout'); return body; }); });
@@ -119,8 +122,8 @@
         var data = result && result.data;
         var error = result && result.error;
         if(error || !data) return;
-        var isPaying = data.subscription_status === 'active' || data.subscription_status === 'trialing';
-        if(isPaying) return; // real paying subscriber — no banner, no gate, regardless of trial dates
+        var isPaying = !!data.current_period_end && new Date(data.current_period_end).getTime() > Date.now();
+        if(isPaying) return; // paid through a future date — no banner, no gate, regardless of trial dates
         if(!data.trial_ends_at) return; // grandfathered pre-trial venue — never gate
         var expired = new Date(data.trial_ends_at).getTime() < Date.now();
         if(expired){

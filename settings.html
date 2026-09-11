@@ -1054,25 +1054,17 @@
         <div class="btn btn-violet" id="billingActionBtn" onclick="startCheckout()">Subscribe</div>
       </div>
 
-      <div class="field-hint" id="pendingPlanNotice" style="display:none; margin-top:10px; padding:10px 12px; background:var(--surface-2); border-radius:8px;"></div>
+      <div class="field-hint" id="nextPaymentPreview" style="margin-top:10px; padding:10px 12px; background:var(--surface-2); border-radius:8px;"></div>
 
-      <div class="pay-method" id="payMethodRow" style="display:none;">
-        <div class="pay-card-icon" id="cardBrandIcon">—</div>
-        <div style="flex:1;">
-          <div style="font-size:13.5px; font-weight:700;" id="cardLabel">No card on file</div>
-          <div class="field-hint" id="cardExpiry"></div>
-        </div>
-        <div class="btn btn-ghost" onclick="openBillingPortal()">Manage billing</div>
-      </div>
-      <div class="field-hint" style="margin-top:10px;" id="billingHint">Solo is $24/month for one stylist. Once you add a second stylist, pricing automatically switches to $19/month per stylist — no need to change plans yourself.</div>
+      <div class="field-hint" style="margin-top:10px;" id="billingHint">Solo is $24/month for one stylist. Once you add a second stylist, pricing automatically switches to $19/month per stylist. Blooma bills manually for now — pay each month here, based on however many stylists you have at the time.</div>
 
-      <div class="table-wrap" id="invoiceTableWrap" style="display:none; margin-top:20px;">
+      <div class="table-wrap" id="invoiceTableWrap" style="margin-top:20px;">
         <table class="data">
           <thead>
-            <tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr>
+            <tr><th>Date paid</th><th>Plan</th><th>Stylists</th><th>Amount</th><th>Period covered</th></tr>
           </thead>
           <tbody id="invoiceTableBody">
-            <tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:24px;">Manage billing to view invoices, receipts and payment history.</td></tr>
+            <tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:24px;">No payments yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -1101,10 +1093,13 @@
      LIVE DATA — Supabase wiring
      Mirrors salon-admin-v3-24-supabase.html's auth/config plumbing.
      Notifications are wired to real tables via SECURITY DEFINER RPCs.
-     Billing is real Stripe: get_venue_billing() reads the venue_billing table
-     (kept in sync by api/stripe/webhook.js), and Subscribe/Manage plan hand
-     off to Stripe Checkout / the Stripe Billing Portal via api/stripe/*.js —
-     no card details ever touch this page directly.
+     Billing is manual Windcave payments: get_venue_billing() reads the
+     venue_billing table for the paid-through date, Pay now/Pay for next
+     month hand off to a one-time Windcave hosted payment page via
+     api/windcave.js (create-subscription-session / finalize-subscription-session),
+     and get_venue_subscription_payments() lists past payments. There is no
+     stored card and no autobill — each period is a fresh manual payment,
+     priced off however many stylists exist at that moment.
      Fields with no backing schema yet (timezone, email, per-toggle
      booking rules) are intentionally left as static mock UI below.
   --------------------------------------------------- */
@@ -1307,11 +1302,13 @@
 
   async function reloadAdminConfigFromCloud(){
     if(!currentSalonId) return;
-    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow},{data:depositRow},{data:earnedTrustRow},{data:milestoneRow}]=await Promise.all([
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow},{data:paymentsRow},{data:referralRow},{data:depositRow},{data:earnedTrustRow},{data:milestoneRow}]=await Promise.all([
       supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
       supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle(),
       supabaseClient.rpc("get_notification_prefs"),
       supabaseClient.rpc("get_venue_billing"),
+      supabaseClient.rpc("get_venue_subscription_payments"),
+      supabaseClient.rpc("get_referral_dashboard"),
       supabaseClient.rpc("get_deposit_settings"),
       supabaseClient.rpc("get_earned_trust_settings"),
       supabaseClient.rpc("get_milestone_settings")
@@ -1344,17 +1341,12 @@
     }
     if(billingRow){
       billing.plan_id = billingRow.plan_id || null;
-      billing.status = billingRow.status || 'inactive';
       billing.seat_count = Number(billingRow.seat_count)||1;
       billing.current_period_end = billingRow.current_period_end || null;
-      billing.card_brand = billingRow.card_brand || null;
-      billing.card_last4 = billingRow.card_last4 || null;
-      billing.card_exp = billingRow.card_exp || null;
-      billing.pending_plan_id = billingRow.pending_plan_id || null;
-      billing.pending_seat_count = billingRow.pending_seat_count || null;
-      billing.pending_effective_at = billingRow.pending_effective_at || null;
+      billing.subscribed_at = billingRow.subscribed_at || null;
     }
-    renderBillingPanel();
+    if(Array.isArray(paymentsRow)) subscriptionPayments = paymentsRow;
+    if(referralRow) walletBalanceCents = Number(referralRow.wallet_balance_cents)||0;
     if(cfgRow){ applyAdminConfig(cfgRow.config); currentConfigVersion=cfgRow.config_version; }
     if(salonRow){
       salon.visible=salonRow.active!==false;
@@ -1365,6 +1357,7 @@
       if(meta.main_image!==undefined) salon.mainImage=meta.main_image||"";
       if(Array.isArray(meta.gallery_images)) salon.galleryImages=meta.gallery_images.slice();
     }
+    renderBillingPanel();
   }
 
   function buildAdminPayload(){
@@ -1494,15 +1487,23 @@
     renderHoursRows();
     populateGeneralForm();
 
-    var billingParam = new URLSearchParams(window.location.search).get('billing');
-    if(billingParam === 'success'){
-      showStPanel('billing');
-      showToast('Subscribed! This can take a few seconds to update below.');
-      history.replaceState(null, '', window.location.pathname);
-      setTimeout(function(){ reloadAdminConfigFromCloud().catch(function(){}); }, 3000);
-    } else if(billingParam === 'cancelled'){
+    var qp = new URLSearchParams(window.location.search);
+    var billingParam = qp.get('billing');
+    var billingSessionId = qp.get('sessionId');
+    if(billingParam === 'success' && billingSessionId){
       showStPanel('billing');
       history.replaceState(null, '', window.location.pathname);
+      try{
+        await authedFetch('/api/windcave?action=finalize-subscription-session', {body: JSON.stringify({sessionId: billingSessionId})});
+        showToast('Payment received — thanks!');
+      }catch(err){
+        showToast(err.message || 'Could not confirm your payment. Please contact support if you were charged.');
+      }
+      await reloadAdminConfigFromCloud().catch(function(){});
+    } else if(billingParam === 'declined' || billingParam === 'cancelled'){
+      showStPanel('billing');
+      history.replaceState(null, '', window.location.pathname);
+      if(billingParam === 'declined') showToast('Payment was declined.');
     }
   }
 
@@ -1593,66 +1594,84 @@
   }
 
   var PLAN_CATALOG = {
-    solo: {name:'Solo', price:'$24/month', blurb:'1 stylist'},
-    team: {name:'Team', price:'$19/month per stylist', blurb:'2+ stylists'}
+    solo: {name:'Solo', price:'$24/month'},
+    team: {name:'Team', price:'$19/month per stylist'}
   };
-  var billing = {plan_id:null, status:'inactive', seat_count:1, current_period_end:null, card_brand:null, card_last4:null, card_exp:null, pending_plan_id:null, pending_seat_count:null, pending_effective_at:null};
+  var billing = {plan_id:null, seat_count:1, current_period_end:null, subscribed_at:null};
+  var subscriptionPayments = [];
+  var walletBalanceCents = 0;
 
   function fmtRenewal(iso){
     if(!iso) return '';
     try{ return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return ''; }
   }
 
+  function computeLivePlan(){
+    var seatCount = Math.max(1, (salon.stylists||[]).length);
+    var planId = seatCount >= 2 ? 'team' : 'solo';
+    var quantity = planId === 'team' ? seatCount : 1;
+    var amount = planId === 'team' ? (19 * quantity) : 24;
+    return {planId:planId, seatCount:seatCount, quantity:quantity, amount:amount};
+  }
+
   function renderBillingPanel(){
-    var active = billing.status === 'active' || billing.status === 'trialing';
+    var active = billing.current_period_end && new Date(billing.current_period_end) > new Date();
     var plan = PLAN_CATALOG[billing.plan_id];
     var actionBtn = document.getElementById('billingActionBtn');
 
-    if(!active || !plan){
+    if(active && plan){
+      var seatSuffix = billing.plan_id === 'team' ? (' · ' + billing.seat_count + ' stylist' + (billing.seat_count===1?'':'s')) : '';
+      document.getElementById('planNameLabel').innerHTML = plan.name + seatSuffix + ' <span class="plan-badge">Paid through ' + fmtRenewal(billing.current_period_end) + '</span>';
+      var monthlyTotal = billing.plan_id === 'team' ? (19 * billing.seat_count) : 24;
+      document.getElementById('planPriceLabel').textContent = plan.price + (billing.plan_id === 'team' ? (' × ' + billing.seat_count + ' = $' + monthlyTotal + '/month') : '');
+      actionBtn.textContent = 'Pay for next month';
+    } else if(billing.subscribed_at){
+      document.getElementById('planNameLabel').textContent = 'Payment due';
+      document.getElementById('planPriceLabel').textContent = billing.current_period_end ? ('Your access ended ' + fmtRenewal(billing.current_period_end) + ' — pay to continue.') : 'Pay to continue using Blooma.';
+      actionBtn.textContent = 'Pay now';
+    } else {
       document.getElementById('planNameLabel').textContent = 'No active subscription';
       document.getElementById('planPriceLabel').textContent = 'Solo is $24/month (1 stylist) · Team is $19/month per stylist (2+)';
       actionBtn.textContent = 'Subscribe';
-      actionBtn.onclick = startCheckout;
-      document.getElementById('payMethodRow').style.display = 'none';
-      document.getElementById('invoiceTableWrap').style.display = 'none';
-      document.getElementById('pendingPlanNotice').style.display = 'none';
+    }
+    actionBtn.onclick = startCheckout;
+
+    var live = computeLivePlan();
+    var creditCents = Math.max(0, Math.min(walletBalanceCents, Math.round(live.amount*100)));
+    var netAmount = live.amount - creditCents/100;
+    var priceLine = live.planId === 'team' ? ('$19 × ' + live.quantity + ' = $' + live.amount) : ('$' + live.amount);
+    var preview = 'You currently have ' + live.seatCount + ' stylist' + (live.seatCount===1?'':'s') + ' — your next payment will be for the ' + PLAN_CATALOG[live.planId].name + ' plan, ' + priceLine + '/month.';
+    if(creditCents > 0){
+      preview += netAmount <= 0
+        ? (' You have $' + (walletBalanceCents/100).toFixed(2) + ' in wallet credit, which fully covers this — nothing to pay.')
+        : (' $' + (creditCents/100).toFixed(2) + ' of your wallet credit will be applied, so you\'ll actually pay $' + netAmount.toFixed(2) + '.');
+    }
+    preview += ' Remove stylists on the Team page first if you don\'t want to pay for all of them.';
+    document.getElementById('nextPaymentPreview').textContent = preview;
+
+    renderPaymentHistory();
+  }
+
+  function renderPaymentHistory(){
+    var tbody = document.getElementById('invoiceTableBody');
+    if(!subscriptionPayments.length){
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:24px;">No payments yet.</td></tr>';
       return;
     }
-
-    var pendingNotice = document.getElementById('pendingPlanNotice');
-    if(billing.pending_plan_id && billing.pending_plan_id !== billing.plan_id){
-      var pendingPlan = PLAN_CATALOG[billing.pending_plan_id];
-      var pendingCost = billing.pending_plan_id === 'team' ? (19 * billing.pending_seat_count) : 24;
-      pendingNotice.textContent = 'Switching to ' + pendingPlan.name + (billing.pending_plan_id==='team' ? (' (' + billing.pending_seat_count + ' stylists, $' + pendingCost + '/month)') : ' ($24/month)') + ' on ' + fmtRenewal(billing.pending_effective_at) + ' — you keep your current plan until then.';
-      pendingNotice.style.display = 'block';
-    } else {
-      pendingNotice.style.display = 'none';
-    }
-
-    var seatSuffix = plan_id_is_team() ? (' · ' + billing.seat_count + ' stylist' + (billing.seat_count===1?'':'s')) : '';
-    document.getElementById('planNameLabel').innerHTML = plan.name + seatSuffix + ' <span class="plan-badge">Current plan</span>';
-    var renewLabel = billing.current_period_end ? (' · renews ' + fmtRenewal(billing.current_period_end)) : '';
-    var monthlyTotal = plan_id_is_team() ? (19 * billing.seat_count) : 24;
-    document.getElementById('planPriceLabel').textContent = plan.price + (plan_id_is_team() ? (' × ' + billing.seat_count + ' = $' + monthlyTotal + '/month') : '') + renewLabel;
-    if(billing.status === 'past_due'){
-      document.getElementById('planPriceLabel').textContent += ' — payment failed, please update your card';
-    }
-    actionBtn.textContent = 'Manage plan';
-    actionBtn.onclick = openBillingPortal;
-
-    document.getElementById('payMethodRow').style.display = 'flex';
-    document.getElementById('invoiceTableWrap').style.display = 'block';
-    if(billing.card_last4){
-      document.getElementById('cardBrandIcon').textContent = (billing.card_brand||'CARD').toUpperCase();
-      document.getElementById('cardLabel').textContent = (billing.card_brand||'Card') + ' •••• ' + billing.card_last4;
-      document.getElementById('cardExpiry').textContent = 'Expires ' + billing.card_exp;
-    } else {
-      document.getElementById('cardBrandIcon').textContent = '—';
-      document.getElementById('cardLabel').textContent = 'No card on file';
-      document.getElementById('cardExpiry').textContent = '';
-    }
+    tbody.innerHTML = subscriptionPayments.map(function(p){
+      var planLabel = PLAN_CATALOG[p.plan_id] ? PLAN_CATALOG[p.plan_id].name : p.plan_id;
+      var creditCents = Number(p.credit_applied_cents)||0;
+      var amountLabel = '$' + Number(p.amount).toFixed(2);
+      if(creditCents > 0) amountLabel += ' (+ $' + (creditCents/100).toFixed(2) + ' credit)';
+      return '<tr>'
+        + '<td>' + fmtRenewal(p.created_at) + '</td>'
+        + '<td>' + planLabel + '</td>'
+        + '<td>' + p.seat_count + '</td>'
+        + '<td>' + amountLabel + '</td>'
+        + '<td>' + fmtRenewal(p.period_start) + ' – ' + fmtRenewal(p.period_end) + '</td>'
+        + '</tr>';
+    }).join('');
   }
-  function plan_id_is_team(){ return billing.plan_id === 'team'; }
 
   async function authedFetch(path, opts){
     const {data:{session}} = await supabaseClient.auth.getSession();
@@ -1670,23 +1689,16 @@
     var original = btn.textContent;
     btn.disabled = true; btn.textContent = 'Loading…';
     try{
-      const {url} = await authedFetch('/api/stripe/create-checkout-session');
-      window.location.href = url;
+      const result = await authedFetch('/api/windcave?action=create-subscription-session');
+      if(result.fullyCoveredByCredit){
+        showToast('Wallet credit covered this payment — you\'re all set through ' + fmtRenewal(result.periodEnd) + '.');
+        btn.disabled = false; btn.textContent = original;
+        await reloadAdminConfigFromCloud().catch(function(){});
+        return;
+      }
+      window.location.href = result.url;
     }catch(err){
       showToast(err.message||'Could not start checkout');
-      btn.disabled = false; btn.textContent = original;
-    }
-  }
-
-  async function openBillingPortal(){
-    var btn = document.getElementById('billingActionBtn');
-    var original = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Loading…';
-    try{
-      const {url} = await authedFetch('/api/stripe/portal-session');
-      window.location.href = url;
-    }catch(err){
-      showToast(err.message||'Could not open billing portal');
       btn.disabled = false; btn.textContent = original;
     }
   }

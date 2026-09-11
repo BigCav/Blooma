@@ -1,24 +1,27 @@
-// Real Windcave integration, replacing Stripe for customer-facing payments (booking deposits,
-// gift cards, packages). Blooma's own Solo/Team subscription billing stays on Stripe — that's
-// a different capability (recurring billing, proration, self-serve portal) that Windcave's
-// side hasn't been tested for.
+// Real Windcave integration for every customer-facing payment (booking deposits, gift cards,
+// packages) and, since Windcave has no Stripe-style automatic subscription engine, Blooma's own
+// Solo/Team plan is billed as manual monthly payments here too: no stored card, no auto-charge,
+// no cron. The venue pays a one-time Windcave session each period (same HPP flow as everything
+// else) and current_period_end just tracks how long that payment covers. Deliberately simple for
+// now — a real auto-billing engine (stored card token + scheduled rebilling) is a bigger, riskier
+// build to do properly later once there's real subscriber volume to justify it.
 //
 // Everything lives in one file, dispatched by ?action=, rather than one file per endpoint —
 // Vercel's Hobby plan caps a deployment at 12 serverless functions.
 //
 // Windcave's merchantReference field is capped at 64 characters (confirmed empirically against
 // the live API, not documented) — nowhere near enough to carry full purchase details (a salon
-// slug plus a customer UUID alone can exceed that). So the two purchase types need different
-// fulfillment strategies:
+// slug plus a customer UUID alone can exceed that). So purchase types need different fulfillment
+// strategies:
 //   - Booking deposits: merchantReference is just `dep:<booking_id>` (fits easily), so the FPRN
-//     notification alone can fully fulfil it, exactly like Stripe's webhook does today.
-//   - Gift cards / packages: full purchase details ride in OUR OWN callbackUrls query string
-//     (unconstrained, since we build that URL ourselves) and get finalised by the browser
-//     calling back in after the redirect. FPRN still fires for these, but since it only carries
-//     a throwaway reference, it can only detect "this got paid but never got fulfilled" and log
-//     it for manual follow-up — it can't safely reconstruct which salon/customer to credit.
-//     That's a real (small) reliability gap versus Stripe's metadata dict, worth knowing about.
+//     notification alone can fully fulfil it.
+//   - Gift cards / packages / subscription payments: full purchase details are bound server-side
+//     to the session at creation time via windcave_purchase_sessions (never trusted from the
+//     client at finalize time), and fulfilled when the browser calls back in after the redirect.
+//     FPRN still fires for these, but since it only carries a throwaway reference, it can only
+//     detect "this got paid but never got fulfilled" and log it for manual follow-up.
 const { serviceClient, requireCustomerAuth, requireVenueAuth } = require('./_lib/auth');
+const { stylistCount, planForSeatCount, monthlyCost } = require('./_lib/plan');
 
 const WINDCAVE_BASE_URL = process.env.WINDCAVE_BASE_URL || 'https://uat.windcave.com/api/v1';
 const GIFT_CARD_MIN = 10;
@@ -564,6 +567,211 @@ async function voidPackage(req, res) {
   res.status(200).json({ ok: true });
 }
 
+/* ---------------------------------------------------
+   VENUE SUBSCRIPTION (Solo/Team) — one-time Windcave payment per period, no stored card, no
+   auto-charge. Price is always recomputed server-side from the venue's live stylist count at
+   the moment of payment, never trusted from the client, via the same _lib/plan helpers the
+   old Stripe checkout used.
+--------------------------------------------------- */
+const REFERRAL_PAYOUT_CENTS = 12000;
+
+// Referral/welcome credits live in venue_wallet_ledger as a plain sum of amount_cents — earning
+// a bonus inserts a positive row, spending it (see below) inserts a matching negative row. There
+// is no Stripe-style "customer balance" to sweep credit into any more, so it's applied directly
+// against each manual payment's price instead.
+async function creditBalanceCents(svc, salonId) {
+  const { data } = await svc.from('venue_wallet_ledger').select('amount_cents').eq('salon_id', salonId);
+  return (data || []).reduce((sum, row) => sum + row.amount_cents, 0);
+}
+
+// Pays out the $120/$120 referral bonus (referrer + referred) the first time a referred venue
+// completes a real subscription payment. processReferralConversion itself is the idempotency
+// guard — it only ever matches a 'pending' referral once, then flips it to 'paid_out' — so it's
+// safe to call after every successful payment rather than only on the very first one.
+async function processReferralConversion(svc, salonId) {
+  const { data: referral } = await svc
+    .from('venue_referrals')
+    .select('id, referrer_salon_id, referred_salon_id')
+    .eq('referred_salon_id', salonId)
+    .eq('status', 'pending')
+    .maybeSingle();
+  if (!referral) return;
+
+  await svc.from('venue_wallet_ledger').insert([
+    {
+      salon_id: referral.referrer_salon_id,
+      amount_cents: REFERRAL_PAYOUT_CENTS,
+      type: 'referral_bonus_referrer',
+      description: 'Referral bonus — a venue you referred went live on a paid plan',
+      related_referral_id: referral.id,
+    },
+    {
+      salon_id: referral.referred_salon_id,
+      amount_cents: REFERRAL_PAYOUT_CENTS,
+      type: 'referral_bonus_referred',
+      description: 'Welcome bonus — you signed up via a referral',
+      related_referral_id: referral.id,
+    },
+  ]);
+
+  await svc
+    .from('venue_referrals')
+    .update({ status: 'paid_out', converted_at: new Date().toISOString() })
+    .eq('id', referral.id);
+}
+
+function subscriptionPeriod(billingRow) {
+  const now = new Date();
+  const existingEnd = billingRow?.current_period_end ? new Date(billingRow.current_period_end) : null;
+  // Renewing before the current period actually lapses extends from where it left off, rather
+  // than discarding time already paid for — same principle as the old Stripe proration logic.
+  const periodStart = existingEnd && existingEnd > now ? existingEnd : now;
+  const periodEnd = new Date(periodStart);
+  periodEnd.setMonth(periodEnd.getMonth() + 1);
+  return { now, periodStart, periodEnd };
+}
+
+async function createSubscriptionSession(req, res) {
+  if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+  const { svc, salonId } = await requireVenueAuth(req);
+
+  const seatCount = await stylistCount(svc, salonId);
+  const { planId, quantity } = planForSeatCount(seatCount);
+  const fullAmount = monthlyCost(planId, quantity);
+  const balanceCents = await creditBalanceCents(svc, salonId);
+  const creditAppliedCents = Math.max(0, Math.min(balanceCents, Math.round(fullAmount * 100)));
+  const netAmount = fullAmount - creditAppliedCents / 100;
+
+  const { data: billingRow } = await svc.from('venue_billing').select('current_period_end,subscribed_at').eq('salon_id', salonId).maybeSingle();
+  const { periodStart, periodEnd } = subscriptionPeriod(billingRow);
+
+  if (netAmount <= 0) {
+    // Wallet credit fully covers this payment — no Windcave session needed at all.
+    const syntheticSessionId = `credit:${salonId}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
+    if (creditAppliedCents > 0) {
+      await svc.from('venue_wallet_ledger').insert({
+        salon_id: salonId, amount_cents: -creditAppliedCents, type: 'subscription_credit_applied',
+        description: `Applied to ${planId} subscription payment (${periodStart.toISOString().slice(0, 10)} – ${periodEnd.toISOString().slice(0, 10)})`,
+      });
+    }
+    await svc.from('venue_subscription_payments').insert({
+      salon_id: salonId, plan_id: planId, seat_count: quantity, amount: 0, credit_applied_cents: creditAppliedCents,
+      windcave_session_id: syntheticSessionId, windcave_transaction_id: null,
+      period_start: periodStart.toISOString(), period_end: periodEnd.toISOString(),
+    });
+    await svc.from('venue_billing').upsert({
+      salon_id: salonId, plan_id: planId, seat_count: quantity,
+      current_period_end: periodEnd.toISOString(), status: 'active',
+      subscribed_at: billingRow?.subscribed_at || new Date().toISOString(),
+    }, { onConflict: 'salon_id' });
+    await processReferralConversion(svc, salonId);
+    res.status(200).json({ fullyCoveredByCredit: true, planId, quantity, periodEnd: periodEnd.toISOString(), creditAppliedCents });
+    return;
+  }
+
+  const { data: salonRow } = await svc.from('salons').select('name').eq('id', salonId).maybeSingle();
+
+  const origin = originOf(req);
+  const returnUrl = `${origin}/venue/admin/settings?billing={STATUS}`;
+
+  const session = await windcaveFetch('/sessions', {
+    method: 'POST',
+    body: JSON.stringify({
+      type: 'purchase',
+      amount: netAmount.toFixed(2),
+      currency: 'NZD',
+      merchantReference: `sub:${Date.now()}`,
+      callbackUrls: {
+        approved: returnUrl.replace('{STATUS}', 'success'),
+        declined: returnUrl.replace('{STATUS}', 'declined'),
+        cancelled: returnUrl.replace('{STATUS}', 'cancelled'),
+      },
+      notificationUrl: `${origin}/api/windcave?action=notification`,
+    }),
+  });
+
+  // Bind this session to the plan/seat count/credit validated above, server-side — finalize
+  // looks this up by sessionId instead of trusting a resubmitted plan/seat count, same pattern
+  // as gift cards/packages. If this write fails, refuse to hand back a payable URL at all.
+  const { error: trackErr } = await svc.from('windcave_purchase_sessions').insert({
+    session_id: session.id, kind: 'subscription', salon_id: salonId,
+    metadata: { plan_id: planId, seat_count: quantity, amount: netAmount, full_amount: fullAmount, credit_applied_cents: creditAppliedCents, venue_name: salonRow?.name || salonId },
+  });
+  if (trackErr) { const e = new Error('Could not start checkout. Please try again.'); e.statusCode = 500; throw e; }
+
+  res.status(200).json({ url: hppRedirectUrl(session), planId, quantity, amount: netAmount, creditAppliedCents });
+}
+
+async function finalizeSubscriptionSession(req, res) {
+  if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+  const { svc, salonId } = await requireVenueAuth(req);
+  const { sessionId } = req.body || {};
+  if (!sessionId) { const e = new Error('sessionId is required'); e.statusCode = 400; throw e; }
+
+  const { data: already } = await svc.from('venue_subscription_payments').select('id').eq('windcave_session_id', sessionId).maybeSingle();
+  if (already) { res.status(200).json({ ok: true, alreadyFulfilled: true }); return; }
+
+  const { data: tracked } = await svc.from('windcave_purchase_sessions').select('salon_id,kind,metadata').eq('session_id', sessionId).maybeSingle();
+  if (!tracked || tracked.kind !== 'subscription' || tracked.salon_id !== salonId) {
+    const e = new Error('This payment session is not a subscription payment for your venue.');
+    e.statusCode = 400;
+    throw e;
+  }
+  const planId = tracked.metadata?.plan_id;
+  const seatCount = Number(tracked.metadata?.seat_count || 1);
+  const expectedAmount = Number(tracked.metadata?.amount || 0);
+  const creditAppliedCents = Number(tracked.metadata?.credit_applied_cents || 0);
+
+  const session = await windcaveFetch(`/sessions/${encodeURIComponent(sessionId)}`, { method: 'GET' });
+  const txn = (session.transactions || [])[0];
+  if (session.state !== 'complete' || !txn?.authorised) {
+    const e = new Error('This payment was not approved.');
+    e.statusCode = 400;
+    throw e;
+  }
+  if (!String(session.merchantReference || '').startsWith('sub:')) {
+    const e = new Error('This payment session is not a subscription payment.');
+    e.statusCode = 400;
+    throw e;
+  }
+  const amount = Number(session.amount);
+  if (!(amount > 0) || Math.abs(amount - expectedAmount) > 0.01) {
+    const e = new Error('Paid amount does not match the expected subscription price.');
+    e.statusCode = 400;
+    throw e;
+  }
+
+  const { data: billingRow } = await svc.from('venue_billing').select('current_period_end,subscribed_at').eq('salon_id', salonId).maybeSingle();
+  const { periodStart, periodEnd } = subscriptionPeriod(billingRow);
+
+  const { error: insertErr } = await svc.from('venue_subscription_payments').insert({
+    salon_id: salonId, plan_id: planId, seat_count: seatCount, amount, credit_applied_cents: creditAppliedCents,
+    windcave_session_id: sessionId, windcave_transaction_id: txn?.id || null,
+    period_start: periodStart.toISOString(), period_end: periodEnd.toISOString(),
+  });
+  if (insertErr) {
+    if (insertErr.code === '23505') { res.status(200).json({ ok: true, alreadyFulfilled: true }); return; }
+    throw insertErr;
+  }
+
+  if (creditAppliedCents > 0) {
+    await svc.from('venue_wallet_ledger').insert({
+      salon_id: salonId, amount_cents: -creditAppliedCents, type: 'subscription_credit_applied',
+      description: `Applied to ${planId} subscription payment (${periodStart.toISOString().slice(0, 10)} – ${periodEnd.toISOString().slice(0, 10)})`,
+    });
+  }
+
+  await svc.from('venue_billing').upsert({
+    salon_id: salonId, plan_id: planId, seat_count: seatCount,
+    current_period_end: periodEnd.toISOString(), status: 'active',
+    subscribed_at: billingRow?.subscribed_at || new Date().toISOString(),
+  }, { onConflict: 'salon_id' });
+
+  await processReferralConversion(svc, salonId);
+
+  res.status(200).json({ ok: true, periodEnd: periodEnd.toISOString() });
+}
+
 // The 15-minute stale-hold sweep (api/bookings/expire-stale-holds.js) can cancel a booking
 // while the customer is still completing 3DS on Windcave's hosted page. If the payment then
 // comes through authorised, it's genuine — so before giving up on it, check whether the slot
@@ -659,10 +867,10 @@ async function notification(req, res) {
           }).eq('id', bookingId);
         }
       }
-    } else if (ref.startsWith('gc:') || ref.startsWith('pkg:')) {
+    } else if (ref.startsWith('gc:') || ref.startsWith('pkg:') || ref.startsWith('sub:')) {
       if (authorised) {
         const svc = serviceClient();
-        const table = ref.startsWith('gc:') ? 'gift_cards' : 'customer_packages';
+        const table = ref.startsWith('gc:') ? 'gift_cards' : ref.startsWith('pkg:') ? 'customer_packages' : 'venue_subscription_payments';
         const { data: existing } = await svc.from(table).select('id').eq('windcave_session_id', sessionId).maybeSingle();
         if (!existing) {
           // The browser never came back to finalize this one — we don't have enough
@@ -694,6 +902,8 @@ module.exports = async (req, res) => {
     if (action === 'refund-deposit') return await refundDeposit(req, res);
     if (action === 'void-gift-card') return await voidGiftCard(req, res);
     if (action === 'void-package') return await voidPackage(req, res);
+    if (action === 'create-subscription-session') return await createSubscriptionSession(req, res);
+    if (action === 'finalize-subscription-session') return await finalizeSubscriptionSession(req, res);
     res.status(400).json({ error: 'Unknown or missing ?action=' });
   } catch (err) {
     console.error(`windcave [${action}] error:`, err.message, err.details || '');

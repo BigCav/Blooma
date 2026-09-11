@@ -575,11 +575,16 @@
   /* ---------------------------------------------------
      LIVE DATA — Supabase wiring
      get_my_referral_code() lazily generates + returns this venue's unique
-     referral code. get_referral_dashboard() returns the wallet balance and
-     the list of venues referred so far. Both are auth.uid()-gated RPCs —
-     see get_referral_dashboard/get_my_referral_code in the DB. Payout
-     itself happens server-side in api/stripe/webhook.js the moment a
-     referred venue's subscription first reaches status "active".
+     referral code. get_referral_dashboard() returns the wallet balance (a
+     plain sum of venue_wallet_ledger.amount_cents — spending it, see below,
+     inserts a negative row) and the list of venues referred so far. Both are
+     auth.uid()-gated RPCs — see get_referral_dashboard/get_my_referral_code
+     in the DB. Payout itself happens server-side in api/windcave.js
+     (processReferralConversion, called from createSubscriptionSession /
+     finalizeSubscriptionSession) the moment a referred venue completes its
+     first real subscription payment. The credit is then applied directly
+     against the amount charged at each manual payment going forward
+     (there's no Stripe customer balance to sweep it into any more).
   --------------------------------------------------- */
   const SUPABASE_URL = "https://jzyvnipzdgfjportrbpo.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1EOYX0bR8WLF9f4Wf-5NqA_73ixmjUx";

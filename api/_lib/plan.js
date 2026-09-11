@@ -14,9 +14,9 @@ async function stylistCount(svc, salonId) {
 
 function planForSeatCount(seatCount) {
   if (seatCount >= 2) {
-    return { planId: 'team', priceId: process.env.STRIPE_PRICE_TEAM_SEAT, quantity: seatCount };
+    return { planId: 'team', quantity: seatCount };
   }
-  return { planId: 'solo', priceId: process.env.STRIPE_PRICE_SOLO, quantity: 1 };
+  return { planId: 'solo', quantity: 1 };
 }
 
 function monthlyCost(planId, quantity) {

@@ -5,9 +5,9 @@ const WELCOME_CREDIT_CENTS = 6000; // $60 — matches the signup-offer copy on t
 // Called (fire-and-forget) right after a new venue finishes onboarding, so every new
 // account gets its welcome credit without anyone having to remember to add it.
 // Lands in venue_wallet_ledger exactly like a referral bonus — it's not cash and can't be
-// withdrawn, it just reduces what the venue owes on its Stripe invoice once it has one
-// (webhook.js's applyUnappliedWalletCredits sweeps it in the moment they get a Stripe
-// customer, e.g. when their trial ends or they subscribe).
+// withdrawn, it just reduces what the venue owes on its next manual subscription payment
+// (api/windcave.js's createSubscriptionSession applies whatever wallet balance exists against
+// the price at the moment the venue pays).
 module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
