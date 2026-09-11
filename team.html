@@ -939,16 +939,45 @@
     const {error}=await supabaseClient.storage.from(MEDIA_BUCKET).remove([path]);
     if(error) console.warn("Unable to remove old media",error);
   }
+  // Phone camera photos routinely come in at 3-8MB — uploaded raw, a handful of stylist/venue
+  // photos alone can eat a large share of Supabase's free-tier storage and bandwidth. Downscale
+  // to a sane web size and re-encode as JPEG before it ever reaches storage. GIFs are left alone
+  // (redrawing to canvas would collapse an animation to a single frame).
+  function compressImageFile(file,maxDim,quality){
+    return new Promise(function(resolve){
+      if(file.type==='image/gif'){ resolve(file); return; }
+      const url=URL.createObjectURL(file);
+      const img=new Image();
+      img.onload=function(){
+        URL.revokeObjectURL(url);
+        let width=img.naturalWidth, height=img.naturalHeight;
+        if(width>maxDim || height>maxDim){
+          if(width>height){ height=Math.round(height*maxDim/width); width=maxDim; }
+          else{ width=Math.round(width*maxDim/height); height=maxDim; }
+        }
+        const canvas=document.createElement('canvas');
+        canvas.width=width; canvas.height=height;
+        canvas.getContext('2d').drawImage(img,0,0,width,height);
+        canvas.toBlob(function(blob){
+          if(!blob || blob.size>=file.size){ resolve(file); return; }
+          resolve(new File([blob], file.name.replace(/\.\w+$/,'')+'.jpg', {type:'image/jpeg'}));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror=function(){ URL.revokeObjectURL(url); resolve(file); };
+      img.src=url;
+    });
+  }
   async function uploadMediaFile(file,folder){
     if(!file) throw new Error("Choose an image first.");
     const allowed=["image/jpeg","image/png","image/webp","image/gif"];
     if(!allowed.includes(file.type)) throw new Error("Please use a JPG, PNG, WEBP or GIF image.");
     if(file.size>8*1024*1024) throw new Error("Images must be 8 MB or smaller.");
     if(!currentSalonId) throw new Error("Venue not loaded.");
-    const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+    const uploadFile=await compressImageFile(file,1600,0.82);
+    const ext=(uploadFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
     const rand=(globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID().slice(0,8):Math.random().toString(36).slice(2,10);
     const path=`${currentSalonId}/${folder}/${Date.now()}-${rand}.${ext}`;
-    const {error}=await supabaseClient.storage.from(MEDIA_BUCKET).upload(path,file,{cacheControl:"31536000",upsert:false,contentType:file.type});
+    const {error}=await supabaseClient.storage.from(MEDIA_BUCKET).upload(path,uploadFile,{cacheControl:"31536000",upsert:false,contentType:uploadFile.type});
     if(error) throw error;
     const {data}=supabaseClient.storage.from(MEDIA_BUCKET).getPublicUrl(path);
     if(!data?.publicUrl) throw new Error("Image uploaded but its public URL could not be created.");
