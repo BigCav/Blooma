@@ -311,13 +311,13 @@
   }
   .stat-value{font-size:27px; font-weight:800; margin-top:13px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;}
   .stat-delta{
-    display:inline-flex; align-items:center; gap:4px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:4px;
     font-size:11px; font-weight:700; margin-top:9px;
     color:var(--success);
   }
-  .stat-delta:has(svg){padding:3px 9px 3px 7px; border-radius:99px; background:var(--success-soft);}
+  .stat-delta .sd-badge{display:inline-flex; align-items:center; gap:4px; padding:3px 9px 3px 7px; border-radius:99px; background:var(--success-soft);}
   .stat-delta.down{color:var(--danger);}
-  .stat-delta.down:has(svg){background:rgba(255,107,129,0.14);}
+  .stat-delta.down .sd-badge{background:rgba(255,107,129,0.14);}
   .stat-delta span.muted{color:var(--text-faint); font-weight:500;}
   .dash-empty{font-size:12.5px; color:var(--text-faint); padding:10px 0;}
 
@@ -762,7 +762,7 @@
     if(delta.isNew) return '<div class="stat-delta"><span class="muted">None ' + escapeHtml(prevLabel) + '</span></div>';
     var arrow = delta.dir==='up' ? '<path d="M12 19V5M5 12l7-7 7 7"/>' : '<path d="M12 5v14M19 12l-7 7-7-7"/>';
     var text = (delta.dir==='up'?'+':'-') + delta.pct + '%';
-    return '<div class="stat-delta' + (delta.dir==='down'?' down':'') + '"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">' + arrow + '</svg>' + text + ' <span class="muted">' + escapeHtml(prevLabel) + '</span></div>';
+    return '<div class="stat-delta' + (delta.dir==='down'?' down':'') + '"><span class="sd-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">' + arrow + '</svg>' + text + '</span><span class="muted">' + escapeHtml(prevLabel) + '</span></div>';
   }
   function statCardCustomDelta(label, value, deltaHtmlStr, iconBg, iconColor, iconSvg){
     return '<div class="stat-card"><div class="stat-top"><div class="stat-label">' + escapeHtml(label) + '</div>' +
