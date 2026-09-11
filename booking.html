@@ -837,7 +837,8 @@
               $${Number(b.deposit_status==='refunded'?(b.deposit_refund_amount||b.deposit_amount||0):(b.deposit_amount||0)).toFixed(2)}
             </span></div>` : ''}
             ${b.deposit_status==='pending' && b.status==='upcoming' ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" id="depositHoldNote" style="font-size:12.5px;font-weight:400;color:var(--text-faint);"></span></div>` : ''}
-            ${b.deposit_status==='paid' ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value"><div class="btn btn-ghost" id="refundDepositBtn" onclick="refundDeposit()" style="font-size:12.5px;padding:7px 12px;display:inline-flex;">Refund deposit</div></span></div>` : ''}
+            ${b.deposit_status==='paid' && !b.deposit_paid_out ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value"><div class="btn btn-ghost" id="refundDepositBtn" onclick="refundDeposit()" style="font-size:12.5px;padding:7px 12px;display:inline-flex;">Refund deposit</div></span></div>` : ''}
+            ${b.deposit_status==='paid' && b.deposit_paid_out ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" style="font-size:12.5px;font-weight:400;color:var(--text-faint);">Already paid out to you — contact Blooma support to refund this deposit.</span></div>` : ''}
           </div>
         </div>
 

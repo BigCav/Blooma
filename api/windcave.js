@@ -492,6 +492,10 @@ async function refundDeposit(req, res) {
   const { data: booking } = await svc.from('bookings').select('*').eq('id', booking_id).eq('salon_id', salonId).maybeSingle();
   if (!booking) { const e = new Error('Booking not found'); e.statusCode = 404; throw e; }
   if (booking.deposit_status !== 'paid') { const e = new Error('This deposit is not marked as paid.'); e.statusCode = 400; throw e; }
+  // Once a deposit has been paid out to the venue, refunding it to the customer would mean
+  // Blooma is out that money twice (paid the venue, then refunded the customer) with nothing
+  // here to claw it back. Block it and route to a human instead of silently eating the loss.
+  if (booking.deposit_paid_out) { const e = new Error('This deposit has already been paid out to you, so it can\'t be refunded automatically — contact Blooma support to arrange it.'); e.statusCode = 400; throw e; }
   if (!booking.windcave_transaction_id) { const e = new Error('No payment record found for this deposit — it may predate online payments. Refund it directly in Payline.'); e.statusCode = 400; throw e; }
   const amount = Number(booking.deposit_amount || 0);
   if (!(amount > 0)) { const e = new Error('Invalid deposit amount'); e.statusCode = 400; throw e; }
