@@ -812,6 +812,14 @@
       : 'nm:'+String(b.customer_name||'Customer').trim().toLowerCase();
   }
   function inRange(dateKey, start, end){ return dateKey>=start && dateKey<end; }
+  // A refunded deposit doesn't touch a booking's own `total` (it's tracked separately via
+  // deposit_status/deposit_refund_amount), and the refund button has no restriction on booking
+  // status — so a completed booking's deposit can be refunded after the fact. Every revenue sum
+  // below needs to net that back out, or it silently overstates revenue by the refunded amount.
+  function netRevenueFor(b){
+    var refunded = b.deposit_status==='refunded' ? Number(b.deposit_refund_amount!=null?b.deposit_refund_amount:b.deposit_amount||0) : 0;
+    return Number(b.total||0) - refunded;
+  }
 
   function rangeBounds(range){
     var todayKey = nzTodayKey();
@@ -932,7 +940,7 @@
     function statsFor(list){
       var completed = list.filter(function(b){ return b.status==='completed'; });
       var nonCancelled = list.filter(function(b){ return b.status!=='cancelled'; });
-      var revenue = completed.reduce(function(s,b){ return s+Number(b.total||0); }, 0);
+      var revenue = completed.reduce(function(s,b){ return s+netRevenueFor(b); }, 0);
       var cancelled = list.filter(function(b){ return b.status==='cancelled'; }).length;
       var avgDuration = nonCancelled.length ? nonCancelled.reduce(function(s,b){ return s+Number(b.duration_minutes||0); },0)/nonCancelled.length : 0;
       return { revenue:revenue, bookings:nonCancelled.length, completedCount:completed.length, avgTicket: completed.length?revenue/completed.length:0, cancelled:cancelled, cancelRate: list.length?cancelled/list.length*100:0, avgDuration:avgDuration };
@@ -1014,7 +1022,7 @@
       }
     }
     var revenues = buckets.map(function(bk){
-      return allBookings.filter(function(b){ return b.status==='completed' && inRange(nzDateKeyForIso(b.starts_at), bk.start, bk.end); }).reduce(function(s,b){ return s+Number(b.total||0); },0);
+      return allBookings.filter(function(b){ return b.status==='completed' && inRange(nzDateKeyForIso(b.starts_at), bk.start, bk.end); }).reduce(function(s,b){ return s+netRevenueFor(b); },0);
     });
     var max = Math.max.apply(null, revenues.concat([1]));
     var peakIdx = revenues.indexOf(max);
@@ -1055,7 +1063,7 @@
       var mine = curBookings.filter(function(b){ return b.stylist_id===st.id; });
       var nonCancelled = mine.filter(function(b){ return b.status!=='cancelled'; });
       var completed = mine.filter(function(b){ return b.status==='completed'; });
-      var revenue = completed.reduce(function(s,b){ return s+Number(b.total||0); },0);
+      var revenue = completed.reduce(function(s,b){ return s+netRevenueFor(b); },0);
       var myBookingIds = mine.map(function(b){ return b.id; });
       var myReviews = curReviews.filter(function(r){ return myBookingIds.indexOf(r.booking_id)>-1; });
       var avgRating = myReviews.length ? myReviews.reduce(function(s,r){ return s+Number(r.rating||0); },0)/myReviews.length : null;

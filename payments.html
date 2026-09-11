@@ -806,7 +806,12 @@
         document.getElementById('pmSub').textContent = 'Transactions for ' + (salonRow.name||'your venue');
       }
       var checkoutTx = (bookings||[]).map(function(b){
-        var gross = Math.round((Number(b.total||0) + Number(b.tip_amount||0))*100)/100;
+        // A refunded deposit doesn't touch a booking's own `total` — it's tracked separately
+        // via deposit_status/deposit_refund_amount — and refunding has no restriction on
+        // booking status, so a completed booking's deposit can be refunded after checkout.
+        // Net it back out here or "Total processed" silently overstates what was actually kept.
+        var refundedDeposit = b.deposit_status==='refunded' ? Number(b.deposit_refund_amount!=null?b.deposit_refund_amount:b.deposit_amount||0) : 0;
+        var gross = Math.round((Number(b.total||0) + Number(b.tip_amount||0) - refundedDeposit)*100)/100;
         var method = b.payment_method || 'card';
         return {
           key: 'chk-'+b.id, type: 'checkout',
