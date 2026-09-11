@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gift Cards & Packages — Blooma Business</title>
+<title>Gift Cards & Packages - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -406,8 +406,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -441,7 +441,7 @@
     <div class="card-head" style="margin-bottom:0;">
       <div>
         <div class="card-title">Show on your venue page</div>
-        <div class="card-sub">Turn this off to hide the whole "Gift cards & packages" section from customers — your catalog stays saved.</div>
+        <div class="card-sub">Turn this off to hide the whole "Gift cards & packages" section from customers - your catalog stays saved.</div>
       </div>
       <label class="toggle-switch">
         <input type="checkbox" id="giftCardsEnabledToggle" checked>
@@ -451,9 +451,9 @@
   </div>
 
   <div class="stats">
-    <div class="stat"><div class="stat-num" id="statGiftCards">—</div><div class="stat-lbl">Gift cards sold</div></div>
-    <div class="stat"><div class="stat-num" id="statGiftBalance">—</div><div class="stat-lbl">Balance outstanding</div></div>
-    <div class="stat"><div class="stat-num" id="statPackagesSold">—</div><div class="stat-lbl">Packages sold</div></div>
+    <div class="stat"><div class="stat-num" id="statGiftCards">-</div><div class="stat-lbl">Gift cards sold</div></div>
+    <div class="stat"><div class="stat-num" id="statGiftBalance">-</div><div class="stat-lbl">Balance outstanding</div></div>
+    <div class="stat"><div class="stat-num" id="statPackagesSold">-</div><div class="stat-lbl">Packages sold</div></div>
   </div>
 
   <div class="tabs">
@@ -668,7 +668,7 @@
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-        document.title = salonRow.name ? `Gift Cards & Packages — ${salonRow.name}` : "Gift Cards & Packages — Blooma Business";
+        document.title = salonRow.name ? `Gift Cards & Packages - ${salonRow.name}` : "Gift Cards & Packages - Blooma Business";
       }
       if(cfgError) throw cfgError;
       rawConfig = cfgRow?.config || {salon:{}, stylists:[], services:[], addons:[], promos:[], packages:[]};
@@ -700,7 +700,7 @@
   function renderOffers(){
     var wrap = document.getElementById('offersList');
     if(!packageOffers.length){
-      wrap.innerHTML = '<div class="empty">No packages yet — add one so customers can buy a session bundle upfront.</div>';
+      wrap.innerHTML = '<div class="empty">No packages yet - add one so customers can buy a session bundle upfront.</div>';
       return;
     }
     wrap.innerHTML = packageOffers.map(function(p){
@@ -733,7 +733,7 @@
       var canVoid = p.status==='active' && Number(p.sessions_remaining)===Number(p.sessions_total);
       return '<tr>' +
         '<td>' + escapeHtml(p.customer_name||'Customer') + '</td>' +
-        '<td>' + escapeHtml(p.service_name_snapshot||'—') + '</td>' +
+        '<td>' + escapeHtml(p.service_name_snapshot||'-') + '</td>' +
         '<td>' + Number(p.sessions_remaining) + ' / ' + Number(p.sessions_total) + ' left</td>' +
         '<td>' + fmtMoney(p.price_paid) + '</td>' +
         '<td>' + statusPill(p.status) + '</td>' +
@@ -751,8 +751,8 @@
       var canVoid = g.status==='active' && Number(g.remaining_balance)>0;
       return '<tr>' +
         '<td><span class="code-chip">' + escapeHtml(g.code) + '</span></td>' +
-        '<td>' + escapeHtml(g.purchaser_name||g.purchaser_email||'—') + '</td>' +
-        '<td>' + escapeHtml(g.recipient_name||g.recipient_email||'—') + '</td>' +
+        '<td>' + escapeHtml(g.purchaser_name||g.purchaser_email||'-') + '</td>' +
+        '<td>' + escapeHtml(g.recipient_name||g.recipient_email||'-') + '</td>' +
         '<td>' + fmtMoney(g.initial_value) + '</td>' +
         '<td>' + fmtMoney(g.remaining_balance) + '</td>' +
         '<td>' + statusPill(g.status) + '</td>' +

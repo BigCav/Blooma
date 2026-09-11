@@ -1253,7 +1253,7 @@ function bindAwaitingEmailConfirmation(){
   const resend=document.getElementById("pendingResendBtn");
   if(resend) resend.addEventListener("click",async()=>{
     resend.disabled=true; resend.textContent="Sending…";
-    try{ await resendVenueConfirmationEmail(); resend.textContent="Sent — check your email"; }
+    try{ await resendVenueConfirmationEmail(); resend.textContent="Sent - check your email"; }
     catch(err){ resend.disabled=false; resend.textContent="Try resending confirmation email"; const el=document.getElementById("pendingConfirmationStatus"); if(el) el.textContent=err.message||"We couldn't resend the email."; }
   });
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Services — Blooma Business</title>
+<title>Services - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -709,8 +709,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -1237,7 +1237,7 @@
     try{ await reloadAdminConfigFromCloud(); }catch(err){ showToast(err.message||"Unable to load venue configuration"); }
     document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
     document.querySelector('.sb-venue-sub').textContent = [salon.suburb,salon.city].filter(Boolean).join(", ") || "Set your address";
-    document.title = salon.name ? `Services — ${salon.name}` : "Services — Blooma Business";
+    document.title = salon.name ? `Services - ${salon.name}` : "Services - Blooma Business";
     renderServicesUI();
   }
 
@@ -1382,7 +1382,7 @@
       var descHtml = a.description ? '<div class="svc-cell-desc">' + escapeHtml(a.description) + '</div>' : '';
       return '<tr class="row-clickable" onclick="openEditAddon(\'' + a.id + '\')">' +
         '<td><div class="svc-cell-name">' + escapeHtml(a.name) + '</div><div class="svc-cell-sub">' + (names.length?escapeHtml(names.join(', ')):'Not linked to a service yet') + '</div>' + descHtml + '</td>' +
-        '<td>' + (a.duration ? formatDurationMinutes(a.duration) : '—') + '</td>' +
+        '<td>' + (a.duration ? formatDurationMinutes(a.duration) : '-') + '</td>' +
         '<td>+' + formatPrice(a.price) + '</td>' +
         '<td onclick="event.stopPropagation()"><div class="toggle' + (a.active!==false?' on':'') + '" onclick="toggleAddonActive(\'' + a.id + '\')"></div></td>' +
         '<td onclick="event.stopPropagation()"><div class="row-action" onclick="openEditAddon(\'' + a.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></div></td>' +
@@ -1432,7 +1432,7 @@
   function populateStylistOptions(containerId, checkedIds){
     var container = document.getElementById(containerId);
     if(!salon.stylists.length){
-      container.innerHTML = '<div class="addon-service-empty">No team members yet — every stylist can perform this by default.</div>';
+      container.innerHTML = '<div class="addon-service-empty">No team members yet - every stylist can perform this by default.</div>';
       return;
     }
     container.innerHTML = salon.stylists.map(function(st){

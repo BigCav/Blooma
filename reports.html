@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reports — Blooma Business</title>
+<title>Reports - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -649,8 +649,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -698,7 +698,7 @@
   <div class="stats-grid" id="rpStatsGrid1">
     <div class="rp-empty">Loading…</div>
   </div>
-  <div style="font-size:12.5px; color:var(--text-faint); margin-top:8px; line-height:1.5; max-width:640px;">"Total revenue" is the full value of every completed booking this period — cash, card and online payments combined. See Payments for a breakdown by payment method.</div>
+  <div style="font-size:12.5px; color:var(--text-faint); margin-top:8px; line-height:1.5; max-width:640px;">"Total revenue" is the full value of every completed booking this period - cash, card and online payments combined. See Payments for a breakdown by payment method.</div>
   <div class="stats-grid" id="rpStatsGrid2" style="margin-top:14px;">
   </div>
 
@@ -923,7 +923,7 @@
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-        document.title = salonRow.name ? `Reports — ${salonRow.name}` : "Reports — Blooma Business";
+        document.title = salonRow.name ? `Reports - ${salonRow.name}` : "Reports - Blooma Business";
         salonHours = {
           openDays: Array.isArray(salonRow.open_days) ? salonRow.open_days : [1,2,3,4,5,6],
           openMin: parseHHMMSS(salonRow.open_time||'09:00:00'),
@@ -995,7 +995,7 @@
       statCard('Repeat client rate', Math.round(repeatRate)+'%', null, activeClientKeys.length+' active clients', 'violet', '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>') +
       statCard('Cancellation rate', Math.round(cur.cancelRate)+'%', null, cur.cancelled+' cancelled', 'danger', '<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>') +
       statCard('Avg. appointment length', Math.round(cur.avgDuration)+' min', null, cur.bookings+' appointments', null, '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>') +
-      statCard('Avg. rating', avgRating!=null?avgRating.toFixed(1):'—', null, curReviews.length+' review'+(curReviews.length===1?'':'s'), 'warning', '<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>');
+      statCard('Avg. rating', avgRating!=null?avgRating.toFixed(1):'-', null, curReviews.length+' review'+(curReviews.length===1?'':'s'), 'warning', '<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>');
 
     renderTrendChart(bounds);
     renderServiceBreakdown(curBookings);
@@ -1098,7 +1098,7 @@
       var avatarInner = r.st.imageUrl ? '<img src="' + escapeHtml(r.st.imageUrl) + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initialsFor(r.st.name);
       return '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + avatarInner + '</div>' +
         '<div><div class="cell-name">' + escapeHtml(r.st.name) + '</div><div class="cell-sub">' + escapeHtml(r.st.specialty||'Stylist') + '</div></div></div></td>' +
-        '<td>' + r.bookings + '</td><td>$' + r.revenue.toLocaleString() + '</td><td>' + (r.avgRating!=null?r.avgRating.toFixed(1):'—') + '</td><td>' + r.utilization + '%</td></tr>';
+        '<td>' + r.bookings + '</td><td>$' + r.revenue.toLocaleString() + '</td><td>' + (r.avgRating!=null?r.avgRating.toFixed(1):'-') + '</td><td>' + r.utilization + '%</td></tr>';
     }).join('');
   }
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Blooma — Profile</title>
+<title>Blooma - Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -167,7 +167,7 @@ function renderProfilePage(){
     ${!p.emailVerified ? `
     <div class="p-verify">
       <h3>Confirm your email address</h3>
-      <p>${verificationSent?`We've sent a link to ${escapeHtml(p.email)} — click it to confirm.`:`We'll send a link to ${escapeHtml(p.email)}.`}</p>
+      <p>${verificationSent?`We've sent a link to ${escapeHtml(p.email)} - click it to confirm.`:`We'll send a link to ${escapeHtml(p.email)}.`}</p>
       ${verificationError?`<p class="p-verify-error" style="margin-top:-8px;margin-bottom:14px;">${escapeHtml(verificationError)}</p>`:""}
       <button class="p-verify-btn" id="verifyEmailBtn" ${verificationSending?'disabled':''}>${verificationSending?'Sending…':verificationSent?'Resend email':'Confirm email'}</button>
     </div>` : ""}

@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="format-detection" content="telephone=no, address=no, email=no" />
 <meta name="google-site-verification" content="9Ntr2tRPRR4K8kldM7cOvz8oQEZ6Vn_fLpk3aduDluk" />
-<title>Blooma — Book Hair, Beauty & Wellness Appointments Online</title>
+<title>Blooma - Book Hair, Beauty & Wellness Appointments Online</title>
 <meta name="description" content="Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma." />
 <link rel="canonical" href="https://blooma.co.nz/explore" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Blooma" />
-<meta property="og:title" content="Blooma — Book Hair, Beauty & Wellness Appointments Online" />
+<meta property="og:title" content="Blooma - Book Hair, Beauty & Wellness Appointments Online" />
 <meta property="og:description" content="Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma." />
 <meta property="og:url" content="https://blooma.co.nz/explore" />
 <meta property="og:image" content="https://blooma.co.nz/blooma-social-share.png" />
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:image" content="https://blooma.co.nz/blooma-social-share.png" />
-<meta name="twitter:title" content="Blooma — Book Hair, Beauty & Wellness Appointments Online" />
+<meta name="twitter:title" content="Blooma - Book Hair, Beauty & Wellness Appointments Online" />
 <meta name="twitter:description" content="Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1466,7 +1466,7 @@ function venueRewardsCardMarkup(extraStyle){
         </div>
         <p class="v2-reward-note">
           ${state.loyaltyAccount.points>=state.loyaltyAccount.threshold
-            ? `You've earned: ${escapeHtml(state.loyaltyAccount.rewardText||"a reward")} — mention it at your next visit.`
+            ? `You've earned: ${escapeHtml(state.loyaltyAccount.rewardText||"a reward")} - mention it at your next visit.`
             : `${Math.max(0,state.loyaltyAccount.threshold-state.loyaltyAccount.points)} more point${(state.loyaltyAccount.threshold-state.loyaltyAccount.points)===1?"":"s"} until ${escapeHtml(state.loyaltyAccount.rewardText||"your reward")}.`}
         </p>
       </div>
@@ -2885,8 +2885,8 @@ function venueDarkBannerMarkup(rows){
 function howItWorksSectionMarkup(){
   const steps = [
     { title:'Find a salon', body:'Filter by service, category, or suburb to find salons with real availability that fits your schedule.' },
-    { title:'Book instantly', body:'See real openings and lock in your appointment in seconds — no calls, no waiting on a reply.' },
-    { title:'Show up & relax', body:'Your booking, stylist, and details are all saved in one place — just arrive and get started.' },
+    { title:'Book instantly', body:'See real openings and lock in your appointment in seconds - no calls, no waiting on a reply.' },
+    { title:'Show up & relax', body:'Your booking, stylist, and details are all saved in one place - just arrive and get started.' },
   ];
   return `
     <div class="how-it-works-section">
@@ -3010,9 +3010,9 @@ function renderHome(){
       <div class="home-trust-strip">
         <div class="home-trust-item"><strong style="display:inline-flex;align-items:center;gap:3px;">${state.marketplaceStats?.avg_rating!=null?Number(state.marketplaceStats.avg_rating).toFixed(1):"4.7"}<span style="display:inline-flex;color:var(--gold);">${ICONS.star.replace('width="13" height="13"','width="16" height="16"')}</span></strong><span>Avg. rating</span></div>
         <div class="home-trust-divider"></div>
-        <div class="home-trust-item"><strong>${state.marketplaceStats?.venue_count!=null?state.marketplaceStats.venue_count:SALONS.length||"—"}</strong><span>Venues on Blooma</span></div>
+        <div class="home-trust-item"><strong>${state.marketplaceStats?.venue_count!=null?state.marketplaceStats.venue_count:SALONS.length||"-"}</strong><span>Venues on Blooma</span></div>
         <div class="home-trust-divider"></div>
-        <div class="home-trust-item"><strong>${state.marketplaceStats?.bookings_this_year!=null?Number(state.marketplaceStats.bookings_this_year).toLocaleString():"—"}</strong><span>Bookings this year</span></div>
+        <div class="home-trust-item"><strong>${state.marketplaceStats?.bookings_this_year!=null?Number(state.marketplaceStats.bookings_this_year).toLocaleString():"-"}</strong><span>Bookings this year</span></div>
         <div class="home-trust-divider home-trust-divider-3"></div>
         <div class="home-trust-item home-trust-item-4"><strong>42 sec</strong><span>Avg. booking time</span></div>
       </div>
@@ -3027,7 +3027,7 @@ function renderHome(){
               ? `<div class="home-empty-card"><div class="home-empty-icon">${icon('search')}</div><p class="home-empty-title">No matches for "${escapeHtml(state.homeQuery)}"</p><p class="home-empty-sub">Try a different search term, or browse all venues in ${escapeHtml(state.city.name)} instead.</p></div>`
               : state.homeFilter!=="All"
                 ? `<div class="home-empty-card"><div class="home-empty-icon">${icon('store')}</div><p class="home-empty-title">No ${escapeHtml(state.homeFilter)} venues yet</p><p class="home-empty-sub">There aren't any ${escapeHtml(state.homeFilter)} salons listed in ${escapeHtml(state.city.name)} right now.</p><button class="primary-btn" style="width:auto;padding:10px 18px;" data-clearhomefilter>Browse all venues</button></div>`
-                : `<div class="home-empty-card"><div class="home-empty-icon">${icon('store')}</div><p class="home-empty-title">No venues here yet</p><p class="home-empty-sub">Blooma hasn't listed any salons in ${escapeHtml(state.city.name)} yet — try another city, or check back soon.</p></div>`
+                : `<div class="home-empty-card"><div class="home-empty-icon">${icon('store')}</div><p class="home-empty-title">No venues here yet</p><p class="home-empty-sub">Blooma hasn't listed any salons in ${escapeHtml(state.city.name)} yet - try another city, or check back soon.</p></div>`
         ) : ""}
       </div>` : ""}
       </div>
@@ -4295,12 +4295,12 @@ function setVenueJsonLd(salon){
 }
 function updateSeoMeta(){
   const salon = (state.page==="salon" && state.salon) ? state.salon : null;
-  const defaultTitle = "Blooma — Book Hair, Beauty & Wellness Appointments Online";
+  const defaultTitle = "Blooma - Book Hair, Beauty & Wellness Appointments Online";
   const defaultDesc = "Discover and book hair, nails, beauty and wellness appointments online with local salons and studios on Blooma.";
   let title = defaultTitle, description = defaultDesc, url = "https://blooma.co.nz/explore", image = "";
   if(salon){
     const place = [salon.suburb,salon.city].filter(Boolean).join(", ");
-    title = `${salon.name} — Book Online | Blooma`;
+    title = `${salon.name} - Book Online | Blooma`;
     description = `Book your next appointment at ${salon.name}${place?` in ${place}`:""} on Blooma. ${salon.tag||"Beauty & wellness"}.${(salon.rating&&salon.rating!=="New"&&salon.reviews>0)?` Rated ${salon.rating}★ (${salon.reviews} reviews).`:""}`.trim();
     url = salon.publicSlug ? `https://blooma.co.nz/${salon.publicSlug}` : url;
     image = salon.homeImage||"";
@@ -4395,7 +4395,7 @@ function bindEvents(){
     }
     try{
       await navigator.clipboard.writeText(url);
-      alert(`Link copied — share ${title} with: ${url}`);
+      alert(`Link copied - share ${title} with: ${url}`);
     }catch(e){ /* clipboard unavailable — nothing more we can do */ }
   });
   document.querySelectorAll("[data-scrollcarousel]").forEach(btn=>{

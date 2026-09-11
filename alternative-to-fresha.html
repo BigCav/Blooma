@@ -394,7 +394,7 @@
         <div class="feature-card">
           <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h1"/></svg></div>
           <h3>Custom consultation forms</h3>
-          <p>Build per-service intake forms with short answer, yes/no or multiple-choice questions — answers land right on the booking, same as Fresha.</p>
+          <p>Build per-service intake forms with short answer, yes/no or multiple-choice questions - answers land right on the booking, same as Fresha.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5a2 2 0 0 0-2.8 0L5 21"/></svg></div>
@@ -649,12 +649,12 @@
         body: JSON.stringify({ name, email, message }),
       });
       const out = await res.json().catch(()=>null);
-      if(!res.ok || !out || !out.sent) throw new Error((out && out.error) || "Something went wrong — please email hello@blooma.co.nz directly.");
+      if(!res.ok || !out || !out.sent) throw new Error((out && out.error) || "Something went wrong - please email hello@blooma.co.nz directly.");
       form.reset();
-      statusEl.textContent = "Thanks — we've got your message and usually reply within about 45 minutes.";
+      statusEl.textContent = "Thanks - we've got your message and usually reply within about 45 minutes.";
       statusEl.classList.add('success');
     }catch(err){
-      statusEl.textContent = err.message || 'Something went wrong — please try again.';
+      statusEl.textContent = err.message || 'Something went wrong - please try again.';
       statusEl.classList.add('error');
     }finally{
       btn.disabled = false;

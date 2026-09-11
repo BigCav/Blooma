@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Check in — Blooma Business</title>
+<title>Check in - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -613,8 +613,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -649,7 +649,7 @@
 
   <div class="page-head">
     <h1>Check in a walk-in</h1>
-    <div class="sub">Get a walk-in client on the books in a few taps — starts right away, no scheduled time needed</div>
+    <div class="sub">Get a walk-in client on the books in a few taps - starts right away, no scheduled time needed</div>
   </div>
 
   <div class="stats-grid" id="ciStatsGrid">
@@ -702,7 +702,7 @@
       <div class="result-banner">
         <div class="result-icon success"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
         <div class="result-title">Checked in</div>
-        <div class="result-sub" id="ciSuccessSub">—</div>
+        <div class="result-sub" id="ciSuccessSub">-</div>
         <div class="result-actions">
           <a href="/venue/admin" class="btn btn-violet">Back to dashboard</a>
           <div class="btn btn-ghost" onclick="checkInAnother()">Check in another</div>
@@ -954,7 +954,7 @@
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(', ') || ' ';
-        document.title = salonRow.name ? `Check in — ${salonRow.name}` : "Check in — Blooma Business";
+        document.title = salonRow.name ? `Check in - ${salonRow.name}` : "Check in - Blooma Business";
       }
       servicesData = services||[];
       stylistsData = stylists||[];
@@ -1135,7 +1135,7 @@
     var service = servicesData.find(function(s){ return s.id===ci.serviceId; });
     var stylistLabel = ci.stylistId==='any' ? 'any available stylist' : (stylistsData.find(function(s){ return s.id===ci.stylistId; })||{}).name || 'a stylist';
     document.getElementById('ciSummaryText').innerHTML =
-      'Checking in <strong>' + escapeHtml(ci.clientName) + '</strong> for <strong>' + escapeHtml(service?service.name:'') + '</strong> with <strong>' + escapeHtml(stylistLabel) + '</strong> — starts now.';
+      'Checking in <strong>' + escapeHtml(ci.clientName) + '</strong> for <strong>' + escapeHtml(service?service.name:'') + '</strong> with <strong>' + escapeHtml(stylistLabel) + '</strong> - starts now.';
     label.textContent = 'Check in ' + ci.clientName;
     btn.classList.remove('disabled');
   }
@@ -1203,9 +1203,9 @@
   }
   function renderQueueAndStats(){
     if(!walkinColSupported){
-      document.getElementById('ciStatsGrid').innerHTML = '<div class="stat-card" style="grid-column:1/-1;"><div class="ci-empty">Walk-in tracking isn\'t set up on this database yet — check-ins still create real bookings, but the queue and stats below need a small schema update.</div></div>';
-      document.getElementById('ciWaitingList').innerHTML = '<div class="queue-empty">—</div>';
-      document.getElementById('ciWalkinLog').innerHTML = '<div class="ci-empty">—</div>';
+      document.getElementById('ciStatsGrid').innerHTML = '<div class="stat-card" style="grid-column:1/-1;"><div class="ci-empty">Walk-in tracking isn\'t set up on this database yet - check-ins still create real bookings, but the queue and stats below need a small schema update.</div></div>';
+      document.getElementById('ciWaitingList').innerHTML = '<div class="queue-empty">-</div>';
+      document.getElementById('ciWalkinLog').innerHTML = '<div class="ci-empty">-</div>';
       return;
     }
     var now = Date.now();
@@ -1216,7 +1216,7 @@
 
     document.getElementById('ciStatsGrid').innerHTML =
       '<div class="stat-card"><div class="stat-top"><div class="stat-label">Walk-ins today</div><div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div></div><div class="stat-value">' + today.length + '</div><div class="stat-delta"><span class="muted">' + waiting.length + ' currently waiting</span></div></div>' +
-      '<div class="stat-card"><div class="stat-top"><div class="stat-label">Avg. wait time</div><div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div></div><div class="stat-value">' + (avgWaitMs==null ? '—' : waitLabel(avgWaitMs)) + '</div><div class="stat-delta"><span class="muted">' + (waiting.length ? 'Right now' : 'No one waiting') + '</span></div></div>' +
+      '<div class="stat-card"><div class="stat-top"><div class="stat-label">Avg. wait time</div><div class="stat-icon" style="background:rgba(244,201,58,0.16); color:var(--warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div></div><div class="stat-value">' + (avgWaitMs==null ? '-' : waitLabel(avgWaitMs)) + '</div><div class="stat-delta"><span class="muted">' + (waiting.length ? 'Right now' : 'No one waiting') + '</span></div></div>' +
       '<div class="stat-card"><div class="stat-top"><div class="stat-label">Seen today</div><div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div></div><div class="stat-value">' + completed.length + '</div><div class="stat-delta"><span class="muted">Completed</span></div></div>';
 
     document.getElementById('ciWaitingCount').textContent = waiting.length;

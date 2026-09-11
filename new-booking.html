@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Booking — Blooma Business</title>
+<title>New Booking - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -792,8 +792,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -889,11 +889,11 @@
         <div class="result-title">Booking confirmed</div>
         <div class="result-sub">A confirmation has been sent to the client.</div>
         <div class="receipt-box">
-          <div class="receipt-row"><span>Client</span><strong id="rcClient">—</strong></div>
-          <div class="receipt-row"><span>Service</span><strong id="rcService">—</strong></div>
-          <div class="receipt-row"><span>Stylist</span><strong id="rcStaff">—</strong></div>
-          <div class="receipt-row"><span>When</span><strong id="rcWhen">—</strong></div>
-          <div class="receipt-row"><span>Total</span><strong id="rcTotal">—</strong></div>
+          <div class="receipt-row"><span>Client</span><strong id="rcClient">-</strong></div>
+          <div class="receipt-row"><span>Service</span><strong id="rcService">-</strong></div>
+          <div class="receipt-row"><span>Stylist</span><strong id="rcStaff">-</strong></div>
+          <div class="receipt-row"><span>When</span><strong id="rcWhen">-</strong></div>
+          <div class="receipt-row"><span>Total</span><strong id="rcTotal">-</strong></div>
         </div>
         <div class="result-actions" id="rcActions">
           <a href="/venue/admin" class="btn btn-violet">Back to dashboard</a>
@@ -1092,7 +1092,7 @@
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-        document.title = salonRow.name ? `New booking — ${salonRow.name}` : "New Booking — Blooma Business";
+        document.title = salonRow.name ? `New booking - ${salonRow.name}` : "New Booking - Blooma Business";
         salonHours = {
           openDays: Array.isArray(salonRow.open_days) ? salonRow.open_days : [1,2,3,4,5,6],
           openMin: parseHHMMSS(salonRow.open_time||'09:00:00'),

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Blooma Business</title>
+<title>Dashboard - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -547,8 +547,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -579,7 +579,7 @@
       <div class="greet-row">
         <div>
           <h1 id="dashGreeting">Good morning</h1>
-          <div class="sub" id="dashDate">—</div>
+          <div class="sub" id="dashDate">-</div>
         </div>
         <div class="panel-tabs" id="dashPeriodTabs">
           <div class="panel-tab active" data-period="Day" onclick="setDashPeriod('Day')">Today</div>
@@ -828,7 +828,7 @@
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(', ') || ' ';
-        document.title = salonRow.name ? `Dashboard — ${salonRow.name}` : "Dashboard — Blooma Business";
+        document.title = salonRow.name ? `Dashboard - ${salonRow.name}` : "Dashboard - Blooma Business";
         salonHours = {
           openDays: Array.isArray(salonRow.open_days) ? salonRow.open_days : [1,2,3,4,5,6],
           openMin: parseHHMMSS(salonRow.open_time||'09:00:00'),
@@ -893,7 +893,7 @@
       bookingsCard +
       statCard(revenueLabel, '$'+Math.round(cur.revenue).toLocaleString(), pctDelta(cur.revenue,prev.revenue), bounds.prevLabel, null, null, '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
       statCard('New clients', String(newClientsCur), null, bounds.label, null, null, '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M18 4v6M21 7h-6"/>') +
-      statCard('Avg. rating', avgRating!=null?avgRating.toFixed(1):'—', null, curReviews.length+' review'+(curReviews.length===1?'':'s'), 'rgba(244,201,58,0.16)', 'var(--warning)', '<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>');
+      statCard('Avg. rating', avgRating!=null?avgRating.toFixed(1):'-', null, curReviews.length+' review'+(curReviews.length===1?'':'s'), 'rgba(244,201,58,0.16)', 'var(--warning)', '<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>');
   }
 
   function todaysBookings(){

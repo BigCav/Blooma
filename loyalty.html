@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loyalty — Blooma Business</title>
+<title>Loyalty - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -470,8 +470,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -507,9 +507,9 @@
   </div>
 
   <div class="lp-stats">
-    <div class="lp-stat"><div class="lp-stat-num" id="statMembers">—</div><div class="lp-stat-lbl">Members</div></div>
-    <div class="lp-stat"><div class="lp-stat-num" id="statPoints">—</div><div class="lp-stat-lbl">Points outstanding</div></div>
-    <div class="lp-stat"><div class="lp-stat-num" id="statEligible">—</div><div class="lp-stat-lbl">Eligible to redeem</div></div>
+    <div class="lp-stat"><div class="lp-stat-num" id="statMembers">-</div><div class="lp-stat-lbl">Members</div></div>
+    <div class="lp-stat"><div class="lp-stat-num" id="statPoints">-</div><div class="lp-stat-lbl">Points outstanding</div></div>
+    <div class="lp-stat"><div class="lp-stat-num" id="statEligible">-</div><div class="lp-stat-lbl">Eligible to redeem</div></div>
   </div>
 
   <div class="grid2">
@@ -525,7 +525,7 @@
       <div class="lp-toggle-row">
         <div>
           <div class="lbl">Loyalty program</div>
-          <div class="hint" id="loyaltyStatusHint">Off — clients won't earn or see points</div>
+          <div class="hint" id="loyaltyStatusHint">Off - clients won't earn or see points</div>
         </div>
         <div class="toggle" id="loyaltyToggle"></div>
       </div>
@@ -584,7 +584,7 @@
 <div class="modal-overlay" id="adjustModal">
   <div class="modal-card">
     <h3 id="adjustModalName">Adjust points</h3>
-    <div class="m-sub" id="adjustModalCurrent">Current balance: —</div>
+    <div class="m-sub" id="adjustModalCurrent">Current balance: -</div>
     <div class="lp-field">
       <label>Points change (use − for a deduction)</label>
       <input type="number" id="adjustDeltaInput" step="1" placeholder="e.g. 10 or -10">
@@ -712,7 +712,7 @@
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-        document.title = salonRow.name ? `Loyalty — ${salonRow.name}` : "Loyalty — Blooma Business";
+        document.title = salonRow.name ? `Loyalty - ${salonRow.name}` : "Loyalty - Blooma Business";
       }
       if(cfgError) throw cfgError;
       rawConfig = cfgRow?.config || {salon:{}, stylists:[], services:[], addons:[], promos:[]};
@@ -741,8 +741,8 @@
   function renderLoyaltyForm(){
     document.getElementById('loyaltyToggle').classList.toggle('on', loyalty.enabled);
     document.getElementById('loyaltyStatusHint').textContent = loyalty.enabled
-      ? "On — clients earn points and see the rewards card"
-      : "Off — clients won't earn or see points";
+      ? "On - clients earn points and see the rewards card"
+      : "Off - clients won't earn or see points";
     document.getElementById('fldPointsPerDollar').value = loyalty.pointsPerDollar;
     document.getElementById('fldRewardThreshold').value = loyalty.rewardThreshold;
     document.getElementById('fldRewardText').value = loyalty.rewardText;
@@ -817,7 +817,7 @@
     document.getElementById('membersSub').textContent = members.length + ' member' + (members.length===1?'':'s') + ' earning points';
     var wrap = document.getElementById('membersList');
     if(!list.length){
-      wrap.innerHTML = '<div class="lp-empty">' + (members.length ? 'No members match your search.' : 'No members yet — points are earned automatically when a booking is completed.') + '</div>';
+      wrap.innerHTML = '<div class="lp-empty">' + (members.length ? 'No members match your search.' : 'No members yet - points are earned automatically when a booking is completed.') + '</div>';
       return;
     }
     list.sort(function(a,b){ return (Number(b.points)||0) - (Number(a.points)||0); });
@@ -842,7 +842,7 @@
 
   function openAdjustModal(customerUserId, name, points){
     adjustTargetId = customerUserId;
-    document.getElementById('adjustModalName').textContent = 'Adjust points — ' + name;
+    document.getElementById('adjustModalName').textContent = 'Adjust points - ' + name;
     document.getElementById('adjustModalCurrent').textContent = 'Current balance: ' + points + ' pts';
     document.getElementById('adjustDeltaInput').value = '';
     document.getElementById('adjustReasonInput').value = '';

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Booking — Blooma Business</title>
+<title>Booking - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -513,8 +513,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -838,7 +838,7 @@
             </span></div>` : ''}
             ${b.deposit_status==='pending' && b.status==='upcoming' ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" id="depositHoldNote" style="font-size:12.5px;font-weight:400;color:var(--text-faint);"></span></div>` : ''}
             ${b.deposit_status==='paid' && !b.deposit_paid_out ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value"><div class="btn btn-ghost" id="refundDepositBtn" onclick="refundDeposit()" style="font-size:12.5px;padding:7px 12px;display:inline-flex;">Refund deposit</div></span></div>` : ''}
-            ${b.deposit_status==='paid' && b.deposit_paid_out ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" style="font-size:12.5px;font-weight:400;color:var(--text-faint);">Already paid out to you — contact Blooma support to refund this deposit.</span></div>` : ''}
+            ${b.deposit_status==='paid' && b.deposit_paid_out ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" style="font-size:12.5px;font-weight:400;color:var(--text-faint);">Already paid out to you - contact Blooma support to refund this deposit.</span></div>` : ''}
           </div>
         </div>
 
@@ -846,9 +846,9 @@
           <div class="panel">
             <div class="panel-head"><h2>Client</h2>${isFirstVisit ? '<span class="status-badge status-upcoming">✨ First visit</span>' : ''}</div>
             <div class="info-row"><span class="info-label">Name</span><span class="info-value"><a class="bk-link" href="/venue/admin/client?key=${encodeURIComponent(clientKeyForBooking(b))}">${escapeHtml(b.customer_name)}</a></span></div>
-            <div class="info-row"><span class="info-label">Email</span><span class="info-value">${escapeHtml(b.customer_email||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${b.customer_phone ? `<a class="bk-link" href="tel:${escapeHtml(b.customer_phone.replace(/\s+/g,''))}">${escapeHtml(b.customer_phone)}</a>` : '—'}</span></div>
-            <div class="info-row"><span class="info-label">Client since</span><span class="info-value">${clientSinceLabel||'—'}</span></div>
+            <div class="info-row"><span class="info-label">Email</span><span class="info-value">${escapeHtml(b.customer_email||'-')}</span></div>
+            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${b.customer_phone ? `<a class="bk-link" href="tel:${escapeHtml(b.customer_phone.replace(/\s+/g,''))}">${escapeHtml(b.customer_phone)}</a>` : '-'}</span></div>
+            <div class="info-row"><span class="info-label">Client since</span><span class="info-value">${clientSinceLabel||'-'}</span></div>
           </div>
 
           <div class="panel">
@@ -1201,7 +1201,7 @@
     if(salonRow){
       document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
       document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-      document.title = salonRow.name ? `Booking — ${salonRow.name}` : "Booking — Blooma Business";
+      document.title = salonRow.name ? `Booking - ${salonRow.name}` : "Booking - Blooma Business";
       salonHours = {
         openDays: Array.isArray(salonRow.open_days) ? salonRow.open_days : [1,2,3,4,5,6],
         openMin: parseHHMMSS(salonRow.open_time||'09:00:00'),

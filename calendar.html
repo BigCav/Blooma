@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendar — Blooma Business</title>
+<title>Calendar - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -670,8 +670,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -963,7 +963,7 @@
     }catch(err){ showToast(err.message||"Unable to load calendar"); }
     STAFF = buildStaffList();
     document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
-    document.title = salon.name ? `Calendar — ${salon.name}` : "Calendar — Blooma Business";
+    document.title = salon.name ? `Calendar - ${salon.name}` : "Calendar - Blooma Business";
     document.getElementById('calendarSub').textContent = salon.name ? `View and manage upcoming appointments at ${salon.name}` : 'View and manage upcoming appointments across your team';
     renderStaffLegend();
     renderStaffFilter();

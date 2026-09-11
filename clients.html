@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clients — Blooma Business</title>
+<title>Clients - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -648,8 +648,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -688,7 +688,7 @@
         <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg></div>
       </div>
       <div class="stat-value" id="statTotal">0</div>
-      <div class="stat-delta"><span class="muted" id="statTotalSub">—</span></div>
+      <div class="stat-delta"><span class="muted" id="statTotalSub">-</span></div>
     </div>
     <div class="stat-card">
       <div class="stat-top">
@@ -897,7 +897,7 @@
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
   function relativeLastVisit(iso){
-    if(!iso) return '—';
+    if(!iso) return '-';
     var diffDays = Math.round((Date.now() - new Date(iso).getTime())/86400000);
     if(diffDays<=0) return 'Today';
     if(diffDays===1) return 'Yesterday';
@@ -958,7 +958,7 @@
     if(salonRow){
       document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
       document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-      document.title = salonRow.name ? `Clients — ${salonRow.name}` : "Clients — Blooma Business";
+      document.title = salonRow.name ? `Clients - ${salonRow.name}` : "Clients - Blooma Business";
     }
     renderStats();
     renderClients();
@@ -1041,7 +1041,7 @@
     if(tag === 'vip') return '<span class="tag-pill tag-vip">VIP</span>';
     if(tag === 'new') return '<span class="tag-pill tag-new">New</span>';
     if(tag === 'inactive') return '<span class="tag-pill tag-inactive">Inactive</span>';
-    return '—';
+    return '-';
   }
 
   function getFiltered(){
@@ -1071,7 +1071,7 @@
         return '<tr class="row-clickable" onclick="location.href=\'/venue/admin/client?key=' + encodeURIComponent(c.key) + '\'">' +
           '<td><div class="cell-person"><div class="cell-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(c.name) + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(c.name) + '</div><div class="cell-sub">' + escapeHtml(c.email||'No email on file') + '</div></div></div></td>' +
-          '<td>' + escapeHtml(c.phone||'—') + '</td>' +
+          '<td>' + escapeHtml(c.phone||'-') + '</td>' +
           '<td>' + c.visits + '</td>' +
           '<td>$' + c.spent.toLocaleString() + '</td>' +
           '<td>' + relativeLastVisit(c.lastVisit) + '</td>' +

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sarah K. — Blooma Business</title>
+<title>Sarah K. - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -510,8 +510,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -671,7 +671,7 @@
     if(tag === 'inactive') return '<span class="tag-pill tag-inactive">Inactive</span>';
     return '';
   }
-  function monthYear(iso){ return iso ? new Intl.DateTimeFormat("en-US",{month:"short",year:"numeric"}).format(new Date(iso)) : '—'; }
+  function monthYear(iso){ return iso ? new Intl.DateTimeFormat("en-US",{month:"short",year:"numeric"}).format(new Date(iso)) : '-'; }
   function fullDate(iso){ return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(iso)); }
   function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
@@ -762,7 +762,7 @@
             <div class="stat-label">Last visit</div>
             <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
           </div>
-          <div class="stat-value">${c.lastVisit ? (nzDateKeyForIso(c.lastVisit)===nzTodayKey()?'Today':fullDate(c.lastVisit)) : '—'}</div>
+          <div class="stat-value">${c.lastVisit ? (nzDateKeyForIso(c.lastVisit)===nzTodayKey()?'Today':fullDate(c.lastVisit)) : '-'}</div>
           <div class="stat-delta"><span class="muted">${c.lastVisit ? localTimeLabel(c.lastVisit) : ''}</span></div>
         </div>
       </div>
@@ -810,20 +810,20 @@
         <div class="side-col">
           <div class="panel">
             <div class="panel-head"><h2>Contact info</h2></div>
-            <div class="info-row"><span class="info-label">Email</span><span class="info-value">${escapeHtml(c.email||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${escapeHtml(c.phone||'—')}</span></div>
+            <div class="info-row"><span class="info-label">Email</span><span class="info-value">${escapeHtml(c.email||'-')}</span></div>
+            <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${escapeHtml(c.phone||'-')}</span></div>
             <div class="info-row"><span class="info-label">Client since</span><span class="info-value">${monthYear(c.firstCreated)}</span></div>
           </div>
 
           <div class="panel">
             <div class="panel-head"><h2>Preferences</h2></div>
-            <div class="info-row"><span class="info-label">Favorite stylist</span><span class="info-value">${escapeHtml(c.favoriteStylist||'—')}</span></div>
-            <div class="info-row"><span class="info-label">Favorite service</span><span class="info-value">${escapeHtml(c.favoriteService||'—')}</span></div>
+            <div class="info-row"><span class="info-label">Favorite stylist</span><span class="info-value">${escapeHtml(c.favoriteStylist||'-')}</span></div>
+            <div class="info-row"><span class="info-label">Favorite service</span><span class="info-value">${escapeHtml(c.favoriteService||'-')}</span></div>
           </div>
 
           <div class="panel">
             <div class="panel-head"><h2>Staff notes</h2></div>
-            <textarea class="notes-input" id="clientNoteInput" placeholder="Add notes for other staff — allergies, preferences, anything worth knowing before their next visit…">${escapeHtml(noteText||'')}</textarea>
+            <textarea class="notes-input" id="clientNoteInput" placeholder="Add notes for other staff - allergies, preferences, anything worth knowing before their next visit…">${escapeHtml(noteText||'')}</textarea>
             <div class="notes-save-row">
               <div class="btn btn-violet" onclick="saveClientNote()">Save note</div>
             </div>
@@ -983,7 +983,7 @@
     if(salonRow){
       document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
       document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-      document.title = `${client.name} — ${salonRow.name || 'Blooma Business'}`;
+      document.title = `${client.name} - ${salonRow.name || 'Blooma Business'}`;
     }
 
     const {data:noteRow} = await supabaseClient.from("client_notes").select("note").eq("salon_id",currentSalonId).eq("customer_name",client.name).maybeSingle();

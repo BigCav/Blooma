@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Settings — Blooma Business</title>
+<title>Settings - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -750,8 +750,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -894,7 +894,7 @@
       <div class="setting-row" style="align-items:flex-start;">
         <div style="flex:1;">
           <h4>Require a deposit to book</h4>
-          <p>Ask clients to pay a deposit by card when they book online — charged to your Blooma account, the rest is due at the appointment.</p>
+          <p>Ask clients to pay a deposit by card when they book online - charged to your Blooma account, the rest is due at the appointment.</p>
           <div id="depositAmountRow" style="display:none; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
             <select id="depositTypeInput" style="background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
               <option value="percent">% of total</option>
@@ -935,7 +935,7 @@
       <div class="setting-row" style="align-items:flex-start;">
         <div style="flex:1;">
           <h4>Require deposit after repeat no-shows</h4>
-          <p>Forgive a client's first no-shows, but once they hit this many at your venue, require a deposit on their future bookings — even if you don't normally ask for one.</p>
+          <p>Forgive a client's first no-shows, but once they hit this many at your venue, require a deposit on their future bookings - even if you don't normally ask for one.</p>
           <div id="earnedTrustAmountRow" style="display:none; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
             <span style="font-size:12.5px; color:var(--text-soft);">After</span>
             <input type="number" id="earnedTrustThresholdInput" min="1" step="1" style="width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
@@ -1002,14 +1002,14 @@
       </div>
       <div class="setting-row">
         <div>
-          <h4>SMS: Reminder — 24 hours before</h4>
+          <h4>SMS: Reminder - 24 hours before</h4>
           <p>Text clients a reminder the day before their appointment.</p>
         </div>
         <div class="toggle on" id="notifToggle_sms_reminder_24h" onclick="toggleNotifPref('sms_reminder_24h')"></div>
       </div>
       <div class="setting-row">
         <div>
-          <h4>SMS: Reminder — 1 hour before</h4>
+          <h4>SMS: Reminder - 1 hour before</h4>
           <p>Text clients a reminder shortly before their appointment.</p>
         </div>
         <div class="toggle on" id="notifToggle_sms_reminder_1h" onclick="toggleNotifPref('sms_reminder_1h')"></div>
@@ -1454,7 +1454,7 @@
     document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
     document.querySelector('.sb-venue-sub').textContent = [salon.suburb,salon.city].filter(Boolean).join(", ") || "Set your address";
     document.getElementById('pageHeadSub').textContent = salon.name ? `Manage ${salon.name}'s profile, hours and preferences` : "Manage your venue's profile, hours and preferences";
-    document.title = salon.name ? `Settings — ${salon.name}` : "Settings — Blooma Business";
+    document.title = salon.name ? `Settings - ${salon.name}` : "Settings - Blooma Business";
   }
 
   function showLoginRequired(title, message, ctaLabel, ctaHref){
@@ -1520,7 +1520,7 @@
       var toastMsg;
       try{
         await authedFetch('/api/windcave?action=finalize-subscription-session', {body: JSON.stringify({sessionId: billingSessionId})});
-        toastMsg = 'Payment received — thanks!';
+        toastMsg = 'Payment received - thanks!';
       }catch(err){
         toastMsg = err.message || 'Could not confirm your payment. Please contact support if you were charged.';
       }
@@ -1662,7 +1662,7 @@
       var monthlyTotal = billing.plan_id === 'team' ? (19 * billing.seat_count) : 24;
       document.getElementById('planPriceLabel').textContent = plan.price + (billing.plan_id === 'team' ? (' × ' + billing.seat_count + ' = $' + monthlyTotal + '/month') : '');
       actionBtn.style.display = 'none';
-      preview.textContent = 'Nothing due yet — you\'re paid up through ' + fmtRenewal(billing.current_period_end) + '. Your next payment will be priced off however many stylists you have at the time, once this period ends.';
+      preview.textContent = 'Nothing due yet - you\'re paid up through ' + fmtRenewal(billing.current_period_end) + '. Your next payment will be priced off however many stylists you have at the time, once this period ends.';
       renderPaymentHistory();
       return;
     }
@@ -1670,7 +1670,7 @@
     actionBtn.style.display = '';
     if(billing.subscribed_at){
       document.getElementById('planNameLabel').textContent = 'Payment due';
-      document.getElementById('planPriceLabel').textContent = billing.current_period_end ? ('Your access ended ' + fmtRenewal(billing.current_period_end) + ' — pay to continue.') : 'Pay to continue using Blooma.';
+      document.getElementById('planPriceLabel').textContent = billing.current_period_end ? ('Your access ended ' + fmtRenewal(billing.current_period_end) + ' - pay to continue.') : 'Pay to continue using Blooma.';
       actionBtn.textContent = 'Pay now';
     } else {
       document.getElementById('planNameLabel').textContent = 'No active subscription';
@@ -1683,10 +1683,10 @@
     var creditCents = Math.max(0, Math.min(walletBalanceCents, Math.round(live.amount*100)));
     var netAmount = live.amount - creditCents/100;
     var priceLine = live.planId === 'team' ? ('$19 × ' + live.quantity + ' = $' + live.amount) : ('$' + live.amount);
-    var previewText = 'You currently have ' + live.seatCount + ' stylist' + (live.seatCount===1?'':'s') + ' — paying now will be for the ' + PLAN_CATALOG[live.planId].name + ' plan, ' + priceLine + '/month.';
+    var previewText = 'You currently have ' + live.seatCount + ' stylist' + (live.seatCount===1?'':'s') + ' - paying now will be for the ' + PLAN_CATALOG[live.planId].name + ' plan, ' + priceLine + '/month.';
     if(creditCents > 0){
       previewText += netAmount <= 0
-        ? (' You have $' + (walletBalanceCents/100).toFixed(2) + ' in wallet credit, which fully covers this — nothing to pay.')
+        ? (' You have $' + (walletBalanceCents/100).toFixed(2) + ' in wallet credit, which fully covers this - nothing to pay.')
         : (' $' + (creditCents/100).toFixed(2) + ' of your wallet credit will be applied, so you\'ll actually pay $' + netAmount.toFixed(2) + '.');
     }
     previewText += ' Remove stylists on the Team page first if you don\'t want to pay for all of them.';
@@ -1734,7 +1734,7 @@
     try{
       const result = await authedFetch('/api/windcave?action=create-subscription-session');
       if(result.fullyCoveredByCredit){
-        showToast('Wallet credit covered this payment — you\'re all set through ' + fmtRenewal(result.periodEnd) + '.');
+        showToast('Wallet credit covered this payment - you\'re all set through ' + fmtRenewal(result.periodEnd) + '.');
         btn.disabled = false; btn.textContent = original;
         await reloadAdminConfigFromCloud().catch(function(){});
         return;

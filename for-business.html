@@ -608,12 +608,12 @@
         body: JSON.stringify({ name, email, message }),
       });
       const out = await res.json().catch(()=>null);
-      if(!res.ok || !out || !out.sent) throw new Error((out && out.error) || "Something went wrong — please email hello@blooma.co.nz directly.");
+      if(!res.ok || !out || !out.sent) throw new Error((out && out.error) || "Something went wrong - please email hello@blooma.co.nz directly.");
       form.reset();
-      statusEl.textContent = "Thanks — we've got your message and usually reply within about 45 minutes.";
+      statusEl.textContent = "Thanks - we've got your message and usually reply within about 45 minutes.";
       statusEl.classList.add('success');
     }catch(err){
-      statusEl.textContent = err.message || 'Something went wrong — please try again.';
+      statusEl.textContent = err.message || 'Something went wrong - please try again.';
       statusEl.classList.add('error');
     }finally{
       btn.disabled = false;

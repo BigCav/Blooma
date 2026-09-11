@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bookings — Blooma Business</title>
+<title>Bookings - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -693,8 +693,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -733,7 +733,7 @@
         <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
       </div>
       <div class="stat-value" id="statToday">0</div>
-      <div class="stat-delta"><span class="muted" id="statTodaySub">—</span></div>
+      <div class="stat-delta"><span class="muted" id="statTodaySub">-</span></div>
     </div>
     <div class="stat-card">
       <div class="stat-top">
@@ -1057,7 +1057,7 @@
       try{ await loadWaitlist(); }catch(waitErr){ console.warn("Blooma waitlist load failed", waitErr); }
     }catch(err){ showToast(err.message||"Unable to load bookings"); }
     document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
-    document.title = salon.name ? `Bookings — ${salon.name}` : "Bookings — Blooma Business";
+    document.title = salon.name ? `Bookings - ${salon.name}` : "Bookings - Blooma Business";
     renderStaffFilterList();
     renderStatsCards();
     renderBookings();
@@ -1198,7 +1198,7 @@
   function openCancelConfirm(dbId){
     var b = bookingsData.find(function(x){ return x.dbId===dbId; });
     pendingCancelId = dbId;
-    document.getElementById('cancelModalMessage').textContent = (b ? (b.name + ' — ' + b.service) : 'This booking') + " will be cancelled and the client will be notified. This can't be undone.";
+    document.getElementById('cancelModalMessage').textContent = (b ? (b.name + ' - ' + b.service) : 'This booking') + " will be cancelled and the client will be notified. This can't be undone.";
     document.getElementById('cancelOverlay').classList.add('open');
   }
   function closeCancelModal(){
@@ -1220,7 +1220,7 @@
   function openNoShowConfirm(dbId){
     var b = bookingsData.find(function(x){ return x.dbId===dbId; });
     pendingNoShowId = dbId;
-    document.getElementById('noShowModalMessage').textContent = (b ? (b.name + ' — ' + b.service) : 'This booking') + " will be marked as a no-show. This can't be undone.";
+    document.getElementById('noShowModalMessage').textContent = (b ? (b.name + ' - ' + b.service) : 'This booking') + " will be marked as a no-show. This can't be undone.";
     document.getElementById('noShowOverlay').classList.add('open');
   }
   function closeNoShowModal(){
@@ -1308,7 +1308,7 @@
           '<td>' + escapeHtml(b.service) + '</td>' +
           '<td>' + escapeHtml(b.staff) + '</td>' +
           '<td>' + b.when + '</td>' +
-          '<td>' + (b.price ? '$' + b.price : '—') + (b.depositStatus && b.depositStatus!=='none' ? '<div style="margin-top:3px;font-size:11px;font-weight:700;' + (b.depositStatus==='paid' ? 'color:var(--violet-text);' : 'color:var(--warning);') + '">' + (b.depositStatus==='paid' ? 'Deposit paid' : 'Deposit pending') + ' · $' + b.depositAmount.toFixed(2) + '</div>' : '') + '</td>' +
+          '<td>' + (b.price ? '$' + b.price : '-') + (b.depositStatus && b.depositStatus!=='none' ? '<div style="margin-top:3px;font-size:11px;font-weight:700;' + (b.depositStatus==='paid' ? 'color:var(--violet-text);' : 'color:var(--warning);') + '">' + (b.depositStatus==='paid' ? 'Deposit paid' : 'Deposit pending') + ' · $' + b.depositAmount.toFixed(2) + '</div>' : '') + '</td>' +
           '<td>' + statusBadge(b.status,b.depositStatus) + '</td>' +
           '<td onclick="event.stopPropagation()">' + actionCell + '</td>' +
         '</tr>';

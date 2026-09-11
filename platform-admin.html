@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Platform Admin — Blooma</title>
+<title>Platform Admin - Blooma</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -210,8 +210,8 @@
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
   function fmtDate(iso){
-    if(!iso) return '—';
-    try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '—'; }
+    if(!iso) return '-';
+    try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '-'; }
   }
   // Billing is manual Windcave payments now (no autobill, no webhook) — venue_billing.status
   // gets set to 'active' by a payment but never gets flipped back automatically once
@@ -254,7 +254,7 @@
         '<div class="stats-grid" id="statsGrid"></div>' +
         '<div class="panel" id="revenuePanel" style="margin-bottom:22px;">' +
           '<div class="panel-head">' +
-            '<div><div class="panel-title">Platform revenue</div><div class="panel-sub">In-store card payments (1.79% + $0.30) are pure profit. Online deposits (2.49% + $0.30) are charged at cost — $0 profit — shown for volume only.</div></div>' +
+            '<div><div class="panel-title">Platform revenue</div><div class="panel-sub">In-store card payments (1.79% + $0.30) are pure profit. Online deposits (2.49% + $0.30) are charged at cost - $0 profit - shown for volume only.</div></div>' +
           '</div>' +
           '<div class="stats-grid" id="revenueStatsGrid" style="padding:18px 20px 0;"></div>' +
           '<div class="table-wrap">' +
@@ -482,8 +482,8 @@
     tbody.innerHTML = filtered.map(function(v){
       return '<tr>' +
         '<td><div class="venue-name">' + escapeHtml(v.name||'Unnamed venue') + '</div><div class="venue-city">' + escapeHtml([v.city,v.region].filter(Boolean).join(', ')) + '</div></td>' +
-        '<td><div class="owner-name">' + escapeHtml(v.owner_name||'—') + '</div><div class="owner-email">' + escapeHtml(v.owner_email||'—') + '</div></td>' +
-        '<td>' + escapeHtml(v.plan_id ? (v.plan_id + (v.seat_count>1?' · '+v.seat_count+' seats':'')) : '—') + '</td>' +
+        '<td><div class="owner-name">' + escapeHtml(v.owner_name||'-') + '</div><div class="owner-email">' + escapeHtml(v.owner_email||'-') + '</div></td>' +
+        '<td>' + escapeHtml(v.plan_id ? (v.plan_id + (v.seat_count>1?' · '+v.seat_count+' seats':'')) : '-') + '</td>' +
         '<td><span class="pill ' + statusPillClass(v) + '">' + escapeHtml(statusLabel(v)) + '</span></td>' +
         '<td>' + fmtDate(v.trial_ends_at) + '</td>' +
         '<td>' + fmtDate(v.subscribed_at) + '</td>' +

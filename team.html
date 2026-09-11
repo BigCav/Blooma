@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team — Blooma Business</title>
+<title>Team - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -669,8 +669,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -709,7 +709,7 @@
         <div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="18" cy="8" r="2.7"/><path d="M16.5 13.6c2.6.4 4.5 2.6 4.5 5.3"/></svg></div>
       </div>
       <div class="stat-value" id="statTotal">0</div>
-      <div class="stat-delta"><span class="muted" id="statTotalSub">—</span></div>
+      <div class="stat-delta"><span class="muted" id="statTotalSub">-</span></div>
     </div>
     <div class="stat-card">
       <div class="stat-top">
@@ -1080,7 +1080,7 @@
   function persist(successMessage, showBillingNote){
     return saveAdminCloud().then(function(){
       renderTeamUI();
-      showToast(showBillingNote ? (successMessage + ' — ' + nextPaymentNote()) : successMessage);
+      showToast(showBillingNote ? (successMessage + ' - ' + nextPaymentNote()) : successMessage);
     }).catch(function(err){
       showToast(err.message || "Save failed");
       renderTeamUI();
@@ -1168,7 +1168,7 @@
     }catch(err){ showToast(err.message||"Unable to load venue configuration"); }
     document.querySelector('.sb-venue-name').textContent = salon.name || "Your venue";
     document.querySelector('.sb-venue-sub').textContent = [salon.suburb,salon.city].filter(Boolean).join(", ") || "Set your address";
-    document.title = salon.name ? `Team — ${salon.name}` : "Team — Blooma Business";
+    document.title = salon.name ? `Team - ${salon.name}` : "Team - Blooma Business";
     renderTeamUI();
   }
 
@@ -1215,7 +1215,7 @@
           '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + displayName.charAt(0).toUpperCase() + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(displayName) + (isYou?' <span style="color:var(--text-faint);font-weight:600;">(you)</span>':'') + '</div><div class="cell-sub">' + (displayName!==m.email ? escapeHtml(m.email||'') : 'Dashboard login') + '</div></div></div></td>' +
           '<td style="text-transform:capitalize;">' + escapeHtml(m.role||'staff') + '</td>' +
-          '<td>—</td>' +
+          '<td>-</td>' +
           '<td><span class="status-badge status-confirmed">Active</span></td>' +
           '<td><div style="display:flex; gap:6px; justify-content:flex-end;">' +
             (isYou ? '<div class="row-action" onclick="openEditNameModal()" title="Edit your name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>' : '') +
@@ -1250,7 +1250,7 @@
         rows.push(
           '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + (inv.email||'?').charAt(0).toUpperCase() + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(inv.email||'') + '</div><div class="cell-sub">Invited</div></div></div></td>' +
-          '<td>Staff</td><td>—</td>' +
+          '<td>Staff</td><td>-</td>' +
           '<td><span class="status-badge status-pending">Invited</span></td>' +
           '<td><div class="row-action" onclick="handleRevokeInvite(' + inv.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></td></tr>'
         );
@@ -1292,8 +1292,8 @@
     }catch(e){ /* if this check fails, fall through and still let the owner remove them */ }
 
     var msg = 'Remove ' + st.name + ' from your team?';
-    if(upcomingCount>0) msg += ' They have ' + upcomingCount + ' upcoming booking' + (upcomingCount===1?'':'s') + ' — those won\'t be cancelled, but won\'t be reassigned automatically.';
-    if(salon.stylists.length<=1) msg += ' This is your only stylist — removing them will drop your account to 0.';
+    if(upcomingCount>0) msg += ' They have ' + upcomingCount + ' upcoming booking' + (upcomingCount===1?'':'s') + ' - those won\'t be cancelled, but won\'t be reassigned automatically.';
+    if(salon.stylists.length<=1) msg += ' This is your only stylist - removing them will drop your account to 0.';
     if(!confirm(msg)) return;
 
     salon.stylists = salon.stylists.filter(function(x){ return x.id!==id; });

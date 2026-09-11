@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Blooma — Venue Admin</title>
+<title>Blooma - Venue Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1227,7 +1227,7 @@ function renderNewBookingForm(){
     ${state.convertingWaitlistId ? `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;background:var(--purple-pastel-2);border-radius:12px;">
       ${icon('bell','var(--purple)')}
-      <span style="font-size:12.5px;color:var(--ink-mute);">Booking in ${escapeHtml(pf.customerName||'this customer')} from the waitlist${pf.timePref && pf.timePref!=="Any" ? ` — prefers ${escapeHtml(pf.timePref.toLowerCase())}` : ""}.</span>
+      <span style="font-size:12.5px;color:var(--ink-mute);">Booking in ${escapeHtml(pf.customerName||'this customer')} from the waitlist${pf.timePref && pf.timePref!=="Any" ? ` - prefers ${escapeHtml(pf.timePref.toLowerCase())}` : ""}.</span>
     </div>` : ""}
     ${existingCustomers.length?`<div class="field"><label>Existing customer <span style="color:var(--ink-soft);font-weight:400;">(optional)</span></label><div class="select-wrap"><select id="nbExistingCustomer"><option value="">New / walk-in customer</option>${existingCustomers.map((c,i)=>`<option value="${i}">${escapeHtml(c.name)}${c.phone?` · ${escapeHtml(c.phone)}`:""}</option>`).join("")}</select><span class="select-chevron">${ICONS.chevronDown}</span></div></div>`:""}
     <div class="field"><label>Customer name</label><input type="text" id="nbCustomerName" placeholder="e.g. Jamie Lee" value="${escapeAttr(pf.customerName||"")}" /></div>
@@ -1236,7 +1236,7 @@ function renderNewBookingForm(){
       <label>Service</label>
       <div class="select-wrap">
         <select id="nbService">
-          ${activeServices.map(s=>`<option value="${s.id}" ${initialServiceId===s.id?'selected':''}>${escapeHtml(s.name)} — $${s.price}</option>`).join("")}
+          ${activeServices.map(s=>`<option value="${s.id}" ${initialServiceId===s.id?'selected':''}>${escapeHtml(s.name)} - $${s.price}</option>`).join("")}
         </select>
         <span class="select-chevron">${ICONS.chevronDown}</span>
       </div>
@@ -2153,7 +2153,7 @@ function customerRow(c){
   const expanded = state.expandedCustomerName===c.name;
   const tag = customerTagFor(c);
   const completedSorted = c.bookings.filter(b=>b.status==="completed").sort((a,b)=>b.dayOffset-a.dayOffset);
-  const lastVisit = completedSorted[0] ? `${dayOffsetLabel(completedSorted[0].dayOffset)}` : (upcoming>0 ? "No visits yet" : "—");
+  const lastVisit = completedSorted[0] ? `${dayOffsetLabel(completedSorted[0].dayOffset)}` : (upcoming>0 ? "No visits yet" : "-");
   const avatarColor = TIMELINE_COLORS[Math.abs([...c.name].reduce((h,ch)=>h+ch.charCodeAt(0),0))%TIMELINE_COLORS.length];
   return `
   <tr class="data-row" data-customertoggle="${escapeAttr(c.name)}">
@@ -2163,11 +2163,11 @@ function customerRow(c){
         <div><div class="cell-name">${escapeHtml(c.name)}</div>${c.phone?`<div class="cell-sub">${escapeHtml(c.phone)}</div>`:""}</div>
       </div>
     </td>
-    <td>${c.phone?escapeHtml(c.phone):"—"}</td>
+    <td>${c.phone?escapeHtml(c.phone):"-"}</td>
     <td>${c.bookings.length}</td>
     <td>$${c.totalSpent}</td>
     <td>${escapeHtml(lastVisit)}</td>
-    <td>${tag?`<span class="tag-pill tag-${tag.toLowerCase()}">${tag}</span>`:"—"}</td>
+    <td>${tag?`<span class="tag-pill tag-${tag.toLowerCase()}">${tag}</span>`:"-"}</td>
     <td><div class="row-action ${expanded?'open':''}">${icon('chevronRight')}</div></td>
   </tr>
   ${expanded ? `
@@ -2667,7 +2667,7 @@ function renderSettings(){
       ${addressVerifyError ? `<p style="font-size:12px;color:#FF6B81;margin:10px 0 0;">${escapeHtml(addressVerifyError)}</p>` : ""}
       ${addressCandidates.length ? `
       <div style="margin-top:10px;background:var(--white);border:1px solid var(--border-2);border-radius:14px;overflow:hidden;">
-        <p style="font-size:12px;font-weight:600;color:var(--ink-soft);margin:0;padding:10px 14px 4px;">Multiple matches — which one is it?</p>
+        <p style="font-size:12px;font-weight:600;color:var(--ink-soft);margin:0;padding:10px 14px 4px;">Multiple matches - which one is it?</p>
         ${addressCandidates.map((c,i)=>`
           <button type="button" class="addr-candidate-row" data-addrcandidate="${i}" style="width:100%;text-align:left;display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--border);">
             <span class="venue-info-icon">${icon('mapPin')}</span>
@@ -3113,7 +3113,7 @@ async function bootAdmin(){
   try{ await loadOperationalData(); }catch(err){ cloudError=err.message||"Unable to load venue data"; }
   if(isOwner()){ try{ await loadTeamData(); }catch(err){ console.warn("Blooma team load",err); } }
   cloudReady=!cloudError;
-  document.title=salon.name?`${salon.name} — Blooma Admin`:"Blooma — Venue Admin";
+  document.title=salon.name?`${salon.name} - Blooma Admin`:"Blooma - Venue Admin";
   render();
 }
 

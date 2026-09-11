@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Refer & Earn — Blooma Business</title>
+<title>Refer & Earn - Blooma Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -408,8 +408,8 @@
     <div class="sb-bottom">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div>
-        <div class="sb-user-name" id="sbUserName">—</div>
-        <div class="sb-user-role" id="sbUserRole">—</div>
+        <div class="sb-user-name" id="sbUserName">-</div>
+        <div class="sb-user-role" id="sbUserRole">-</div>
       </div>
       <svg id="sbLogoutBtn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     </div>
@@ -435,7 +435,7 @@
   <div class="page-head">
     <div>
       <h1>Refer & Earn</h1>
-      <div class="sub">Send other venues your link — when they go live on a paid plan, you both get $120</div>
+      <div class="sub">Send other venues your link - when they go live on a paid plan, you both get $120</div>
     </div>
   </div>
 
@@ -445,7 +445,7 @@
       Refer a venue, you both win
     </div>
     <h1>Know a venue that'd love Blooma? Send them your link.</h1>
-    <p>Share your personal referral link with any salon, barber, or studio you know. The moment they go live on a paid Blooma plan, $120 is automatically credited to both of your Blooma subscriptions — no cap on how many venues you refer.</p>
+    <p>Share your personal referral link with any salon, barber, or studio you know. The moment they go live on a paid Blooma plan, $120 is automatically credited to both of your Blooma subscriptions - no cap on how many venues you refer.</p>
     <div class="re-hero-amounts">
       <div class="re-amount-chip">
         <span class="num">$120</span>
@@ -461,16 +461,16 @@
   <div class="re-stats">
     <div class="re-stat">
       <div class="re-stat-label">Total earned</div>
-      <div class="re-stat-value gold" id="statWallet">—</div>
+      <div class="re-stat-value gold" id="statWallet">-</div>
       <div style="font-size:11.5px;color:var(--text-faint);margin-top:4px;" id="statWalletNote"></div>
     </div>
     <div class="re-stat">
       <div class="re-stat-label">Venues referred</div>
-      <div class="re-stat-value" id="statReferred">—</div>
+      <div class="re-stat-value" id="statReferred">-</div>
     </div>
     <div class="re-stat">
       <div class="re-stat-label">Converted to paid</div>
-      <div class="re-stat-value" id="statConverted">—</div>
+      <div class="re-stat-value" id="statConverted">-</div>
     </div>
   </div>
 
@@ -506,7 +506,7 @@
     <div class="re-step">
       <div class="re-step-num">1</div>
       <h3>Share your link</h3>
-      <p>Send it to a venue owner you know — text, email, DM, whatever's easiest.</p>
+      <p>Send it to a venue owner you know - text, email, DM, whatever's easiest.</p>
     </div>
     <div class="re-step">
       <div class="re-step-num">2</div>
@@ -600,13 +600,13 @@
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
   function fmtDate(iso){
-    if(!iso) return '—';
-    try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '—'; }
+    if(!iso) return '-';
+    try{ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return '-'; }
   }
   function fmtMoney(cents){ return '$' + ((Number(cents)||0)/100).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2}); }
   function statusPill(status){
     var cls = status==='paid_out' ? 'pill-paid' : 'pill-pending';
-    var label = status==='paid_out' ? 'Converted — paid' : 'Pending';
+    var label = status==='paid_out' ? 'Converted - paid' : 'Pending';
     return '<span class="pill '+cls+'">'+escapeHtml(label)+'</span>';
   }
 
@@ -657,7 +657,7 @@
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
         document.querySelector('.sb-venue-sub').textContent = [salonRow.suburb,salonRow.city].filter(Boolean).join(", ") || "";
-        document.title = salonRow.name ? `Refer & Earn — ${salonRow.name}` : "Refer & Earn — Blooma Business";
+        document.title = salonRow.name ? `Refer & Earn - ${salonRow.name}` : "Refer & Earn - Blooma Business";
       }
       if(codeErr) throw codeErr;
       referralLink = location.origin + '/business-auth?ref=' + encodeURIComponent(code);
@@ -681,7 +681,7 @@
     document.getElementById('referralsSub').textContent = referrals.length + ' venue' + (referrals.length===1?'':'s') + ' referred so far';
     var tbody = document.getElementById('referralsTbody');
     if(!referrals.length){
-      tbody.innerHTML = '<tr><td colspan="4" class="row-empty">No referrals yet — share your link above to get started.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="row-empty">No referrals yet - share your link above to get started.</td></tr>';
       return;
     }
     tbody.innerHTML = referrals.map(function(r){
@@ -700,18 +700,18 @@
       await navigator.clipboard.writeText(referralLink);
       showToast('Referral link copied');
     }catch(e){
-      showToast('Could not copy — select and copy the link manually');
+      showToast('Could not copy - select and copy the link manually');
     }
   });
   document.getElementById('shareEmailBtn').addEventListener('click', function(){
     if(!referralLink) return;
     var subject = encodeURIComponent("You should try Blooma for your venue");
-    var body = encodeURIComponent("Hey — I've been using Blooma to manage bookings for my venue and thought you'd like it too. Sign up through my link and we both get a bonus once you're set up:\n\n" + referralLink);
+    var body = encodeURIComponent("Hey - I've been using Blooma to manage bookings for my venue and thought you'd like it too. Sign up through my link and we both get a bonus once you're set up:\n\n" + referralLink);
     window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
   });
   document.getElementById('shareSmsBtn').addEventListener('click', function(){
     if(!referralLink) return;
-    var body = encodeURIComponent("Hey! I've been using Blooma for my venue's bookings — you should check it out. Sign up here and we both get a bonus: " + referralLink);
+    var body = encodeURIComponent("Hey! I've been using Blooma for my venue's bookings - you should check it out. Sign up here and we both get a bonus: " + referralLink);
     window.location.href = 'sms:?&body=' + body;
   });
 

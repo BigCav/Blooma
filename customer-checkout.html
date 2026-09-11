@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Blooma — Checkout</title>
+<title>Blooma - Checkout</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -667,8 +667,8 @@ async function confirmBooking(){
   if(state.saving) return;
   const contact=bookingContact();
   if(!state.rescheduleToken && !state.authenticated){ savePendingCheckoutState(); navigateWithFade('/login?next='+encodeURIComponent(location.pathname+location.search)); return; }
-  if(!state.rescheduleToken && (contact.name.length<2 || contact.phone.length<6)){ state.bookingError="We couldn't load your account details — please refresh and try again."; render(); return; }
-  if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins())){ state.bookingError='That time is no longer available — please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
+  if(!state.rescheduleToken && (contact.name.length<2 || contact.phone.length<6)){ state.bookingError="We couldn't load your account details - please refresh and try again."; render(); return; }
+  if(!state.time || isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins())){ state.bookingError='That time is no longer available - please choose another.'; state.step=stepDefs().findIndex(d=>d.key==='time'); render(); return; }
   state.saving=true; state.bookingError=''; render();
   try{
     // Already created this booking on a previous attempt (e.g. the customer tapped back from
@@ -730,8 +730,8 @@ async function confirmBooking(){
     if(error) throw error;
     state.lastBooking=data||{};
 
-    if(state.appliedLoyaltyReward){ try{ await supabaseClient.rpc('redeem_loyalty_reward',{p_salon_id:state.salon.id}); }catch(e){ console.error('redeem_loyalty_reward failed after booking was created with the discount applied — points not deducted', e); } }
-    if(state.appliedGiftCard && giftCardDiscount()>0){ try{ await supabaseClient.rpc('redeem_gift_card',{p_gift_card_id:state.appliedGiftCard.id,p_amount:giftCardDiscount(),p_booking_id:state.lastBooking.id||null}); }catch(e){ console.error('redeem_gift_card failed after booking was created with the discount applied — balance not deducted', e); } }
+    if(state.appliedLoyaltyReward){ try{ await supabaseClient.rpc('redeem_loyalty_reward',{p_salon_id:state.salon.id}); }catch(e){ console.error('redeem_loyalty_reward failed after booking was created with the discount applied - points not deducted', e); } }
+    if(state.appliedGiftCard && giftCardDiscount()>0){ try{ await supabaseClient.rpc('redeem_gift_card',{p_gift_card_id:state.appliedGiftCard.id,p_amount:giftCardDiscount(),p_booking_id:state.lastBooking.id||null}); }catch(e){ console.error('redeem_gift_card failed after booking was created with the discount applied - balance not deducted', e); } }
     const intakeQs=intakeQuestionsForCurrent();
     if(intakeQs.length && state.lastBooking.public_token){
       const answers=intakeQs.filter(q=>state.intake[q.id]!==undefined && String(state.intake[q.id]).trim()!=='').map(q=>({question_id:q.id,label:q.label,answer:state.intake[q.id]}));
@@ -767,7 +767,7 @@ async function confirmBooking(){
 async function joinCheckoutWaitlist(){
   if(state.waitlistJoining || !state.salon || !state.service) return;
   const contact=bookingContact();
-  if(contact.name.length<2 || contact.phone.length<6){ state.waitlistError="We couldn't find your contact details — please refresh and try again."; render(); return; }
+  if(contact.name.length<2 || contact.phone.length<6){ state.waitlistError="We couldn't find your contact details - please refresh and try again."; render(); return; }
   const wKey=state.day+'|'+(state.stylist?state.stylist.id:'');
   state.waitlistJoining=true; state.waitlistError=''; render();
   try{
@@ -896,7 +896,7 @@ async function boot(){
       state.email = booking.customer_email || '';
     }catch(e){
       clearBootSkeleton();
-      document.getElementById('panel').innerHTML='<div class="panel-head"><h2>We couldn\'t load that booking</h2><p class="panel-sub">This reschedule link may have expired — please go back to Activity and try again.</p></div>';
+      document.getElementById('panel').innerHTML='<div class="panel-head"><h2>We couldn\'t load that booking</h2><p class="panel-sub">This reschedule link may have expired - please go back to Activity and try again.</p></div>';
       return;
     }
   } else {
