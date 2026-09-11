@@ -129,7 +129,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, 
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 // Fades the page out before actually navigating away, so leaving checkout (or handing off to
-// Stripe) reads as one smooth transition instead of an abrupt cut.
+// Windcave) reads as one smooth transition instead of an abrupt cut.
 function navigateWithFade(url){
   document.body.style.transition='opacity .16s ease';
   document.body.style.opacity='0';
@@ -672,7 +672,7 @@ async function confirmBooking(){
   state.saving=true; state.bookingError=''; render();
   try{
     // Already created this booking on a previous attempt (e.g. the customer tapped back from
-    // Stripe without paying, then hit Pay again) — don't create a second, duplicate booking,
+    // Windcave without paying, then hit Pay again) — don't create a second, duplicate booking,
     // just start a fresh checkout session for the one that already exists.
     if(state.lastBooking?.id && state.lastBooking?.deposit_status==='pending'){
       const res=await fetch('/api/windcave?action=create-deposit-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking_id:state.lastBooking.id})});
@@ -744,7 +744,7 @@ async function confirmBooking(){
       if(!res.ok || !out?.url){ throw new Error(out?.error || "Booking was saved, but we couldn't start the deposit payment. Please try again."); }
       // The booking itself is already saved at this point — leaving state.saving=true (and the
       // Pay button disabled in the already-rendered DOM) here would permanently block the button
-      // if the browser restores this page from bfcache when the customer taps back from Stripe
+      // if the browser restores this page from bfcache when the customer taps back from Windcave
       // without paying (see the pageshow listener below too).
       state.saving=false;
       render();
@@ -922,7 +922,7 @@ async function boot(){
 }
 function render(opts){ renderNav(opts&&opts.smoothNav); renderPanel(); renderSummary(); const mn=document.getElementById('mobileNext'); mn.disabled=!!state.saving; mn.classList.toggle('loading',!!state.saving); mn.innerHTML = state.saving ? '<span class="btn-spinner"></span>Confirming…' : (stepDefs()[state.step]?.key==='review' ? 'Confirm' : 'Continue'); mn.onclick=next; }
 
-// Stripe redirects back here after a deposit payment (or cancellation) with no venue/service
+// Windcave redirects back here after a deposit payment (or cancellation) with no venue/service
 // context in the URL, so this renders a standalone confirmation instead of running the normal
 // multi-step booking flow — it works for guests too, since it's looked up by the booking's
 // unguessable public token rather than requiring a logged-in session.
@@ -944,7 +944,7 @@ async function handleDepositReturn(){
 
   try{
     let b, attempts=0;
-    // Stripe redirects back here the instant checkout completes, but the row's deposit_status
+    // Windcave redirects back here the instant checkout completes, but the row's deposit_status
     // only flips to 'paid' once the async webhook lands — which can trail the redirect by a
     // second or more. Poll briefly before ever showing "hasn't been paid yet" to someone who
     // just paid, rather than alarming them (and risking a double-charge if they retry).
@@ -984,7 +984,7 @@ async function handleDepositReturn(){
 handleDepositReturn().then(handled=>{ if(!handled) boot(); });
 
 // Safety net: if the browser restores this page from bfcache (e.g. the customer tapped back
-// from Stripe without paying), make sure a stuck "saving" flag from before the navigation away
+// from Windcave without paying), make sure a stuck "saving" flag from before the navigation away
 // can never permanently disable the Pay/Confirm button.
 window.addEventListener('pageshow', (e)=>{
   if(e.persisted && state.saving){ state.saving=false; render(); }

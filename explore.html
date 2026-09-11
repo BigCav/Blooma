@@ -4765,7 +4765,7 @@ window.addEventListener("focus",refreshMarketplaceData);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) refreshMarketplaceData(); });
 
 // A gift-card/package purchase leaves purchaseSaving=true right up until the full-page
-// navigation to Stripe — if the customer hits their browser's Back button from Stripe, the
+// navigation to Windcave — if the customer hits their browser's Back button from Windcave, the
 // page can come back from bfcache with that flag still stuck true, permanently disabling the
 // button. Reset it whenever the page is restored this way.
 window.addEventListener("pageshow",(event)=>{
