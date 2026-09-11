@@ -1487,19 +1487,35 @@
     renderHoursRows();
     populateGeneralForm();
 
+    // A pending toast from a payment redirect (set just below, before the forced reload)
+    // takes priority over anything else on this load.
+    var pendingBillingToast = null;
+    try{ pendingBillingToast = sessionStorage.getItem('bloomaBillingToast'); }catch(e){}
+    if(pendingBillingToast){
+      try{ sessionStorage.removeItem('bloomaBillingToast'); }catch(e){}
+      showStPanel('billing');
+      showToast(pendingBillingToast);
+    }
+
     var qp = new URLSearchParams(window.location.search);
     var billingParam = qp.get('billing');
     var billingSessionId = qp.get('sessionId');
     if(billingParam === 'success' && billingSessionId){
       showStPanel('billing');
-      history.replaceState(null, '', window.location.pathname);
+      var toastMsg;
       try{
         await authedFetch('/api/windcave?action=finalize-subscription-session', {body: JSON.stringify({sessionId: billingSessionId})});
-        showToast('Payment received — thanks!');
+        toastMsg = 'Payment received — thanks!';
       }catch(err){
-        showToast(err.message || 'Could not confirm your payment. Please contact support if you were charged.');
+        toastMsg = err.message || 'Could not confirm your payment. Please contact support if you were charged.';
       }
-      await reloadAdminConfigFromCloud().catch(function(){});
+      // Force a real full reload instead of patching state in place — the billing panel just
+      // showed stale data ("Pay now", no payment listed) right after redirect even though the
+      // payment had already landed server-side, until the page was manually refreshed. A clean
+      // reload guarantees the same fresh state a manual refresh already produces.
+      try{ sessionStorage.setItem('bloomaBillingToast', toastMsg); }catch(e){}
+      location.replace(window.location.pathname);
+      return;
     } else if(billingParam === 'declined' || billingParam === 'cancelled'){
       showStPanel('billing');
       history.replaceState(null, '', window.location.pathname);
@@ -1618,14 +1634,26 @@
     var active = billing.current_period_end && new Date(billing.current_period_end) > new Date();
     var plan = PLAN_CATALOG[billing.plan_id];
     var actionBtn = document.getElementById('billingActionBtn');
+    var preview = document.getElementById('nextPaymentPreview');
 
     if(active && plan){
+      // Paying ahead of time would lock in today's stylist count for a period that hasn't
+      // started yet — if the roster changes before that period actually begins, the price
+      // charged wouldn't match what they end up with. So there's simply nothing to pay right
+      // now: no button, no next-payment preview, just current status. The action reappears
+      // once this period actually runs out, priced off the roster at that moment.
       var seatSuffix = billing.plan_id === 'team' ? (' · ' + billing.seat_count + ' stylist' + (billing.seat_count===1?'':'s')) : '';
       document.getElementById('planNameLabel').innerHTML = plan.name + seatSuffix + ' <span class="plan-badge">Paid through ' + fmtRenewal(billing.current_period_end) + '</span>';
       var monthlyTotal = billing.plan_id === 'team' ? (19 * billing.seat_count) : 24;
       document.getElementById('planPriceLabel').textContent = plan.price + (billing.plan_id === 'team' ? (' × ' + billing.seat_count + ' = $' + monthlyTotal + '/month') : '');
-      actionBtn.textContent = 'Pay for next month';
-    } else if(billing.subscribed_at){
+      actionBtn.style.display = 'none';
+      preview.textContent = 'Nothing due yet — you\'re paid up through ' + fmtRenewal(billing.current_period_end) + '. Your next payment will be priced off however many stylists you have at the time, once this period ends.';
+      renderPaymentHistory();
+      return;
+    }
+
+    actionBtn.style.display = '';
+    if(billing.subscribed_at){
       document.getElementById('planNameLabel').textContent = 'Payment due';
       document.getElementById('planPriceLabel').textContent = billing.current_period_end ? ('Your access ended ' + fmtRenewal(billing.current_period_end) + ' — pay to continue.') : 'Pay to continue using Blooma.';
       actionBtn.textContent = 'Pay now';
@@ -1640,14 +1668,14 @@
     var creditCents = Math.max(0, Math.min(walletBalanceCents, Math.round(live.amount*100)));
     var netAmount = live.amount - creditCents/100;
     var priceLine = live.planId === 'team' ? ('$19 × ' + live.quantity + ' = $' + live.amount) : ('$' + live.amount);
-    var preview = 'You currently have ' + live.seatCount + ' stylist' + (live.seatCount===1?'':'s') + ' — your next payment will be for the ' + PLAN_CATALOG[live.planId].name + ' plan, ' + priceLine + '/month.';
+    var previewText = 'You currently have ' + live.seatCount + ' stylist' + (live.seatCount===1?'':'s') + ' — paying now will be for the ' + PLAN_CATALOG[live.planId].name + ' plan, ' + priceLine + '/month.';
     if(creditCents > 0){
-      preview += netAmount <= 0
+      previewText += netAmount <= 0
         ? (' You have $' + (walletBalanceCents/100).toFixed(2) + ' in wallet credit, which fully covers this — nothing to pay.')
         : (' $' + (creditCents/100).toFixed(2) + ' of your wallet credit will be applied, so you\'ll actually pay $' + netAmount.toFixed(2) + '.');
     }
-    preview += ' Remove stylists on the Team page first if you don\'t want to pay for all of them.';
-    document.getElementById('nextPaymentPreview').textContent = preview;
+    previewText += ' Remove stylists on the Team page first if you don\'t want to pay for all of them.';
+    preview.textContent = previewText;
 
     renderPaymentHistory();
   }
