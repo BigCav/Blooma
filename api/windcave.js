@@ -72,6 +72,20 @@ function originOf(req) {
   return req.headers['origin'] || `https://${req.headers['host']}`;
 }
 
+// A `.maybeSingle()` read comes back as {data: null} both when the row genuinely doesn't exist
+// and when the query itself failed (a transient network blip, a momentary PostgREST hiccup) —
+// very different situations, but every lookup below only ever destructured `data`, so a bare
+// transient failure silently looked identical to "not found". That's exactly how one live
+// customer got a permanent-looking "Venue not found" error seconds after their booking had
+// already been created successfully — the venue row was there all along, the read just hiccuped.
+function assertReadOk(error, what) {
+  if (error) {
+    const e = new Error(`We couldn't confirm ${what} right now. Please try again in a moment.`);
+    e.statusCode = 503;
+    throw e;
+  }
+}
+
 // Issues a refund against a previously completed purchase transaction. Windcave returns a
 // "refund" link directly on the transaction resource (self-discovered, same pattern as
 // hppRedirectUrl above) — confirmed live against a real UAT transaction that this points at the
@@ -112,7 +126,8 @@ async function createDepositSession(req, res) {
   if (!booking_id) { const e = new Error('booking_id is required'); e.statusCode = 400; throw e; }
 
   const svc = serviceClient();
-  const { data: booking } = await svc.from('bookings').select('*').eq('id', booking_id).maybeSingle();
+  const { data: booking, error: bookingErr } = await svc.from('bookings').select('*').eq('id', booking_id).maybeSingle();
+  assertReadOk(bookingErr, 'this booking');
   if (!booking) { const e = new Error('Booking not found'); e.statusCode = 404; throw e; }
   if (booking.status !== 'upcoming') { const e = new Error('This booking is no longer available.'); e.statusCode = 400; throw e; }
   if (booking.deposit_status !== 'pending') {
@@ -123,7 +138,8 @@ async function createDepositSession(req, res) {
   const depositAmount = Number(booking.deposit_amount || 0);
   if (!(depositAmount > 0)) { const e = new Error('Invalid deposit amount'); e.statusCode = 400; throw e; }
 
-  const { data: salonRow } = await svc.from('salons').select('id,name,public_slug').eq('id', booking.salon_id).maybeSingle();
+  const { data: salonRow, error: salonErr } = await svc.from('salons').select('id,name,public_slug').eq('id', booking.salon_id).maybeSingle();
+  assertReadOk(salonErr, 'this venue');
   if (!salonRow) { const e = new Error('Venue not found'); e.statusCode = 404; throw e; }
 
   const origin = originOf(req);
@@ -162,7 +178,8 @@ async function createCheckoutChargeSession(req, res) {
   if (!booking_id) { const e = new Error('booking_id is required'); e.statusCode = 400; throw e; }
 
   const svc = serviceClient();
-  const { data: booking } = await svc.from('bookings').select('*').eq('id', booking_id).eq('salon_id', salonId).maybeSingle();
+  const { data: booking, error: bookingErr } = await svc.from('bookings').select('*').eq('id', booking_id).eq('salon_id', salonId).maybeSingle();
+  assertReadOk(bookingErr, 'this booking');
   if (!booking) { const e = new Error('Booking not found'); e.statusCode = 404; throw e; }
   if (booking.status !== 'upcoming') { const e = new Error('This appointment is not awaiting checkout.'); e.statusCode = 400; throw e; }
 
@@ -213,7 +230,8 @@ async function createGiftCardSession(req, res) {
     throw e;
   }
 
-  const { data: salonRow } = await svc.from('salons').select('id,name,public_slug').eq('id', salon_id).maybeSingle();
+  const { data: salonRow, error: salonErr } = await svc.from('salons').select('id,name,public_slug').eq('id', salon_id).maybeSingle();
+  assertReadOk(salonErr, 'this venue');
   if (!salonRow) { const e = new Error('Venue not found'); e.statusCode = 404; throw e; }
 
   const origin = originOf(req);
@@ -282,7 +300,8 @@ async function finalizeGiftCard(req, res) {
   // was created — never from the client-resubmitted salon_id. Without this, a customer could pay
   // for a gift card on Venue A's page and resubmit the finalize call with Venue B's salon_id,
   // minting a real paid gift card credited to a venue that never made the sale.
-  const { data: tracked } = await svc.from('windcave_purchase_sessions').select('salon_id,kind').eq('session_id', sessionId).maybeSingle();
+  const { data: tracked, error: trackedErr } = await svc.from('windcave_purchase_sessions').select('salon_id,kind').eq('session_id', sessionId).maybeSingle();
+  assertReadOk(trackedErr, 'this payment session');
   if (!tracked || tracked.kind !== 'gift_card') {
     const e = new Error('This payment session is not a gift card purchase.');
     e.statusCode = 400;
@@ -349,10 +368,12 @@ async function createPackageSession(req, res) {
   const { salon_id, package_offer_id } = req.body || {};
   if (!salon_id || !package_offer_id) { const e = new Error('salon_id and package_offer_id are required'); e.statusCode = 400; throw e; }
 
-  const { data: salonRow } = await svc.from('salons').select('id,name,public_slug').eq('id', salon_id).maybeSingle();
+  const { data: salonRow, error: salonErr } = await svc.from('salons').select('id,name,public_slug').eq('id', salon_id).maybeSingle();
+  assertReadOk(salonErr, 'this venue');
   if (!salonRow) { const e = new Error('Venue not found'); e.statusCode = 404; throw e; }
 
-  const { data: configRow } = await svc.from('app_config').select('config').eq('salon_id', salon_id).maybeSingle();
+  const { data: configRow, error: configErr } = await svc.from('app_config').select('config').eq('salon_id', salon_id).maybeSingle();
+  assertReadOk(configErr, 'this venue\'s packages');
   const packages = configRow?.config?.packages || [];
   // Price and session count come from the venue's own saved catalog, never from the client.
   const offer = packages.find((p) => String(p.id) === String(package_offer_id));
@@ -412,7 +433,8 @@ async function finalizePackage(req, res) {
   // Which venue/offer this credits comes from OUR OWN record of what was validated when the
   // session was created — never from client-resubmitted salon_id/package_offer_id. See the
   // matching comment in finalizeGiftCard for why.
-  const { data: tracked } = await svc.from('windcave_purchase_sessions').select('salon_id,package_offer_id,kind').eq('session_id', sessionId).maybeSingle();
+  const { data: tracked, error: trackedErr } = await svc.from('windcave_purchase_sessions').select('salon_id,package_offer_id,kind').eq('session_id', sessionId).maybeSingle();
+  assertReadOk(trackedErr, 'this payment session');
   if (!tracked || tracked.kind !== 'package') {
     const e = new Error('This payment session is not a package purchase.');
     e.statusCode = 400;
@@ -441,7 +463,8 @@ async function finalizePackage(req, res) {
   // trust sessions_total/service_id/service_name_snapshot from the client. The paid amount must
   // match the offer's current price exactly, otherwise a client could pay for a cheap package
   // and finalize against a different, more valuable one.
-  const { data: configRow } = await svc.from('app_config').select('config').eq('salon_id', salon_id).maybeSingle();
+  const { data: configRow, error: configErr } = await svc.from('app_config').select('config').eq('salon_id', salon_id).maybeSingle();
+  assertReadOk(configErr, 'this venue\'s packages');
   const packages = configRow?.config?.packages || [];
   const offer = packages.find((p) => String(p.id) === String(package_offer_id));
   if (!offer || offer.active === false) { const e = new Error('This package is no longer available'); e.statusCode = 404; throw e; }
@@ -489,7 +512,8 @@ async function refundDeposit(req, res) {
   if (!booking_id) { const e = new Error('booking_id is required'); e.statusCode = 400; throw e; }
 
   const svc = serviceClient();
-  const { data: booking } = await svc.from('bookings').select('*').eq('id', booking_id).eq('salon_id', salonId).maybeSingle();
+  const { data: booking, error: bookingErr } = await svc.from('bookings').select('*').eq('id', booking_id).eq('salon_id', salonId).maybeSingle();
+  assertReadOk(bookingErr, 'this booking');
   if (!booking) { const e = new Error('Booking not found'); e.statusCode = 404; throw e; }
   if (booking.deposit_status !== 'paid') { const e = new Error('This deposit is not marked as paid.'); e.statusCode = 400; throw e; }
   // Once a deposit has been paid out to the venue, refunding it to the customer would mean
@@ -518,7 +542,8 @@ async function voidGiftCard(req, res) {
   if (!gift_card_id) { const e = new Error('gift_card_id is required'); e.statusCode = 400; throw e; }
 
   const svc = serviceClient();
-  const { data: card } = await svc.from('gift_cards').select('*').eq('id', gift_card_id).eq('salon_id', salonId).maybeSingle();
+  const { data: card, error: cardErr } = await svc.from('gift_cards').select('*').eq('id', gift_card_id).eq('salon_id', salonId).maybeSingle();
+  assertReadOk(cardErr, 'this gift card');
   if (!card) { const e = new Error('Gift card not found'); e.statusCode = 404; throw e; }
   if (card.status !== 'active') { const e = new Error('This gift card is not active.'); e.statusCode = 400; throw e; }
   const amount = Number(card.remaining_balance || 0);
@@ -544,7 +569,8 @@ async function voidPackage(req, res) {
   if (!package_id) { const e = new Error('package_id is required'); e.statusCode = 400; throw e; }
 
   const svc = serviceClient();
-  const { data: pkg } = await svc.from('customer_packages').select('*').eq('id', package_id).eq('salon_id', salonId).maybeSingle();
+  const { data: pkg, error: pkgErr } = await svc.from('customer_packages').select('*').eq('id', package_id).eq('salon_id', salonId).maybeSingle();
+  assertReadOk(pkgErr, 'this package');
   if (!pkg) { const e = new Error('Package not found'); e.statusCode = 404; throw e; }
   if (pkg.status !== 'active') { const e = new Error('This package is not active.'); e.statusCode = 400; throw e; }
   // Kept deliberately conservative: a partially-used package's fair refund value is a business
@@ -715,7 +741,8 @@ async function finalizeSubscriptionSession(req, res) {
   const { data: already } = await svc.from('venue_subscription_payments').select('id').eq('windcave_session_id', sessionId).maybeSingle();
   if (already) { res.status(200).json({ ok: true, alreadyFulfilled: true }); return; }
 
-  const { data: tracked } = await svc.from('windcave_purchase_sessions').select('salon_id,kind,metadata').eq('session_id', sessionId).maybeSingle();
+  const { data: tracked, error: trackedErr } = await svc.from('windcave_purchase_sessions').select('salon_id,kind,metadata').eq('session_id', sessionId).maybeSingle();
+  assertReadOk(trackedErr, 'this payment session');
   if (!tracked || tracked.kind !== 'subscription' || tracked.salon_id !== salonId) {
     const e = new Error('This payment session is not a subscription payment for your venue.');
     e.statusCode = 400;
