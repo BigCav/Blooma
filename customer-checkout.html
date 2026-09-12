@@ -514,8 +514,9 @@ function bind(){
   document.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{
     const svc = state.salon.services.find(s=>s.id===b.dataset.service);
     if(!svc) return;
-    state.service=svc; state.addons=[]; state.stylist=null; state.time=null; state.intake={};
-    loadIntakeQuestionsFor(svc);
+    const deselecting = state.service && state.service.id===svc.id;
+    state.service=deselecting?null:svc; state.addons=[]; state.stylist=null; state.time=null; state.intake={};
+    if(!deselecting) loadIntakeQuestionsFor(svc);
     render();
   });
   document.querySelectorAll('[data-addon]').forEach(b=>b.onclick=()=>{ const id=b.dataset.addon; state.addons=state.addons.includes(id)?state.addons.filter(x=>x!==id):[...state.addons,id]; render(); });
