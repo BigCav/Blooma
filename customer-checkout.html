@@ -305,7 +305,14 @@ const state={
 };
 
 function currentService(){ return state.service; }
-function selectedAddonsList(){ if(!state.service) return []; return (state.service.addons||[]).filter(a=>state.addons.includes(a.id)); }
+function selectedAddonsList(){
+  if(!state.service) return [];
+  // state.addons can hold real add-on ids (scoped to this service) or another of the venue's own
+  // service ids bundled into this same visit - resolve against both pools so the total shown here
+  // always matches what blooma_compute_booking_base_pricing charges server-side.
+  const pool=[...(state.service.addons||[]), ...otherBookableServices()];
+  return pool.filter(a=>state.addons.includes(a.id));
+}
 function selectedAddonsTotal(){ return selectedAddonsList().reduce((s,a)=>s+a.price,0); }
 function selectedAddonsDuration(){ return selectedAddonsList().reduce((s,a)=>s+(Number(a.duration)||0),0); }
 function totalDurationMins(){ return state.service ? state.service.duration + selectedAddonsDuration() : 0; }
@@ -322,9 +329,13 @@ function depositAmountFor(salon,total){
 function intakeQuestionsForCurrent(){ if(!state.service) return []; return state.intakeQuestionsByService[state.service.id] || []; }
 function bookingContact(){ return { name:(state.name||'').trim(), phone:(state.phone||'').trim(), email:(state.email||'').trim() }; }
 
+function otherBookableServices(){
+  if(!state.salon || !state.service) return [];
+  return state.salon.services.filter(s=>s.id!==state.service.id);
+}
 function stepDefs(){
   const defs=[{key:'service',label:'Services'}];
-  if(state.service && state.service.addons && state.service.addons.length) defs.push({key:'addons',label:'Add-ons'});
+  if(state.service && ((state.service.addons && state.service.addons.length) || otherBookableServices().length)) defs.push({key:'addons',label:'Add-ons'});
   defs.push({key:'stylist',label:'Stylist'});
   defs.push({key:'time',label:'Time'});
   if(intakeQuestionsForCurrent().length) defs.push({key:'intake',label:'A few questions'});
@@ -401,8 +412,10 @@ function renderPanel(){
       + `<div class="service-cats" aria-label="Service categories">${categories.map(c=>`<button class="service-cat ${state.serviceCategory===c?'selected':''}" data-service-category="${esc(c)}">${esc(c)}</button>`).join('')}</div>`
       + `<div class="stack">${filtered.length?filtered.map(x=>`<button class="choice-card ${svc&&svc.id===x.id?'selected':''}" data-service="${esc(x.id)}"><div class="choice-left"><div><p class="choice-title">${esc(x.name)}</p><p class="choice-sub">${x.duration} min${x.addons&&x.addons.length?' · add-ons available':''}${x.description?' · '+esc(x.description):''}</p></div></div><div class="choice-price">$${x.price}</div></button>`).join(''):`<div class="service-empty">No services in this category yet.</div>`}</div>`;
   } else if(key==='addons'){
+    const otherServices=otherBookableServices();
     h = panelHead('Add anything extra?','Optional extras can be added now and included in the final appointment time.')
-      + `<div class="stack">${svc.addons.map(a=>`<button class="choice-card ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}"><div class="choice-left"><div><p class="choice-title">${esc(a.name)}</p>${a.duration?`<p class="choice-sub">${a.duration} min</p>`:''}</div></div><div class="choice-price">+$${a.price}</div></button>`).join('')}</div>`
+      + (svc.addons && svc.addons.length ? `<div class="stack">${svc.addons.map(a=>`<button class="choice-card ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}"><div class="choice-left"><div><p class="choice-title">${esc(a.name)}</p>${a.duration?`<p class="choice-sub">${a.duration} min</p>`:''}</div></div><div class="choice-price">+$${a.price}</div></button>`).join('')}</div>` : '')
+      + (otherServices.length ? `<p class="section-label" style="margin-top:${svc.addons&&svc.addons.length?'22px':'0'}">Add another service to this visit</p><div class="stack">${otherServices.map(s=>`<button class="choice-card ${state.addons.includes(s.id)?'selected':''}" data-addon="${esc(s.id)}"><div class="choice-left"><div><p class="choice-title">${esc(s.name)}</p><p class="choice-sub">${s.duration} min</p></div></div><div class="choice-price">+$${s.price}</div></button>`).join('')}</div>` : '')
       + `<div class="inline-note" style="margin-top:16px">No extras needed? You can simply continue.</div>`;
   } else if(key==='stylist'){
     h = panelHead('Who would you like to see?','Choose a specific artist or let Blooma show you the widest availability.')
