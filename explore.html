@@ -1278,9 +1278,8 @@
   .v2-chip{flex:none;border:1px solid var(--v2-line);background:#fff;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--v2-ink);cursor:pointer;}
   .v2-chip.active{background:var(--v2-ink);color:#fff;border-color:var(--v2-ink);}
   .v2-service-list{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
-  .v2-service{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:20px 20px 18px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;box-shadow:0 1px 0 rgba(30,20,50,.02);transition:.2s var(--ease-standard);cursor:pointer;}
+  .v2-service{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:20px 20px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;box-shadow:0 1px 0 rgba(30,20,50,.02);transition:.2s var(--ease-standard);cursor:pointer;}
   .v2-service:hover{border-color:#d9cffa;box-shadow:var(--v2-shadow-sm);transform:translateY(-1px);}
-  .v2-service-icon{width:40px;height:40px;border-radius:12px;background:var(--v2-lav);color:var(--v2-purple);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .v2-service-name{font-size:17px;font-weight:800;margin:0;display:flex;align-items:center;gap:7px;color:var(--v2-ink);}
   .v2-service-desc{font-size:13.5px;color:var(--v2-muted);margin:6px 0 0;line-height:1.5;}
   .v2-service-meta{display:flex;gap:10px;align-items:center;margin-top:9px;font-size:13px;color:var(--v2-muted);}
@@ -1356,7 +1355,6 @@
     .v2-nearby-arrows{display:none;}
     .v2-side-outer{display:none;}
     .v2-service{padding:17px;gap:12px;}
-    .v2-service-icon{width:34px;height:34px;}
     .v2-service-desc{display:none;}
     .v2-service-meta{flex-wrap:wrap;}
     .v2-meta-pricesep{display:none;}
@@ -3082,15 +3080,6 @@ function renderHome(){
    RENDER: SALON PAGE
 --------------------------------------------------- */
 const SALON_SERVICES_PREVIEW_LIMIT=6;
-function serviceCategoryIcon(category){
-  const c=String(category||"").toLowerCase();
-  if(c.includes("color")||c.includes("colour")) return "droplet";
-  if(c.includes("nail")) return "sparkles";
-  if(c.includes("massage")||c.includes("body")||c.includes("spa")) return "hand";
-  if(c.includes("style")||c.includes("styling")||c.includes("blow")) return "sparkles";
-  if(c.includes("hair")||c.includes("cut")||c.includes("barber")) return "scissors";
-  return "sparkles";
-}
 function salonServicesMarkup(salon,category){
   const services=category==="All"?salon.services:salon.services.filter(s=>s.category===category);
   const fmtDuration=(d)=>d>=60?`${Math.floor(d/60)} hr${d%60?` ${d%60} min`:''}`:`${d} min`;
@@ -3100,7 +3089,6 @@ function salonServicesMarkup(salon,category){
   return `
     ${visible.map(s=>`
       <div class="v2-service" data-service-row="${escapeAttr(s.id)}" role="button" tabindex="0" aria-label="View ${escapeAttr(s.name)} details">
-        <div class="v2-service-icon">${icon(serviceCategoryIcon(s.category))}</div>
         <div>
           <h3 class="v2-service-name">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}</h3>
           <p class="v2-service-desc">${escapeHtml((s.description||"").trim() || fallbackDesc)}</p>
