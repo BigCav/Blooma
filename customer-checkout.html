@@ -290,7 +290,7 @@ function firstBookableDayIndex(salon,stylist,durationMins){
 
 /* ---------- App state ---------- */
 const state={
-  step:0, salon:null, service:null, serviceCategory:'All',
+  step:0, salon:null, services:[], serviceCategory:'All',
   addons:[], stylist:null, day:0, time:null,
   intake:{}, firstVisit:null,
   authenticated:false, authUserId:null,
@@ -304,19 +304,19 @@ const state={
   waitlistJoining:false, waitlistJoinedKey:null, waitlistError:'',
 };
 
-function currentService(){ return state.service; }
-function selectedAddonsList(){
-  if(!state.service) return [];
-  // state.addons can hold real add-on ids (scoped to this service) or another of the venue's own
-  // service ids bundled into this same visit - resolve against both pools so the total shown here
-  // always matches what blooma_compute_booking_base_pricing charges server-side.
-  const pool=[...(state.service.addons||[]), ...otherBookableServices()];
-  return pool.filter(a=>state.addons.includes(a.id));
+// Add-ons stay scoped to whichever service they were assigned to in the venue admin panel
+// (services[].addons already only carries that service's own linked add-ons) - selecting more
+// than one service on step 1 just unions each service's own add-on catalog together here.
+function allAddonsPool(){
+  const seen=new Set(); const pool=[];
+  state.services.forEach(svc=>(svc.addons||[]).forEach(a=>{ if(!seen.has(a.id)){ seen.add(a.id); pool.push(a); } }));
+  return pool;
 }
+function selectedAddonsList(){ return allAddonsPool().filter(a=>state.addons.includes(a.id)); }
 function selectedAddonsTotal(){ return selectedAddonsList().reduce((s,a)=>s+a.price,0); }
 function selectedAddonsDuration(){ return selectedAddonsList().reduce((s,a)=>s+(Number(a.duration)||0),0); }
-function totalDurationMins(){ return state.service ? state.service.duration + selectedAddonsDuration() : 0; }
-function baseTotal(){ return state.service ? state.service.price + selectedAddonsTotal() : 0; }
+function totalDurationMins(){ return state.services.reduce((s,x)=>s+x.duration,0) + selectedAddonsDuration(); }
+function baseTotal(){ return state.services.reduce((s,x)=>s+x.price,0) + selectedAddonsTotal(); }
 function promoDiscount(){ if(!state.appliedPromo) return 0; const p=state.appliedPromo; const subtotal=baseTotal(); const raw=p.type==='percent'?Math.round(subtotal*p.value/100*100)/100:Number(p.value||0); return Math.max(0,Math.min(raw,subtotal)); }
 function loyaltyDiscount(){ if(!state.appliedLoyaltyReward) return 0; const remaining=Math.max(0,baseTotal()-promoDiscount()); return Math.max(0,Math.min(Number(state.appliedLoyaltyReward.value||0),remaining)); }
 function giftCardDiscount(){ if(!state.appliedGiftCard) return 0; const remaining=Math.max(0,baseTotal()-promoDiscount()-loyaltyDiscount()); return Math.max(0,Math.min(Number(state.appliedGiftCard.remaining_balance||0),remaining)); }
@@ -326,16 +326,16 @@ function depositAmountFor(salon,total){
   const raw = salon.depositType==='flat' ? salon.depositValue : Math.round(total*salon.depositValue)/100;
   return Math.max(0, Math.min(raw, total));
 }
-function intakeQuestionsForCurrent(){ if(!state.service) return []; return state.intakeQuestionsByService[state.service.id] || []; }
+function intakeQuestionsForCurrent(){
+  const seen=new Set(); const out=[];
+  state.services.forEach(svc=>(state.intakeQuestionsByService[svc.id]||[]).forEach(q=>{ if(!seen.has(q.id)){ seen.add(q.id); out.push(q); } }));
+  return out;
+}
 function bookingContact(){ return { name:(state.name||'').trim(), phone:(state.phone||'').trim(), email:(state.email||'').trim() }; }
 
-function otherBookableServices(){
-  if(!state.salon || !state.service) return [];
-  return state.salon.services.filter(s=>s.id!==state.service.id);
-}
 function stepDefs(){
   const defs=[{key:'service',label:'Services'}];
-  if(state.service && ((state.service.addons && state.service.addons.length) || otherBookableServices().length)) defs.push({key:'addons',label:'Add-ons'});
+  if(state.services.some(s=>s.addons && s.addons.length)) defs.push({key:'addons',label:'Add-ons'});
   defs.push({key:'stylist',label:'Stylist'});
   defs.push({key:'time',label:'Time'});
   if(intakeQuestionsForCurrent().length) defs.push({key:'intake',label:'A few questions'});
@@ -343,10 +343,17 @@ function stepDefs(){
   defs.push({key:'review',label:'Summary'});
   return defs;
 }
+// One stylist covers the whole visit, so they need to be able to perform every selected service -
+// a stylist is "capable" of a given service if either nobody at this venue has been specifically
+// restricted to it (assignment list empty = open to everyone), or they're on that service's list.
 function eligibleStylists(){
-  if(!state.salon || !state.service) return [];
-  const assigned = state.salon.stylists.filter(st=>Array.isArray(st.serviceIds)&&st.serviceIds.length&&st.serviceIds.includes(state.service.id));
-  return assigned.length ? state.salon.stylists.filter(st=>isAnyAvailableStylist(st)||assigned.includes(st)) : state.salon.stylists;
+  if(!state.salon || !state.services.length) return [];
+  function canDo(st,svc){
+    const assigned = state.salon.stylists.filter(s2=>Array.isArray(s2.serviceIds)&&s2.serviceIds.length&&s2.serviceIds.includes(svc.id));
+    return !assigned.length || assigned.some(a=>a.id===st.id);
+  }
+  const capable = state.salon.stylists.filter(st=>!isAnyAvailableStylist(st) && state.services.every(svc=>canDo(st,svc)));
+  return capable.length ? state.salon.stylists.filter(st=>isAnyAvailableStylist(st)||capable.includes(st)) : state.salon.stylists;
 }
 
 /* ---------- Rendering ---------- */
@@ -366,7 +373,7 @@ function renderNav(smoothScroll){
   });
 }
 function renderSummary(){
-  const salon=state.salon, svc=state.service;
+  const salon=state.salon;
   document.getElementById('summary').innerHTML=`
     <div class="venue-row"><div class="venue-img">${salon.homeImage?`<img src="${esc(salon.homeImage)}" alt="Venue">`:''}</div><div><p class="venue-name">${esc(salon.name)}</p><p class="venue-meta">${STAR_ICON} ${esc(salon.rating)} · ${esc([salon.suburb,salon.city].filter(Boolean).join(', '))}</p></div></div>
     <div class="datebox">
@@ -375,7 +382,7 @@ function renderSummary(){
     </div>
     <div class="divider"></div>
     ${(()=>{ const lines=[
-      svc?`<div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>`:'',
+      state.services.map(svc=>`<div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>`).join(''),
       selectedAddonsList().map(a=>`<div class="summary-line"><div><div class="summary-name">${esc(a.name)}</div></div><div class="summary-price">+$${a.price}</div></div>`).join(''),
       state.appliedLoyaltyReward?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">${esc(state.appliedLoyaltyReward.label)}</div><div class="summary-price" style="color:var(--purple)">−$${loyaltyDiscount()}</div></div>`:'',
       state.appliedPromo?`<div class="summary-line"><div class="summary-name" style="color:var(--purple)">Promo ${esc(state.appliedPromo.code)}</div><div class="summary-price" style="color:var(--purple)">−$${promoDiscount()}</div></div>`:'',
@@ -394,28 +401,29 @@ function renderSummary(){
   } else {
     rewardCard.style.display='none';
   }
-  const svcForTotal = state.service;
   document.getElementById('mobileTotal').textContent=`$${finalTotal()} total`;
   document.getElementById('mobileStep').textContent=`Step ${state.step+1} of ${stepDefs().length}`;
 }
 function panelHead(title,sub){ return `<div class="panel-head"><div><p class="section-label" style="display:none;">${esc(stepDefs()[state.step]?.label||'')}</p><h2>${esc(title)}</h2><p class="panel-sub" style="display:none;">${esc(sub)}</p></div></div>`; }
 
 function renderPanel(){
-  const salon=state.salon; const svc=state.service;
+  const salon=state.salon;
   const key=stepDefs()[state.step]?.key;
   let h='';
 
   if(key==='service'){
     const categories=['All', ...Array.from(new Set(salon.services.map(s=>s.category)))];
     const filtered = state.serviceCategory==='All' ? salon.services : salon.services.filter(s=>s.category===state.serviceCategory);
-    h = panelHead('Choose your service','Select the treatment you would like to book. You can change this before moving on.')
+    h = panelHead('Choose your service(s)','Select every treatment you would like in this visit - you can choose more than one.')
       + `<div class="service-cats" aria-label="Service categories">${categories.map(c=>`<button class="service-cat ${state.serviceCategory===c?'selected':''}" data-service-category="${esc(c)}">${esc(c)}</button>`).join('')}</div>`
-      + `<div class="stack">${filtered.length?filtered.map(x=>`<button class="choice-card ${svc&&svc.id===x.id?'selected':''}" data-service="${esc(x.id)}"><div class="choice-left"><div><p class="choice-title">${esc(x.name)}</p><p class="choice-sub">${x.duration} min${x.addons&&x.addons.length?' · add-ons available':''}${x.description?' · '+esc(x.description):''}</p></div></div><div class="choice-price">$${x.price}</div></button>`).join(''):`<div class="service-empty">No services in this category yet.</div>`}</div>`;
+      + `<div class="stack">${filtered.length?filtered.map(x=>`<button class="choice-card ${state.services.some(s=>s.id===x.id)?'selected':''}" data-service="${esc(x.id)}"><div class="choice-left"><div><p class="choice-title">${esc(x.name)}</p><p class="choice-sub">${x.duration} min${x.addons&&x.addons.length?' · add-ons available':''}${x.description?' · '+esc(x.description):''}</p></div></div><div class="choice-price">$${x.price}</div></button>`).join(''):`<div class="service-empty">No services in this category yet.</div>`}</div>`;
   } else if(key==='addons'){
-    const otherServices=otherBookableServices();
+    const withAddons=state.services.filter(s=>s.addons && s.addons.length);
     h = panelHead('Add anything extra?','Optional extras can be added now and included in the final appointment time.')
-      + (svc.addons && svc.addons.length ? `<div class="stack">${svc.addons.map(a=>`<button class="choice-card ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}"><div class="choice-left"><div><p class="choice-title">${esc(a.name)}</p>${a.duration?`<p class="choice-sub">${a.duration} min</p>`:''}</div></div><div class="choice-price">+$${a.price}</div></button>`).join('')}</div>` : '')
-      + (otherServices.length ? `<p class="section-label" style="margin-top:${svc.addons&&svc.addons.length?'22px':'0'}">Add another service to this visit</p><div class="stack">${otherServices.map(s=>`<button class="choice-card ${state.addons.includes(s.id)?'selected':''}" data-addon="${esc(s.id)}"><div class="choice-left"><div><p class="choice-title">${esc(s.name)}</p><p class="choice-sub">${s.duration} min</p></div></div><div class="choice-price">+$${s.price}</div></button>`).join('')}</div>` : '')
+      + withAddons.map((svc,i)=>(
+          (withAddons.length>1 ? `<p class="section-label" style="margin-top:${i?'22px':'0'}">${esc(svc.name)}</p>` : '')
+          + `<div class="stack">${svc.addons.map(a=>`<button class="choice-card ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}"><div class="choice-left"><div><p class="choice-title">${esc(a.name)}</p>${a.duration?`<p class="choice-sub">${a.duration} min</p>`:''}</div></div><div class="choice-price">+$${a.price}</div></button>`).join('')}</div>`
+        )).join('')
       + `<div class="inline-note" style="margin-top:16px">No extras needed? You can simply continue.</div>`;
   } else if(key==='stylist'){
     h = panelHead('Who would you like to see?','Choose a specific artist or let Blooma show you the widest availability.')
@@ -457,14 +465,15 @@ function renderPanel(){
           <button type="button" class="choice-card ${state.firstVisit==='No'?'selected':''}" data-first="No"><div class="choice-left"><div><p class="choice-title">No</p><p class="choice-sub">I've visited before</p></div></div></button>
         </div>`;
   } else {
-    const svcOnly=svc.price, addonsList=selectedAddonsList();
+    const addonsList=selectedAddonsList();
+    const serviceNames=state.services.map(s=>s.name).join(' + ');
     const eligibleForReward = state.authenticated && salon.loyalty && salon.loyalty.enabled && state.loyaltyAccount && state.loyaltyAccount.points >= state.loyaltyAccount.threshold;
     h = `<div id="reviewContent">${panelHead('Review and confirm','Check the booking details below, then confirm to send this booking to the venue.')}
       ${state.bookingError?`<div class="error-note">${esc(state.bookingError)}</div>`:''}
       <div class="review-block">
         <div class="review-card review-appt-desktop">
           <h3>Appointment</h3>
-          <div class="mini-row"><span>Service</span><strong>${esc(svc.name)}</strong></div>
+          ${state.services.map(svc=>`<div class="mini-row"><span>Service</span><strong>${esc(svc.name)}</strong></div>`).join('')}
           ${addonsList.map(a=>`<div class="mini-row"><span>${esc(a.name)}</span><strong>+$${a.price}</strong></div>`).join('')}
           <div class="mini-row"><span>Artist</span><strong>${esc(stylistPreferenceLabel(state.stylist))}</strong></div>
           <div class="mini-row"><span>Date & time</span><strong>${state.time?esc(dayLabel(DAYS[state.day]))+' · '+esc(state.time):'Not selected'}</strong></div>
@@ -478,7 +487,7 @@ function renderPanel(){
           <div class="date-row">${CLOCK_ICON} <span>${esc(timeRangeWithDurationLabel(state.time,totalDurationMins()))}</span></div>
           <div class="date-row">${USER_ICON} <span>${esc(stylistPreferenceLabel(state.stylist))}</span></div>
           <div class="divider"></div>
-          <div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>
+          ${state.services.map(svc=>`<div class="summary-line"><div><div class="summary-name">${esc(svc.name)}</div><div class="summary-sub">${svc.duration} min</div></div><div class="summary-price">$${svc.price}</div></div>`).join('')}
           ${addonsList.map(a=>`<div class="summary-line"><div><div class="summary-name">${esc(a.name)}</div></div><div class="summary-price">+$${a.price}</div></div>`).join('')}
           <div class="divider"></div>
           <div class="total"><span>Total</span><strong>$${finalTotal()}</strong></div>
@@ -499,7 +508,7 @@ function renderPanel(){
       <div class="success" id="success">
         <div class="success-mark">✓</div>
         <h2>${state.rescheduleToken?'Booking updated':"You're all booked in"}</h2>
-        <p>${state.rescheduleToken ? `Your appointment for ${esc(svc.name)} at ${esc(salon.name)} has been moved to ${esc(dayLabel(DAYS[state.day]))} at ${esc(state.time)}.` : `${esc(salon.name)} has received your booking for ${esc(svc.name)}${state.lastBooking?', '+esc(dayLabel(DAYS[state.day]))+' at '+esc(state.time):''}.`}</p>
+        <p>${state.rescheduleToken ? `Your appointment for ${esc(serviceNames)} at ${esc(salon.name)} has been moved to ${esc(dayLabel(DAYS[state.day]))} at ${esc(state.time)}.` : `${esc(salon.name)} has received your booking for ${esc(serviceNames)}${state.lastBooking?', '+esc(dayLabel(DAYS[state.day]))+' at '+esc(state.time):''}.`}</p>
         <button class="success-booking-btn" id="viewBookingBtn" type="button">View booking</button>
       </div>`;
   }
@@ -514,7 +523,7 @@ function renderPanel(){
 
 function canNext(){
   const key=stepDefs()[state.step]?.key;
-  if(key==='service') return !!state.service;
+  if(key==='service') return state.services.length>0;
   if(key==='stylist') return !!state.stylist;
   if(key==='time') return !!state.time && !isTimeBlocked(state.salon,state.day,state.stylist,state.time,totalDurationMins());
   if(key==='intake') return intakeQuestionsForCurrent().every(q=>!q.required || String(state.intake[q.id]||'').trim().length>0);
@@ -527,9 +536,13 @@ function bind(){
   document.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{
     const svc = state.salon.services.find(s=>s.id===b.dataset.service);
     if(!svc) return;
-    const deselecting = state.service && state.service.id===svc.id;
-    state.service=deselecting?null:svc; state.addons=[]; state.stylist=null; state.time=null; state.intake={};
-    if(!deselecting) loadIntakeQuestionsFor(svc);
+    const already = state.services.some(s=>s.id===svc.id);
+    // Changing which services are in this visit changes the total duration, which stylists are
+    // eligible, and which add-ons apply - reset the steps that depend on that, same as the old
+    // single-service picker already did on any change.
+    state.services = already ? state.services.filter(s=>s.id!==svc.id) : [...state.services, svc];
+    state.addons=[]; state.stylist=null; state.time=null; state.intake={};
+    if(!already) loadIntakeQuestionsFor(svc);
     render();
   });
   document.querySelectorAll('[data-addon]').forEach(b=>b.onclick=()=>{ const id=b.dataset.addon; state.addons=state.addons.includes(id)?state.addons.filter(x=>x!==id):[...state.addons,id]; render(); });
@@ -640,7 +653,7 @@ function savePendingCheckoutState(){
   try{
     localStorage.setItem('bloomaPendingCheckout', JSON.stringify({
       venueId: state.salon.id,
-      serviceId: state.service ? state.service.id : null,
+      serviceIds: state.services.map(s=>s.id),
       addons: state.addons,
       stylistId: state.stylist ? state.stylist.id : null,
       dateKey: nzDateKey(DAYS[state.day]),
@@ -658,9 +671,9 @@ function restorePendingCheckoutState(){
   const fresh = raw.venueId===state.salon.id && (Date.now()-Number(raw.savedAt||0))<2*60*60*1000;
   localStorage.removeItem('bloomaPendingCheckout');
   if(!fresh) return false;
-  const svc=state.salon.services.find(s=>s.id===raw.serviceId);
-  if(!svc) return false;
-  state.service=svc;
+  const svcs=(Array.isArray(raw.serviceIds)?raw.serviceIds:[]).map(id=>state.salon.services.find(s=>s.id===id)).filter(Boolean);
+  if(!svcs.length) return false;
+  state.services=svcs;
   state.addons=Array.isArray(raw.addons)?raw.addons:[];
   const anyAvailable=state.salon.stylists.find(st=>st.name==='Any available')||null;
   state.stylist=(raw.stylistId && state.salon.stylists.find(st=>st.id===raw.stylistId)) || anyAvailable;
@@ -669,7 +682,7 @@ function restorePendingCheckoutState(){
   state.time=raw.time||null;
   state.notes=raw.notes||'';
   state.intake=raw.intake||{};
-  loadIntakeQuestionsFor(svc);
+  svcs.forEach(loadIntakeQuestionsFor);
   const defs=stepDefs();
   const resumeIdx=defs.findIndex(d=>d.key==='firstVisit');
   state.step = resumeIdx>=0 ? resumeIdx : Math.max(0, defs.length-1);
@@ -697,11 +710,17 @@ async function confirmBooking(){
       return;
     }
     const notes=[state.notes, state.appliedLoyaltyReward?`[Loyalty reward redeemed: ${state.appliedLoyaltyReward.label}]`:'', state.appliedGiftCard?`[Gift card ${state.appliedGiftCard.code} applied: $${giftCardDiscount()}]`:''].filter(Boolean).join(' ').trim();
+    // The bookings table only has one service_id column, so the first selected service rides
+    // there and every other selected service is passed alongside the real add-ons in the same
+    // `addons` payload array - the server (blooma_compute_booking_base_pricing) already treats an
+    // id that matches another of the venue's own services exactly like a linked add-on.
+    const [primaryService,...extraServices]=state.services;
+    const bookingAddons=[...selectedAddonsList().map(a=>({id:a.id})), ...extraServices.map(s=>({id:s.id}))];
     let data, error;
     if(state.rescheduleToken){
       const payload={
         salon_id: state.salon.id,
-        service_id: state.service.id,
+        service_id: primaryService.id,
         stylist_id: isAnyAvailableStylist(state.stylist) ? null : state.stylist.id,
         starts_at: bookingStartIso(state.day,state.time),
         local_date: nzDateKey(DAYS[state.day]),
@@ -713,13 +732,13 @@ async function confirmBooking(){
         promo_code: state.appliedPromo ? state.appliedPromo.code : null,
         notes,
         preferences: state.firstVisit==='Yes' ? ['First time here'] : [],
-        addons: selectedAddonsList(),
+        addons: bookingAddons,
       };
       ({data,error}=await supabaseClient.rpc('reschedule_public_booking',{token:state.rescheduleToken,payload}));
     } else {
       const payload={
         salon_id: state.salon.id,
-        service_id: state.service.id,
+        service_id: primaryService.id,
         stylist_id: isAnyAvailableStylist(state.stylist) ? null : state.stylist.id,
         customer_name: contact.name,
         customer_phone: contact.phone,
@@ -734,7 +753,7 @@ async function confirmBooking(){
         promo_code: state.appliedPromo ? state.appliedPromo.code : null,
         notes,
         preferences: state.firstVisit==='Yes' ? ['First time here'] : [],
-        addons: selectedAddonsList(),
+        addons: bookingAddons,
         client_request_id: makeClientRequestId(),
         applied_loyalty: !!state.appliedLoyaltyReward,
         applied_gift_card_id: state.appliedGiftCard ? state.appliedGiftCard.id : null,
@@ -779,7 +798,7 @@ async function confirmBooking(){
 }
 
 async function joinCheckoutWaitlist(){
-  if(state.waitlistJoining || !state.salon || !state.service) return;
+  if(state.waitlistJoining || !state.salon || !state.services.length) return;
   const contact=bookingContact();
   if(contact.name.length<2 || contact.phone.length<6){ state.waitlistError="We couldn't find your contact details - please refresh and try again."; render(); return; }
   const wKey=state.day+'|'+(state.stylist?state.stylist.id:'');
@@ -787,7 +806,9 @@ async function joinCheckoutWaitlist(){
   try{
     const payload={
       salon_id:state.salon.id,
-      service_id:state.service.id,
+      // The waitlist only ever tracks one service - the first one picked stands in for the
+      // whole visit here, same simplification the booking row's single service_id already needs.
+      service_id:state.services[0].id,
       stylist_id:isAnyAvailableStylist(state.stylist)?null:(state.stylist?.id||null),
       desired_date:nzDateKey(DAYS[state.day]),
       customer_name:contact.name,
@@ -890,7 +911,15 @@ async function boot(){
       if(!booking || String(booking.salon_id)!==String(state.salon.id) || booking.status!=='upcoming') throw new Error('not found');
       state.rescheduleToken=rescheduleToken;
       state.rescheduleBookingId=booking.id;
-      state.service = state.salon.services.find(s=>s.id===booking.service_id) || state.salon.services[0] || null;
+      const primarySvc = state.salon.services.find(s=>s.id===booking.service_id) || state.salon.services[0] || null;
+      // A stored booking's addons[] can hold either a real add-on id or another of the venue's
+      // own service ids bundled in as an extra service - split those back apart here so the
+      // reschedule flow's Services step correctly shows every service as selected, and the
+      // Add-ons step only shows the real add-ons.
+      const storedAddonIds = Array.isArray(booking.addons) ? booking.addons.map(a=>a && a.id).filter(Boolean) : [];
+      const bundledServices = storedAddonIds.map(id=>state.salon.services.find(s=>s.id===id)).filter(Boolean);
+      state.services = primarySvc ? [primarySvc, ...bundledServices] : [];
+      state.addons = storedAddonIds.filter(id=>!state.salon.services.some(s=>s.id===id));
       const stylistMatch = booking.stylist_id ? state.salon.stylists.find(st=>st.id===booking.stylist_id) : null;
       state.stylist = stylistMatch || anyAvailable;
       const startDate = new Date(booking.starts_at);
@@ -902,7 +931,6 @@ async function boot(){
       // that different day — leave it unselected so the customer actively picks a real one,
       // instead of silently pre-selecting a time that was never checked against the new day.
       state.time = idx>=0 ? formatTimeMins(nzMinutesOfDay(startDate)) : '';
-      state.addons = Array.isArray(booking.addons) ? booking.addons.map(a=>a && a.id).filter(Boolean) : [];
       state.notes = booking.notes || '';
       state.firstVisit = (Array.isArray(booking.preferences) && booking.preferences.length) ? 'Yes' : 'No';
       state.name = booking.customer_name || '';
@@ -917,7 +945,8 @@ async function boot(){
     // No ?service= means the customer tapped a generic "Book now" CTA, not a specific
     // service's Book button — leave it unselected so they actually choose one, rather than
     // silently defaulting to whichever service happens to sort first.
-    state.service = requestedServiceId ? (state.salon.services.find(s=>s.id===requestedServiceId) || null) : null;
+    const requestedSvc = requestedServiceId ? state.salon.services.find(s=>s.id===requestedServiceId) : null;
+    state.services = requestedSvc ? [requestedSvc] : [];
     state.day = firstOpenDayIndex(state.salon);
     const requestedStylistId=new URLSearchParams(location.search).get('stylist');
     state.stylist = (requestedStylistId && state.salon.stylists.find(st=>st.id===requestedStylistId)) || anyAvailable;
@@ -926,7 +955,7 @@ async function boot(){
   }
   document.getElementById('closeBtn').onclick=()=>{ navigateWithFade('/'+encodeURIComponent(state.salon.publicSlug||state.salon.id)); };
   document.getElementById('brandBtn').onclick=()=>{ navigateWithFade('/explore'); };
-  if(state.service) loadIntakeQuestionsFor(state.service);
+  state.services.forEach(loadIntakeQuestionsFor);
   if(state.rescheduleToken){
     const timeIdx=stepDefs().findIndex(d=>d.key==='time');
     if(timeIdx>=0) state.step=timeIdx;
