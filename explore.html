@@ -1278,12 +1278,13 @@
   .v2-chip{flex:none;border:1px solid var(--v2-line);background:#fff;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--v2-ink);cursor:pointer;}
   .v2-chip.active{background:var(--v2-ink);color:#fff;border-color:var(--v2-ink);}
   .v2-service-list{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
-  .v2-service{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:20px 20px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;box-shadow:0 1px 0 rgba(30,20,50,.02);transition:.2s var(--ease-standard);cursor:pointer;}
+  .v2-service{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:20px 20px 18px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;box-shadow:0 1px 0 rgba(30,20,50,.02);transition:.2s var(--ease-standard);cursor:pointer;}
   .v2-service:hover{border-color:#d9cffa;box-shadow:var(--v2-shadow-sm);transform:translateY(-1px);}
+  .v2-service-icon{width:40px;height:40px;border-radius:12px;background:var(--v2-lav);color:var(--v2-purple);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .v2-service-name{font-size:17px;font-weight:800;margin:0;display:flex;align-items:center;gap:7px;color:var(--v2-ink);}
   .v2-service-desc{font-size:13.5px;color:var(--v2-muted);margin:6px 0 0;line-height:1.5;}
   .v2-service-meta{display:flex;gap:10px;align-items:center;margin-top:9px;font-size:13px;color:var(--v2-muted);}
-  .v2-service-price{font-size:16px;font-weight:800;color:var(--v2-ink);}
+  .v2-service-price{font-size:16px;font-weight:800;color:var(--v2-purple);}
   .v2-book-small{border:none;background:var(--v2-purple);color:#fff;padding:11px 17px;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;}
   .v2-book-small:hover{background:var(--v2-purple-dark);}
   .v2-view-all{width:100%;height:52px;border:1px solid var(--v2-line);border-radius:999px;background:var(--v2-lav);color:var(--v2-purple);font-weight:800;font-size:14px;cursor:pointer;margin-top:2px;}
@@ -1291,7 +1292,7 @@
   .v2-team-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
   .v2-team-card{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;width:100%;transition:.2s var(--ease-standard);}
   .v2-team-card:hover{border-color:#d9cffa;box-shadow:var(--v2-shadow-sm);transform:translateY(-1px);}
-  .v2-avatar{width:62px;height:62px;border-radius:18px;overflow:hidden;background:var(--v2-lav);flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--v2-purple);}
+  .v2-avatar{width:62px;height:62px;border-radius:18px;overflow:hidden;background:var(--v2-lav);flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--v2-purple);box-shadow:0 0 0 3px var(--v2-lav2);}
   .v2-avatar img{width:100%;height:100%;object-fit:cover;}
   .v2-team-name{font-size:16px;font-weight:800;color:var(--v2-ink);}
   .v2-team-role{font-size:13px;color:var(--v2-muted);margin-top:4px;}
@@ -1312,13 +1313,15 @@
   .v2-package-card{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:18px;display:flex;flex-direction:column;}
   .v2-package-name{font-size:14px;font-weight:700;color:var(--v2-ink);margin:0;}
   .v2-package-meta{font-size:12.5px;color:var(--v2-muted);margin:5px 0 0;line-height:1.5;}
-  .v2-package-price{font-size:19px;font-weight:800;color:var(--v2-ink);margin:12px 0 0;letter-spacing:-.3px;}
+  .v2-package-price{font-size:19px;font-weight:800;color:var(--v2-purple);margin:12px 0 0;letter-spacing:-.3px;}
   .v2-package-card .v2-book-small{margin-top:14px;width:100%;}
   @media(max-width:420px){.v2-package-grid{grid-template-columns:1fr;}}
-  .v2-hours-row{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid #f1eef6;font-size:13.5px;color:var(--v2-ink);}
+  .v2-hours-row{display:flex;justify-content:space-between;gap:20px;padding:10px 0 10px 14px;margin-left:-14px;border-bottom:1px solid #f1eef6;border-left:3px solid transparent;font-size:13.5px;color:var(--v2-ink);}
   .v2-hours-row:last-child{border-bottom:none;}
-  .v2-hours-row.istoday{font-weight:800;}
+  .v2-hours-row.istoday{font-weight:800;border-left-color:var(--v2-purple);}
+  .v2-hours-row.istoday span:last-child{color:var(--v2-purple);}
   .v2-today-tag{font-size:10px;background:var(--v2-lav2);color:var(--v2-purple);border-radius:999px;padding:4px 7px;margin-left:7px;}
+  .v2-about-icon{width:38px;height:38px;border-radius:11px;background:var(--v2-lav);color:var(--v2-purple);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
   .v2-about{font-size:15px;line-height:1.75;color:var(--v2-muted);margin:0;}
   .v2-side-outer{position:relative;}
   .v2-side{position:sticky;top:102px;}
@@ -1353,6 +1356,7 @@
     .v2-nearby-arrows{display:none;}
     .v2-side-outer{display:none;}
     .v2-service{padding:17px;gap:12px;}
+    .v2-service-icon{width:34px;height:34px;}
     .v2-service-desc{display:none;}
     .v2-service-meta{flex-wrap:wrap;}
     .v2-meta-pricesep{display:none;}
@@ -3078,6 +3082,15 @@ function renderHome(){
    RENDER: SALON PAGE
 --------------------------------------------------- */
 const SALON_SERVICES_PREVIEW_LIMIT=6;
+function serviceCategoryIcon(category){
+  const c=String(category||"").toLowerCase();
+  if(c.includes("color")||c.includes("colour")) return "droplet";
+  if(c.includes("nail")) return "sparkles";
+  if(c.includes("massage")||c.includes("body")||c.includes("spa")) return "hand";
+  if(c.includes("style")||c.includes("styling")||c.includes("blow")) return "sparkles";
+  if(c.includes("hair")||c.includes("cut")||c.includes("barber")) return "scissors";
+  return "sparkles";
+}
 function salonServicesMarkup(salon,category){
   const services=category==="All"?salon.services:salon.services.filter(s=>s.category===category);
   const fmtDuration=(d)=>d>=60?`${Math.floor(d/60)} hr${d%60?` ${d%60} min`:''}`:`${d} min`;
@@ -3087,6 +3100,7 @@ function salonServicesMarkup(salon,category){
   return `
     ${visible.map(s=>`
       <div class="v2-service" data-service-row="${escapeAttr(s.id)}" role="button" tabindex="0" aria-label="View ${escapeAttr(s.name)} details">
+        <div class="v2-service-icon">${icon(serviceCategoryIcon(s.category))}</div>
         <div>
           <h3 class="v2-service-name">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}</h3>
           <p class="v2-service-desc">${escapeHtml((s.description||"").trim() || fallbackDesc)}</p>
@@ -3355,7 +3369,7 @@ function renderSalon(){
             ${salon.blurb ? `
             <section class="v2-section">
               <p class="v2-eyebrow">About</p><h2>The venue</h2>
-              <div class="v2-info-card"><p class="v2-about">${escapeHtml(salon.blurb)}</p></div>
+              <div class="v2-info-card"><div class="v2-about-icon">${icon('sparkles')}</div><p class="v2-about">${escapeHtml(salon.blurb)}</p></div>
             </section>` : ""}
 
             <section class="v2-section">
