@@ -1308,6 +1308,13 @@
   .v2-reviewer{font-weight:800;font-size:14px;color:var(--v2-ink);}
   .v2-review p{font-size:13.5px;color:var(--v2-muted);line-height:1.6;margin:12px 0 0;}
   .v2-info-card{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:20px;}
+  .v2-package-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px;}
+  .v2-package-card{background:#fff;border:1px solid var(--v2-line);border-radius:18px;padding:18px;display:flex;flex-direction:column;}
+  .v2-package-name{font-size:14px;font-weight:700;color:var(--v2-ink);margin:0;}
+  .v2-package-meta{font-size:12.5px;color:var(--v2-muted);margin:5px 0 0;line-height:1.5;}
+  .v2-package-price{font-size:19px;font-weight:800;color:var(--v2-ink);margin:12px 0 0;letter-spacing:-.3px;}
+  .v2-package-card .v2-book-small{margin-top:14px;width:100%;}
+  @media(max-width:420px){.v2-package-grid{grid-template-columns:1fr;}}
   .v2-hours-row{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid #f1eef6;font-size:13.5px;color:var(--v2-ink);}
   .v2-hours-row:last-child{border-bottom:none;}
   .v2-hours-row.istoday{font-weight:800;}
@@ -3314,24 +3321,24 @@ function renderSalon(){
             ${salon.giftCardsEnabled ? `
             <section class="v2-section" id="giftpkg">
               <p class="v2-eyebrow">Gift cards & packages</p><h2>Buy ahead and save</h2>
-              <div style="display:flex;flex-direction:column;gap:12px;">
-                <div class="v2-info-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
-                  <div style="min-width:0;">
-                    <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">Gift card</p>
-                    <p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;">Give the gift of a treatment at ${escapeHtml(salon.name)}.</p>
-                  </div>
-                  <button class="v2-book-small" id="giftCardCtaBtn" style="flex-shrink:0;">Buy a gift card</button>
+              <div class="v2-info-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+                <div style="min-width:0;">
+                  <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">Gift card</p>
+                  <p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;">Give the gift of a treatment at ${escapeHtml(salon.name)}.</p>
                 </div>
-                ${state.venuePackages.length ? state.venuePackages.map(p=>`
-                <div class="v2-info-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
-                  <div style="min-width:0;">
-                    <p style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">${escapeHtml(p.name)}</p>
-                    <p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;">${p.sessions} sessions${p.service_name?` · ${escapeHtml(p.service_name)}`:""} · $${p.price}</p>
-                    ${(state.packagePurchaseErrorId===p.id)?`<p style="font-size:12px;color:#C13B3B;margin:6px 0 0;">${escapeHtml(state.packagePurchaseError)}</p>`:""}
-                  </div>
-                  <button class="v2-book-small" data-buypackage="${escapeAttr(p.id)}" ${state.purchasingPackageId===p.id?'disabled':''} style="flex-shrink:0;${state.purchasingPackageId===p.id?'opacity:.6;cursor:not-allowed;':''}">${state.purchasingPackageId===p.id?'Starting checkout…':'Buy package'}</button>
-                </div>`).join("") : ""}
+                <button class="v2-book-small" id="giftCardCtaBtn" style="flex-shrink:0;">Buy a gift card</button>
               </div>
+              ${state.venuePackages.length ? `
+              <div class="v2-package-grid">
+                ${state.venuePackages.map(p=>`
+                <div class="v2-package-card">
+                  <p class="v2-package-name">${escapeHtml(p.name)}</p>
+                  <p class="v2-package-meta">${p.sessions} sessions${p.service_name?` · ${escapeHtml(p.service_name)}`:""}</p>
+                  <p class="v2-package-price">$${p.price}</p>
+                  ${(state.packagePurchaseErrorId===p.id)?`<p style="font-size:12px;color:#C13B3B;margin:8px 0 0;">${escapeHtml(state.packagePurchaseError)}</p>`:""}
+                  <button class="v2-book-small" data-buypackage="${escapeAttr(p.id)}" ${state.purchasingPackageId===p.id?'disabled':''} style="${state.purchasingPackageId===p.id?'opacity:.6;cursor:not-allowed;':''}">${state.purchasingPackageId===p.id?'Starting checkout…':'Buy package'}</button>
+                </div>`).join("")}
+              </div>` : ""}
             </section>` : ""}
 
             <section class="v2-section">
