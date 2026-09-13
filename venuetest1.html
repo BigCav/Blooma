@@ -1381,6 +1381,8 @@
 .v2-venue-head .v2-star-base{display:none;}
 .v2-avatar{box-shadow:none;}
 .v2-booking-card{box-shadow:none;}
+.hy-about-card{margin-top:20px;}
+.hy-about-card>p{margin-bottom:0;}
 
 /* This snapshot is missing the real site's outer #app/.shell wrapper (height:100dvh,
    overflow:hidden), which is what makes .page's own flex:1/overflow-y:auto meaningful as an
@@ -1660,11 +1662,6 @@ html,body,#app{height:auto!important;min-height:0!important;}
 
             
             <section class="v2-section">
-              <p class="v2-eyebrow">About</p><h2>The venue</h2>
-              <div class="v2-info-card"><p class="v2-about">Willow &amp; Co. is a boutique hair salon in the heart of Hamilton Central. We specialise in colour, cuts, and styling for all hair types. Our team is passionate about making every client feel their best.</p></div>
-            </section>
-
-            <section class="v2-section">
               <p class="v2-eyebrow">Location</p><h2>Find us in Hamilton</h2>
               <div class="v2-map-attrib-hidden">
     <div class="location-card">
@@ -1694,12 +1691,11 @@ html,body,#app{height:auto!important;min-height:0!important;}
                 <h3>Ready to book?</h3>
                 <p>Choose a service and find a time that suits you.</p>
                 <button class="v2-big-book" id="venueBookNowBtnDesktop">Book now</button>
-                <div class="v2-side-divider"></div>
-                <div class="v2-side-row"><div class="v2-side-icon"><span class="icon" style="color:currentColor"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span></div><div><div class="v2-side-label">TODAY</div><div class="v2-side-value">Closed today</div></div></div>
-                <div class="v2-side-row"><div class="v2-side-icon"><span class="icon" style="color:currentColor"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span></div><div><div class="v2-side-label">LOCATION</div><div class="v2-side-value">Fairfield, Hamilton</div></div></div>
-                <div class="v2-side-row"><div class="v2-side-icon"><span class="icon icon-star" style="color:currentColor"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span></div><div><div class="v2-side-label">RATING</div><div class="v2-side-value">5.0 from 2 reviews</div></div></div>
               </div>
-              
+              <div class="v2-booking-card hy-about-card">
+                <h3>About the venue</h3>
+                <p>Willow &amp; Co. is a boutique hair salon in the heart of Hamilton Central. We specialise in colour, cuts, and styling for all hair types. Our team is passionate about making every client feel their best.</p>
+              </div>
             </div>
           </aside>
         </div>
