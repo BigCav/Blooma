@@ -1428,7 +1428,7 @@ html,body,#app{height:auto!important;min-height:0!important;}
 .hy-review-summary{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--v2-line);margin-bottom:20px;}
 .hy-review-score{text-align:center;flex:none;}
 .hy-review-score-num{font-size:38px;font-weight:800;letter-spacing:-1px;color:var(--v2-ink);}
-.hy-review-stars{color:var(--gold);font-size:14px;margin:4px 0;}
+.hy-review-stars{color:var(--gold);font-size:20px;margin:4px 0;letter-spacing:2px;}
 .hy-review-score-count{font-size:12.5px;color:var(--v2-muted);}
 .hy-review-bars{flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;}
 .hy-review-bar-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--v2-muted);}
@@ -1442,7 +1442,7 @@ html,body,#app{height:auto!important;min-height:0!important;}
 .hy-review-avatar{width:32px;height:32px;border-radius:50%;background:var(--v2-lav2);color:var(--v2-purple);display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;}
 .hy-review-item-name{font-size:13.5px;font-weight:700;color:var(--v2-ink);}
 .hy-review-item-meta{font-size:11.5px;color:var(--v2-muted);margin-top:1px;}
-.hy-review-item-stars{color:var(--gold);font-size:12px;margin:8px 0 6px;}
+.hy-review-item-stars{color:var(--gold);font-size:16px;margin:8px 0 6px;letter-spacing:1.5px;}
 .hy-review-item-text{font-size:13.5px;color:var(--v2-ink);line-height:1.6;margin:0;}
 
 </style>
@@ -1507,6 +1507,20 @@ html,body,#app{height:auto!important;min-height:0!important;}
                     </div>
                     <div class="hy-service-row-price">$40</div>
                   </div>
+                  <div class="hy-service-row">
+                    <div>
+                      <div class="hy-service-row-name">Special Occasion Updo</div>
+                      <div class="hy-service-row-sub">45 min</div>
+                    </div>
+                    <div class="hy-service-row-price">$95</div>
+                  </div>
+                  <div class="hy-service-row">
+                    <div>
+                      <div class="hy-service-row-name">Hair Straightening (Blow-dry)</div>
+                      <div class="hy-service-row-sub">30 min</div>
+                    </div>
+                    <div class="hy-service-row-price">$55</div>
+                  </div>
                 </div></div>
               </div>
               <div class="hy-service-group">
@@ -1529,6 +1543,20 @@ html,body,#app{height:auto!important;min-height:0!important;}
                     </div>
                     <div class="hy-service-row-price">$65</div>
                   </div>
+                  <div class="hy-service-row">
+                    <div>
+                      <div class="hy-service-row-name">Men's Cut</div>
+                      <div class="hy-service-row-sub">30 min</div>
+                    </div>
+                    <div class="hy-service-row-price">$45</div>
+                  </div>
+                  <div class="hy-service-row">
+                    <div>
+                      <div class="hy-service-row-name">Kids Cut (Under 12)</div>
+                      <div class="hy-service-row-sub">20 min</div>
+                    </div>
+                    <div class="hy-service-row-price">$35</div>
+                  </div>
                 </div></div>
               </div>
               <div class="hy-service-group">
@@ -1550,6 +1578,20 @@ html,body,#app{height:auto!important;min-height:0!important;}
                       <div class="hy-service-row-sub">90 min</div>
                     </div>
                     <div class="hy-service-row-price">$110</div>
+                  </div>
+                  <div class="hy-service-row">
+                    <div>
+                      <div class="hy-service-row-name">Global Color</div>
+                      <div class="hy-service-row-sub">120 min</div>
+                    </div>
+                    <div class="hy-service-row-price">$165</div>
+                  </div>
+                  <div class="hy-service-row">
+                    <div>
+                      <div class="hy-service-row-name">Toner &amp; Gloss</div>
+                      <div class="hy-service-row-sub">45 min</div>
+                    </div>
+                    <div class="hy-service-row-price">$60</div>
                   </div>
                 </div></div>
               </div>
@@ -1589,7 +1631,8 @@ html,body,#app{height:auto!important;min-height:0!important;}
 
             
             <section class="v2-section">
-              <p class="v2-eyebrow">Reviews</p><h2>What clients say</h2>
+              <p class="v2-eyebrow">Reviews</p>
+              <div class="v2-section-title-row"><h2>What clients say</h2><button class="v2-view-reviews-btn" data-reviews="willow">View all reviews</button></div>
               <div class="hy-card">
                 <div class="hy-review-summary">
                   <div class="hy-review-score">
