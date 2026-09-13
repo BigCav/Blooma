@@ -31,8 +31,8 @@
   @media(max-width:640px){.nav-tabs{gap:16px;}.nav-right span{display:none;}}
 
   /* Hero */
-  .hero-img{width:100%;height:280px;object-fit:cover;display:block;}
-  @media(max-width:640px){.hero-img{height:200px;}}
+  .hero-img{width:100%;height:360px;object-fit:cover;display:block;}
+  @media(max-width:640px){.hero-img{height:260px;}}
 
   /* Profile card */
   .profile-wrap{max-width:760px;margin:-46px auto 0;padding:0 20px;position:relative;z-index:2;}
@@ -57,7 +57,7 @@
   section{padding:32px 0;border-bottom:1px solid var(--line);}
   section:last-of-type{border-bottom:none;}
   .section-title{font-size:19px;font-weight:800;margin:0 0 16px;letter-spacing:-.3px;}
-  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px 20px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;}
 
   /* Hours */
   .hours-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;font-size:13.5px;}
@@ -69,12 +69,6 @@
   .hours-row.istoday span:last-child{color:var(--purple);}
   .hours-row.closed span:last-child{color:var(--soft);}
 
-  /* Policy note */
-  .policy-card{background:var(--lav);border-radius:16px;padding:18px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:22px;}
-  .policy-card p{font-size:13px;color:var(--ink);line-height:1.6;margin:0;}
-  .policy-card .btn{height:36px;padding:0 16px;font-size:12.5px;background:#fff;color:var(--ink);flex:none;}
-  .policy-card.dismissed{display:none;}
-
   /* Services accordion */
   .service-group{border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden;background:#fff;}
   .service-group-head{width:100%;background:none;border:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;text-align:left;}
@@ -85,10 +79,10 @@
   .service-group.open .service-rows{display:block;}
   .service-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;}
   .service-row+.service-row{border-top:1px solid var(--line);}
-  .service-row-name{font-size:14px;font-weight:700;}
+  .service-row-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .service-row-sub{font-size:12px;color:var(--muted);margin-top:3px;font-weight:500;}
   .service-row-price{font-size:14px;font-weight:800;white-space:nowrap;}
-  .addon-line{font-size:11.5px;color:var(--muted);margin-top:5px;}
+  .addon-badge{font-size:10.5px;font-weight:700;color:var(--purple);background:var(--lav);border-radius:999px;padding:3px 9px;letter-spacing:.01em;}
 
   /* Team */
   .team-row{display:flex;align-items:center;gap:14px;padding:14px 4px;}
@@ -98,15 +92,14 @@
   .team-specialty{font-size:12.5px;color:var(--muted);margin-top:2px;}
 
   /* Contact / good to know */
-  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
-  .info-col h3{font-size:13px;font-weight:800;margin:0 0 12px;}
-  .info-row{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
-  .info-row svg{flex:none;margin-top:2px;color:var(--purple);}
-  .info-row strong{color:var(--ink);}
-  @media(max-width:560px){.info-grid{grid-template-columns:1fr;gap:20px;}}
+  .info-row{display:flex;align-items:center;gap:14px;}
+  .info-row+.info-row{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;}
+  .info-icon{width:42px;height:42px;border-radius:12px;background:var(--lav);color:var(--purple);display:grid;place-items:center;flex:none;}
+  .info-label{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);}
+  .info-value{font-size:14.5px;font-weight:700;color:var(--ink);margin-top:2px;}
 
   /* Reviews */
-  .review-summary{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:22px;}
+  .review-summary{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px;}
   .review-score{text-align:center;flex:none;}
   .review-score-num{font-size:38px;font-weight:800;letter-spacing:-1px;}
   .review-stars{color:var(--gold);font-size:14px;margin:4px 0;}
@@ -157,18 +150,13 @@
     <div class="profile-tag" id="profileTag"></div>
     <div class="profile-status" id="profileStatus"></div>
     <div class="profile-actions">
-      <button class="btn btn-book" id="bookBtn">Book now</button>
       <button class="btn btn-contact" id="contactToggle">Contact us</button>
+      <button class="btn btn-book" id="bookBtn">Book now</button>
     </div>
     <div class="contact-panel" id="contactPanel">
       <div><strong>Phone:</strong> <span id="contactPhone"></span></div>
       <div style="margin-top:6px;"><strong>Address:</strong> <span id="contactAddress"></span></div>
     </div>
-  </div>
-
-  <div class="policy-card" id="policyCard">
-    <p><strong>Good to know:</strong> <span id="policyText"></span></p>
-    <button class="btn" id="policyDismiss">Okay</button>
   </div>
 </div>
 
@@ -192,16 +180,13 @@
   <section id="info">
     <h2 class="section-title">Good to know</h2>
     <div class="card">
-      <div class="info-grid">
-        <div class="info-col">
-          <h3>Contact</h3>
-          <div class="info-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span id="infoPhone"></span></div>
-          <div class="info-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span id="infoAddress"></span></div>
-        </div>
-        <div class="info-col">
-          <h3>Cancellation policy</h3>
-          <div class="info-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="infoCancellation"></span></div>
-        </div>
+      <div class="info-row">
+        <div class="info-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+        <div><div class="info-label">Phone</div><div class="info-value" id="infoPhone"></div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div><div class="info-label">Address</div><div class="info-value" id="infoAddress"></div></div>
       </div>
     </div>
   </section>
@@ -269,8 +254,6 @@ document.getElementById('contactPhone').textContent = salon.phone;
 document.getElementById('contactAddress').textContent = `${salon.address}, ${salon.suburb}, ${salon.city}`;
 document.getElementById('infoPhone').textContent = salon.phone;
 document.getElementById('infoAddress').textContent = `${salon.address}, ${salon.suburb} ${salon.postcode}, ${salon.city}`;
-document.getElementById('infoCancellation').textContent = salon.cancellation_policy;
-document.getElementById('policyText').textContent = salon.cancellation_policy;
 document.getElementById('navPhone').textContent = salon.phone;
 
 // Rating from real reviews
@@ -316,9 +299,8 @@ document.getElementById('profileReviewCount').textContent = `(${ratingCount} rev
         ${groups[cat].map(s=>`
           <div class="service-row">
             <div>
-              <div class="service-row-name">${esc(s.name)}</div>
+              <div class="service-row-name">${esc(s.name)}${s.addons.length?`<span class="addon-badge">Add-ons available</span>`:''}</div>
               <div class="service-row-sub">${s.duration_minutes} min</div>
-              ${s.addons.length?`<div class="addon-line">+ ${s.addons.map(a=>esc(a.name)+' ($'+a.price+')').join(', ')}</div>`:''}
             </div>
             <div class="service-row-price">$${s.price}</div>
           </div>`).join('')}
@@ -394,9 +376,6 @@ document.getElementById('teamRows').innerHTML = salon.stylists.map(st=>`
 
 document.getElementById('contactToggle').addEventListener('click', ()=>{
   document.getElementById('contactPanel').classList.toggle('open');
-});
-document.getElementById('policyDismiss').addEventListener('click', ()=>{
-  document.getElementById('policyCard').classList.add('dismissed');
 });
 document.getElementById('bookBtn').addEventListener('click', ()=>{
   window.location.href = '/customer-checkout?venue=willow';
