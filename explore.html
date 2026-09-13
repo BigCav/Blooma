@@ -1320,7 +1320,6 @@
   .v2-hours-row.istoday{font-weight:800;border-left-color:var(--v2-purple);}
   .v2-hours-row.istoday span:last-child{color:var(--v2-purple);}
   .v2-today-tag{font-size:10px;background:var(--v2-lav2);color:var(--v2-purple);border-radius:999px;padding:4px 7px;margin-left:7px;}
-  .v2-about-icon{width:38px;height:38px;border-radius:11px;background:var(--v2-lav);color:var(--v2-purple);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
   .v2-about{font-size:15px;line-height:1.75;color:var(--v2-muted);margin:0;}
   .v2-side-outer{position:relative;}
   .v2-side{position:sticky;top:102px;}
@@ -3357,7 +3356,7 @@ function renderSalon(){
             ${salon.blurb ? `
             <section class="v2-section">
               <p class="v2-eyebrow">About</p><h2>The venue</h2>
-              <div class="v2-info-card"><div class="v2-about-icon">${icon('sparkles')}</div><p class="v2-about">${escapeHtml(salon.blurb)}</p></div>
+              <div class="v2-info-card"><p class="v2-about">${escapeHtml(salon.blurb)}</p></div>
             </section>` : ""}
 
             <section class="v2-section">
@@ -3385,7 +3384,6 @@ function renderSalon(){
           </aside>
         </div>
       </main>
-      ${homeFooterMarkup()}
       <div class="v2-mobile-bar">
         <div class="v2-mobile-bar-inner">
           <div class="v2-mobile-copy"><strong>${salon.services.length} service${salon.services.length===1?"":"s"} available</strong>${minPrice!=null?`<span>From $${minPrice}</span>`:""}</div>
