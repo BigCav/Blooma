@@ -1379,6 +1379,7 @@
 
 /* --- Hybrid additions (venuetest.html-style Services accordion + Reviews card) --- */
 .v2-venue-head .v2-star-base{display:none;}
+.v2-avatar{box-shadow:none;}
 
 /* This snapshot is missing the real site's outer #app/.shell wrapper (height:100dvh,
    overflow:hidden), which is what makes .page's own flex:1/overflow-y:auto meaningful as an
@@ -1402,8 +1403,9 @@ html,body,#app{height:auto!important;min-height:0!important;}
 .hy-service-group-head span{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--v2-muted);}
 .hy-service-group-head svg{transition:transform .2s;color:var(--v2-soft);flex:none;}
 .hy-service-group.open .hy-service-group-head svg{transform:rotate(180deg);}
-.hy-service-rows{display:none;border-top:1px solid var(--v2-line);}
-.hy-service-group.open .hy-service-rows{display:block;}
+.hy-service-rows{display:grid;grid-template-rows:0fr;border-top:0 solid var(--v2-line);transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1),border-top-width .3s cubic-bezier(.4,0,.2,1);}
+.hy-service-rows-inner{min-height:0;overflow:hidden;}
+.hy-service-group.open .hy-service-rows{grid-template-rows:1fr;border-top-width:1px;}
 .hy-service-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;}
 .hy-service-row+.hy-service-row{border-top:1px solid var(--v2-line);}
 .hy-service-row-name{font-size:14px;font-weight:700;color:var(--v2-ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -1485,7 +1487,7 @@ html,body,#app{height:auto!important;min-height:0!important;}
                   <span>STYLING</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="hy-service-rows">
+                <div class="hy-service-rows"><div class="hy-service-rows-inner">
                   <div class="hy-service-row">
                     <div>
                       <div class="hy-service-row-name">Blowout</div>
@@ -1493,14 +1495,14 @@ html,body,#app{height:auto!important;min-height:0!important;}
                     </div>
                     <div class="hy-service-row-price">$40</div>
                   </div>
-                </div>
+                </div></div>
               </div>
               <div class="hy-service-group">
                 <button class="hy-service-group-head" data-hygroup>
                   <span>HAIR</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="hy-service-rows">
+                <div class="hy-service-rows"><div class="hy-service-rows-inner">
                   <div class="hy-service-row">
                     <div>
                       <div class="hy-service-row-name">Cut &amp; Style</div>
@@ -1515,14 +1517,14 @@ html,body,#app{height:auto!important;min-height:0!important;}
                     </div>
                     <div class="hy-service-row-price">$65</div>
                   </div>
-                </div>
+                </div></div>
               </div>
               <div class="hy-service-group">
                 <button class="hy-service-group-head" data-hygroup>
                   <span>COLOR</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="hy-service-rows">
+                <div class="hy-service-rows"><div class="hy-service-rows-inner">
                   <div class="hy-service-row">
                     <div>
                       <div class="hy-service-row-name">Full Balayage <span class="hy-addon-badge">Add-ons available</span></div>
@@ -1537,7 +1539,7 @@ html,body,#app{height:auto!important;min-height:0!important;}
                     </div>
                     <div class="hy-service-row-price">$110</div>
                   </div>
-                </div>
+                </div></div>
               </div>
             </section>
 
@@ -1575,7 +1577,7 @@ html,body,#app{height:auto!important;min-height:0!important;}
 
             
             <section class="v2-section">
-              <p class="v2-eyebrow">Reviews</p><h2>Loved by clients</h2>
+              <p class="v2-eyebrow">Reviews</p><h2>What clients say</h2>
               <div class="hy-card">
                 <div class="hy-review-summary">
                   <div class="hy-review-score">
