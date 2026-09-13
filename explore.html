@@ -3366,6 +3366,16 @@ function renderSalon(){
 
             ${venueNearbySectionMarkup('venueNearbyRow',nearbySalons,salon.city)}
 
+            <div class="bottom-cta-section">
+              <div class="bottom-cta-text">
+                <h2 class="bottom-cta-title">Run a salon, barber or studio of your own?</h2>
+                <p class="bottom-cta-body">Get a free booking page like this one, live in about 10 minutes - no commission, no contract.</p>
+              </div>
+              <div class="bottom-cta-actions">
+                <button id="venueOwnerCtaBtn" class="bottom-cta-btn primary">List your salon</button>
+              </div>
+            </div>
+
           </div>
 
           <aside class="v2-side-outer">
@@ -4609,6 +4619,8 @@ function bindEvents(){
     if (venueBookNowBtn) venueBookNowBtn.addEventListener("click", ()=> goCheckoutPage(null));
     const venueBookNowBtnDesktop = document.getElementById("venueBookNowBtnDesktop");
     if (venueBookNowBtnDesktop) venueBookNowBtnDesktop.addEventListener("click", ()=> goCheckoutPage(null));
+    const venueOwnerCtaBtn = document.getElementById("venueOwnerCtaBtn");
+    if (venueOwnerCtaBtn) venueOwnerCtaBtn.addEventListener("click", ()=> { window.location.href = businessDestination(); });
     document.querySelectorAll("[data-stylistprofile]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const stylist = state.salon.stylists.find(st=>st.id===btn.getAttribute("data-stylistprofile"));
