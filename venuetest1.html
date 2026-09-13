@@ -1380,6 +1380,15 @@
 /* --- Hybrid additions (venuetest.html-style Services accordion + Reviews card) --- */
 .v2-venue-head .v2-star-base{display:none;}
 
+/* This snapshot is missing the real site's outer #app/.shell wrapper (height:100dvh,
+   overflow:hidden), which is what makes .page's own flex:1/overflow-y:auto meaningful as an
+   *inner* scroll region. Without that wrapper, .page and html/body end up as two independent
+   overflow:auto boxes stacked on each other, and on touch devices the scroll gesture gets
+   trapped between them instead of moving the page at all. Simplest correct fix for a standalone
+   snapshot: let this be an ordinary single-scroll document instead of a nested one. */
+html,body,#app{height:auto!important;min-height:0!important;}
+.page.v2-venue-page{height:auto!important;flex:none!important;overflow:visible!important;-webkit-overflow-scrolling:auto!important;overscroll-behavior-y:auto!important;}
+
 .hy-card{background:#fff;border:1px solid var(--v2-line);border-radius:16px;padding:20px;}
 .hy-service-group{border:1px solid var(--v2-line);border-radius:16px;margin-bottom:10px;overflow:hidden;background:#fff;}
 .hy-service-group-head{width:100%;background:none;border:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer;font:inherit;}
@@ -1438,9 +1447,9 @@
         <div class="v2-breadcrumbs"><span>Hamilton</span><span>›</span><span>Styling</span><span>›</span><strong>Willow &amp; Co.</strong></div>
 
         <section class="v2-gallery" aria-label="Venue photos">
-          <div class="v2-photo"><img src="https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=1600&amp;q=80&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 1" fetchpriority="high" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1695527081848-1e46c06e6458?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 2" loading="lazy" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1626383137804-ff908d2753a2?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 3" loading="lazy" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1626379501846-0df4067b8bb9?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 4" loading="lazy" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 5" loading="lazy" decoding="async"><button class="v2-gallery-overlay" data-gallery="willow">⋮&nbsp;&nbsp;See all photos</button></div>
+          <div class="v2-photo"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&amp;q=80&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 1" fetchpriority="high" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1695527081848-1e46c06e6458?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 2" loading="lazy" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1626383137804-ff908d2753a2?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 3" loading="lazy" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1626379501846-0df4067b8bb9?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 4" loading="lazy" decoding="async"></div><div class="v2-photo"><img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1200&amp;q=75&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 5" loading="lazy" decoding="async"><button class="v2-gallery-overlay" data-gallery="willow">⋮&nbsp;&nbsp;See all photos</button></div>
         </section>
-        <section class="v2-mobile-hero"><img src="https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=1600&amp;q=80&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 1" fetchpriority="high" decoding="async"><button class="v2-mobile-all-images" type="button" data-gallery="willow" aria-label="View all venue images"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>All images</span></button></section>
+        <section class="v2-mobile-hero"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&amp;q=80&amp;fit=crop&amp;auto=format" alt="Willow &amp; Co. photo 1" fetchpriority="high" decoding="async"><button class="v2-mobile-all-images" type="button" data-gallery="willow" aria-label="View all venue images"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>All images</span></button></section>
 
         <section class="v2-venue-head">
           <div>
