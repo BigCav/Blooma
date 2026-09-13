@@ -1390,11 +1390,10 @@ html,body,#app{height:auto!important;min-height:0!important;}
 /* The map's canvas was frozen mid-render at its desktop capture size (934px, set via inline
    style/attributes by the live Mapbox GL instance) - since there's no live map JS here to
    resize it, force it to scale down to its container instead of overflowing on narrow screens. */
-/* A <canvas> element's drawn content (the actual Mapbox tiles) is never part of its
-   serialized HTML - only the empty tag is - so this snapshot's map is unavoidably blank no
-   matter how it's sized. Rather than show an empty grey box, drop it and keep the address row
-   that already sits below it. */
-.map-placeholder{display:none!important;}
+/* The live map's <canvas> content never serializes into static HTML (only the empty tag does),
+   so instead of the broken interactive widget this uses a plain static map image - a real
+   Mapbox Static Images API request centered on Willow & Co.'s actual geocoded address. */
+.map-placeholder{position:relative;}
 .page.v2-venue-page{height:auto!important;flex:none!important;overflow-y:visible!important;overflow-x:hidden!important;-webkit-overflow-scrolling:auto!important;overscroll-behavior-y:auto!important;}
 
 .hy-card{background:#fff;border:1px solid var(--v2-line);border-radius:16px;padding:20px;}
@@ -1666,8 +1665,9 @@ html,body,#app{height:auto!important;min-height:0!important;}
               <p class="v2-eyebrow">Location</p><h2>Find us in Hamilton</h2>
               <div class="v2-map-attrib-hidden">
     <div class="location-card">
-      <div class="map-placeholder" id="leafletMap4Wrap">
-        <div class="location-map mapboxgl-map" id="leafletMap4" data-leaflet-map="" data-geocode="24 Oxford Street, Fairfield, Hamilton, Waikato" data-rating="5.0"><div class="mapboxgl-canary" style="visibility: hidden;"></div><div class="mapboxgl-canvas-container"><canvas class="mapboxgl-canvas" aria-label="Map" role="region" width="934" height="420" style="width: 934px; height: 420px;"></canvas><div class="venue-map-pin-wrap mapboxgl-marker mapboxgl-marker-anchor-bottom" aria-label="Map marker" role="img" style="transform: translate(467px, 210px) translate(-50%, -100%) translate(0px, 0px); opacity: 1; pointer-events: auto;"><div class="venue-map-pin-badge"><span>5.0</span><span class="icon icon-star" style="color:var(--gold)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span></div><div class="venue-map-pin-tail"></div></div></div><div class="mapboxgl-control-container"><div class="mapboxgl-ctrl-top-left"></div><div class="mapboxgl-ctrl-top"></div><div class="mapboxgl-ctrl-top-right"></div><div class="mapboxgl-ctrl-right"></div><div class="mapboxgl-ctrl-bottom-right"><div class="mapboxgl-ctrl mapboxgl-ctrl-attrib"><button class="mapboxgl-ctrl-attrib-button" type="button" aria-label="Toggle attribution"><span class="mapboxgl-ctrl-icon" aria-hidden="true" title="Toggle attribution"></span></button><div class="mapboxgl-ctrl-attrib-inner"><a href="https://www.mapbox.com/about/maps" target="_blank" title="Mapbox" aria-label="Mapbox">© Mapbox</a> <a href="https://www.openstreetmap.org/copyright/" target="_blank" title="OpenStreetMap" aria-label="OpenStreetMap">© OpenStreetMap</a> <a class="mapbox-improve-map" href="https://apps.mapbox.com/feedback/?owner=cavauk&amp;id=cmt9r64um005201sse4weevll&amp;access_token=pk.eyJ1IjoiY2F2YXVrIiwiYSI6ImNtdDlwOHNpYjA5NXAyeXE1Z2FpdjR0c2YifQ.laCy8lsJwjd8v7XL6GHarg#/175.28587/-37.77134/13" target="_blank" title="Improve this map" aria-label="Improve this map" rel="noopener nofollow">Improve this map</a></div></div></div><div class="mapboxgl-ctrl-bottom"></div><div class="mapboxgl-ctrl-bottom-left"><div class="mapboxgl-ctrl" style="display: block;"><a class="mapboxgl-ctrl-logo" target="_blank" rel="noopener nofollow" href="https://www.mapbox.com/" aria-label="Mapbox homepage"></a></div></div><div class="mapboxgl-ctrl-left"></div></div></div>
+      <div class="map-placeholder" id="leafletMap4Wrap" style="display:block;">
+        <img src="https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-l+7c5cd9(175.28587,-37.77134)/175.28587,-37.77134,14.5,0/900x420@2x?access_token=pk.eyJ1IjoiY2F2YXVrIiwiYSI6ImNtdDlwOHNpYjA5NXAyeXE1Z2FpdjR0c2YifQ.laCy8lsJwjd8v7XL6GHarg" alt="Map showing Willow &amp; Co. at 24 Oxford Street, Fairfield, Hamilton" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div class="venue-map-pin-badge" style="position:absolute;top:50%;left:50%;transform:translate(-50%,calc(-100% - 8px));"><span>5.0</span><span class="icon icon-star" style="color:var(--gold)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg></span></div>
       </div>
       <a class="location-address" href="https://www.google.com/maps?q=24%20Oxford%20Street%2C%20Fairfield%2C%203214%2C%20Hamilton%2C%20Waikato%2C%20New%20Zealand&amp;t=m&amp;z=16" target="_blank" rel="noopener">
         <span class="venue-info-icon"><span class="icon" style="color:currentColor"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span></span>
