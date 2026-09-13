@@ -1383,6 +1383,13 @@
 .v2-booking-card{box-shadow:none;}
 .v2-eyebrow{display:none;}
 .v2-section-sub{display:none;}
+@media(max-width:899px){
+  /* Match the packages grid to the new Services accordion's single-card, divided-rows look
+     instead of each package sitting in its own separate boxed card. */
+  .v2-package-grid{display:block;background:#fff;border:1px solid var(--v2-line);border-radius:16px;overflow:hidden;}
+  .v2-package-card{border:none;border-radius:0;}
+  .v2-package-card+.v2-package-card{border-top:1px solid var(--v2-line);}
+}
 .hy-about-card{margin-top:20px;}
 .hy-about-card>p{margin-bottom:0;}
 
