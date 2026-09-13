@@ -7,7 +7,10 @@ function escapeXml(s) {
 }
 
 module.exports = async (req, res) => {
-  const staticPaths = ['/', '/explore', '/alternative-to-fresha', '/alternative-to-timely', '/salon-software-auckland', '/salon-software-hamilton', '/privacy', '/terms'];
+  // /privacy and /terms are noindexed (legal boilerplate, no ranking value, and their plain
+  // definitional prose was getting picked up by Google's AI Overview for "what is Blooma" type
+  // queries instead of the actual marketing pages) - keep them out of the sitemap accordingly.
+  const staticPaths = ['/', '/explore', '/alternative-to-fresha', '/alternative-to-timely', '/salon-software-auckland', '/salon-software-hamilton'];
   let venueSlugs = [];
 
   try {
