@@ -1387,7 +1387,15 @@
    trapped between them instead of moving the page at all. Simplest correct fix for a standalone
    snapshot: let this be an ordinary single-scroll document instead of a nested one. */
 html,body,#app{height:auto!important;min-height:0!important;}
-.page.v2-venue-page{height:auto!important;flex:none!important;overflow:visible!important;-webkit-overflow-scrolling:auto!important;overscroll-behavior-y:auto!important;}
+/* The map's canvas was frozen mid-render at its desktop capture size (934px, set via inline
+   style/attributes by the live Mapbox GL instance) - since there's no live map JS here to
+   resize it, force it to scale down to its container instead of overflowing on narrow screens. */
+/* A <canvas> element's drawn content (the actual Mapbox tiles) is never part of its
+   serialized HTML - only the empty tag is - so this snapshot's map is unavoidably blank no
+   matter how it's sized. Rather than show an empty grey box, drop it and keep the address row
+   that already sits below it. */
+.map-placeholder{display:none!important;}
+.page.v2-venue-page{height:auto!important;flex:none!important;overflow-y:visible!important;overflow-x:hidden!important;-webkit-overflow-scrolling:auto!important;overscroll-behavior-y:auto!important;}
 
 .hy-card{background:#fff;border:1px solid var(--v2-line);border-radius:16px;padding:20px;}
 .hy-service-group{border:1px solid var(--v2-line);border-radius:16px;margin-bottom:10px;overflow:hidden;background:#fff;}
