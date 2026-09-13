@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Willow &amp; Co. — Blooma (simplified layout test)</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#201a2e;--muted:#766e8f;--soft:#a39ab9;--purple:#7c5cd9;--purple-dark:#6948c4;
+    --lav:#f4f0fc;--lav2:#ece5fb;--line:#ebe7f3;--bg:#faf9fc;--gold:#F5A623;--green:#18874b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  button{font:inherit;cursor:pointer;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+
+  /* Nav */
+  .nav{position:sticky;top:0;z-index:30;background:rgba(250,249,252,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .nav-inner{max-width:760px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .nav-tabs{display:flex;gap:22px;}
+  .nav-tab{font-size:13.5px;font-weight:700;color:var(--muted);text-decoration:none;padding-bottom:4px;border-bottom:2px solid transparent;}
+  .nav-tab.active{color:var(--ink);border-color:var(--purple);}
+  .nav-right{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--muted);}
+  .nav-icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--ink);}
+  @media(max-width:640px){.nav-tabs{gap:16px;}.nav-right span{display:none;}}
+
+  /* Hero */
+  .hero-img{width:100%;height:280px;object-fit:cover;display:block;}
+  @media(max-width:640px){.hero-img{height:200px;}}
+
+  /* Profile card */
+  .profile-wrap{max-width:760px;margin:-46px auto 0;padding:0 20px;position:relative;z-index:2;}
+  .profile-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 10px 30px -14px rgba(32,26,46,.14);}
+  .profile-top{display:flex;align-items:flex-start;gap:14px;}
+  .profile-avatar{width:56px;height:56px;border-radius:16px;background:var(--lav);color:var(--purple);display:grid;place-items:center;font-weight:800;font-size:20px;flex:none;border:3px solid #fff;box-shadow:0 0 0 1px var(--line);}
+  .profile-name{font-size:19px;font-weight:800;margin:0;letter-spacing:-.3px;}
+  .profile-meta{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-top:4px;font-weight:600;}
+  .profile-meta strong{color:var(--ink);}
+  .profile-status{font-size:13px;color:var(--muted);margin-top:10px;display:flex;align-items:center;gap:7px;}
+  .profile-status .dot{width:6px;height:6px;border-radius:50%;background:var(--soft);flex:none;}
+  .profile-status.open .dot{background:var(--green);}
+  .profile-status.open{color:var(--green);}
+  .profile-actions{display:flex;gap:10px;margin-top:16px;}
+  .btn{border-radius:999px;height:46px;padding:0 22px;font-size:14px;font-weight:800;border:none;}
+  .btn-book{background:var(--purple);color:#fff;flex:1;}
+  .btn-book:hover{background:var(--purple-dark);}
+  .btn-contact{background:var(--lav);color:var(--purple);}
+  .contact-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted);line-height:1.7;}
+  .contact-panel.open{display:block;}
+  .contact-panel strong{color:var(--ink);}
+
+  section{padding:32px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .section-title{font-size:19px;font-weight:800;margin:0 0 16px;letter-spacing:-.3px;}
+
+  /* Policy note */
+  .policy-card{background:var(--lav);border-radius:16px;padding:18px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:22px;}
+  .policy-card p{font-size:13px;color:var(--ink);line-height:1.6;margin:0;}
+  .policy-card .btn{height:36px;padding:0 16px;font-size:12.5px;background:#fff;color:var(--ink);flex:none;}
+  .policy-card.dismissed{display:none;}
+
+  /* Services accordion */
+  .service-group{border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden;background:#fff;}
+  .service-group-head{width:100%;background:none;border:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;text-align:left;}
+  .service-group-head span{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .service-group-head svg{transition:transform .2s;color:var(--soft);flex:none;}
+  .service-group.open .service-group-head svg{transform:rotate(180deg);}
+  .service-rows{display:none;border-top:1px solid var(--line);}
+  .service-group.open .service-rows{display:block;}
+  .service-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;}
+  .service-row+.service-row{border-top:1px solid var(--line);}
+  .service-row-name{font-size:14px;font-weight:700;}
+  .service-row-sub{font-size:12px;color:var(--muted);margin-top:3px;font-weight:500;}
+  .service-row-price{font-size:14px;font-weight:800;white-space:nowrap;}
+  .addon-line{font-size:11.5px;color:var(--muted);margin-top:5px;}
+
+  /* Team */
+  .team-row{display:flex;align-items:center;gap:14px;padding:14px 4px;}
+  .team-row+.team-row{border-top:1px solid var(--line);}
+  .team-avatar{width:46px;height:46px;border-radius:14px;object-fit:cover;background:var(--lav);flex:none;}
+  .team-name{font-size:14.5px;font-weight:700;}
+  .team-specialty{font-size:12.5px;color:var(--muted);margin-top:2px;}
+
+  /* Contact / good to know */
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+  .info-col h3{font-size:13px;font-weight:800;margin:0 0 12px;}
+  .info-row{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+  .info-row svg{flex:none;margin-top:2px;color:var(--purple);}
+  .info-row strong{color:var(--ink);}
+  @media(max-width:560px){.info-grid{grid-template-columns:1fr;gap:20px;}}
+
+  /* Reviews */
+  .review-summary{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:22px;}
+  .review-score{text-align:center;flex:none;}
+  .review-score-num{font-size:38px;font-weight:800;letter-spacing:-1px;}
+  .review-stars{color:var(--gold);font-size:14px;margin:4px 0;}
+  .review-score-count{font-size:12.5px;color:var(--muted);}
+  .review-bars{flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;}
+  .review-bar-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);}
+  .review-bar-row span:first-child{width:38px;flex:none;}
+  .review-bar-track{flex:1;height:6px;background:var(--line);border-radius:999px;overflow:hidden;}
+  .review-bar-fill{display:block;height:100%;background:var(--gold);border-radius:999px;}
+  .review-bar-row span:last-child{width:16px;text-align:right;flex:none;}
+  .review-item{padding:16px 0;}
+  .review-item+.review-item{border-top:1px solid var(--line);}
+  .review-item-top{display:flex;align-items:center;gap:10px;}
+  .review-avatar{width:32px;height:32px;border-radius:50%;background:var(--lav2);color:var(--purple);display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;}
+  .review-item-name{font-size:13.5px;font-weight:700;}
+  .review-item-meta{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .review-item-stars{color:var(--gold);font-size:12px;margin:8px 0 6px;}
+  .review-item-text{font-size:13.5px;color:var(--ink);line-height:1.6;margin:0;}
+
+  footer{padding:28px 0;text-align:center;}
+  footer p{font-size:12px;color:var(--soft);margin:0;}
+  footer a{color:var(--muted);text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-tabs">
+      <a class="nav-tab active" href="#services">Services</a>
+      <a class="nav-tab" href="#team">Team</a>
+      <a class="nav-tab" href="#reviews">Reviews</a>
+    </div>
+    <div class="nav-right">
+      <span id="navPhone"></span>
+      <button class="nav-icon-btn" aria-label="Share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg></button>
+      <button class="nav-icon-btn" aria-label="Save"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>
+    </div>
+  </div>
+</nav>
+
+<img class="hero-img" id="heroImg" alt="Willow & Co.">
+
+<div class="profile-wrap">
+  <div class="profile-card">
+    <div class="profile-top">
+      <div class="profile-avatar" id="profileAvatar"></div>
+      <div style="flex:1;min-width:0;">
+        <p class="profile-name" id="profileName"></p>
+        <div class="profile-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--gold)" stroke="none"><path d="M12 1.5l3.22 6.86 7.28.94-5.44 5.06 1.46 7.64L12 18.27l-6.52 3.73 1.46-7.64L1.5 9.3l7.28-.94L12 1.5z"></path></svg><strong id="profileRating"></strong><span id="profileReviewCount"></span><span>·</span><span id="profileTag"></span></div>
+        <div class="profile-status" id="profileStatus"></div>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button class="btn btn-book" id="bookBtn">Book now</button>
+      <button class="btn btn-contact" id="contactToggle">Contact us</button>
+    </div>
+    <div class="contact-panel" id="contactPanel">
+      <div><strong>Phone:</strong> <span id="contactPhone"></span></div>
+      <div style="margin-top:6px;"><strong>Address:</strong> <span id="contactAddress"></span></div>
+    </div>
+  </div>
+
+  <div class="policy-card" id="policyCard">
+    <p><strong>Good to know:</strong> <span id="policyText"></span></p>
+    <button class="btn" id="policyDismiss">Okay</button>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section id="services">
+    <h2 class="section-title">Services</h2>
+    <div id="serviceGroups"></div>
+  </section>
+
+  <section id="team">
+    <h2 class="section-title">Team</h2>
+    <div id="teamRows"></div>
+  </section>
+
+  <section id="info">
+    <h2 class="section-title">Good to know</h2>
+    <div class="info-grid">
+      <div class="info-col">
+        <h3>Contact</h3>
+        <div class="info-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span id="infoPhone"></span></div>
+        <div class="info-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span id="infoAddress"></span></div>
+      </div>
+      <div class="info-col">
+        <h3>Cancellation policy</h3>
+        <div class="info-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="infoCancellation"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reviews">
+    <h2 class="section-title">Reviews</h2>
+    <div class="review-summary">
+      <div class="review-score">
+        <div class="review-score-num" id="reviewAvg"></div>
+        <div class="review-stars" id="reviewAvgStars"></div>
+        <div class="review-score-count" id="reviewCount"></div>
+      </div>
+      <div class="review-bars" id="reviewBars"></div>
+    </div>
+    <div id="reviewList"></div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Booking page for Willow &amp; Co., powered by <a href="/for-business">Blooma</a> · Design-simplification test, not a live page</p>
+</footer>
+
+<script>
+const salon = {
+  "id": "willow", "name": "Willow & Co.", "tag": "Hair · Color · Styling", "city": "Hamilton",
+  "about": "Willow & Co. is a boutique hair salon in the heart of Hamilton Central. We specialise in colour, cuts, and styling for all hair types. Our team is passionate about making every client feel their best.",
+  "phone": "0272727727", "region": "Waikato", "suburb": "Fairfield", "address": "24 Oxford Street", "postcode": "3214",
+  "main_image": "https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=1600&q=80&fit=crop&auto=format",
+  "cancellation_policy": "Free cancellation up to 24 hours before your appointment.",
+  "open_days": [1,2,3,4,5,6], "open_time": "08:30:00", "close_time": "17:00:00",
+  "services": [
+    {"id":"w5","name":"Blowout","price":40,"duration_minutes":15,"category_name":"Styling","addons":[]},
+    {"id":"w2","name":"Cut & Style","price":85,"duration_minutes":60,"category_name":"Hair","addons":[]},
+    {"id":"w3","name":"Full Balayage","price":220,"duration_minutes":150,"category_name":"Color","addons":[{"name":"Gloss Treatment","price":25,"duration_minutes":20}]},
+    {"id":"w4","name":"Root Touch-Up","price":110,"duration_minutes":90,"category_name":"Color","addons":[]},
+    {"id":"w1","name":"Signature Cut","price":65,"duration_minutes":15,"category_name":"Hair","addons":[{"name":"Deep Conditioning Treatment","price":15,"duration_minutes":15},{"name":"Scalp Massage","price":10,"duration_minutes":10}]}
+  ],
+  "stylists": [
+    {"name":"Megan S","image_url":"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=75&fit=crop&auto=format","specialty":"Color specialist"},
+    {"name":"Molly T","image_url":"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=75&fit=crop&auto=format","specialty":"Precision cuts & blowouts"},
+    {"name":"Stella K","image_url":"https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=75&fit=crop&auto=format","specialty":"Color specialist"}
+  ],
+  "reviews": [
+    {"date":"2026-09-09T22:32:31.89806+00:00","note":"Great experience, I really enjoyed my appointment with Priya! Thanks a lot.","rating":5,"service_name":"Blowout","stylist_name":"Priya","customer_name":"Corban Vietmeyer"},
+    {"date":"2026-08-28T00:40:38.82399+00:00","note":"Good!","rating":5,"service_name":"Full Balayage","stylist_name":"Mark N","customer_name":"Corban Vietmeyer"}
+  ]
+};
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function initials(name){ return String(name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+
+document.getElementById('heroImg').src = salon.main_image;
+document.getElementById('profileAvatar').textContent = initials(salon.name);
+document.getElementById('profileName').textContent = salon.name;
+document.getElementById('profileTag').textContent = salon.tag;
+document.getElementById('contactPhone').textContent = salon.phone;
+document.getElementById('contactAddress').textContent = `${salon.address}, ${salon.suburb}, ${salon.city}`;
+document.getElementById('infoPhone').textContent = salon.phone;
+document.getElementById('infoAddress').textContent = `${salon.address}, ${salon.suburb} ${salon.postcode}, ${salon.city}`;
+document.getElementById('infoCancellation').textContent = salon.cancellation_policy;
+document.getElementById('policyText').textContent = salon.cancellation_policy;
+document.getElementById('navPhone').textContent = salon.phone;
+
+// Rating from real reviews
+const ratingCount = salon.reviews.length;
+const avg = ratingCount ? (salon.reviews.reduce((s,r)=>s+r.rating,0)/ratingCount) : 0;
+document.getElementById('profileRating').textContent = avg.toFixed(1);
+document.getElementById('profileReviewCount').textContent = `(${ratingCount} review${ratingCount===1?'':'s'})`;
+
+// Open/closed status, computed from real hours
+(function(){
+  const now = new Date();
+  const day = now.getDay(); // 0 = Sun
+  const isOpenDay = salon.open_days.includes(day===0?7:day) || salon.open_days.includes(day);
+  const [oh,om] = salon.open_time.split(':').map(Number);
+  const [ch,cm] = salon.close_time.split(':').map(Number);
+  const openMins = oh*60+om, closeMins = ch*60+cm, nowMins = now.getHours()*60+now.getMinutes();
+  const el = document.getElementById('profileStatus');
+  const openNow = isOpenDay && nowMins>=openMins && nowMins<closeMins;
+  if (openNow){
+    el.className = 'profile-status open';
+    el.innerHTML = `<span class="dot"></span> Open now · Closes ${salon.close_time.slice(0,5)}`;
+  } else {
+    const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let nextDay = day, tries=0, label='today';
+    if (!isOpenDay || nowMins>=closeMins){ nextDay=(day+1)%7; label='tomorrow'; }
+    while(!salon.open_days.includes(nextDay===0?7:nextDay) && tries<7){ nextDay=(nextDay+1)%7; label=days[nextDay]; tries++; }
+    el.className = 'profile-status';
+    el.innerHTML = `<span class="dot"></span> Closed · Opens ${label} at ${new Date('1970-01-01T'+salon.open_time).toLocaleTimeString('en-NZ',{hour:'numeric',minute:'2-digit'})}`;
+  }
+})();
+
+// Services accordion, grouped by category
+(function(){
+  const groups = {};
+  salon.services.forEach(s=>{ (groups[s.category_name] = groups[s.category_name]||[]).push(s); });
+  const html = Object.keys(groups).map((cat,i)=>`
+    <div class="service-group${i===0?' open':''}">
+      <button class="service-group-head" data-group>
+        <span>${esc(cat).toUpperCase()}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="service-rows">
+        ${groups[cat].map(s=>`
+          <div class="service-row">
+            <div>
+              <div class="service-row-name">${esc(s.name)}</div>
+              <div class="service-row-sub">${s.duration_minutes} min</div>
+              ${s.addons.length?`<div class="addon-line">+ ${s.addons.map(a=>esc(a.name)+' ($'+a.price+')').join(', ')}</div>`:''}
+            </div>
+            <div class="service-row-price">$${s.price}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+  document.getElementById('serviceGroups').innerHTML = html;
+  document.querySelectorAll('[data-group]').forEach(btn=>{
+    btn.addEventListener('click', ()=> btn.closest('.service-group').classList.toggle('open'));
+  });
+})();
+
+// Team
+document.getElementById('teamRows').innerHTML = salon.stylists.map(st=>`
+  <div class="team-row">
+    <img class="team-avatar" src="${esc(st.image_url)}" alt="${esc(st.name)}">
+    <div>
+      <div class="team-name">${esc(st.name)}</div>
+      <div class="team-specialty">${esc(st.specialty)}</div>
+    </div>
+  </div>`).join('');
+
+// Reviews
+(function(){
+  const counts=[0,0,0,0,0];
+  salon.reviews.forEach(r=> counts[5-r.rating]++);
+  const max = Math.max(1,...counts);
+  document.getElementById('reviewAvg').textContent = avg.toFixed(1);
+  document.getElementById('reviewAvgStars').textContent = '★★★★★'.slice(0,Math.round(avg)) ;
+  document.getElementById('reviewCount').textContent = `${ratingCount} review${ratingCount===1?'':'s'}`;
+  document.getElementById('reviewBars').innerHTML = [5,4,3,2,1].map((star,i)=>`
+    <div class="review-bar-row">
+      <span>${star} star</span>
+      <div class="review-bar-track"><span class="review-bar-fill" style="width:${(counts[i]/max)*100}%"></span></div>
+      <span>${counts[i]}</span>
+    </div>`).join('');
+
+  function relTime(iso){
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const days = Math.floor(diffMs/86400000);
+    if (days<1) return 'today';
+    if (days<2) return '1 day ago';
+    if (days<14) return `${days} days ago`;
+    if (days<60) return `${Math.floor(days/7)} weeks ago`;
+    return `${Math.floor(days/30)} months ago`;
+  }
+  document.getElementById('reviewList').innerHTML = salon.reviews.map(r=>`
+    <div class="review-item">
+      <div class="review-item-top">
+        <div class="review-avatar">${initials(r.customer_name)}</div>
+        <div>
+          <div class="review-item-name">${esc(r.customer_name)}</div>
+          <div class="review-item-meta">${esc(r.service_name)} with ${esc(r.stylist_name)} · ${relTime(r.date)}</div>
+        </div>
+      </div>
+      <div class="review-item-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      <p class="review-item-text">${esc(r.note)}</p>
+    </div>`).join('');
+})();
+
+document.getElementById('contactToggle').addEventListener('click', ()=>{
+  document.getElementById('contactPanel').classList.toggle('open');
+});
+document.getElementById('policyDismiss').addEventListener('click', ()=>{
+  document.getElementById('policyCard').classList.add('dismissed');
+});
+document.getElementById('bookBtn').addEventListener('click', ()=>{
+  window.location.href = '/customer-checkout?venue=willow';
+});
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click', (e)=>{
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
