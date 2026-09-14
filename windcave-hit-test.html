@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windcave HIT test</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#131218;color:#F2F1F7;margin:0;padding:32px 20px;}
+  .wrap{max-width:640px;margin:0 auto;}
+  h1{font-size:20px;margin:0 0 4px;}
+  p.sub{color:#9F9CB0;font-size:13.5px;margin:0 0 24px;}
+  .row{display:flex;gap:10px;align-items:center;margin-bottom:20px;}
+  input[type=text]{background:#1C1B24;border:1px solid #2E2D3C;color:#F2F1F7;border-radius:8px;padding:9px 12px;font-size:14px;width:100px;}
+  button{background:#6D5FE8;color:#fff;border:none;border-radius:8px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;}
+  button:disabled{opacity:.5;cursor:default;}
+  button.stop{background:#FF6B81;}
+  .status{font-weight:700;font-size:15px;margin-bottom:14px;}
+  .status.approved{color:#3ED598;}
+  .status.declined{color:#FF6B81;}
+  .status.pending{color:#F4C93A;}
+  .log{background:#1C1B24;border:1px solid #2E2D3C;border-radius:10px;padding:14px 16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;max-height:60vh;overflow-y:auto;}
+  .log .line{border-bottom:1px solid #242330;padding:6px 0;}
+  .log .line:last-child{border-bottom:none;}
+  .log .tag{color:#B7ADF5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Windcave HIT terminal test</h1>
+  <p class="sub">UAT sandbox — fires a real Purchase request at your physical terminal (Station 3425350230). Have a test card ready.</p>
+  <div class="row">
+    <label for="amount" style="font-size:13px;color:#9F9CB0;">Amount (NZD)</label>
+    <input type="text" id="amount" value="1.00">
+    <button id="runBtn">Run test transaction</button>
+    <button id="stopBtn" class="stop" style="display:none;">Stop polling</button>
+  </div>
+  <div class="status" id="statusLine"></div>
+  <div class="log" id="log"></div>
+</div>
+<script>
+  const logEl = document.getElementById('log');
+  const statusEl = document.getElementById('statusLine');
+  const runBtn = document.getElementById('runBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  let pollTimer = null;
+  let polling = false;
+
+  function logLine(tag, text){
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.innerHTML = '<span class="tag">[' + tag + ']</span> ' + text.replace(/</g,'&lt;');
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function setStatus(text, cls){
+    statusEl.textContent = text;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function xmlValue(xml, tag){
+    const m = xml.match(new RegExp('<' + tag + '>([^<]*)</' + tag + '>', 'i'));
+    return m ? m[1] : null;
+  }
+
+  function stopPolling(){
+    polling = false;
+    if (pollTimer) clearTimeout(pollTimer);
+    stopBtn.style.display = 'none';
+    runBtn.disabled = false;
+  }
+  stopBtn.addEventListener('click', stopPolling);
+
+  async function pollStatus(txnRef, attempt){
+    if (!polling) return;
+    if (attempt > 45){
+      logLine('timeout', 'Gave up after 45 polls (~90s). Check the terminal screen directly.');
+      setStatus('Timed out waiting for a result', 'declined');
+      stopPolling();
+      return;
+    }
+    try{
+      const res = await fetch('/api/windcave-hit-test?action=status', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ txnRef })
+      });
+      const data = await res.json();
+      if (!res.ok){ logLine('error', data.error || 'Status request failed'); setStatus('Error', 'declined'); stopPolling(); return; }
+      logLine('poll ' + attempt, data.raw || '(empty response)');
+      const complete = xmlValue(data.raw || '', 'Complete');
+      if (complete === '1'){
+        const ap = xmlValue(data.raw, 'AP');
+        const rt = xmlValue(data.raw, 'RT');
+        const ac = xmlValue(data.raw, 'AC');
+        const tr = xmlValue(data.raw, 'TR');
+        if (ap === '1'){
+          setStatus('APPROVED' + (ac ? ' — auth code ' + ac : '') + (tr ? ' — ref ' + tr : ''), 'approved');
+        } else {
+          setStatus('DECLINED' + (rt ? ' — ' + rt : ''), 'declined');
+        }
+        stopPolling();
+        return;
+      }
+      pollTimer = setTimeout(()=>pollStatus(txnRef, attempt+1), 2000);
+    }catch(e){
+      logLine('error', e.message || String(e));
+      setStatus('Error', 'declined');
+      stopPolling();
+    }
+  }
+
+  runBtn.addEventListener('click', async ()=>{
+    logEl.innerHTML = '';
+    setStatus('Starting…', 'pending');
+    runBtn.disabled = true;
+    stopBtn.style.display = 'inline-block';
+    polling = true;
+    const amount = document.getElementById('amount').value || '1.00';
+    try{
+      const res = await fetch('/api/windcave-hit-test?action=start', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (!res.ok){ logLine('error', data.error || 'Start request failed'); setStatus('Error starting transaction', 'declined'); stopPolling(); return; }
+      logLine('start', data.raw || '(empty response)');
+      setStatus('Sent to terminal — waiting for card…', 'pending');
+      pollTimer = setTimeout(()=>pollStatus(data.txnRef, 1), 2000);
+    }catch(e){
+      logLine('error', e.message || String(e));
+      setStatus('Error', 'declined');
+      stopPolling();
+    }
+  });
+</script>
+</body>
+</html>
