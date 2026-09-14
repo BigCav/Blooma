@@ -1334,6 +1334,48 @@
   .v2-side-label{font-size:12px;color:var(--v2-soft);font-weight:700;}
   .v2-side-value{font-size:13.5px;font-weight:700;margin-top:3px;line-height:1.4;color:var(--v2-ink);}
   .v2-mobile-bar{display:none;}
+
+  /* ---- Redesign additions: compact service rows, hidden eyebrows/descriptions, review breakdown ---- */
+  .v2-eyebrow{display:none;}
+  .v2-section-sub{display:none;}
+  .v2-avatar{box-shadow:none;}
+  .v2-booking-card{box-shadow:none;}
+  .hy-about-card{margin-top:16px;}
+  .hy-about-card>p{margin-bottom:0;}
+  .hy-service-list-flat{border:1px solid var(--v2-line);border-radius:16px;overflow:hidden;background:#fff;}
+  .hy-service-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;cursor:pointer;transition:background-color .15s;}
+  .hy-service-row:hover,.hy-service-row:focus-visible{background-color:var(--v2-lav);}
+  .hy-service-row+.hy-service-row{border-top:1px solid var(--v2-line);}
+  .hy-service-row-name{font-size:14px;font-weight:700;color:var(--v2-ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .hy-service-row-sub{font-size:12px;color:var(--v2-muted);margin-top:3px;font-weight:500;}
+  .hy-service-row-price{font-size:14px;font-weight:800;white-space:nowrap;color:var(--v2-ink);}
+  .hy-service-row-right{display:flex;align-items:center;gap:16px;}
+  .hy-service-row-book{white-space:nowrap;position:relative;z-index:1;}
+  .hy-addon-badge{font-size:10.5px;font-weight:700;color:var(--v2-purple);background:var(--v2-lav);border-radius:999px;padding:3px 9px;}
+  .hy-view-all-row{display:block;width:100%;text-align:center;background:var(--v2-lav);color:var(--v2-purple);font-weight:800;font-size:14px;border:none;border-top:1px solid var(--v2-line);padding:15px 18px;cursor:pointer;}
+  .hy-view-all-row:hover{background:var(--v2-lav2);}
+  .hy-card{background:#fff;border:1px solid var(--v2-line);border-radius:16px;padding:20px;}
+  .hy-review-summary{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--v2-line);margin-bottom:20px;}
+  .hy-review-score{text-align:center;flex:none;}
+  .hy-review-score-num{font-size:38px;font-weight:800;letter-spacing:-1px;color:var(--v2-ink);}
+  .hy-review-score .v2-stars{justify-content:center;margin:4px 0;}
+  .hy-review-score-count{font-size:12.5px;color:var(--v2-muted);}
+  .hy-review-bars{flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;}
+  .hy-review-bar-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--v2-muted);}
+  .hy-review-bar-row span:first-child{width:38px;flex:none;}
+  .hy-review-bar-track{flex:1;height:6px;background:var(--v2-line);border-radius:999px;overflow:hidden;}
+  .hy-review-bar-fill{display:block;height:100%;background:var(--gold);border-radius:999px;}
+  .hy-review-bar-row span:last-child{width:16px;text-align:right;flex:none;}
+  .hy-review-item{padding:16px 0;}
+  .hy-review-item+.hy-review-item{border-top:1px solid var(--v2-line);}
+  .hy-review-item-top{display:flex;align-items:center;gap:10px;}
+  .hy-review-avatar{width:32px;height:32px;border-radius:50%;background:var(--v2-lav2);color:var(--v2-purple);display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;}
+  .hy-review-item-name{font-size:13.5px;font-weight:700;color:var(--v2-ink);}
+  .hy-review-item-top .review-meta-line{font-size:11.5px;margin:1px 0 0;}
+  .hy-review-item .v2-stars{margin:8px 0 6px;}
+  .hy-review-item-text{font-size:13.5px;color:var(--v2-ink);line-height:1.6;margin:0;}
+  #serviceDetailSheet{height:fit-content;min-height:0;max-height:85vh;overflow-y:auto;}
+  #serviceDetailSheet .service-detail-footer{margin-top:20px;}
   @media(max-width:899px){
     .v2-shell{padding:0 18px;}
     .v2-topbar-inner{height:66px;}
@@ -1356,6 +1398,10 @@
     .v2-service{padding:17px;gap:12px;}
     .v2-service-desc{display:none;}
     .v2-service-meta{flex-wrap:wrap;}
+    .hy-service-row-book{display:none;}
+    .v2-package-grid{display:block;background:#fff;border:1px solid var(--v2-line);border-radius:16px;overflow:hidden;}
+    .v2-package-card{border:none;border-radius:0;}
+    .v2-package-card+.v2-package-card{border-top:1px solid var(--v2-line);}
     .v2-meta-pricesep{display:none;}
     .v2-meta-addonsep{order:2;}
     .v2-meta-addons{order:3;}
@@ -3082,20 +3128,20 @@ const SALON_SERVICES_PREVIEW_LIMIT=6;
 function salonServicesMarkup(salon,category){
   const services=category==="All"?salon.services:salon.services.filter(s=>s.category===category);
   const fmtDuration=(d)=>d>=60?`${Math.floor(d/60)} hr${d%60?` ${d%60} min`:''}`:`${d} min`;
-  const fallbackDesc="A relaxing treatment designed to help you unwind, feel refreshed and enjoy a little time for yourself.";
   const showViewAll=services.length>SALON_SERVICES_PREVIEW_LIMIT;
   const visible=showViewAll?services.slice(0,SALON_SERVICES_PREVIEW_LIMIT):services;
   return `
-    ${visible.map(s=>`
-      <div class="v2-service" data-service-row="${escapeAttr(s.id)}" role="button" tabindex="0" aria-label="View ${escapeAttr(s.name)} details">
-        <div>
-          <h3 class="v2-service-name">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}</h3>
-          <p class="v2-service-desc">${escapeHtml((s.description||"").trim() || fallbackDesc)}</p>
-          <div class="v2-service-meta"><span>${fmtDuration(s.duration)}</span><span class="v2-dot v2-meta-pricesep"></span><span class="v2-service-price">$${s.price}</span>${s.addons&&s.addons.length?`<span class="v2-dot v2-meta-addonsep"></span><span class="v2-meta-addons">add-ons available</span>`:""}</div>
-        </div>
-        <button class="v2-book-small" data-service="${escapeAttr(s.id)}">Book</button>
-      </div>`).join("")}
-    ${showViewAll?`<button class="v2-view-all" data-view-all-services="1">View all ${services.length} services</button>`:""}
+    <div class="hy-service-list-flat">
+      ${visible.map(s=>`
+        <div class="hy-service-row" data-service-row="${escapeAttr(s.id)}" role="button" tabindex="0" aria-label="View ${escapeAttr(s.name)} details">
+          <div>
+            <div class="hy-service-row-name">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}${s.addons&&s.addons.length?`<span class="hy-addon-badge">Add-ons available</span>`:""}</div>
+            <div class="hy-service-row-sub">${fmtDuration(s.duration)}</div>
+          </div>
+          <div class="hy-service-row-right"><div class="hy-service-row-price">$${s.price}</div><button class="v2-book-small hy-service-row-book" data-service="${escapeAttr(s.id)}" type="button">Book</button></div>
+        </div>`).join("")}
+      ${showViewAll?`<button class="hy-view-all-row" data-view-all-services="1" type="button">View all ${services.length} services</button>`:""}
+    </div>
   `;
 }
 let serviceDetailCloseTimer=null;
@@ -3123,6 +3169,7 @@ function finishServiceDetailClose(afterClose){
   clearTimeout(serviceDetailCloseTimer);
   document.getElementById("serviceDetailSheet")?.remove();
   document.getElementById("serviceDetailOverlay")?.remove();
+  document.querySelector(".page")?.classList.remove("no-bg-scroll");
   activeServiceDetailId=null;
   if(typeof afterClose==="function") afterClose();
 }
@@ -3144,6 +3191,7 @@ function openServiceDetailSheet(service){
   if(!shell) return;
   activeServiceDetailId=String(service.id);
   shell.insertAdjacentHTML("beforeend",serviceDetailSheetMarkup(service));
+  document.querySelector(".page")?.classList.add("no-bg-scroll");
   const closeBtn=document.getElementById("closeServiceDetail");
   const overlay=document.getElementById("serviceDetailOverlay");
   const bookBtn=document.getElementById("serviceDetailBookBtn");
@@ -3253,9 +3301,9 @@ function renderSalon(){
         <div class="v2-breadcrumbs"><span>${escapeHtml(salon.city||"")}</span><span>&rsaquo;</span><span>${escapeHtml(primaryCategory)}</span><span>&rsaquo;</span><strong>${escapeHtml(salon.name)}</strong></div>
 
         <section class="v2-gallery" aria-label="Venue photos">
-          ${[0,1,2,3,4].map(i=>`<div class="v2-photo">${galleryTile(i)}${i===4?`<button class="v2-gallery-overlay" data-gallery="${escapeAttr(salon.id)}">&#8942;&nbsp;&nbsp;See all photos</button>`:""}</div>`).join("")}
+          ${[0,1,2,3,4].map(i=>`<div class="v2-photo">${galleryTile(i)}${i===4?`<button class="v2-gallery-overlay" data-gallery="${escapeAttr(salon.id)}">See all photos</button>`:""}</div>`).join("")}
         </section>
-        <section class="v2-mobile-hero">${galleryTile(0)}<button class="v2-mobile-all-images" type="button" data-gallery="${escapeAttr(salon.id)}" aria-label="View all venue images"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>All images</span></button></section>
+        <section class="v2-mobile-hero">${galleryTile(0)}<button class="v2-mobile-all-images" type="button" data-gallery="${escapeAttr(salon.id)}" aria-label="View all venue photos">All photos</button></section>
 
         <section class="v2-venue-head">
           <div>
@@ -3304,18 +3352,36 @@ function renderSalon(){
             ${salon.reviewList && salon.reviewList.length ? `
             <section class="v2-section">
               <p class="v2-eyebrow">Reviews</p>
-              <div class="v2-section-title-row"><h2>Loved by clients</h2><button class="v2-view-reviews-btn" data-reviews="${escapeAttr(salon.id)}">View all reviews</button></div>
-              <div class="v2-review-summary">
-                <div class="v2-big-rating">${salon.rating}</div>
-                <div><div class="v2-stars">${v2RatingStars(salon.rating,26)}</div><div class="v2-review-count">${salon.reviews} verified review${salon.reviews===1?"":"s"} on Blooma</div></div>
-              </div>
-              <div class="v2-reviews">
-                ${salon.reviewList.slice(0,4).map(r=>`
-                  <article class="v2-review">
-                    <div class="v2-review-top"><span class="v2-reviewer">${escapeHtml(r.name)}</span><span class="v2-stars">${v2RatingStars(r.rating,15)}</span></div>
-                    <p>${escapeHtml(r.text)}</p>
-                    ${reviewMetaLineMarkup(r, salon)}
-                  </article>`).join("")}
+              <div class="v2-section-title-row"><h2>What clients say</h2><button class="v2-view-reviews-btn" data-reviews="${escapeAttr(salon.id)}">View all reviews</button></div>
+              <div class="hy-card">
+                <div class="hy-review-summary">
+                  <div class="hy-review-score">
+                    <div class="hy-review-score-num">${salon.rating}</div>
+                    <div class="v2-stars">${v2RatingStars(salon.rating,28)}</div>
+                    <div class="hy-review-score-count">${salon.reviews} review${salon.reviews===1?"":"s"}</div>
+                  </div>
+                  <div class="hy-review-bars">
+                    ${[5,4,3,2,1].map(n=>{
+                      const count=salon.reviewList.filter(r=>Math.round(Number(r.rating)||0)===n).length;
+                      const pct=Math.round(count/salon.reviewList.length*100);
+                      return `<div class="hy-review-bar-row"><span>${n} star</span><div class="hy-review-bar-track"><span class="hy-review-bar-fill" style="width:${pct}%"></span></div><span>${count}</span></div>`;
+                    }).join("")}
+                  </div>
+                </div>
+                ${salon.reviewList.slice(0,4).map(r=>{
+                  const initials=(r.name||"?").trim().split(/\s+/).map(w=>w[0]||"").join("").slice(0,2).toUpperCase();
+                  return `
+                  <div class="hy-review-item">
+                    <div class="hy-review-item-top">
+                      <div class="hy-review-avatar">${escapeHtml(initials)}</div>
+                      <div>
+                        <div class="hy-review-item-name">${escapeHtml(r.name)}</div>
+                        ${reviewMetaLineMarkup(r, salon)}
+                      </div>
+                    </div>
+                    <div class="v2-stars">${v2RatingStars(r.rating,18)}</div>
+                    <p class="hy-review-item-text">${escapeHtml(r.text)}</p>
+                  </div>`;}).join("")}
               </div>
             </section>` : ""}
 
@@ -3353,12 +3419,6 @@ function renderSalon(){
               </div>
             </section>
 
-            ${salon.blurb ? `
-            <section class="v2-section">
-              <p class="v2-eyebrow">About</p><h2>The venue</h2>
-              <div class="v2-info-card"><p class="v2-about">${escapeHtml(salon.blurb)}</p></div>
-            </section>` : ""}
-
             <section class="v2-section">
               <p class="v2-eyebrow">Location</p><h2>Find us in ${escapeHtml(salon.city||"")}</h2>
               <div class="v2-map-attrib-hidden">${venueMapSectionMarkup(salon)}</div>
@@ -3374,12 +3434,13 @@ function renderSalon(){
                 <h3>Ready to book?</h3>
                 <p>Choose a service and find a time that suits you.</p>
                 <button class="v2-big-book" id="venueBookNowBtnDesktop">Book now</button>
-                <div class="v2-side-divider"></div>
-                <div class="v2-side-row"><div class="v2-side-icon">${icon('clock')}</div><div><div class="v2-side-label">TODAY</div><div class="v2-side-value">${escapeHtml(status.todayHoursLabel)}</div></div></div>
-                <div class="v2-side-row"><div class="v2-side-icon">${icon('mapPin')}</div><div><div class="v2-side-label">LOCATION</div><div class="v2-side-value">${escapeHtml(locationLine)}</div></div></div>
-                ${salon.rating!=="New"?`<div class="v2-side-row"><div class="v2-side-icon">${icon('star')}</div><div><div class="v2-side-label">RATING</div><div class="v2-side-value">${salon.rating} from ${salon.reviews} review${salon.reviews===1?"":"s"}</div></div></div>`:""}
               </div>
               ${venueRewardsCardMarkup('margin-top:16px;')}
+              ${salon.blurb ? `
+              <div class="v2-booking-card hy-about-card">
+                <h3>About the venue</h3>
+                <p class="v2-about">${escapeHtml(salon.blurb)}</p>
+              </div>` : ""}
             </div>
           </aside>
         </div>
