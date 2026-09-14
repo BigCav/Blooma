@@ -280,6 +280,15 @@
   }
   .stylist-sheet-card.closing{animation:homeMenuSheetDown .2s var(--ease-in) forwards;pointer-events:none;}
   .stylist-sheet-close{display:none;}
+  .stylist-sheet-body{flex:1;overflow-y:auto;min-height:0;padding:4px 20px 40px;}
+  @media(max-width:899px){
+    /* The score + star-breakdown bars sit side by side on the wide venue page they're shared
+       with, but there isn't room for that at mobile widths - they wrap onto their own lines,
+       and left-aligned bars under a centered score number read as misaligned, so center the
+       whole block instead of letting it wrap out to the left edge. */
+    .stylist-sheet-card .hy-review-summary{flex-direction:column;align-items:center;text-align:center;}
+    .stylist-sheet-card .hy-review-bars{width:100%;max-width:260px;}
+  }
   @media(min-width:900px){
     .stylist-sheet-overlay{background:rgba(20,10,40,.45);}
     .stylist-sheet-card{
@@ -298,6 +307,9 @@
       border-radius:50%;background:var(--white);border:1px solid var(--border-2);
     }
     .stylist-sheet-close:hover{background:var(--purple-pastel-2);}
+    /* No topbar to sit below on desktop (it's hidden, replaced by the close button above), so
+       the avatar needs its own top margin instead of the 4px meant to clear a topbar. */
+    .stylist-sheet-body{padding-top:44px;}
   }
 
   .location-pill{
@@ -3967,7 +3979,7 @@ function stylistSheetMarkup(){
         </div>
       </div>
       <button id="closeStylistSheet" class="stylist-sheet-close" aria-label="Close">${icon('x')}</button>
-      <div style="flex:1;overflow-y:auto;min-height:0;padding:4px 20px 40px;">
+      <div class="no-scrollbar stylist-sheet-body">
         <div style="padding:12px 0 6px;display:flex;flex-direction:column;align-items:center;text-align:center;">
           <div class="stylist-hero-avatar" style="width:96px;height:96px;font-size:34px;overflow:hidden;${stylist.photo?'background:var(--purple-pastel-2);':'background:linear-gradient(135deg, '+theme[0]+', '+theme[1]+');color:#fff;'}border:none;">${stylist.photo?`<img src="${escapeAttr(stylist.photo)}" alt="${escapeAttr(stylist.name)}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(stylist.name.charAt(0))}</div>
           <h2 style="font-size:21px;font-weight:700;color:var(--v2-ink);margin:14px 0 0;">${escapeHtml(stylist.name)}</h2>
