@@ -40,7 +40,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 .service-cats{display:flex;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:0 0 18px;padding:1px 1px 3px;scroll-padding-inline:1px}.service-cats::-webkit-scrollbar{display:none}.service-cat{flex:0 0 auto;min-height:38px;padding:7px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s,color .15s;box-shadow:none}.service-cat:hover{border-color:#d9cffa}.service-cat.selected{background:var(--ink);border-color:var(--ink);color:#fff}.service-empty{border:1px dashed var(--line);border-radius:18px;padding:22px 18px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.5;background:#fff}
 .panel.panel-flush{background:transparent;border:none;box-shadow:none;padding:0}
 .service-list-flat{border-radius:16px;overflow:hidden;background:#fff}
-.service-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px 17px;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;border-style:solid;border-width:2px 2px 0;border-color:var(--line)}
+.service-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px 15px;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;border-style:solid;border-width:1px 1px 0;border-color:var(--line)}
 .service-row:hover,.service-row:focus-visible{background-color:var(--lav)}
 .service-row:first-child{border-top-left-radius:16px;border-top-right-radius:16px}
 .service-row:last-child{border-bottom-left-radius:16px;border-bottom-right-radius:16px}
@@ -419,30 +419,45 @@ function renderSummary(){
 }
 function panelHead(title,sub){ return `<div class="panel-head"><div><p class="section-label" style="display:none;">${esc(stepDefs()[state.step]?.label||'')}</p><h2>${esc(title)}</h2><p class="panel-sub" style="display:none;">${esc(sub)}</p></div></div>`; }
 
-// Computes the border for each edge of a row in a joined/connected list (no gaps between rows).
-// The container itself draws no border of its own - every edge, including the two outer ones, is
-// owned by exactly one row's own border declaration. That's the only way to get a genuinely solid
-// corner: two elements each drawing a border in roughly the same place (a container's outer
-// stroke plus a row's own inner one) forced a visible seam between them - a grey sliver outside
-// the purple on straight edges, and on real device pixel ratios a small gap where their two
-// independently-antialiased curves didn't quite line up at the rounded corners. With only one
-// stroke ever drawn, first/last row's own matching border-radius (see :first-child/:last-child in
-// CSS) simply follows the container's overflow:hidden clip with nothing behind it to peek
-// through. Every shared boundary between two rows is likewise owned by exactly one declaration
-// (the lower row's own top edge) - the row above it gets border-bottom-width:0 in the base CSS
-// rather than a transparent-colored border, because a transparent side is still a corner for
-// border-rendering purposes: mitered diagonally against its opaque left/right neighbors, which
-// left a triangular notch cut out of the side border at every row boundary. A zero-width side has
-// no corner to miter. Only the last row needs its own real bottom border, added back here (with
-// matching padding so its row isn't 2px taller than the rest).
+// Computes the border (+ accent box-shadow) for each edge of a row in a joined/connected list (no
+// gaps between rows). Matches the stylist step's own selected-card treatment: a static 1px border
+// that recolors to purple, plus an inset accent line just inside it for extra weight (never a
+// width CHANGE, which would either shift layout or - if compensated with padding - fight the
+// corner math). The container itself draws no border of its own - every edge, including the two
+// outer ones, is owned by exactly one row's own declaration. That's the only way to get a
+// genuinely solid corner: two elements each drawing a border/shadow in roughly the same place (a
+// container's outer stroke plus a row's own inner one) forced a visible seam between them, and on
+// real device pixel ratios a gap where their two independently-antialiased curves didn't quite
+// line up. With only one stroke+shadow ever drawn per edge, first/last row's own matching
+// border-radius (see :first-child/:last-child in CSS) simply follows the container's
+// overflow:hidden clip with nothing behind it to peek through, and the inset shadow (rendered by
+// the same element) naturally follows that same radius at the corners.
+//
+// Every shared boundary between two rows is owned by exactly one declaration (the lower row's own
+// top edge) - the row above it gets border-bottom-width:0 in the base CSS rather than a
+// transparent-colored border, because a transparent side is still a corner for border-rendering
+// purposes: mitered diagonally against its opaque left/right neighbors, leaving a triangular notch
+// cut out of the side border at every row boundary. A zero-width side has no corner to miter. Only
+// the last row needs its own real bottom border, added back here (with matching padding so its
+// row isn't 1px taller than the rest). The accent shadow follows the same ownership: a row only
+// ever gets an inset accent line on a side it actually owns the border for, so two adjacent
+// selected rows never double up their shared boundary.
 function connectedRowBorderStyle(list, idx, isSelected){
   const sel = isSelected(list[idx]);
   const prevSel = idx>0 && isSelected(list[idx-1]);
   const isLast = idx===list.length-1;
-  const top = (sel || prevSel) ? 'var(--purple)' : 'var(--line)';
+  const topPurple = sel || prevSel;
+  const top = topPurple ? 'var(--purple)' : 'var(--line)';
   const side = sel ? 'var(--purple)' : 'var(--line)';
-  const lastRowBottom = isLast ? `border-bottom-width:2px;border-bottom-color:${sel ? 'var(--purple)' : 'var(--line)'};padding-bottom:15px;` : '';
-  return `border-top-color:${top};border-left-color:${side};border-right-color:${side};${lastRowBottom}`;
+  const lastRowBottom = isLast ? `border-bottom-width:1px;border-bottom-color:${sel ? 'var(--purple)' : 'var(--line)'};padding-bottom:14px;` : '';
+  const accents = [
+    topPurple ? 'inset 0 1px 0 0 var(--purple)' : '',
+    sel ? 'inset 1px 0 0 0 var(--purple)' : '',
+    sel ? 'inset -1px 0 0 0 var(--purple)' : '',
+    (isLast && sel) ? 'inset 0 -1px 0 0 var(--purple)' : '',
+  ].filter(Boolean);
+  const shadow = accents.length ? `box-shadow:${accents.join(',')};` : 'box-shadow:none;';
+  return `border-top-color:${top};border-left-color:${side};border-right-color:${side};${lastRowBottom}${shadow}`;
 }
 
 function renderPanel(){
