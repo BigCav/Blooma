@@ -2537,6 +2537,21 @@ function setState(patch, renderOpts){
   Object.assign(state, patch);
   render(renderOpts);
 }
+// Like setState, but crossfades #app (which survives render()'s innerHTML swap of its children)
+// around the state change instead of snapping straight to the new content. Used for transitions
+// that swap out a real page's worth of DOM under a modal - e.g. the stylist portfolio gallery,
+// which otherwise rebuilds the whole underlying venue page (images and all) with a visible flash
+// when you navigate into or back out of it.
+function fadeStateChange(patch, renderOpts){
+  const app=document.getElementById('app');
+  if(!app){ setState(patch, renderOpts); return; }
+  app.style.transition='opacity .15s ease';
+  app.style.opacity='0';
+  setTimeout(()=>{
+    setState(patch, renderOpts);
+    requestAnimationFrame(()=>{ app.style.opacity='1'; });
+  },150);
+}
 function customerHistorySnapshot(){
   return {
     blooma:true,bloomaUi:true,page:state.page,step:Number(state.step||0),
@@ -4827,7 +4842,7 @@ function bindEvents(){
       btn.addEventListener("click", ()=> updateStylistCategory(stylist, btn.getAttribute("data-stycat")));
     });
     document.querySelectorAll("[data-stylistgallery]").forEach(btn=>{
-      btn.addEventListener("click", ()=> setState({ page:"stylistGallery", stylistSheetOpen:false }));
+      btn.addEventListener("click", ()=> fadeStateChange({ page:"stylistGallery", stylistSheetOpen:false }));
     });
   }
   document.querySelectorAll("[data-reviewstylist]").forEach(btn=>{
@@ -4846,7 +4861,7 @@ function bindEvents(){
   }
 
   if (state.page === "stylistGallery"){
-    document.getElementById("backBtn").addEventListener("click", ()=> setState({ page:"salon", stylistSheetOpen:true }, { samePage:true }));
+    document.getElementById("backBtn").addEventListener("click", ()=> fadeStateChange({ page:"salon", stylistSheetOpen:true }, { samePage:true }));
   }
 
   if (state.page === "gallery"){
