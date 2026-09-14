@@ -39,9 +39,11 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 .panel{background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 1px 0 rgba(30,20,50,.02)}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:24px}.panel h2{font-size:30px;letter-spacing:-.8px;margin:0}.panel-sub{font-size:14px;color:var(--muted);line-height:1.55;margin:7px 0 0}.section-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin:0 0 11px}.stack{display:flex;flex-direction:column;gap:12px}
 .service-cats{display:flex;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:0 0 18px;padding:1px 1px 3px;scroll-padding-inline:1px}.service-cats::-webkit-scrollbar{display:none}.service-cat{flex:0 0 auto;min-height:38px;padding:7px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s,color .15s;box-shadow:none}.service-cat:hover{border-color:#d9cffa}.service-cat.selected{background:var(--ink);border-color:var(--ink);color:#fff}.service-empty{border:1px dashed var(--line);border-radius:18px;padding:22px 18px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.5;background:#fff}
 .panel.panel-flush{background:transparent;border:none;box-shadow:none;padding:0}
-.service-list-flat{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
-.service-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;border-style:solid;border-width:1px;border-color:transparent}
+.service-list-flat{border-radius:16px;overflow:hidden;background:#fff}
+.service-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;border-style:solid;border-width:2px;border-color:var(--line)}
 .service-row:hover,.service-row:focus-visible{background-color:var(--lav)}
+.service-row:first-child{border-top-left-radius:16px;border-top-right-radius:16px}
+.service-row:last-child{border-bottom-left-radius:16px;border-bottom-right-radius:16px}
 .service-row-name{font-size:14px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .service-row-sub{font-size:12.5px;color:var(--muted);margin:3px 0 0}
 .addon-badge{font-size:10.5px;font-weight:700;color:var(--purple);background:var(--lav);border-radius:999px;padding:3px 9px}
@@ -418,25 +420,25 @@ function renderSummary(){
 function panelHead(title,sub){ return `<div class="panel-head"><div><p class="section-label" style="display:none;">${esc(stepDefs()[state.step]?.label||'')}</p><h2>${esc(title)}</h2><p class="panel-sub" style="display:none;">${esc(sub)}</p></div></div>`; }
 
 // Computes the border-color for each edge of a row in a joined/connected list (no gaps between
-// rows), and separately for the list's own outer container. Rows never get their own
-// border-radius (mixing a radius with a solid border on an element that's also touching its
-// siblings is what produced a rendering notch at the corner on real hardware) - the two outer
-// edges (top of the first row, bottom of the last) are instead colored on the CONTAINER itself,
-// which already has one clean uniform border-radius. Every other boundary between two rows is
-// owned by exactly one declaration (the lower row's own top edge), so it's always a single
-// regular-width line: never doubled when both neighbors are selected, never removed.
+// rows). The container itself draws no border of its own - every edge, including the two outer
+// ones, is owned by exactly one row's own border declaration. That's the only way to get a
+// genuinely solid corner: two elements each drawing a border in roughly the same place (a
+// container's outer stroke plus a row's own inner one) forced a visible seam between them - a
+// grey sliver outside the purple on straight edges, and on real device pixel ratios a small gap
+// where their two independently-antialiased curves didn't quite line up at the rounded corners.
+// With only one stroke ever drawn, first/last row's own matching border-radius (see :first-child/
+// :last-child in CSS) simply follows the container's overflow:hidden clip with nothing behind it
+// to peek through. Every shared boundary between two rows is likewise owned by exactly one
+// declaration (the lower row's own top edge), so it's always a single line: never doubled when
+// both neighbors are selected, never removed.
 function connectedRowBorderStyle(list, idx, isSelected){
   const sel = isSelected(list[idx]);
   const prevSel = idx>0 && isSelected(list[idx-1]);
-  const top = idx===0 ? 'transparent' : ((sel || prevSel) ? 'var(--purple)' : 'var(--line)');
-  const side = sel ? 'var(--purple)' : 'transparent';
-  return `border-top-color:${top};border-bottom-color:transparent;border-left-color:${side};border-right-color:${side};`;
-}
-function connectedListEdgeStyle(list, isSelected){
-  if(!list.length) return '';
-  const topColor = isSelected(list[0]) ? 'var(--purple)' : 'var(--line)';
-  const bottomColor = isSelected(list[list.length-1]) ? 'var(--purple)' : 'var(--line)';
-  return `border-top-color:${topColor};border-bottom-color:${bottomColor};`;
+  const isLast = idx===list.length-1;
+  const top = (sel || prevSel) ? 'var(--purple)' : 'var(--line)';
+  const bottom = isLast ? (sel ? 'var(--purple)' : 'var(--line)') : 'transparent';
+  const side = sel ? 'var(--purple)' : 'var(--line)';
+  return `border-top-color:${top};border-bottom-color:${bottom};border-left-color:${side};border-right-color:${side};`;
 }
 
 function renderPanel(){
@@ -450,14 +452,14 @@ function renderPanel(){
     h = panelHead('Choose your service(s)','Select every treatment you would like in this visit - you can choose more than one.')
       + `<div class="service-cats" aria-label="Service categories">${categories.map(c=>`<button class="service-cat ${state.serviceCategory===c?'selected':''}" data-service-category="${esc(c)}">${esc(c)}</button>`).join('')}</div>`
       + (filtered.length
-          ? (()=>{ const isSel=s=>state.services.some(sv=>sv.id===s.id); return `<div class="service-list-flat" style="${connectedListEdgeStyle(filtered,isSel)}">${filtered.map((x,i)=>`<button class="service-row ${isSel(x)?'selected':''}" data-service="${esc(x.id)}" type="button" style="${connectedRowBorderStyle(filtered,i,isSel)}"><div><p class="service-row-name">${esc(x.name)}${x.addons&&x.addons.length?'<span class="addon-badge">Add-ons available</span>':''}</p><p class="service-row-sub">${x.duration} min${x.description?' · '+esc(x.description):''}</p></div><div class="service-row-price">$${x.price}</div></button>`).join('')}</div>`; })()
+          ? (()=>{ const isSel=s=>state.services.some(sv=>sv.id===s.id); return `<div class="service-list-flat">${filtered.map((x,i)=>`<button class="service-row ${isSel(x)?'selected':''}" data-service="${esc(x.id)}" type="button" style="${connectedRowBorderStyle(filtered,i,isSel)}"><div><p class="service-row-name">${esc(x.name)}${x.addons&&x.addons.length?'<span class="addon-badge">Add-ons available</span>':''}</p><p class="service-row-sub">${x.duration} min${x.description?' · '+esc(x.description):''}</p></div><div class="service-row-price">$${x.price}</div></button>`).join('')}</div>`; })()
           : `<div class="service-empty">No services in this category yet.</div>`);
   } else if(key==='addons'){
     const withAddons=state.services.filter(s=>s.addons && s.addons.length);
     h = panelHead('Add anything extra?','Optional extras can be added now and included in the final appointment time.')
       + withAddons.map((svc,i)=>(
           (withAddons.length>1 ? `<p class="section-label" style="margin-top:${i?'22px':'0'}">${esc(svc.name)}</p>` : '')
-          + (()=>{ const isSel=a=>state.addons.includes(a.id); return `<div class="service-list-flat" style="${connectedListEdgeStyle(svc.addons,isSel)}">${svc.addons.map((a,i)=>`<button class="service-row ${isSel(a)?'selected':''}" data-addon="${esc(a.id)}" type="button" style="${connectedRowBorderStyle(svc.addons,i,isSel)}"><div><p class="service-row-name">${esc(a.name)}</p>${a.duration?`<p class="service-row-sub">${a.duration} min</p>`:''}</div><div class="service-row-price">+$${a.price}</div></button>`).join('')}</div>`; })()
+          + (()=>{ const isSel=a=>state.addons.includes(a.id); return `<div class="service-list-flat">${svc.addons.map((a,i)=>`<button class="service-row ${isSel(a)?'selected':''}" data-addon="${esc(a.id)}" type="button" style="${connectedRowBorderStyle(svc.addons,i,isSel)}"><div><p class="service-row-name">${esc(a.name)}</p>${a.duration?`<p class="service-row-sub">${a.duration} min</p>`:''}</div><div class="service-row-price">+$${a.price}</div></button>`).join('')}</div>`; })()
         )).join('');
   } else if(key==='stylist'){
     h = panelHead('Who would you like to see?','Choose a specific artist or let Blooma show you the widest availability.')
