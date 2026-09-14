@@ -262,35 +262,6 @@
   @keyframes gcModalIn{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
   @keyframes gcModalOut{from{transform:scale(1);opacity:1;}to{transform:scale(.96);opacity:0;}}
 
-  /* Stylist profile: same mobile bottom sheet as before, but a real centered modal on desktop
-     instead of reusing .home-menu-sheet's small 288px anchored-dropdown treatment (built for the
-     hamburger menu, far too cramped for an avatar + bio + services + portfolio + reviews). */
-  .stylist-sheet-overlay{
-    position:fixed;inset:0;z-index:150;background:rgba(20,10,40,.4);
-    animation:homeMenuOverlayIn .22s var(--ease-out);
-  }
-  .stylist-sheet-overlay.closing{animation:homeMenuOverlayOut .18s var(--ease-in) forwards;pointer-events:none;}
-  .stylist-sheet-card{
-    position:fixed;left:0;right:0;bottom:0;z-index:151;max-width:480px;margin:0 auto;
-    background:var(--bg);border-radius:24px 24px 0 0;box-shadow:0 -14px 36px rgba(36,31,51,.14);
-    max-height:88%;overflow-y:auto;-webkit-overflow-scrolling:touch;
-    padding:16px 20px calc(24px + env(safe-area-inset-bottom));
-    animation:homeMenuSheetUp .26s var(--ease-out);
-  }
-  .stylist-sheet-card.closing{animation:homeMenuSheetDown .2s var(--ease-in) forwards;pointer-events:none;}
-  @media(min-width:900px){
-    .stylist-sheet-card{
-      /* See the matching comment on .gc-sheet-card — inset+margin centering avoids the
-         half-pixel transform offset that was rendering this modal blurry. */
-      inset:0;margin:auto;
-      max-width:600px;width:92%;border-radius:20px;max-height:88vh;padding:28px 32px;
-      animation:gcModalIn .2s var(--ease-out);
-    }
-    .stylist-sheet-card.closing{animation:gcModalOut .14s var(--ease-in) forwards;}
-    /* .home-menu-sheet-header is reused here for the close button only (no title) — the generic
-       desktop rule for the hamburger menu's own header hides it entirely, so restore it. */
-    .stylist-sheet-card .home-menu-sheet-header{display:flex!important;}
-  }
 
   .location-pill{
     display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;max-width:150px;
@@ -2407,6 +2378,7 @@ let state = {
   reviewDraftNote: "",
   activeReviewBookingId: null,
   stylistProfile: null,
+  stylistCategory: "All",
   gallerySalon: null,
   reviewSalon: null,
   checkoutOrigin: null,
@@ -2438,7 +2410,6 @@ let state = {
   intakeAnswers: {},
   intakeError: "",
   confirmDialog: null,
-  stylistSheetOpen: false,
   waitlist: [],
   authenticated: false,
   authReady: false,
@@ -2542,7 +2513,7 @@ function restoreCustomerHistoryState(entry){
   if(!salon){ Object.assign(state,{page:"home",salon:null,service:null,step:0}); render(); return true; }
   state.salon=salon;
   if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); loadLoyaltyAccount(); return true; }
-  if(page==="stylist"){ state.stylistProfile=(salon.stylists||[]).find(st=>st.id===entry.stylistId)||state.stylistProfile; state.page="salon"; state.stylistSheetOpen=true; render(); return true; }
+  if(page==="stylist"){ state.stylistProfile=(salon.stylists||[]).find(st=>st.id===entry.stylistId)||state.stylistProfile; state.page="stylist"; state.stylistCategory="All"; render(); return true; }
   if(page==="gallery"){ state.gallerySalon=salon; state.page="gallery"; render(); return true; }
   if(page==="reviews"){ state.reviewSalon=salon; state.page="reviews"; render(); return true; }
   return false;
@@ -2659,18 +2630,9 @@ function goReviews(salon){
   pushCustomerHistoryState();
 }
 function goStylistProfile(stylist){
-  setState({ stylistProfile: stylist, stylistSheetOpen: true }, { samePage:true });
-}
-function closeStylistSheet(afterClose){
-  const sheet=document.getElementById("stylistSheetCard");
-  const overlay=document.getElementById("stylistSheetOverlay");
-  const finish=()=>{
-    state.stylistSheetOpen=false;
-    if(typeof afterClose==="function") afterClose(); else render({samePage:true});
-  };
-  if(!sheet){ finish(); return; }
-  sheet.classList.add("closing"); overlay?.classList.add("closing");
-  setTimeout(finish,220);
+  rememberVenueScroll();
+  setState({ page:"stylist", stylistProfile: stylist, stylistCategory: "All" });
+  pushCustomerHistoryState();
 }
 function cancelBooking(id){
   setState({ confirmDialog: { title:"Cancel booking?", message:"This will remove the appointment from your bookings. You'll need to book again if you change your mind.", confirmLabel:"Cancel booking", actionType:"cancelBooking", actionId:id } }, { samePage:true });
@@ -3146,6 +3108,7 @@ function salonServicesMarkup(salon,category){
 }
 let serviceDetailCloseTimer=null;
 let activeServiceDetailId=null;
+let activeServiceDetailStylist=null;
 function serviceDetailSheetMarkup(service){
   const savedDescription=String(service?.description||"").trim();
   const description=savedDescription||"A relaxing treatment designed to help you unwind, feel refreshed and enjoy a little time for yourself.";
@@ -3171,6 +3134,7 @@ function finishServiceDetailClose(afterClose){
   document.getElementById("serviceDetailOverlay")?.remove();
   document.querySelector(".page")?.classList.remove("no-bg-scroll");
   activeServiceDetailId=null;
+  activeServiceDetailStylist=null;
   if(typeof afterClose==="function") afterClose();
 }
 function closeServiceDetailSheet(afterClose,animated=true){
@@ -3183,13 +3147,14 @@ function closeServiceDetailSheet(afterClose,animated=true){
   overlay?.classList.add("closing");
   serviceDetailCloseTimer=setTimeout(()=>finishServiceDetailClose(afterClose),250);
 }
-function openServiceDetailSheet(service){
+function openServiceDetailSheet(service,preferredStylist){
   if(!service) return;
   if(document.getElementById("homeMenuCard")) closeHomeMenuSheet(null,false);
   finishServiceDetailClose();
   const shell=document.querySelector(".shell");
   if(!shell) return;
   activeServiceDetailId=String(service.id);
+  activeServiceDetailStylist=preferredStylist||null;
   shell.insertAdjacentHTML("beforeend",serviceDetailSheetMarkup(service));
   document.querySelector(".page")?.classList.add("no-bg-scroll");
   const closeBtn=document.getElementById("closeServiceDetail");
@@ -3198,7 +3163,7 @@ function openServiceDetailSheet(service){
   closeBtn?.addEventListener("click",()=>closeServiceDetailSheet());
   overlay?.addEventListener("click",()=>closeServiceDetailSheet());
   bookBtn?.addEventListener("click",()=>closeServiceDetailSheet(()=>{
-    goCheckoutPage(service);
+    goCheckoutPage(service,activeServiceDetailStylist);
   }));
 }
 function bindSalonServiceButtons(scope=document){
@@ -3250,6 +3215,60 @@ function updateSalonCategory(category){
     section.innerHTML=salonServicesMarkup(state.salon,category);
     bindSalonServiceButtons(section);
     updateVenueSidebarStick();
+  }else render({samePage:true});
+}
+
+// Same compact row markup as salonServicesMarkup, scoped to just the services this stylist
+// performs (falls back to every service if the stylist has no serviceIds set) - used on the
+// stylist's own profile page, which is filtered by category the same way the venue page is.
+function stylistServicesForCategory(stylist,salon,category){
+  const stylistServices=(stylist.serviceIds && stylist.serviceIds.length) ? salon.services.filter(sv=>stylist.serviceIds.includes(sv.id)) : salon.services;
+  return category==="All" ? stylistServices : stylistServices.filter(s=>s.category===category);
+}
+function stylistServicesMarkup(stylist,salon,category){
+  const services=stylistServicesForCategory(stylist,salon,category);
+  const fmtDuration=(d)=>d>=60?`${Math.floor(d/60)} hr${d%60?` ${d%60} min`:''}`:`${d} min`;
+  return `
+    <div class="hy-service-list-flat">
+      ${services.map(s=>`
+        <div class="hy-service-row" data-service-row="${escapeAttr(s.id)}" role="button" tabindex="0" aria-label="View ${escapeAttr(s.name)} details">
+          <div>
+            <div class="hy-service-row-name">${escapeHtml(s.name)}${s.isNew?`<span class="new-badge">New</span>`:""}${s.addons&&s.addons.length?`<span class="hy-addon-badge">Add-ons available</span>`:""}</div>
+            <div class="hy-service-row-sub">${fmtDuration(s.duration)}</div>
+          </div>
+          <div class="hy-service-row-right"><div class="hy-service-row-price">$${s.price}</div><button class="v2-book-small hy-service-row-book" data-service="${escapeAttr(s.id)}" type="button">Book</button></div>
+        </div>`).join("")}
+    </div>
+  `;
+}
+// Mirrors bindSalonServiceButtons, but threads this specific stylist through to checkout as the
+// preferred stylist instead of leaving it to default to "Any available".
+function bindStylistServiceButtons(stylist,scope=document){
+  scope.querySelectorAll("[data-service]").forEach(btn=>{
+    btn.addEventListener("click",(event)=>{
+      event.stopPropagation();
+      const service=state.salon?.services?.find(s=>String(s.id)===btn.getAttribute("data-service"));
+      if(service) goCheckoutPage(service,stylist);
+    });
+  });
+  scope.querySelectorAll("[data-service-row]").forEach(row=>{
+    const open=()=>{
+      const service=state.salon?.services?.find(s=>String(s.id)===row.getAttribute("data-service-row"));
+      if(service) openServiceDetailSheet(service,stylist);
+    };
+    row.addEventListener("click",open);
+    row.addEventListener("keydown",(event)=>{
+      if(event.key==="Enter"||event.key===" "){event.preventDefault();open();}
+    });
+  });
+}
+function updateStylistCategory(stylist,category){
+  state.stylistCategory=category;
+  document.querySelectorAll("[data-stycat]").forEach(btn=>btn.classList.toggle("active",btn.getAttribute("data-stycat")===category));
+  const section=document.getElementById("stylistServicesSection");
+  if(section){
+    section.innerHTML=stylistServicesMarkup(stylist,state.salon,category);
+    bindStylistServiceButtons(stylist,section);
   }else render({samePage:true});
 }
 
@@ -3870,63 +3889,61 @@ function renderVenueMessage(){
   `;
 }
 
-function stylistSheetMarkup(){
-  if (!state.stylistSheetOpen || !state.stylistProfile || !state.salon) return "";
-  return `
-    <div class="stylist-sheet-overlay" id="stylistSheetOverlay"></div>
-    <div class="stylist-sheet-card no-scrollbar" id="stylistSheetCard">
-      <div class="home-menu-sheet-header" style="margin-bottom:6px;justify-content:flex-end;">
-        <button id="closeStylistSheet" class="home-menu-sheet-close" aria-label="Close">${icon('x')}</button>
+// Full page (not a modal sheet) for a stylist's own profile - same v2-venue-page look as the
+// venue page itself (category-filtered compact service rows, review summary + cards), reached
+// via goStylistProfile() and browser-back-able like the photo gallery / reviews pages.
+function renderStylistProfile(){
+  const stylist = state.stylistProfile;
+  const salon = state.salon;
+  if (!stylist || !salon){
+    return `
+      <div class="page">
+        <div class="topbar"><div style="display:flex;align-items:center;gap:12px;"><button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Stylist</h1></div></div>
+        <div class="empty-state">This stylist couldn't be found.</div>
       </div>
-      ${stylistProfileBodyMarkup(state.stylistProfile, state.salon)}
-    </div>
-  `;
-}
-function stylistProfileBodyMarkup(stylist, salon){
+    `;
+  }
   const theme = (HERO_THEMES[salon.id] && HERO_THEMES[salon.id][0]) || ["#B79CF0","#7C5CD9"];
   const palette = HERO_THEMES[salon.id] || [["#B79CF0","#7C5CD9"],["#7C5CD9","#5A3FA8"],["#D8C6F5","#9C7FE0"]];
 
-  const stylistServices = (stylist.serviceIds && stylist.serviceIds.length)
-    ? salon.services.filter(sv=>stylist.serviceIds.includes(sv.id))
-    : salon.services;
+  const stylistServices = stylistServicesForCategory(stylist,salon,"All");
+  const categories = ["All", ...Array.from(new Set(stylistServices.map(s=>s.category).filter(Boolean)))];
   const portfolioPhotos = (stylist.portfolio && stylist.portfolio.length) ? stylist.portfolio : null;
   const portfolioTiles = portfolioPhotos || palette.concat(palette).slice(0,3);
   const visibleTiles = portfolioTiles.slice(0,3);
   const moreCount = portfolioTiles.length > 3 ? portfolioTiles.length - 3 : 0;
   const stylistReviews = (salon.reviewList || []).filter(r=>r.stylistId===stylist.id || (r.stylistName && r.stylistName===stylist.name));
-  const reviews = stylistReviews.slice(0,4);
+  const statsAvg = stylistReviews.length ? Math.round((stylistReviews.reduce((sum,r)=>sum+Number(r.rating||0),0)/stylistReviews.length)*10)/10 : null;
 
   return `
-        <div style="padding:4px 0 6px;display:flex;flex-direction:column;align-items:center;text-align:center;">
+    <div class="page v2-venue-page">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+          <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
+          <h1 class="toptitle">${escapeHtml(stylist.name)}</h1>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0;padding:4px 20px 40px;">
+        <div style="padding:12px 0 6px;display:flex;flex-direction:column;align-items:center;text-align:center;">
           <div class="stylist-hero-avatar" style="width:96px;height:96px;font-size:34px;overflow:hidden;${stylist.photo?'background:var(--purple-pastel-2);':'background:linear-gradient(135deg, '+theme[0]+', '+theme[1]+');color:#fff;'}border:none;">${stylist.photo?`<img src="${escapeAttr(stylist.photo)}" alt="${escapeAttr(stylist.name)}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(stylist.name.charAt(0))}</div>
-          <h2 style="font-size:21px;font-weight:700;color:var(--ink);margin:14px 0 0;">${escapeHtml(stylist.name)}</h2>
-          ${stylist.specialty ? `<p style="font-size:13.5px;color:var(--purple);font-weight:600;margin:4px 0 0;">${escapeHtml(stylist.specialty)}</p>` : ""}
-          <p style="font-size:12.5px;color:var(--ink-soft);margin:4px 0 0;">${escapeHtml(salon.name)}</p>
+          <h2 style="font-size:21px;font-weight:700;color:var(--v2-ink);margin:14px 0 0;">${escapeHtml(stylist.name)}</h2>
+          ${stylist.specialty ? `<p style="font-size:13.5px;color:var(--v2-purple);font-weight:600;margin:4px 0 0;">${escapeHtml(stylist.specialty)}</p>` : ""}
+          <p style="font-size:12.5px;color:var(--v2-muted);margin:4px 0 0;">${escapeHtml(salon.name)}</p>
+          ${statsAvg?`<div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:13.5px;color:var(--v2-ink);">${icon('star','var(--gold)')}<strong>${statsAvg}</strong><span style="color:var(--v2-muted);">(${stylistReviews.length} review${stylistReviews.length===1?"":"s"})</span></div>`:""}
         </div>
 
         ${stylist.bio ? `
         <div style="padding:18px 0 4px;">
-          <p style="font-size:13.5px;color:var(--ink);line-height:1.55;margin:0;text-align:center;">${escapeHtml(stylist.bio)}</p>
+          <p style="font-size:13.5px;color:var(--v2-ink);line-height:1.55;margin:0;text-align:center;">${escapeHtml(stylist.bio)}</p>
         </div>` : ""}
 
         ${stylistServices.length ? `
-        <div style="padding:22px 0 4px;">
-          <p class="checkout-step-label" style="margin:0 0 10px;">Services</p>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            ${stylistServices.map(sv=>`
-              <div class="service-select-card" style="cursor:default;">
-                <span style="min-width:0;">
-                  <span style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);">${escapeHtml(sv.name)}</span>
-                  <span style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;color:var(--ink-soft);">${icon('clock')} ${sv.duration} min · $${sv.price}${sv.addons&&sv.addons.length?' · add-ons available':''}</span>
-                </span>
-                <button class="book-btn" data-bookservice="${sv.id}" style="flex-shrink:0;">Book</button>
-              </div>
-            `).join("")}
-          </div>
+        <div style="padding:26px 0 4px;">
+          <div class="v2-chips">${categories.map(c=>`<button class="v2-chip ${state.stylistCategory===c?'active':''}" data-stycat="${escapeAttr(c)}">${escapeHtml(c)}</button>`).join("")}</div>
+          <div id="stylistServicesSection" style="margin-top:14px;">${stylistServicesMarkup(stylist,salon,state.stylistCategory)}</div>
         </div>` : ""}
 
-        <div style="padding:22px 0 4px;margin:0 -20px;">
-          <p class="checkout-step-label" style="margin:0 20px 10px;">Portfolio</p>
+        <div style="padding:26px 0 4px;margin:0 -20px;">
           <div class="stylist-portfolio-grid">
             ${visibleTiles.map((item,i)=>`
               <button class="portfolio-tile" data-stylistgallery="${i}" aria-label="View portfolio image ${i+1}" style="background:${portfolioPhotos?'var(--purple-pastel-2)':`linear-gradient(135deg, ${item[0]}, ${item[1]})`};">
@@ -3937,16 +3954,42 @@ function stylistProfileBodyMarkup(stylist, salon){
           </div>
         </div>
 
-        <div style="padding:22px 0 4px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <p class="checkout-step-label" style="margin:0;">Reviews</p>
-            ${stylistReviews.length>4 ? `<button class="text-link-btn" id="stylistSeeAllReviews" style="font-size:12.5px;">See all</button>` : ""}
+        ${stylistReviews.length ? `
+        <div style="padding:26px 0 4px;">
+          <div class="hy-card">
+            <div class="hy-review-summary">
+              <div class="hy-review-score">
+                <div class="hy-review-score-num">${statsAvg}</div>
+                <div class="v2-stars">${v2RatingStars(statsAvg,28)}</div>
+                <div class="hy-review-score-count">${stylistReviews.length} review${stylistReviews.length===1?"":"s"}</div>
+              </div>
+              <div class="hy-review-bars">
+                ${[5,4,3,2,1].map(n=>{
+                  const count=stylistReviews.filter(r=>Math.round(Number(r.rating)||0)===n).length;
+                  const pct=Math.round(count/stylistReviews.length*100);
+                  return `<div class="hy-review-bar-row"><span>${n} star</span><div class="hy-review-bar-track"><span class="hy-review-bar-fill" style="width:${pct}%"></span></div><span>${count}</span></div>`;
+                }).join("")}
+              </div>
+            </div>
+            ${stylistReviews.slice(0,6).map(r=>{
+              const initials=(r.name||"?").trim().split(/\s+/).map(w=>w[0]||"").join("").slice(0,2).toUpperCase();
+              return `
+              <div class="hy-review-item">
+                <div class="hy-review-item-top">
+                  <div class="hy-review-avatar">${escapeHtml(initials)}</div>
+                  <div>
+                    <div class="hy-review-item-name">${escapeHtml(r.name)}</div>
+                    ${reviewMetaLineMarkup(r, salon)}
+                  </div>
+                </div>
+                <div class="v2-stars">${v2RatingStars(r.rating,18)}</div>
+                <p class="hy-review-item-text">${escapeHtml(r.text)}</p>
+              </div>`;
+            }).join("")}
           </div>
-          ${reviews.length ? `
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            ${reviews.map(r=>reviewCardMarkup(r, salon)).join("")}
-          </div>` : `<p style="font-size:13px;color:var(--ink-soft);margin:0;">This professional doesn't have any reviews yet.</p>`}
-        </div>
+        </div>` : `<p style="font-size:13px;color:var(--v2-muted);margin:26px 0 0;">This professional doesn't have any reviews yet.</p>`}
+      </div>
+    </div>
   `;
 }
 
@@ -4426,6 +4469,7 @@ function renderNow(opts){
   let html = "";
   if (state.page === "home") html = renderHome();
   else if (state.page === "salon") html = renderSalon();
+  else if (state.page === "stylist") html = renderStylistProfile();
   else if (state.page === "stylistGallery") html = renderStylistPortfolioGallery();
   else if (state.page === "gallery") html = renderGallery();
   else if (state.page === "reviews") html = renderReviews();
@@ -4433,7 +4477,7 @@ function renderNow(opts){
   else if (state.page === "bookingDetail") html = renderBookingConfirmed(state.bookings.find(b=>b.id===state.viewBookingId));
   else if (state.page === "history") html = renderHistory();
 
-  root.innerHTML = `<div class="shell">${html}${renderConfirmModal()}${stylistSheetMarkup()}</div>`;
+  root.innerHTML = `<div class="shell">${html}${renderConfirmModal()}</div>`;
   restoreScrollPositions();
   const newPageEl = document.querySelector(".page");
   if (newPageEl){
@@ -4719,22 +4763,19 @@ function bindEvents(){
     }
   }
 
-  if (state.stylistSheetOpen){
-    const stylistOverlay = document.getElementById("stylistSheetOverlay");
-    if (stylistOverlay) stylistOverlay.addEventListener("click", ()=> closeStylistSheet());
-    const closeStylistBtn = document.getElementById("closeStylistSheet");
-    if (closeStylistBtn) closeStylistBtn.addEventListener("click", ()=> closeStylistSheet());
+  if (state.page === "stylist" && state.stylistProfile){
+    const stylist = state.stylistProfile;
+    document.getElementById("backBtn")?.addEventListener("click", ()=>{
+      if (state.salon) returnToVenue({ stylistProfile:null });
+      else setState({ page:"home", stylistProfile:null });
+    });
+    bindStylistServiceButtons(stylist);
+    document.querySelectorAll("[data-stycat]").forEach(btn=>{
+      btn.addEventListener("click", ()=> updateStylistCategory(stylist, btn.getAttribute("data-stycat")));
+    });
     document.querySelectorAll("[data-stylistgallery]").forEach(btn=>{
-      btn.addEventListener("click", ()=> setState({ page:"stylistGallery", stylistSheetOpen:false }));
+      btn.addEventListener("click", ()=> setState({ page:"stylistGallery" }));
     });
-    document.querySelectorAll("[data-bookservice]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const svc = (state.salon?.services||[]).find(sv=>sv.id===btn.getAttribute("data-bookservice"));
-        if (svc){ goCheckoutPage(svc, state.stylistProfile); }
-      });
-    });
-    const seeAllReviewsBtn = document.getElementById("stylistSeeAllReviews");
-    if (seeAllReviewsBtn) seeAllReviewsBtn.addEventListener("click", ()=> setState({ page:"reviews", reviewSalon: state.salon, stylistSheetOpen:false }));
   }
   document.querySelectorAll("[data-reviewstylist]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
@@ -4752,7 +4793,7 @@ function bindEvents(){
   }
 
   if (state.page === "stylistGallery"){
-    document.getElementById("backBtn").addEventListener("click", ()=> setState({ page:"salon", stylistSheetOpen:true }, { samePage:true }));
+    document.getElementById("backBtn").addEventListener("click", ()=> setState({ page:"stylist" }));
   }
 
   if (state.page === "gallery"){
