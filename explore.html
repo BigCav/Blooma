@@ -3515,7 +3515,7 @@ function renderBookingConfirmed(booking){
         <span class="confirm-badge${isPendingDeposit?" pending":""}">${icon('checkSmall')}<span>${isPendingDeposit?"Awaiting payment":(isUpcoming?"Confirmed":bookingStatusLabel(booking.status))}</span></span>
         ${isPendingDeposit?`<p class="confirm-hold-note" id="confirmHoldNote">${escapeHtml(depositHoldLabel(booking))}</p>`:""}
         <h1 class="confirm-when">${escapeHtml(booking.dateLabel)} at ${escapeHtml(booking.time)}</h1>
-        <p class="confirm-duration">${booking.duration} min${addonsList.length?` · ${escapeHtml(booking.serviceName)} + ${addonsList.length} add-on${addonsList.length===1?"":"s"}`:` · ${escapeHtml(booking.serviceName)}`}</p>
+        <p class="confirm-duration">${booking.duration} min${addonsList.length?` · ${escapeHtml(booking.serviceName)} + ${addonsList.length} add-on${addonsList.length===1?"":"s"}`:` · ${escapeHtml(booking.serviceName)}`}${!isAnyAvailableStylist(booking.stylistName)?` · with ${escapeHtml(booking.stylistName)}`:""}</p>
 
         ${booking.status==="completed"?`<div style="margin:16px 0 4px;">${renderReviewBlock(booking)}</div>`:""}
 
