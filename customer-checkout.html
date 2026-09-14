@@ -42,6 +42,9 @@ button,input,textarea{font:inherit}button{cursor:pointer}.shell{max-width:1400px
 .service-list-flat{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
 .service-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;border-style:solid;border-width:1px;border-color:transparent}
 .service-row:hover,.service-row:focus-visible{background-color:var(--lav)}
+.service-row:first-child{border-radius:16px 16px 0 0}
+.service-row:last-child{border-radius:0 0 16px 16px}
+.service-row:first-child:last-child{border-radius:16px}
 .service-row-name{font-size:14px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .service-row-sub{font-size:12.5px;color:var(--muted);margin:3px 0 0}
 .addon-badge{font-size:10.5px;font-weight:700;color:var(--purple);background:var(--lav);border-radius:999px;padding:3px 9px}
