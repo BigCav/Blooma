@@ -592,7 +592,7 @@ function renderPanel(){
   const prevDaysScroll = document.querySelector('.days')?.scrollLeft;
   const panelEl = document.getElementById('panel');
   panelEl.innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary${state.saving?' loading':''}" id="next" ${state.saving?'disabled':''}>${state.saving?'<span class="btn-spinner"></span>Confirming…':(key==='review'?(state.rescheduleToken?'Confirm changes':'Confirm booking'):'Continue')}</button></div>`;
-  panelEl.classList.toggle('panel-flush', key==='service' || key==='addons');
+  panelEl.classList.add('panel-flush');
   const newDays = document.querySelector('.days'); if(newDays && prevDaysScroll) newDays.scrollLeft = prevDaysScroll;
   bind();
 }
