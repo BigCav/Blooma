@@ -3511,7 +3511,7 @@ function renderBookingConfirmed(booking){
         ${heroImg?`<img src="${escapeAttr(heroImg)}" alt="${escapeAttr(booking.salonName)}" decoding="async">`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--purple);">${salon?bigIcon(salon.icon,64):icon('store')}</div>`}
         <button class="backbtn confirm-hero-backbtn" id="doneBackBtn" aria-label="Back">${icon('chevronLeft','var(--ink)')}</button>
       </div>
-      <div style="flex:1;overflow-y:auto;min-height:0;padding:20px 20px 28px;">
+      <div style="padding:20px 20px 28px;">
         <span class="confirm-badge${isPendingDeposit?" pending":""}">${icon('checkSmall')}<span>${isPendingDeposit?"Awaiting payment":(isUpcoming?"Confirmed":bookingStatusLabel(booking.status))}</span></span>
         ${isPendingDeposit?`<p class="confirm-hold-note" id="confirmHoldNote">${escapeHtml(depositHoldLabel(booking))}</p>`:""}
         <h1 class="confirm-when">${escapeHtml(booking.dateLabel)} at ${escapeHtml(booking.time)}</h1>
