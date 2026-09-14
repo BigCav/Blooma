@@ -3916,7 +3916,7 @@ function renderStylistProfile(){
   const statsAvg = stylistReviews.length ? Math.round((stylistReviews.reduce((sum,r)=>sum+Number(r.rating||0),0)/stylistReviews.length)*10)/10 : null;
 
   return `
-    <div class="page v2-venue-page">
+    <div class="page v2-venue-page checkout-shell">
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
           <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
