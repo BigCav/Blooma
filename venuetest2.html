@@ -1438,6 +1438,10 @@ body::-webkit-scrollbar{display:none;}
 .hy-service-list-flat{border:1px solid var(--v2-line);border-radius:16px;overflow:hidden;background:#fff;}
 .hy-service-list-flat .hy-service-row{border-top:none;}
 .hy-service-list-flat .hy-service-row[hidden]{display:none;}
+.hy-service-row{cursor:pointer;transition:background-color .15s;}
+.hy-service-row:hover,.hy-service-row:focus-visible{background-color:var(--v2-lav);}
+.hy-service-row-book{position:relative;z-index:1;}
+#hySvcSheet{position:fixed;}
 .hy-service-list-flat .hy-service-row:not([hidden]) ~ .hy-service-row:not([hidden]){border-top:1px solid var(--v2-line);}
 
 .hy-review-summary{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--v2-line);margin-bottom:20px;}
@@ -1516,77 +1520,77 @@ body::-webkit-scrollbar{display:none;}
                 <button class="v2-chip" data-svccat="color" type="button">Color</button>
               </div>
               <div class="hy-service-list-flat">
-                <div class="hy-service-row" data-svccat="styling">
+                <div class="hy-service-row" data-svccat="styling" role="button" tabindex="0" data-svc-name="Blowout" data-svc-duration="15 min" data-svc-desc="A smooth, salon-fresh blow-dry finish using premium styling products — perfect for a quick refresh before an event or just because." aria-label="View Blowout details">
                   <div>
                     <div class="hy-service-row-name">Blowout</div>
                     <div class="hy-service-row-sub">15 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$40</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="styling">
+                <div class="hy-service-row" data-svccat="styling" role="button" tabindex="0" data-svc-name="Special Occasion Updo" data-svc-duration="45 min" data-svc-desc="An elegant pinned or braided updo, styled to hold all day for weddings, formals and other special occasions." aria-label="View Special Occasion Updo details">
                   <div>
                     <div class="hy-service-row-name">Special Occasion Updo</div>
                     <div class="hy-service-row-sub">45 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$95</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="styling">
+                <div class="hy-service-row" data-svccat="styling" role="button" tabindex="0" data-svc-name="Hair Straightening (Blow-dry)" data-svc-duration="30 min" data-svc-desc="A sleek, frizz-free straight blow-dry finish that lasts, using heat protection and a smoothing serum." aria-label="View Hair Straightening (Blow-dry) details">
                   <div>
                     <div class="hy-service-row-name">Hair Straightening (Blow-dry)</div>
                     <div class="hy-service-row-sub">30 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$55</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="hair">
+                <div class="hy-service-row" data-svccat="hair" role="button" tabindex="0" data-svc-name="Cut &amp; Style" data-svc-duration="60 min" data-svc-desc="A full consultation, precision cut and finishing style tailored to your hair type and the look you want." aria-label="View Cut &amp; Style details">
                   <div>
                     <div class="hy-service-row-name">Cut &amp; Style</div>
                     <div class="hy-service-row-sub">60 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$85</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="hair">
+                <div class="hy-service-row" data-svccat="hair" role="button" tabindex="0" data-svc-name="Signature Cut" data-svc-duration="15 min" data-svc-desc="Our signature precision cut, including a wash and quick style — the ideal refresh between full appointments." aria-label="View Signature Cut details">
                   <div>
                     <div class="hy-service-row-name">Signature Cut <span class="hy-addon-badge">Add-ons available</span></div>
                     <div class="hy-service-row-sub">15 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$65</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="hair">
+                <div class="hy-service-row" data-svccat="hair" role="button" tabindex="0" data-svc-name="Men's Cut" data-svc-duration="30 min" data-svc-desc="A classic or modern men's cut, tailored to your preferred length and finished with a style." aria-label="View Men's Cut details">
                   <div>
                     <div class="hy-service-row-name">Men's Cut</div>
                     <div class="hy-service-row-sub">30 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$45</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="hair">
+                <div class="hy-service-row" data-svccat="hair" role="button" tabindex="0" data-svc-name="Kids Cut (Under 12)" data-svc-duration="20 min" data-svc-desc="A gentle, patient cut for our younger clients, finished with a fun style they'll love." aria-label="View Kids Cut (Under 12) details">
                   <div>
                     <div class="hy-service-row-name">Kids Cut (Under 12)</div>
                     <div class="hy-service-row-sub">20 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$35</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="color">
+                <div class="hy-service-row" data-svccat="color" role="button" tabindex="0" data-svc-name="Full Balayage" data-svc-duration="150 min" data-svc-desc="Hand-painted balayage highlights for a natural, sun-kissed graduation of colour, finished with a toner and blow-dry." aria-label="View Full Balayage details">
                   <div>
                     <div class="hy-service-row-name">Full Balayage <span class="hy-addon-badge">Add-ons available</span></div>
                     <div class="hy-service-row-sub">150 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$220</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="color">
+                <div class="hy-service-row" data-svccat="color" role="button" tabindex="0" data-svc-name="Root Touch-Up" data-svc-duration="90 min" data-svc-desc="A precise colour match to blend new growth seamlessly with your existing colour." aria-label="View Root Touch-Up details">
                   <div>
                     <div class="hy-service-row-name">Root Touch-Up</div>
                     <div class="hy-service-row-sub">90 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$110</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="color">
+                <div class="hy-service-row" data-svccat="color" role="button" tabindex="0" data-svc-name="Global Color" data-svc-duration="120 min" data-svc-desc="An all-over single-process colour application for full, even coverage from root to tip." aria-label="View Global Color details">
                   <div>
                     <div class="hy-service-row-name">Global Color</div>
                     <div class="hy-service-row-sub">120 min</div>
                   </div>
                   <div class="hy-service-row-right"><div class="hy-service-row-price">$165</div><button class="v2-book-small hy-service-row-book" type="button">Book</button></div>
                 </div>
-                <div class="hy-service-row" data-svccat="color">
+                <div class="hy-service-row" data-svccat="color" role="button" tabindex="0" data-svc-name="Toner &amp; Gloss" data-svc-duration="45 min" data-svc-desc="A quick toning treatment to refresh tone, add shine and neutralise any unwanted brassiness." aria-label="View Toner &amp; Gloss details">
                   <div>
                     <div class="hy-service-row-name">Toner &amp; Gloss</div>
                     <div class="hy-service-row-sub">45 min</div>
@@ -1774,6 +1778,59 @@ document.querySelectorAll('.hy-reltime').forEach(el=>{
   const diffMs = Date.now() - new Date(el.dataset.date).getTime();
   const days = Math.floor(diffMs/86400000);
   el.textContent = days<1?'today':days<2?'1 day ago':days<14?days+' days ago':days<60?Math.floor(days/7)+' weeks ago':Math.floor(days/30)+' months ago';
+});
+
+let hySvcCloseTimer=null;
+function hySvcSheetMarkup(row){
+  const name = row.dataset.svcName || '';
+  const duration = row.dataset.svcDuration || '';
+  const desc = row.dataset.svcDesc || '';
+  const price = row.querySelector('.hy-service-row-price')?.textContent || '';
+  return `
+    <div class="service-detail-overlay" id="hySvcOverlay"></div>
+    <div class="service-detail-sheet" id="hySvcSheet" role="dialog" aria-modal="true" aria-labelledby="hySvcTitle">
+      <button class="service-detail-close" id="hySvcClose" aria-label="Close service details"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <h2 class="service-detail-title" id="hySvcTitle">${name}</h2>
+      <p class="service-detail-description">${desc}</p>
+      <div class="service-detail-footer">
+        <div>
+          <p class="service-detail-price">${price}</p>
+          <p class="service-detail-duration">${duration}</p>
+        </div>
+        <button class="service-detail-book" id="hySvcBook" type="button">Book</button>
+      </div>
+    </div>`;
+}
+function hySvcFinishClose(){
+  clearTimeout(hySvcCloseTimer);
+  document.getElementById('hySvcSheet')?.remove();
+  document.getElementById('hySvcOverlay')?.remove();
+}
+function hySvcClose(){
+  const sheet = document.getElementById('hySvcSheet');
+  const overlay = document.getElementById('hySvcOverlay');
+  if(!sheet){ hySvcFinishClose(); return; }
+  if(sheet.classList.contains('closing')) return;
+  sheet.classList.add('closing');
+  overlay?.classList.add('closing');
+  hySvcCloseTimer = setTimeout(hySvcFinishClose, 250);
+}
+function hySvcOpen(row){
+  hySvcFinishClose();
+  document.body.insertAdjacentHTML('beforeend', hySvcSheetMarkup(row));
+  document.getElementById('hySvcClose').addEventListener('click', hySvcClose);
+  document.getElementById('hySvcOverlay').addEventListener('click', hySvcClose);
+  document.getElementById('hySvcBook').addEventListener('click', hySvcClose);
+}
+document.querySelectorAll('.hy-service-list-flat .hy-service-row').forEach(row=>{
+  row.addEventListener('click', (e)=>{
+    if(e.target.closest('.hy-service-row-book')) return;
+    hySvcOpen(row);
+  });
+  row.addEventListener('keydown', (e)=>{
+    if(e.target.closest('.hy-service-row-book')) return;
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hySvcOpen(row); }
+  });
 });
 </script>
 
