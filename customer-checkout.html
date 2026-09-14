@@ -437,7 +437,7 @@ function renderPanel(){
     h = panelHead('Add anything extra?','Optional extras can be added now and included in the final appointment time.')
       + withAddons.map((svc,i)=>(
           (withAddons.length>1 ? `<p class="section-label" style="margin-top:${i?'22px':'0'}">${esc(svc.name)}</p>` : '')
-          + `<div class="stack">${svc.addons.map(a=>`<button class="choice-card ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}"><div class="choice-left"><div><p class="choice-title">${esc(a.name)}</p>${a.duration?`<p class="choice-sub">${a.duration} min</p>`:''}</div></div><div class="choice-price">+$${a.price}</div></button>`).join('')}</div>`
+          + `<div class="service-list-flat">${svc.addons.map(a=>`<button class="service-row ${state.addons.includes(a.id)?'selected':''}" data-addon="${esc(a.id)}" type="button"><div><p class="service-row-name">${esc(a.name)}</p>${a.duration?`<p class="service-row-sub">${a.duration} min</p>`:''}</div><div class="service-row-price">+$${a.price}</div></button>`).join('')}</div>`
         )).join('')
       + `<div class="inline-note" style="margin-top:16px">No extras needed? You can simply continue.</div>`;
   } else if(key==='stylist'){
@@ -545,7 +545,7 @@ function renderPanel(){
   const prevDaysScroll = document.querySelector('.days')?.scrollLeft;
   const panelEl = document.getElementById('panel');
   panelEl.innerHTML = h + `<div class="actions" id="desktopActions"><button class="btn ghost" id="back">${state.step?'Back':'Cancel'}</button><button class="btn primary${state.saving?' loading':''}" id="next" ${state.saving?'disabled':''}>${state.saving?'<span class="btn-spinner"></span>Confirming…':(key==='review'?(state.rescheduleToken?'Confirm changes':'Confirm booking'):'Continue')}</button></div>`;
-  panelEl.classList.toggle('panel-flush', key==='service');
+  panelEl.classList.toggle('panel-flush', key==='service' || key==='addons');
   const newDays = document.querySelector('.days'); if(newDays && prevDaysScroll) newDays.scrollLeft = prevDaysScroll;
   bind();
 }
