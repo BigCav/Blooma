@@ -1400,6 +1400,10 @@
    trapped between them instead of moving the page at all. Simplest correct fix for a standalone
    snapshot: let this be an ordinary single-scroll document instead of a nested one. */
 html,body,#app{height:auto!important;min-height:0!important;}
+html{scrollbar-width:none;-ms-overflow-style:none;}
+html::-webkit-scrollbar{display:none;}
+body{scrollbar-width:none;-ms-overflow-style:none;}
+body::-webkit-scrollbar{display:none;}
 /* The map's canvas was frozen mid-render at its desktop capture size (934px, set via inline
    style/attributes by the live Mapbox GL instance) - since there's no live map JS here to
    resize it, force it to scale down to its container instead of overflowing on narrow screens. */
