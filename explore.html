@@ -262,6 +262,43 @@
   @keyframes gcModalIn{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
   @keyframes gcModalOut{from{transform:scale(1);opacity:1;}to{transform:scale(.96);opacity:0;}}
 
+  /* Stylist profile: an overlay on top of whichever page is open (the venue page stays mounted
+     underneath), not a navigation to its own page. On mobile it fills the whole screen edge to
+     edge with a back-chevron + name topbar; at >=900px it becomes a centered card over a dimmed
+     backdrop with just a close (X) button in the corner instead - there's no "back" to a page
+     you never actually left, so a back-chevron there would be misleading. */
+  .stylist-sheet-overlay{
+    position:fixed;inset:0;z-index:150;background:transparent;
+    animation:homeMenuOverlayIn .22s var(--ease-out);
+  }
+  .stylist-sheet-overlay.closing{animation:homeMenuOverlayOut .18s var(--ease-in) forwards;pointer-events:none;}
+  .stylist-sheet-card{
+    position:fixed;inset:0;z-index:151;
+    display:flex;flex-direction:column;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    animation:homeMenuSheetUp .26s var(--ease-out);
+  }
+  .stylist-sheet-card.closing{animation:homeMenuSheetDown .2s var(--ease-in) forwards;pointer-events:none;}
+  .stylist-sheet-close{display:none;}
+  @media(min-width:900px){
+    .stylist-sheet-overlay{background:rgba(20,10,40,.45);}
+    .stylist-sheet-card{
+      /* See the matching comment on .gc-sheet-card — inset+margin centering avoids the
+         half-pixel transform offset that renders a centered modal blurry. */
+      inset:0;margin:auto;
+      width:92%;max-width:640px;max-height:88vh;
+      border-radius:20px;box-shadow:0 20px 60px rgba(36,31,51,.18);
+      animation:gcModalIn .2s var(--ease-out);
+    }
+    .stylist-sheet-card.closing{animation:gcModalOut .14s var(--ease-in) forwards;}
+    .stylist-sheet-topbar{display:none;}
+    .stylist-sheet-close{
+      display:flex;position:absolute;top:16px;right:16px;z-index:2;
+      width:32px;height:32px;align-items:center;justify-content:center;
+      border-radius:50%;background:var(--white);border:1px solid var(--border-2);
+    }
+    .stylist-sheet-close:hover{background:var(--purple-pastel-2);}
+  }
 
   .location-pill{
     display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;max-width:150px;
@@ -2379,6 +2416,7 @@ let state = {
   activeReviewBookingId: null,
   stylistProfile: null,
   stylistCategory: "All",
+  stylistSheetOpen: false,
   gallerySalon: null,
   reviewSalon: null,
   checkoutOrigin: null,
@@ -2513,7 +2551,7 @@ function restoreCustomerHistoryState(entry){
   if(!salon){ Object.assign(state,{page:"home",salon:null,service:null,step:0}); render(); return true; }
   state.salon=salon;
   if(page==="salon"){ Object.assign(state,{page:"salon",service:null,stylistProfile:null,gallerySalon:null,reviewSalon:null}); render({restoreScrollTop:state.venueReturnScrollTop||0}); loadLoyaltyAccount(); return true; }
-  if(page==="stylist"){ state.stylistProfile=(salon.stylists||[]).find(st=>st.id===entry.stylistId)||state.stylistProfile; state.page="stylist"; state.stylistCategory="All"; render(); return true; }
+  if(page==="stylist"){ state.stylistProfile=(salon.stylists||[]).find(st=>st.id===entry.stylistId)||state.stylistProfile; state.page="salon"; state.stylistCategory="All"; state.stylistSheetOpen=true; render(); return true; }
   if(page==="gallery"){ state.gallerySalon=salon; state.page="gallery"; render(); return true; }
   if(page==="reviews"){ state.reviewSalon=salon; state.page="reviews"; render(); return true; }
   return false;
@@ -2630,9 +2668,18 @@ function goReviews(salon){
   pushCustomerHistoryState();
 }
 function goStylistProfile(stylist){
-  rememberVenueScroll();
-  setState({ page:"stylist", stylistProfile: stylist, stylistCategory: "All" });
-  pushCustomerHistoryState();
+  setState({ stylistProfile: stylist, stylistCategory: "All", stylistSheetOpen: true }, { samePage:true });
+}
+function closeStylistSheet(afterClose){
+  const overlay=document.getElementById("stylistSheetOverlay");
+  const card=document.getElementById("stylistSheetCard");
+  const finish=()=>{
+    state.stylistSheetOpen=false;
+    if(typeof afterClose==="function") afterClose(); else render({samePage:true});
+  };
+  if(!card){ finish(); return; }
+  card.classList.add("closing"); overlay?.classList.add("closing");
+  setTimeout(finish,220);
 }
 function cancelBooking(id){
   setState({ confirmDialog: { title:"Cancel booking?", message:"This will remove the appointment from your bookings. You'll need to book again if you change your mind.", confirmLabel:"Cancel booking", actionType:"cancelBooking", actionId:id } }, { samePage:true });
@@ -3889,20 +3936,15 @@ function renderVenueMessage(){
   `;
 }
 
-// Full page (not a modal sheet) for a stylist's own profile - same v2-venue-page look as the
-// venue page itself (category-filtered compact service rows, review summary + cards), reached
-// via goStylistProfile() and browser-back-able like the photo gallery / reviews pages.
-function renderStylistProfile(){
+// A modal overlaid on top of whichever page is currently showing (matches the pre-existing
+// gift-card/home-menu sheet pattern) rather than a real page navigation, so the venue page stays
+// mounted underneath. On mobile it fills the whole screen with a back-chevron + name topbar; at
+// >=900px (see the .stylist-sheet-card rules) it becomes a centered card over a dimmed backdrop
+// with just a close (X) button, since there's no "back" to a page you never left.
+function stylistSheetMarkup(){
   const stylist = state.stylistProfile;
   const salon = state.salon;
-  if (!stylist || !salon){
-    return `
-      <div class="page">
-        <div class="topbar"><div style="display:flex;align-items:center;gap:12px;"><button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button><h1 class="toptitle">Stylist</h1></div></div>
-        <div class="empty-state">This stylist couldn't be found.</div>
-      </div>
-    `;
-  }
+  if (!state.stylistSheetOpen || !stylist || !salon) return "";
   const theme = (HERO_THEMES[salon.id] && HERO_THEMES[salon.id][0]) || ["#B79CF0","#7C5CD9"];
   const palette = HERO_THEMES[salon.id] || [["#B79CF0","#7C5CD9"],["#7C5CD9","#5A3FA8"],["#D8C6F5","#9C7FE0"]];
 
@@ -3916,13 +3958,15 @@ function renderStylistProfile(){
   const statsAvg = stylistReviews.length ? Math.round((stylistReviews.reduce((sum,r)=>sum+Number(r.rating||0),0)/stylistReviews.length)*10)/10 : null;
 
   return `
-    <div class="page v2-venue-page checkout-shell">
-      <div class="topbar">
+    <div class="stylist-sheet-overlay" id="stylistSheetOverlay"></div>
+    <div class="stylist-sheet-card v2-venue-page no-scrollbar" id="stylistSheetCard">
+      <div class="topbar stylist-sheet-topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
-          <button class="backbtn" id="backBtn" aria-label="Go back">${icon('chevronLeft','var(--ink)')}</button>
+          <button class="backbtn" id="closeStylistSheetBack" aria-label="Close">${icon('chevronLeft','var(--ink)')}</button>
           <h1 class="toptitle">${escapeHtml(stylist.name)}</h1>
         </div>
       </div>
+      <button id="closeStylistSheet" class="stylist-sheet-close" aria-label="Close">${icon('x')}</button>
       <div style="flex:1;overflow-y:auto;min-height:0;padding:4px 20px 40px;">
         <div style="padding:12px 0 6px;display:flex;flex-direction:column;align-items:center;text-align:center;">
           <div class="stylist-hero-avatar" style="width:96px;height:96px;font-size:34px;overflow:hidden;${stylist.photo?'background:var(--purple-pastel-2);':'background:linear-gradient(135deg, '+theme[0]+', '+theme[1]+');color:#fff;'}border:none;">${stylist.photo?`<img src="${escapeAttr(stylist.photo)}" alt="${escapeAttr(stylist.name)}" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">`:escapeHtml(stylist.name.charAt(0))}</div>
@@ -4469,7 +4513,6 @@ function renderNow(opts){
   let html = "";
   if (state.page === "home") html = renderHome();
   else if (state.page === "salon") html = renderSalon();
-  else if (state.page === "stylist") html = renderStylistProfile();
   else if (state.page === "stylistGallery") html = renderStylistPortfolioGallery();
   else if (state.page === "gallery") html = renderGallery();
   else if (state.page === "reviews") html = renderReviews();
@@ -4477,7 +4520,7 @@ function renderNow(opts){
   else if (state.page === "bookingDetail") html = renderBookingConfirmed(state.bookings.find(b=>b.id===state.viewBookingId));
   else if (state.page === "history") html = renderHistory();
 
-  root.innerHTML = `<div class="shell">${html}${renderConfirmModal()}</div>`;
+  root.innerHTML = `<div class="shell">${html}${renderConfirmModal()}${stylistSheetMarkup()}</div>`;
   restoreScrollPositions();
   const newPageEl = document.querySelector(".page");
   if (newPageEl){
@@ -4763,18 +4806,18 @@ function bindEvents(){
     }
   }
 
-  if (state.page === "stylist" && state.stylistProfile){
+  if (state.stylistSheetOpen){
     const stylist = state.stylistProfile;
-    document.getElementById("backBtn")?.addEventListener("click", ()=>{
-      if (state.salon) returnToVenue({ stylistProfile:null });
-      else setState({ page:"home", stylistProfile:null });
-    });
+    const stylistOverlay = document.getElementById("stylistSheetOverlay");
+    if (stylistOverlay) stylistOverlay.addEventListener("click", ()=> closeStylistSheet());
+    document.getElementById("closeStylistSheet")?.addEventListener("click", ()=> closeStylistSheet());
+    document.getElementById("closeStylistSheetBack")?.addEventListener("click", ()=> closeStylistSheet());
     bindStylistServiceButtons(stylist);
     document.querySelectorAll("[data-stycat]").forEach(btn=>{
       btn.addEventListener("click", ()=> updateStylistCategory(stylist, btn.getAttribute("data-stycat")));
     });
     document.querySelectorAll("[data-stylistgallery]").forEach(btn=>{
-      btn.addEventListener("click", ()=> setState({ page:"stylistGallery" }));
+      btn.addEventListener("click", ()=> setState({ page:"stylistGallery", stylistSheetOpen:false }));
     });
   }
   document.querySelectorAll("[data-reviewstylist]").forEach(btn=>{
@@ -4793,7 +4836,7 @@ function bindEvents(){
   }
 
   if (state.page === "stylistGallery"){
-    document.getElementById("backBtn").addEventListener("click", ()=> setState({ page:"stylist" }));
+    document.getElementById("backBtn").addEventListener("click", ()=> setState({ page:"salon", stylistSheetOpen:true }, { samePage:true }));
   }
 
   if (state.page === "gallery"){
