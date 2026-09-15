@@ -284,7 +284,8 @@
     display:flex; align-items:center; justify-content:center; color:var(--violet-text);
     box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
   }
-  .stat-value{font-size:27px; font-weight:800; margin-top:13px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;}
+  .stat-value{font-size:23px; font-weight:800; margin-top:13px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .stat-value.compact{font-size:18px;}
   .stat-delta{
     display:inline-flex; align-items:center; gap:4px;
     font-size:11px; font-weight:700; margin-top:9px;
@@ -744,6 +745,7 @@
     return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
   }
   function bookingRefFor(publicToken,id){ return 'B-' + String(publicToken||id||'').replace(/-/g,'').slice(0,5).toUpperCase(); }
+  function fmtMoney(n){ return '$' + Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function addDaysToKey(key,n){ var p=key.split('-').map(Number); var dt=new Date(Date.UTC(p[0],p[1]-1,p[2])); dt.setUTCDate(dt.getUTCDate()+n); return dt.toISOString().slice(0,10); }
@@ -801,7 +803,7 @@
       var metaEl = document.getElementById('pmDepositMeta');
       if(d.last_payout_at){
         var when = new Date(d.last_payout_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
-        metaEl.textContent = 'Last paid out $' + (Number(d.last_payout_cents||0)/100).toFixed(2) + ' on ' + when + '.';
+        metaEl.textContent = 'Last paid out ' + fmtMoney(Number(d.last_payout_cents||0)/100) + ' on ' + when + '.';
       } else {
         metaEl.textContent = 'Held by Blooma from online deposits, not yet paid out.';
       }
@@ -879,12 +881,12 @@
     var depositsTotal = monthDeposits.reduce(function(s,t){ return s+t.gross; },0);
 
     document.getElementById('pmStatsGrid').innerHTML =
-      statCard('Total processed','$'+processed.toFixed(2),'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>') +
-      statCard('Deposits collected','$'+depositsTotal.toFixed(2), monthDeposits.length+' deposit'+(monthDeposits.length===1?'':'s')+' this month','violet','<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
-      statCard('Card payments','$'+cardTotal.toFixed(2), cardTx.length+' transaction'+(cardTx.length===1?'':'s'),'violet','<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>') +
-      statCard('Cash payments','$'+cashTotal.toFixed(2), cashTx.length+' transaction'+(cashTx.length===1?'':'s'),'success','<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>') +
-      statCard('Avg. transaction','$'+avgTx.toFixed(2), monthTx.length+' this month',null,'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>') +
-      statCard('Tips collected','$'+tips.toFixed(2),'This month','warning','<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>') +
+      statCard('Total processed',fmtMoney(processed),'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>') +
+      statCard('Deposits collected',fmtMoney(depositsTotal), monthDeposits.length+' deposit'+(monthDeposits.length===1?'':'s')+' this month','violet','<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
+      statCard('Card payments',fmtMoney(cardTotal), cardTx.length+' transaction'+(cardTx.length===1?'':'s'),'violet','<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>') +
+      statCard('Cash payments',fmtMoney(cashTotal), cashTx.length+' transaction'+(cashTx.length===1?'':'s'),'success','<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>') +
+      statCard('Avg. transaction',fmtMoney(avgTx), monthTx.length+' this month',null,'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>') +
+      statCard('Tips collected',fmtMoney(tips),'This month','warning','<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4.5L6 21l1.5-7.5L2 9h7z" fill="currentColor" stroke="none"/>') +
       statCard('Transactions','' + monthTx.length,'This month',null,'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>');
   }
   function statCard(label, value, subLabel, tint, iconPath){
@@ -893,7 +895,8 @@
       : tint==='success' ? 'background:var(--success-soft); color:var(--success);'
       : tint==='danger' ? 'background:rgba(255,107,129,0.14); color:var(--danger);'
       : '';
-    return '<div class="stat-card"><div class="stat-top"><div class="stat-label">' + escapeHtml(label) + '</div><div class="stat-icon" style="' + iconStyle + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + iconPath + '</svg></div></div><div class="stat-value">' + value + '</div><div class="stat-delta"><span class="muted">' + escapeHtml(subLabel||'') + '</span></div></div>';
+    var valueClass = 'stat-value' + (String(value).length>10 ? ' compact' : '');
+    return '<div class="stat-card"><div class="stat-top"><div class="stat-label">' + escapeHtml(label) + '</div><div class="stat-icon" style="' + iconStyle + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + iconPath + '</svg></div></div><div class="' + valueClass + '">' + value + '</div><div class="stat-delta"><span class="muted">' + escapeHtml(subLabel||'') + '</span></div></div>';
   }
 
   function setPmFilter(el, method){
@@ -944,7 +947,7 @@
         return '<tr><td><div class="cell-person"><div class="cell-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(t.name) + '</div><div class="cell-sub">' + escapeHtml(t.email||t.phone||'') + '</div></div></div></td>' +
           '<td>' + escapeHtml(t.service) + '</td>' +
-          '<td class="cell-amount">$' + t.gross.toFixed(2) + '</td>' +
+          '<td class="cell-amount">' + fmtMoney(t.gross) + '</td>' +
           '<td>' + methodCellHtml(t.method) + '</td>' +
           '<td>' + statusHtml + '</td>' +
           '<td>' + whenLabel(t.startsAt) + '</td>' +
@@ -982,15 +985,15 @@
         '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.publicToken,t.id) + '</a></span></div>' +
         '<div class="schedule-row"><span class="sr-sub">Paid online</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
         '<div class="schedule-row"><span class="sr-sub">Payout status</span><span class="sr-amt">' + (t.paidOut ? 'Paid out' : 'Held by Blooma, awaiting payout') + '</span></div>' +
-        '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Deposit collected</span><span class="sr-amt">$' + t.gross.toFixed(2) + '</span></div>';
+        '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Deposit collected</span><span class="sr-amt">' + fmtMoney(t.gross) + '</span></div>';
       document.getElementById('txOverlay').classList.add('open');
       return;
     }
 
-    var addonsRows = t.addons.map(function(a){ return '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(a.name) + '</span><span class="sr-amt">$' + Number(a.price||0).toFixed(2) + '</span></div>'; }).join('');
-    var discountRow = t.discount>0 ? '<div class="schedule-row"><span class="sr-sub">Discount</span><span class="sr-amt" style="color:var(--success);">-$' + t.discount.toFixed(2) + '</span></div>' : '';
-    var depositRow = t.depositPaid>0 ? '<div class="schedule-row"><span class="sr-sub">Deposit paid online</span><span class="sr-amt">$' + t.depositPaid.toFixed(2) + '</span></div>' : '';
-    var tipRow = t.tip>0 ? '<div class="schedule-row"><span class="sr-sub">Tip</span><span class="sr-amt">$' + t.tip.toFixed(2) + '</span></div>' : '';
+    var addonsRows = t.addons.map(function(a){ return '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(a.name) + '</span><span class="sr-amt">' + fmtMoney(a.price) + '</span></div>'; }).join('');
+    var discountRow = t.discount>0 ? '<div class="schedule-row"><span class="sr-sub">Discount</span><span class="sr-amt" style="color:var(--success);">-' + fmtMoney(t.discount) + '</span></div>' : '';
+    var depositRow = t.depositPaid>0 ? '<div class="schedule-row"><span class="sr-sub">Deposit paid online</span><span class="sr-amt">' + fmtMoney(t.depositPaid) + '</span></div>' : '';
+    var tipRow = t.tip>0 ? '<div class="schedule-row"><span class="sr-sub">Tip</span><span class="sr-amt">' + fmtMoney(t.tip) + '</span></div>' : '';
 
     document.getElementById('txModalBox').innerHTML =
       '<div class="modal-head"><h2>Transaction details</h2><div class="modal-close" onclick="closeTxModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
@@ -999,9 +1002,9 @@
       '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.publicToken,t.id) + '</a></span></div>' +
       '<div class="schedule-row"><span class="sr-sub">Paid</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
       '<div class="schedule-row"><span class="sr-sub">Payment method</span><span class="sr-amt">' + (t.method==='cash'?'Cash':'Card') + '</span></div>' +
-      '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(t.service) + '</span><span class="sr-amt">$' + (t.subtotal - t.addons.reduce(function(s,a){return s+Number(a.price||0);},0)).toFixed(2) + '</span></div>' +
+      '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(t.service) + '</span><span class="sr-amt">' + fmtMoney(t.subtotal - t.addons.reduce(function(s,a){return s+Number(a.price||0);},0)) + '</span></div>' +
       addonsRows + discountRow + depositRow + tipRow +
-      '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Total</span><span class="sr-amt">$' + t.gross.toFixed(2) + '</span></div>';
+      '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Total</span><span class="sr-amt">' + fmtMoney(t.gross) + '</span></div>';
     document.getElementById('txOverlay').classList.add('open');
   }
 
