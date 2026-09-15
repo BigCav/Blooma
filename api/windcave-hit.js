@@ -159,6 +159,7 @@ async function status(req, res) {
     // booking (e.g. staff also hit Accept on the cash flow), this just no-ops harmlessly.
     await svc.from('bookings').update({
       status: 'completed', payment_method: 'card', tip_amount: Number(txn.tip_amount || 0), windcave_transaction_id: dpsTxnRef,
+      completed_at: new Date().toISOString(),
     }).eq('id', txn.booking_id).eq('salon_id', salonId).eq('status', 'upcoming');
   }
 

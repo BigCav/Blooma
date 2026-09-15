@@ -895,6 +895,7 @@ async function notification(req, res) {
             status: 'completed',
             payment_method: 'card',
             tip_amount: tipAmount,
+            completed_at: new Date().toISOString(),
           }).eq('id', bookingId);
         }
       }

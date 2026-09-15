@@ -647,7 +647,7 @@
             <th>Amount</th>
             <th>Method</th>
             <th>Status</th>
-            <th>Date</th>
+            <th>Paid</th>
             <th></th>
           </tr>
         </thead>
@@ -829,13 +829,17 @@
         var refundedDeposit = b.deposit_status==='refunded' ? Number(b.deposit_refund_amount!=null?b.deposit_refund_amount:b.deposit_amount||0) : 0;
         var gross = Math.round((Number(b.total||0) + Number(b.tip_amount||0) - refundedDeposit)*100)/100;
         var method = b.payment_method || 'card';
+        var depositPaid = b.deposit_status==='paid' && Number(b.deposit_amount||0)>0 ? Number(b.deposit_amount) : 0;
         return {
           key: 'chk-'+b.id, type: 'checkout',
           id: b.id, publicToken: b.public_token, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
           service: b.service_name_snapshot||'Service', stylist: b.stylist_name_snapshot||'Venue team',
           subtotal: Number(b.subtotal||0), discount: Number(b.discount||0), addons: Array.isArray(b.addons)?b.addons:[],
-          tip: Number(b.tip_amount||0), total: Number(b.total||0), gross: gross, method: method,
-          startsAt: b.starts_at
+          tip: Number(b.tip_amount||0), total: Number(b.total||0), gross: gross, method: method, depositPaid: depositPaid,
+          // Falls back to the appointment time for bookings completed before completed_at
+          // existed - otherwise this is when the payment actually went through, not when the
+          // appointment itself was scheduled for (those can be weeks apart).
+          startsAt: b.completed_at || b.starts_at
         };
       });
       var depositTx = (deposits||[]).map(function(b){
@@ -985,6 +989,7 @@
 
     var addonsRows = t.addons.map(function(a){ return '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(a.name) + '</span><span class="sr-amt">$' + Number(a.price||0).toFixed(2) + '</span></div>'; }).join('');
     var discountRow = t.discount>0 ? '<div class="schedule-row"><span class="sr-sub">Discount</span><span class="sr-amt" style="color:var(--success);">-$' + t.discount.toFixed(2) + '</span></div>' : '';
+    var depositRow = t.depositPaid>0 ? '<div class="schedule-row"><span class="sr-sub">Deposit paid online</span><span class="sr-amt">$' + t.depositPaid.toFixed(2) + '</span></div>' : '';
     var tipRow = t.tip>0 ? '<div class="schedule-row"><span class="sr-sub">Tip</span><span class="sr-amt">$' + t.tip.toFixed(2) + '</span></div>' : '';
 
     document.getElementById('txModalBox').innerHTML =
@@ -992,10 +997,10 @@
       '<div class="tx-client-row"><div class="tx-client-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
         '<div><div class="tx-client-name">' + escapeHtml(t.name) + '</div><div class="tx-client-sub">' + escapeHtml(t.service) + ' · ' + escapeHtml(t.stylist) + '</div></div></div>' +
       '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.publicToken,t.id) + '</a></span></div>' +
-      '<div class="schedule-row"><span class="sr-sub">Date</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
+      '<div class="schedule-row"><span class="sr-sub">Paid</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
       '<div class="schedule-row"><span class="sr-sub">Payment method</span><span class="sr-amt">' + (t.method==='cash'?'Cash':'Card') + '</span></div>' +
       '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(t.service) + '</span><span class="sr-amt">$' + (t.subtotal - t.addons.reduce(function(s,a){return s+Number(a.price||0);},0)).toFixed(2) + '</span></div>' +
-      addonsRows + discountRow + tipRow +
+      addonsRows + discountRow + depositRow + tipRow +
       '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Total</span><span class="sr-amt">$' + t.gross.toFixed(2) + '</span></div>';
     document.getElementById('txOverlay').classList.add('open');
   }
@@ -1004,7 +1009,7 @@
   function exportTransactions(){
     var filtered = getFiltered();
     if(!filtered.length){ showToast('No transactions to export'); return; }
-    var lines = [['Date','Client','Email','Service','Method','Gross','Tip','Booking'].map(csvEscape).join(',')];
+    var lines = [['Paid','Client','Email','Service','Method','Gross','Tip','Booking'].map(csvEscape).join(',')];
     filtered.forEach(function(t){
       lines.push([fullDateLabel(t.startsAt), t.name, t.email, t.service, t.method, t.gross.toFixed(2), t.tip.toFixed(2), bookingRefFor(t.publicToken,t.id)].map(csvEscape).join(','));
     });
