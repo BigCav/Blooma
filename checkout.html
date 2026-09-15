@@ -816,6 +816,7 @@
   let salonName = "";
   let ckMethod = 'card';
   let ckTipPct = 0;
+  let hitConfigured = false;
 
   function localTimeLabel(iso){ return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}); }
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
@@ -960,11 +961,11 @@
     ckMethod = method;
   }
 
-  // Card charges go straight to Windcave's hosted payment page (see chargeViaWindcave()) —
-  // this manual accept/decline simulator is now only for Cash, until the physical Windcave
-  // HIT terminal arrives and takes over the card path too.
+  // Card charges go to this venue's physical Windcave HIT terminal if one is configured
+  // (chargeViaHitTerminal()), otherwise fall back to Windcave's hosted payment page
+  // (chargeViaWindcave()) — this manual accept/decline simulator is only ever used for Cash.
   function goToTerminal(){
-    if(ckMethod==='card'){ chargeViaWindcave(); return; }
+    if(ckMethod==='card'){ hitConfigured ? chargeViaHitTerminal() : chargeViaWindcave(); return; }
     const total = ckTotal();
     document.getElementById('coWrap').innerHTML = `
       <div class="panel" id="ckTerminal">
@@ -1149,10 +1150,12 @@
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
 
-    const [{data:salonRow},{data:cfgRow}] = await Promise.all([
+    const [{data:salonRow},{data:cfgRow},{data:hitRow}] = await Promise.all([
       supabaseClient.from("salons").select("name,city,suburb").eq("id",currentSalonId).maybeSingle(),
-      supabaseClient.from("app_config").select("config").eq("salon_id",currentSalonId).maybeSingle()
+      supabaseClient.from("app_config").select("config").eq("salon_id",currentSalonId).maybeSingle(),
+      supabaseClient.rpc("get_windcave_hit_settings")
     ]);
+    hitConfigured = !!hitRow?.windcave_hit_configured;
     if(salonRow){
       salonName = salonRow.name || "";
       document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
@@ -1175,6 +1178,27 @@
     booking = row;
 
     if(booking.status !== 'upcoming'){ renderAlreadyDone(); return; }
+
+    // Staff may have closed or reloaded this tab mid-charge (customer still tapping/entering
+    // PIN on the terminal) — resume polling that same transaction instead of showing a fresh
+    // summary, which would risk firing a second charge on the same booking.
+    if(hitConfigured){
+      try{
+        const res = await fetch('/api/windcave-hit?action=resume', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+          body: JSON.stringify({booking_id: booking.id})
+        });
+        const out = await res.json().catch(()=>null);
+        if(res.ok && out?.txn_ref){
+          ckMethod = 'card';
+          renderHitWaiting(out.amount);
+          pollHitTransaction(out.txn_ref, 1);
+          return;
+        }
+      }catch(e){ console.warn('Resume check failed', e); }
+    }
+
     renderSummary();
   }
 
@@ -1222,6 +1246,85 @@
         </div>`;
     }
     return true;
+  }
+
+  // Physical Windcave HIT terminal path for Card — mirrors chargeViaWindcave()'s auth/error
+  // handling but polls this venue's own terminal for the result instead of redirecting to a
+  // hosted payment page. See api/windcave-hit.js for the server side.
+  function renderHitWaiting(amount){
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckTerminal">
+        <div class="terminal-card">
+          <div class="terminal-eyebrow">Processing transaction</div>
+          <div class="terminal-amount">$${Number(amount||0).toFixed(2)}</div>
+          <div class="terminal-method">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card payment
+          </div>
+          <div class="terminal-hint">Follow the prompts on the card terminal.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function hitTimeout(){
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckResultTimeout">
+        <div class="result-banner">
+          <div class="result-icon declined"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="result-title">Still waiting on the terminal</div>
+          <div class="result-sub">Check the terminal's own screen directly, or try again.</div>
+          <div class="result-actions">
+            <div class="btn btn-violet" onclick="goToTerminal()">Try again</div>
+            <div class="btn btn-ghost" onclick="renderSummary()">Switch payment method</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function chargeViaHitTerminal(){
+    renderHitWaiting(ckTotal());
+    try{
+      const {data:{session}} = await supabaseClient.auth.getSession();
+      const res = await fetch('/api/windcave-hit?action=start', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body: JSON.stringify({booking_id: booking.id, tip_pct: ckTipPct})
+      });
+      const out = await res.json().catch(()=>null);
+      if(!res.ok || !out?.txn_ref) throw new Error(out?.error || 'Could not start the terminal transaction');
+      pollHitTransaction(out.txn_ref, 1);
+    }catch(e){
+      showToast(e.message || 'Could not start payment');
+      renderSummary();
+    }
+  }
+
+  async function pollHitTransaction(txnRef, attempt){
+    if(attempt > 45){ hitTimeout(); return; }
+    try{
+      const {data:{session}} = await supabaseClient.auth.getSession();
+      const res = await fetch('/api/windcave-hit?action=status', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body: JSON.stringify({txn_ref: txnRef})
+      });
+      const out = await res.json().catch(()=>null);
+      if(!res.ok){ showToast(out?.error || 'Could not confirm the transaction'); txDecline(); return; }
+      if(!out.complete){ setTimeout(function(){ pollHitTransaction(txnRef, attempt+1); }, 2000); return; }
+      if(out.approved){
+        booking.status = 'completed';
+        booking.payment_method = 'card';
+        booking.windcave_transaction_id = out.dpsTxnRef;
+        try{ await awardLoyaltyPoints(); await checkAndAwardMilestone(); }catch(e){ console.warn(e); }
+        renderAccepted();
+      } else {
+        txDecline();
+      }
+    }catch(e){
+      showToast(e.message || 'Could not confirm the transaction');
+      txDecline();
+    }
   }
 
   async function chargeViaWindcave(){

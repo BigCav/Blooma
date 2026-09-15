@@ -1,8 +1,10 @@
 // One-off manual test endpoint for the Windcave HIT (Host Initiated Transaction) API, which
 // controls the physical in-person terminal directly over HTTPS — a completely separate
 // integration from the REST/HPP API in api/windcave.js used for online deposits/gift cards.
-// Not wired into any real booking flow yet; this exists purely to fire a test Purchase against
-// the UAT terminal from windcave-hit-test.html while setting the terminal up. HIT is
+// Superseded by api/windcave-hit.js for real checkout — that one reads per-venue credentials
+// from the salons table and writes real booking completions. This file stays around purely as
+// a raw hardware smoke test (global env-var credentials, no booking/venue auth needed) for
+// verifying a brand-new terminal's connectivity before it's ever configured for a venue. HIT is
 // asynchronous: a Purchase POST kicks the transaction off on the terminal, then the caller
 // polls with Status requests (matching TxnRef) until the response's <Complete> is "1".
 //

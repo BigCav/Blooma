@@ -981,6 +981,33 @@
         <div class="toggle" id="milestoneToggle" onclick="toggleMilestoneEnabled()"></div>
       </div>
     </div>
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-head"><h2>Card terminal (Windcave HIT)</h2></div>
+      <div class="setting-row" style="align-items:flex-start;">
+        <div style="flex:1;">
+          <h4>Physical card terminal</h4>
+          <p>Charge the physical Windcave terminal directly when staff select Card at checkout, instead of the online payment page.</p>
+          <div id="hitFieldsRow" style="display:none; flex-direction:column; gap:8px; margin-top:12px;">
+            <div class="field">
+              <label>HIT Username</label>
+              <input type="text" id="hitUserInput" placeholder="Provided by Windcave" style="background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            </div>
+            <div class="field">
+              <label>HIT Key</label>
+              <input type="password" id="hitKeyInput" placeholder="Provided by Windcave" autocomplete="new-password" style="background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            </div>
+            <div class="field">
+              <label>Station ID</label>
+              <input type="text" id="hitStationInput" placeholder="Your terminal's station ID" style="background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-family:inherit; font-size:12.5px;">
+            </div>
+            <div>
+              <button type="button" class="btn btn-violet" style="padding:9px 16px; font-size:12.5px;" onclick="saveHitSettings()">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="toggle" id="hitToggle" onclick="toggleHitEnabled()"></div>
+      </div>
+    </div>
   </div>
 
   <div class="st-panel" id="stNotifications">
@@ -1315,9 +1342,46 @@
     }
   }
 
+  var hitSettings = { enabled:false, user:'', station:'', keySet:false };
+  var hitSaving = false;
+  function renderHitSettings(){
+    var t=document.getElementById('hitToggle'); if(t) t.classList.toggle('on', hitSettings.enabled);
+    var row=document.getElementById('hitFieldsRow'); if(row) row.style.display = hitSettings.enabled ? 'flex' : 'none';
+    var userInput=document.getElementById('hitUserInput'); if(userInput && document.activeElement!==userInput) userInput.value=hitSettings.user;
+    var stationInput=document.getElementById('hitStationInput'); if(stationInput && document.activeElement!==stationInput) stationInput.value=hitSettings.station;
+    var keyInput=document.getElementById('hitKeyInput'); if(keyInput && document.activeElement!==keyInput) keyInput.placeholder = hitSettings.keySet ? '•••••• (saved)' : 'Provided by Windcave';
+  }
+  function toggleHitEnabled(){
+    hitSettings.enabled = !hitSettings.enabled;
+    renderHitSettings();
+    if(!hitSettings.enabled) saveHitSettings();
+  }
+  async function saveHitSettings(){
+    if(hitSaving) return;
+    hitSaving = true;
+    var userVal = document.getElementById('hitUserInput').value.trim();
+    var keyVal = document.getElementById('hitKeyInput').value.trim();
+    var stationVal = document.getElementById('hitStationInput').value.trim();
+    try{
+      const {data,error} = await supabaseClient.rpc('admin_set_windcave_hit_settings', {p_enabled:hitSettings.enabled, p_user:userVal, p_key:keyVal, p_station:stationVal});
+      if(error) throw error;
+      hitSettings.enabled = !!data?.windcave_hit_enabled;
+      hitSettings.user = data?.windcave_hit_user || '';
+      hitSettings.station = data?.windcave_hit_station || '';
+      hitSettings.keySet = !!data?.windcave_hit_key_set;
+      document.getElementById('hitKeyInput').value = '';
+      renderHitSettings();
+      showToast('Card terminal settings saved');
+    }catch(err){
+      showToast(err.message||'Could not save card terminal settings');
+    }finally{
+      hitSaving = false;
+    }
+  }
+
   async function reloadAdminConfigFromCloud(){
     if(!currentSalonId) return;
-    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow},{data:paymentsRow},{data:referralRow},{data:depositRow},{data:earnedTrustRow},{data:milestoneRow}]=await Promise.all([
+    const [{data:cfgRow,error:cfgError},{data:salonRow,error:salonError},{data:prefsRow},{data:billingRow},{data:paymentsRow},{data:referralRow},{data:depositRow},{data:earnedTrustRow},{data:milestoneRow},{data:hitRow}]=await Promise.all([
       supabaseClient.from("app_config").select("config,config_version").eq("salon_id",currentSalonId).maybeSingle(),
       supabaseClient.from("salons").select("active,metadata,city,region,suburb,postcode,lat,lng,address_verified").eq("id",currentSalonId).maybeSingle(),
       supabaseClient.rpc("get_notification_prefs"),
@@ -1326,7 +1390,8 @@
       supabaseClient.rpc("get_referral_dashboard"),
       supabaseClient.rpc("get_deposit_settings"),
       supabaseClient.rpc("get_earned_trust_settings"),
-      supabaseClient.rpc("get_milestone_settings")
+      supabaseClient.rpc("get_milestone_settings"),
+      supabaseClient.rpc("get_windcave_hit_settings")
     ]);
     if(cfgError) throw cfgError;
     if(salonError) throw salonError;
@@ -1353,6 +1418,13 @@
       milestoneSettings.repeatEvery = Number(milestoneRow.milestone_repeat_every)||25;
       milestoneSettings.repeatBonus = Number(milestoneRow.milestone_repeat_bonus)||100;
       renderMilestoneSettings();
+    }
+    if(hitRow){
+      hitSettings.enabled = !!hitRow.windcave_hit_enabled;
+      hitSettings.user = hitRow.windcave_hit_user || '';
+      hitSettings.station = hitRow.windcave_hit_station || '';
+      hitSettings.keySet = !!hitRow.windcave_hit_key_set;
+      renderHitSettings();
     }
     if(billingRow){
       billing.plan_id = billingRow.plan_id || null;
