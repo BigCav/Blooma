@@ -80,7 +80,10 @@ async function start(req, res) {
     .gte('created_at', reuseSince).order('created_at', { ascending: false }).limit(1).maybeSingle();
   if (existing) { res.status(200).json({ txn_ref: existing.txn_ref, amount: Number(existing.amount) }); return; }
 
-  const txnRef = `hit:${booking.id}:${Date.now()}`;
+  // Windcave's HIT TxnRef field is capped at 40 characters — it doesn't need to be
+  // human-decodable, the booking_id is already stored alongside it in this table, which is
+  // how status()/resume() look transactions back up.
+  const txnRef = `h${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
   const { error: insertErr } = await svc.from('windcave_hit_transactions').insert({
     salon_id: salonId, booking_id: booking.id, txn_ref: txnRef, amount, tip_amount: tipAmount, status: 'pending',
   });
