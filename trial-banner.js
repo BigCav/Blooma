@@ -36,17 +36,17 @@
       '#bloomaTrialGate{position:fixed;inset:0;z-index:9999;background:rgba(10,9,14,0.72);',
       'display:flex;align-items:center;justify-content:center;padding:20px;',
       'font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}',
-      '#bloomaTrialGate .btg-card{background:#1C1B24;border:1px solid #2E2D3C;border-radius:18px;',
-      'max-width:400px;width:100%;padding:30px 26px;text-align:center;color:#F2F1F7;}',
-      '#bloomaTrialGate .btg-icon{width:52px;height:52px;border-radius:50%;background:rgba(109,95,232,0.16);',
+      '#bloomaTrialGate .btg-card{background:var(--surface,#1C1B24);border:1px solid var(--border,#2E2D3C);border-radius:18px;',
+      'max-width:400px;width:100%;padding:30px 26px;text-align:center;color:var(--text,#F2F1F7);}',
+      '#bloomaTrialGate .btg-icon{width:52px;height:52px;border-radius:50%;background:var(--violet-soft,rgba(109,95,232,0.16));color:var(--violet-text,#B7ADF5);',
       'display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}',
       '#bloomaTrialGate h2{font-size:19px;font-weight:800;margin:0 0 8px;}',
-      '#bloomaTrialGate p{font-size:13.5px;color:#9F9CB0;line-height:1.55;margin:0 0 22px;}',
+      '#bloomaTrialGate p{font-size:13.5px;color:var(--text-soft,#9F9CB0);line-height:1.55;margin:0 0 22px;}',
       '#bloomaTrialGate .btg-upgrade{width:100%;background:' + PURPLE + ';color:#fff;border:none;',
       'font-weight:700;font-size:14px;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:10px;}',
       '#bloomaTrialGate .btg-upgrade:hover{background:' + PURPLE_DARK + ';}',
       '#bloomaTrialGate .btg-upgrade:disabled{opacity:.6;cursor:not-allowed;}',
-      '#bloomaTrialGate .btg-logout{background:none;border:none;color:#6C6980;font-size:12.5px;font-weight:600;cursor:pointer;padding:6px;}',
+      '#bloomaTrialGate .btg-logout{background:none;border:none;color:var(--text-faint,#6C6980);font-size:12.5px;font-weight:600;cursor:pointer;padding:6px;}',
     ].join('');
     document.head.appendChild(style);
   }
@@ -80,7 +80,7 @@
     wrap.id = 'bloomaTrialGate';
     wrap.innerHTML =
       '<div class="btg-card">' +
-        '<div class="btg-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B7ADF5" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>' +
+        '<div class="btg-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>' +
         '<h2>Your free trial has ended</h2>' +
         '<p>Subscribe to keep using Blooma and pick up right where you left off — your data is all still here.</p>' +
         '<button class="btg-upgrade" id="btgUpgradeBtn" type="button">Subscribe to continue</button>' +

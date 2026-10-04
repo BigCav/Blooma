@@ -1,0 +1,80 @@
+/* ---------------------------------------------------
+   Blooma — venue-admin light/dark theme.
+   Every /venue/admin/* page declares the same colour tokens inline (the dark palette). This file
+   adds a handful of extra tokens used by the shared sidebar/topbar, then overrides the whole set
+   when <html data-theme="light"> (set by admin-theme.js, which also renders the toggle).
+   Specificity of :root[data-theme="light"] beats each page's plain :root, so load order is irrelevant.
+--------------------------------------------------- */
+:root{
+  color-scheme:dark;
+  --sb-a:#201F2B;
+  --sb-b:#17161F;
+  --sb-label:#57536B;
+  --sb-link:#B4B0C6;
+  --sb-icon:#716D87;
+  --border-strong:#3A3850;
+  --topbar-bg:rgba(19,18,24,0.9);
+  --shadow-rgb:0,0,0;
+  --inset-line:rgba(255,255,255,.05);
+  --chip-bg:rgba(255,255,255,0.1);
+  --chip-bg-strong:rgba(255,255,255,0.22);
+  --bar-bg:rgba(255,255,255,0.09);
+  --gold-text:#F5C451;
+  --chip-scrim:rgba(19,18,24,0.55);
+  --warning-fill:#F4C93A;
+  --on-warning-fill:#131218;
+}
+
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#F4F3F9;
+  --surface:#FFFFFF;
+  --surface-2:#F0EEF7;
+  --surface-hover:#E8E5F3;
+  --border:#E1DEEC;
+  --violet:#6D5FE8;
+  --violet-soft:rgba(109,95,232,0.12);
+  --violet-text:#5645D6;
+  --text:#1B1A26;
+  --text-soft:#5B586E;
+  --text-faint:#8A87A0;
+  --success:#0F8F5F;
+  --success-soft:rgba(15,143,95,0.12);
+  --warning:#996100;
+  --warning-soft:rgba(153,97,0,0.12);
+  --danger:#D32F4B;
+  --gold-text:#9A6A00;
+  --chip-scrim:rgba(255,255,255,0.72);
+  --white:#FFFFFF;
+
+  --sb-a:#FFFFFF;
+  --sb-b:#F7F6FC;
+  --sb-label:#9693AB;
+  --sb-link:#5B586E;
+  --sb-icon:#8A87A0;
+  --border-strong:#CBC7DE;
+  --topbar-bg:rgba(244,243,249,0.9);
+  --shadow-rgb:52,44,110;
+  --inset-line:rgba(27,26,38,.05);
+  --chip-bg:rgba(27,26,38,0.08);
+  --chip-bg-strong:rgba(27,26,38,0.22);
+  --bar-bg:rgba(109,95,232,0.12);
+}
+
+/* Selected items that pair the translucent violet fill with "white" text need real text colour on light. */
+:root[data-theme="light"] .filters-popover-item.active,
+:root[data-theme="light"] .staff-chip.active{color:var(--text);}
+
+/* ---------- Theme toggle (injected into .tb-right by admin-theme.js) ---------- */
+.theme-toggle{
+  width:36px; height:36px; border-radius:9px; flex:none;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text-soft);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+}
+.theme-toggle:hover{background:var(--surface-hover); color:var(--text);}
+.theme-toggle svg{display:block;}
+
+/* The mobile menu is a bottom sheet parked just off-screen; its shadow would otherwise smear into view. */
+@media (max-width:1079px){
+  .sidebar:not(.open){box-shadow:none;}
+}
