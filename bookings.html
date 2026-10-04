@@ -485,6 +485,43 @@
   .status-completed{background:rgba(157,152,176,0.16); color:var(--text-soft);}
   .status-cancelled{background:rgba(255,107,129,0.14); color:var(--danger);}
   .status-noshow{background:rgba(157,152,176,0.16); color:var(--text-soft);}
+  /* Bookings V2 — time-aware states for "upcoming" bookings */
+  .status-live{background:var(--violet-soft); color:var(--violet-text); display:inline-flex; align-items:center; gap:6px;}
+  .status-live::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--violet-text); animation:livePulse 1.6s ease-in-out infinite;}
+  @keyframes livePulse{0%,100%{opacity:1;} 50%{opacity:.25;}}
+  @media (prefers-reduced-motion:reduce){ .status-live::before{animation:none;} }
+  .status-overdue{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .status-stale{background:rgba(255,107,129,0.16); color:var(--danger);}
+  .row-live td{background:rgba(109,95,232,0.07);}
+  .row-live td:first-child{box-shadow:inset 3px 0 0 var(--violet);}
+  .row-overdue td{background:rgba(244,201,58,0.06);}
+  .row-overdue td:first-child{box-shadow:inset 3px 0 0 var(--warning);}
+  .row-stale td{background:rgba(255,107,129,0.07);}
+  .row-stale td:first-child{box-shadow:inset 3px 0 0 var(--danger);}
+  .when-sub{font-size:11.5px; font-weight:600; margin-top:2px;}
+  .when-sub.live{color:var(--violet-text);}
+  .when-sub.overdue{color:var(--warning);}
+  .when-sub.stale{color:var(--danger);}
+  .tab-count{font-size:10px; font-weight:700; background:rgba(255,255,255,0.1); color:inherit; padding:1px 6px; border-radius:99px; margin-left:6px;}
+  .filter-tab.active .tab-count{background:rgba(255,255,255,0.22);}
+  .filter-tab.attn.has-items:not(.active){border-color:rgba(244,201,58,0.45); color:var(--warning);}
+  .filter-tab.attn.has-items .tab-count{background:var(--warning); color:#131218;}
+  .attn-banner{
+    display:none; align-items:center; gap:12px; flex-wrap:wrap;
+    background:rgba(244,201,58,0.09); border:1px solid rgba(244,201,58,0.32);
+    border-radius:12px; padding:12px 16px; margin-bottom:16px;
+  }
+  .attn-banner.show{display:flex;}
+  .attn-banner.stale{background:rgba(255,107,129,0.08); border-color:rgba(255,107,129,0.34);}
+  .attn-banner svg{flex:none; color:var(--warning);}
+  .attn-banner.stale svg{color:var(--danger);}
+  .attn-banner .attn-text{flex:1; min-width:200px; font-size:13px; color:var(--text-soft); line-height:1.45;}
+  .attn-banner .attn-text b{color:var(--text); font-weight:700;}
+  .attn-banner .attn-btn{
+    font-size:12px; font-weight:700; padding:7px 13px; border-radius:8px; cursor:pointer; white-space:nowrap;
+    background:var(--warning); color:#131218;
+  }
+  .attn-banner.stale .attn-btn{background:var(--danger);}
   .row-action{
     width:30px; height:30px; border-radius:8px; background:var(--surface-2);
     border:1px solid var(--border);
@@ -761,16 +798,24 @@
     </div>
   </div>
 
+  <div class="attn-banner" id="attnBanner">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+    <div class="attn-text" id="attnText"></div>
+    <div class="attn-btn" onclick="setFilter('attention')">Review</div>
+  </div>
+
   <div class="panel">
     <div class="filter-bar">
       <div class="filter-tabs" id="filterTabs">
-        <div class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</div>
+        <div class="filter-tab active" data-filter="today" onclick="setFilter('today')">Today<span class="tab-count" id="tabCountToday" style="display:none;"></span></div>
         <div class="filter-tab" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</div>
+        <div class="filter-tab attn" data-filter="attention" id="tabAttention" onclick="setFilter('attention')">Needs attention<span class="tab-count" id="tabCountAttention" style="display:none;"></span></div>
         <div class="filter-tab" data-filter="pending" onclick="setFilter('pending')">Pending</div>
         <div class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed</div>
         <div class="filter-tab" data-filter="cancelled" onclick="setFilter('cancelled')">Cancelled</div>
         <div class="filter-tab" data-filter="noshow" onclick="setFilter('noshow')">No-show</div>
         <div class="filter-tab" data-filter="waitlist" onclick="setFilter('waitlist')">Waitlist<span class="filter-btn-count" id="waitlistTabCount" style="display:none;"></span></div>
+        <div class="filter-tab" data-filter="all" onclick="setFilter('all')">All</div>
       </div>
       <div class="filter-actions">
         <div class="filter-search">
@@ -936,6 +981,7 @@
         service: r.service_name_snapshot || (svc?svc.name:'Service'),
         staff: r.stylist_name_snapshot || (st?st.name:'Venue team'),
         startsAt: r.starts_at,
+        durationMinutes: Number(r.duration_minutes) || 60,
         when: whenLabel(r.starts_at),
         price: Number(r.total||0),
         status: r.status,
@@ -1086,12 +1132,63 @@
   }
 
   var PAGE_SIZE = 8;
-  var currentFilter = 'all';
+  var currentFilter = 'today';
   var currentSearch = '';
   var currentStaff = null;
   var currentPage = 1;
 
-  function statusBadge(status,depositStatus){
+  // An "upcoming" booking is only truly upcoming until it starts. After that it's in progress
+  // until its duration elapses, and after that it's overdue — nobody has checked it out,
+  // no-showed it or cancelled it. "stale" = overdue by a day or more.
+  function phaseOf(b){
+    if(b.status !== 'upcoming') return null;
+    var s = Date.parse(b.startsAt), e = s + (b.durationMinutes || 60) * 60000, n = Date.now();
+    if(n < s) return 'future';
+    if(n < e) return 'live';
+    return (n - e) >= 86400000 ? 'stale' : 'overdue';
+  }
+  function endMs(b){ return Date.parse(b.startsAt) + (b.durationMinutes || 60) * 60000; }
+  function agoLabel(ms){
+    var m = Math.floor(ms / 60000);
+    if(m < 1) return 'just now';
+    if(m < 60) return m + ' min ago';
+    var h = Math.floor(m / 60);
+    if(h < 24) return h + (h === 1 ? ' hour' : ' hours') + ' ago';
+    var d = Math.floor(h / 24);
+    if(d < 14) return d + (d === 1 ? ' day' : ' days') + ' ago';
+    if(d < 60) return Math.floor(d / 7) + ' weeks ago';
+    var mo = Math.floor(d / 30);
+    return mo + (mo === 1 ? ' month' : ' months') + ' ago';
+  }
+  function isToday(b){ return nzDateKeyForIso(b.startsAt) === nzTodayKey(); }
+  function isAttention(b){ var p = phaseOf(b); return p === 'overdue' || p === 'stale'; }
+
+  function renderAttention(){
+    var today = 0, attn = [], hasStale = false;
+    bookingsData.forEach(function(b){
+      if(b.status !== 'cancelled' && isToday(b)) today++;
+      if(isAttention(b)){ attn.push(b); if(phaseOf(b) === 'stale') hasStale = true; }
+    });
+    var tc = document.getElementById('tabCountToday');
+    tc.textContent = today; tc.style.display = today ? '' : 'none';
+    var ac = document.getElementById('tabCountAttention');
+    ac.textContent = attn.length; ac.style.display = attn.length ? '' : 'none';
+    document.getElementById('tabAttention').classList.toggle('has-items', attn.length > 0);
+
+    var banner = document.getElementById('attnBanner');
+    if(!attn.length || currentFilter === 'attention'){ banner.classList.remove('show'); return; }
+    var oldest = attn.reduce(function(a, b){ return endMs(b) < endMs(a) ? b : a; });
+    document.getElementById('attnText').innerHTML =
+      '<b>' + attn.length + ' booking' + (attn.length === 1 ? ' is' : 's are') + ' past ' + (attn.length === 1 ? 'its' : 'their') + ' end time</b> and still marked upcoming. ' +
+      'Check ' + (attn.length === 1 ? 'it' : 'them') + ' out, or mark as no-show or cancelled. The oldest ended ' + agoLabel(Date.now() - endMs(oldest)) + '.';
+    banner.classList.toggle('stale', hasStale);
+    banner.classList.add('show');
+  }
+
+  function statusBadge(status,depositStatus,phase){
+    if(phase === 'live') return '<span class="status-badge status-live">In progress</span>';
+    if(phase === 'overdue') return '<span class="status-badge status-overdue">Overdue</span>';
+    if(phase === 'stale') return '<span class="status-badge status-stale">Overdue</span>';
     if(status==='upcoming' && depositStatus==='pending') return '<span class="status-badge status-pending">Pending</span>';
     var map = { upcoming:'Upcoming', completed:'Completed', cancelled:'Cancelled', no_show:'No-show' };
     var cls = status==='no_show' ? 'noshow' : status;
@@ -1159,6 +1256,9 @@
 
   function matchesFilter(b){
     if(currentFilter === 'all') return true;
+    if(currentFilter === 'today') return b.status !== 'cancelled' && isToday(b);
+    if(currentFilter === 'attention') return isAttention(b);
+    if(currentFilter === 'upcoming') return b.status === 'upcoming' && !isAttention(b);
     if(currentFilter === 'noshow') return b.status === 'no_show';
     if(currentFilter === 'pending') return b.status === 'upcoming' && b.depositStatus === 'pending';
     return b.status === currentFilter;
@@ -1176,8 +1276,10 @@
     });
     // "All" ignores the upcoming-first grouping used elsewhere (see bookingsData.sort above) —
     // it's a chronological feed, most recent first, regardless of status or deposit state.
-    if(currentFilter === 'all'){
+    if(currentFilter === 'all' || currentFilter === 'attention'){
       result = result.slice().sort(function(a,b){ return new Date(b.startsAt) - new Date(a.startsAt); });
+    } else if(currentFilter === 'today' || currentFilter === 'upcoming'){
+      result = result.slice().sort(function(a,b){ return new Date(a.startsAt) - new Date(b.startsAt); });
     }
     return result;
   }
@@ -1276,7 +1378,14 @@
     document.getElementById('paginationBtns').innerHTML = '';
   }
 
+  var EMPTY_MESSAGES = {
+    today: 'No appointments today.',
+    upcoming: 'No upcoming appointments.',
+    attention: 'Nothing needs attention — every past booking has been checked out, cancelled or marked no-show.'
+  };
+
   function renderBookings(){
+    renderAttention();
     if(currentFilter === 'waitlist'){ renderWaitlistTable(); return; }
     document.getElementById('bookingsTheadRow').innerHTML =
       '<th>Client</th><th>Service</th><th>Staff</th><th>Date &amp; time</th><th>Price</th><th>Status</th><th></th>';
@@ -1288,10 +1397,14 @@
 
     var tbody = document.getElementById('bookingsTbody');
     if(pageItems.length === 0){
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No bookings match this filter.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">' + (currentSearch || currentStaff ? 'No bookings match this filter.' : (EMPTY_MESSAGES[currentFilter] || 'No bookings match this filter.')) + '</td></tr>';
     } else {
       tbody.innerHTML = pageItems.map(function(b){
         var c = colorFor(b.name);
+        var phase = phaseOf(b);
+        var rowClass = 'row-clickable' + (phase === 'live' ? ' row-live' : phase === 'overdue' ? ' row-overdue' : phase === 'stale' ? ' row-stale' : '');
+        var whenSub = phase === 'live' ? '<div class="when-sub live">Ends ' + localTimeLabel(new Date(endMs(b)).toISOString()) + '</div>'
+          : (phase === 'overdue' || phase === 'stale') ? '<div class="when-sub ' + phase + '">Ended ' + agoLabel(Date.now() - endMs(b)) + '</div>' : '';
         var viewLink = '<a href="/venue/admin/booking?id=' + b.dbId + '" class="row-action" title="View booking"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></a>';
         var receiptBtn = '<div class="row-icon-btn receipt" title="Receipt" onclick="openReceiptModal(\'' + b.dbId + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>';
         var actionCell = (b.status === 'upcoming')
@@ -1302,14 +1415,14 @@
               viewLink +
             '</div>'
           : '<div class="row-status-actions">' + (b.status==='completed' ? receiptBtn : '') + viewLink + '</div>';
-        return '<tr class="row-clickable" onclick="location.href=\'/venue/admin/booking?id=' + b.dbId + '\'">' +
+        return '<tr class="' + rowClass + '" onclick="location.href=\'/venue/admin/booking?id=' + b.dbId + '\'">' +
           '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + escapeHtml(initialsFor(b.name)) + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(b.name) + '</div><div class="cell-sub">' + escapeHtml(b.email||'') + '</div></div></div></td>' +
           '<td>' + escapeHtml(b.service) + '</td>' +
           '<td>' + escapeHtml(b.staff) + '</td>' +
-          '<td>' + b.when + '</td>' +
+          '<td>' + whenLabel(b.startsAt) + whenSub + '</td>' +
           '<td>' + (b.price ? '$' + b.price : '-') + (b.depositStatus && b.depositStatus!=='none' ? '<div style="margin-top:3px;font-size:11px;font-weight:700;' + (b.depositStatus==='paid' ? 'color:var(--violet-text);' : 'color:var(--warning);') + '">' + (b.depositStatus==='paid' ? 'Deposit paid' : 'Deposit pending') + ' · $' + b.depositAmount.toFixed(2) + '</div>' : '') + '</td>' +
-          '<td>' + statusBadge(b.status,b.depositStatus) + '</td>' +
+          '<td>' + statusBadge(b.status,b.depositStatus,phase) + '</td>' +
           '<td onclick="event.stopPropagation()">' + actionCell + '</td>' +
         '</tr>';
       }).join('');
@@ -1386,6 +1499,14 @@
   });
 
   bootBookingsPage();
+
+  // Bookings move from upcoming → in progress → overdue as the clock advances, so re-evaluate
+  // every minute without needing a page refresh.
+  setInterval(function(){
+    if(document.visibilityState !== 'visible' || !bookingsData || !bookingsData.length) return;
+    renderStatsCards();
+    renderBookings();
+  }, 60000);
 </script>
 
 <script>
