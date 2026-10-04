@@ -60,6 +60,63 @@
     return { upcoming: upcoming, unread: unread, supportUnread: supportUnread };
   }
 
+  /* ---------------------------------------------------
+     Physical-terminal payment reconcile. Windcave HIT has no webhook, so a card charged on the
+     terminal after staff left the checkout page would otherwise never mark the booking paid.
+     Every admin page asks the server to settle any unresolved terminal charge for this venue
+     (on load, then every 30s while the tab is visible). Loyalty points are awarded client-side
+     elsewhere, so for bookings settled here we award them too — both calls are idempotent.
+  --------------------------------------------------- */
+  var RELOAD_ON_SETTLE = ['/venue/admin','/venue/admin/bookings','/venue/admin/calendar','/venue/admin/payments','/venue/admin/reports','/venue/admin/clients'];
+
+  async function awardLoyaltyFor(salonId, bookingId){
+    try{
+      var b = (await supabaseClient.from('bookings').select('*').eq('id', bookingId).eq('salon_id', salonId).maybeSingle()).data;
+      if(!b || b.status !== 'completed' || !b.customer_user_id) return;
+      var cfg = (await supabaseClient.from('app_config').select('config').eq('salon_id', salonId).maybeSingle()).data;
+      var loyalty = cfg && cfg.config && cfg.config.salon && cfg.config.salon.loyalty;
+      if(!loyalty || !loyalty.enabled) return;
+      var pts = Math.max(0, Math.round(Number(b.total||0) * Number(loyalty.pointsPerDollar||0)));
+      if(pts > 0){
+        var ins = await supabaseClient.from('loyalty_transactions').insert({salon_id:salonId,customer_user_id:b.customer_user_id,booking_id:b.id,points_change:pts,reason:'Booking completed'});
+        if(!ins.error){
+          var acct = (await supabaseClient.from('loyalty_accounts').select('points').eq('salon_id',salonId).eq('customer_user_id',b.customer_user_id).maybeSingle()).data;
+          await supabaseClient.from('loyalty_accounts').upsert({salon_id:salonId,customer_user_id:b.customer_user_id,customer_name:b.customer_name,points:((acct&&acct.points)||0)+pts,updated_at:new Date().toISOString()},{onConflict:'salon_id,customer_user_id'});
+        }
+      }
+      var m = await supabaseClient.rpc('check_and_award_milestone',{p_booking_id:b.id});
+      if(m.data && m.data.milestone && b.customer_phone){
+        var s = (await supabaseClient.from('salons').select('name').eq('id',salonId).maybeSingle()).data;
+        await supabaseClient.functions.invoke('send-sms',{body:{type:'loyalty_milestone',to:b.customer_phone,data:{salonName:(s&&s.name)||'',visitCount:m.data.milestone,bonusPoints:m.data.bonus_points}}});
+      }
+    }catch(e){ console.warn('Loyalty award failed', e); }
+  }
+
+  var reconcileBusy = false;
+  async function reconcileTerminalPayments(salonId, session){
+    if(reconcileBusy) return;
+    reconcileBusy = true;
+    try{
+      var res = await fetch('/api/windcave-hit?action=reconcile', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token}, body:'{}'});
+      var out = await res.json().catch(function(){ return null; });
+      if(!res.ok || !out || !out.completed || !out.completed.length) return;
+      for(var i=0;i<out.completed.length;i++){ await awardLoyaltyFor(salonId, out.completed[i]); }
+      if(RELOAD_ON_SETTLE.indexOf(location.pathname.replace(/\/$/,'')) !== -1) location.reload();
+    }catch(e){ /* background safety net — never break the page over this */ }
+    finally{ reconcileBusy = false; }
+  }
+
+  function startReconcile(salonId, session){
+    reconcileTerminalPayments(salonId, session);
+    setInterval(function(){
+      if(document.visibilityState !== 'visible') return;
+      supabaseClient.auth.getSession().then(function(r){
+        var s = r && r.data && r.data.session;
+        if(s) reconcileTerminalPayments(salonId, s);
+      });
+    }, 30000);
+  }
+
   function init(){
     if(typeof supabaseClient === 'undefined' || !supabaseClient) return;
     supabaseClient.auth.getSession().then(function(res){
@@ -68,6 +125,7 @@
       return supabaseClient.from('owner_profiles').select('salon_id').eq('user_id', session.user.id).maybeSingle().then(function(r){
         var salonId = r && r.data && r.data.salon_id;
         if(!salonId) return null;
+        startReconcile(salonId, session);
         return computeCounts(salonId);
       });
     }).then(function(counts){

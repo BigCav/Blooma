@@ -1190,6 +1190,15 @@
           body: JSON.stringify({booking_id: booking.id})
         });
         const out = await res.json().catch(()=>null);
+        if(res.ok && out?.paid){
+          // The card was actually billed on the terminal after this tab was left — the server
+          // has now completed the booking, so show that instead of offering a second charge.
+          const {data:paidRow} = await supabaseClient.from("bookings").select("*").eq("id",bookingId).eq("salon_id",currentSalonId).maybeSingle();
+          if(paidRow){ booking = paidRow; }
+          try{ await awardLoyaltyPoints(); await checkAndAwardMilestone(); }catch(e){ console.warn(e); }
+          renderAlreadyDone();
+          return;
+        }
         if(res.ok && out?.txn_ref){
           ckMethod = 'card';
           renderHitWaiting(out.amount);
@@ -1292,6 +1301,7 @@
         body: JSON.stringify({booking_id: booking.id, tip_pct: ckTipPct})
       });
       const out = await res.json().catch(()=>null);
+      if(res.status === 409){ showToast(out?.error || 'This appointment was already paid.'); setTimeout(function(){ location.reload(); }, 1200); return; }
       if(!res.ok || !out?.txn_ref) throw new Error(out?.error || 'Could not start the terminal transaction');
       pollHitTransaction(out.txn_ref, 1);
     }catch(e){
