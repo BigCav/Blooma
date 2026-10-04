@@ -285,6 +285,35 @@
   .status-upcoming{background:var(--violet-soft); color:var(--violet-text);}
   .status-noshow{background:rgba(157,152,176,0.16); color:var(--text-soft);}
 
+  /* Booking V2 — time-aware states */
+  .status-live{background:var(--violet-soft); color:var(--violet-text); display:inline-flex; align-items:center; gap:6px;}
+  .status-live::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--violet-text); animation:livePulse 1.6s ease-in-out infinite;}
+  @keyframes livePulse{0%,100%{opacity:1;} 50%{opacity:.25;}}
+  @media (prefers-reduced-motion:reduce){ .status-live::before{animation:none;} }
+  .status-overdue{background:rgba(244,201,58,0.16); color:var(--warning);}
+  .status-stale{background:rgba(255,107,129,0.16); color:var(--danger);}
+  .bk-head-panel.phase-live{border-color:rgba(109,95,232,0.55); background:linear-gradient(0deg,rgba(109,95,232,0.07),rgba(109,95,232,0.07)),var(--surface);}
+  .bk-head-panel.phase-overdue{border-color:rgba(244,201,58,0.5); background:linear-gradient(0deg,rgba(244,201,58,0.06),rgba(244,201,58,0.06)),var(--surface);}
+  .bk-head-panel.phase-stale{border-color:rgba(255,107,129,0.55); background:linear-gradient(0deg,rgba(255,107,129,0.07),rgba(255,107,129,0.07)),var(--surface);}
+  .attn-banner{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    border-radius:14px; padding:14px 18px; margin-bottom:14px;
+    border:1px solid rgba(244,201,58,0.4); background:rgba(244,201,58,0.09);
+  }
+  .attn-banner.stale{border-color:rgba(255,107,129,0.45); background:rgba(255,107,129,0.09);}
+  .attn-banner.live{border-color:rgba(109,95,232,0.45); background:rgba(109,95,232,0.10);}
+  .attn-icon{flex:none; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(244,201,58,0.18); color:var(--warning);}
+  .attn-banner.stale .attn-icon{background:rgba(255,107,129,0.18); color:var(--danger);}
+  .attn-banner.live .attn-icon{background:var(--violet-soft); color:var(--violet-text);}
+  .attn-copy{flex:1; min-width:220px;}
+  .attn-title{font-size:14px; font-weight:800; color:var(--text);}
+  .attn-sub{font-size:12.5px; color:var(--text-soft); margin-top:2px; line-height:1.45;}
+  .attn-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .when-sub{font-size:11.5px; font-weight:600; margin-top:2px;}
+  .when-sub.overdue{color:var(--warning);}
+  .when-sub.stale{color:var(--danger);}
+  .when-sub.live{color:var(--violet-text);}
+
   /* ---------- BREADCRUMB ---------- */
   .crumb{
     display:inline-flex; align-items:center; gap:6px;
@@ -703,7 +732,10 @@
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
-  function statusBadge(status){
+  function statusBadge(status, phase){
+    if(phase === 'live') return '<span class="status-badge status-live" id="bkStatusBadge">In progress</span>';
+    if(phase === 'overdue') return '<span class="status-badge status-overdue" id="bkStatusBadge">Overdue</span>';
+    if(phase === 'stale') return '<span class="status-badge status-stale" id="bkStatusBadge">Overdue</span>';
     var map = { upcoming:'Upcoming', completed:'Completed', cancelled:'Cancelled', no_show:'No-show' };
     var cls = status==='no_show' ? 'noshow' : status;
     return '<span class="status-badge status-' + cls + '" id="bkStatusBadge">' + (map[status]||status) + '</span>';
@@ -746,13 +778,49 @@
     };
   }
 
+  let renderedPhase = null;
+  let lastClientSince = null;
+  // The phase moves on with the clock (future, in progress, overdue); re-render only when it changes.
+  setInterval(function(){
+    if(!booking || document.visibilityState !== 'visible') return;
+    if(BloomaBooking.phase(booking.status, booking.starts_at, booking.duration_minutes) !== renderedPhase) renderBooking(lastClientSince);
+  }, 60000);
+
   function renderBooking(clientSince){
     const b = booking;
     const c = colorFor(b.customer_name);
     const clientSinceLabel = clientSince ? clientSince.label : null;
     const isFirstVisit = !!(clientSince && clientSince.isFirstVisit);
-    const shortCode = 'B-' + String(b.public_token||b.id).replace(/-/g,'').slice(0,5).toUpperCase();
+    const shortCode = BloomaBooking.ref(b.booking_number);
     const isUpcoming = b.status === 'upcoming';
+    const phase = BloomaBooking.phase(b.status, b.starts_at, b.duration_minutes);
+    renderedPhase = phase; lastClientSince = clientSince;
+    const endMs = BloomaBooking.endMs(b.starts_at, b.duration_minutes);
+    const endedAgo = BloomaBooking.ago(Date.now() - endMs);
+    const timeSub = phase === 'live' ? '<div class="when-sub live">In progress · ends ' + localTimeLabel(new Date(endMs).toISOString()) + '</div>'
+      : (phase === 'overdue' || phase === 'stale') ? '<div class="when-sub ' + phase + '">Ended ' + endedAgo + '</div>' : '';
+    const balanceDue = Math.max(0, Math.round((Number(b.total||0) - (b.deposit_status==='paid' ? Number(b.deposit_amount||0) : 0))*100)/100);
+    const attentionBanner = (phase === 'overdue' || phase === 'stale') ? `
+      <div class="attn-banner ${phase === 'stale' ? 'stale' : ''}">
+        <div class="attn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <div class="attn-copy">
+          <div class="attn-title">Needs attention · ended ${endedAgo}</div>
+          <div class="attn-sub">This appointment is past its end time but still marked upcoming. Check it out to take payment, or mark it as a no-show or cancel it so your records stay accurate.</div>
+        </div>
+        <div class="attn-actions">
+          <a href="/venue/admin/checkout?id=${b.id}" class="btn btn-violet">Checkout</a>
+          <div class="btn btn-ghost" onclick="noShowBooking()">No-show</div>
+          <div class="btn btn-danger" onclick="cancelBooking()">Cancel</div>
+        </div>
+      </div>` : phase === 'live' ? `
+      <div class="attn-banner live">
+        <div class="attn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <div class="attn-copy">
+          <div class="attn-title">In progress</div>
+          <div class="attn-sub">Started ${localTimeLabel(b.starts_at)} and scheduled to finish at ${localTimeLabel(new Date(endMs).toISOString())}.</div>
+        </div>
+        <div class="attn-actions"><a href="/venue/admin/checkout?id=${b.id}" class="btn btn-violet">Checkout</a></div>
+      </div>` : '';
     const addonsTotal = (b.addons||[]).reduce((sum,a)=>sum+Number(a.price||0),0);
     const priceRows = [
       '<div class="info-row"><span class="info-label">' + escapeHtml(b.service_name_snapshot||'Service') + '</span><span class="info-value">$' + (Number(b.subtotal||0)-addonsTotal).toFixed(2) + '</span></div>'
@@ -767,13 +835,16 @@
     document.getElementById('bookingContent').innerHTML = `
       <div class="cancel-banner${b.status==='cancelled'?' show':''}" id="cancelBanner">This booking has been cancelled. The client has been notified automatically.</div>
 
-      <div class="panel bk-head-panel">
+      ${attentionBanner}
+
+      <div class="panel bk-head-panel${phase ? ' phase-' + phase : ''}">
         <div class="bk-head">
           <div class="bk-avatar" style="background:${c.color};color:${c.text};">${initialsFor(b.customer_name)}</div>
           <div>
             <div class="bk-title-row">
               <h1>${escapeHtml(b.service_name_snapshot||'Service')}</h1>
-              ${statusBadge(b.status)}
+              ${statusBadge(b.status, phase)}
+              <span class="bk-number">${shortCode}</span>
             </div>
             <div class="bk-meta">with <a class="bk-link" href="/venue/admin/client?key=${encodeURIComponent(clientKeyForBooking(b))}">${escapeHtml(b.customer_name)}</a> · ${b.stylist_id ? `<a class="bk-link" href="/venue/admin/team-member?id=${encodeURIComponent(b.stylist_id)}">${escapeHtml(b.stylist_name_snapshot||'Venue team')}</a>` : escapeHtml(b.stylist_name_snapshot||'Venue team')}</div>
             <div class="bk-meta" style="margin-top:2px;">${whenShortLabel(b.starts_at)}</div>
@@ -823,7 +894,7 @@
             <div class="info-row"><span class="info-label">Duration</span><span class="info-value">${formatDurationMinutes(b.duration_minutes)}</span></div>
             <div class="info-row"><span class="info-label">Stylist</span><span class="info-value">${b.stylist_id ? `<a class="bk-link" href="/venue/admin/team-member?id=${encodeURIComponent(b.stylist_id)}">${escapeHtml(b.stylist_name_snapshot||'Venue team')}</a>` : escapeHtml(b.stylist_name_snapshot||'Venue team')}</span></div>
             <div class="info-row"><span class="info-label">Date</span><span class="info-value">${localFullDate(b.starts_at)}</span></div>
-            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${localTimeLabel(b.starts_at)} – ${localTimeLabel(new Date(new Date(b.starts_at).getTime()+Number(b.duration_minutes||0)*60000).toISOString())} (${formatDurationMinutes(b.duration_minutes)})</span></div>
+            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${localTimeLabel(b.starts_at)} – ${localTimeLabel(new Date(new Date(b.starts_at).getTime()+Number(b.duration_minutes||0)*60000).toISOString())} (${formatDurationMinutes(b.duration_minutes)})${timeSub}</span></div>
             <div class="info-row"><span class="info-label">Booked via</span><span class="info-value">${b.is_walk_in ? 'Walk-in / manual' : 'Online booking'}</span></div>
           </div>
 
@@ -836,6 +907,7 @@
               <span class="status-badge status-${b.deposit_status==='paid'?'completed':(b.deposit_status==='refunded'?'noshow':'pending')}" style="${b.deposit_status==='paid'?'background:var(--violet-soft);color:var(--violet-text);':''}">${b.deposit_status==='paid'?'Paid':b.deposit_status==='refunded'?'Refunded':'Awaiting payment'}</span>
               $${Number(b.deposit_status==='refunded'?(b.deposit_refund_amount||b.deposit_amount||0):(b.deposit_amount||0)).toFixed(2)}
             </span></div>` : ''}
+            ${b.deposit_status==='paid' && b.status==='upcoming' ? `<div class="info-row"><span class="info-label" style="color:var(--text);">Balance due at checkout</span><span class="info-value" style="font-size:15px;">$${balanceDue.toFixed(2)}</span></div>` : ''}
             ${b.deposit_status==='pending' && b.status==='upcoming' ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" id="depositHoldNote" style="font-size:12.5px;font-weight:400;color:var(--text-faint);"></span></div>` : ''}
             ${b.deposit_status==='paid' && !b.deposit_paid_out ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value"><div class="btn btn-ghost" id="refundDepositBtn" onclick="refundDeposit()" style="font-size:12.5px;padding:7px 12px;display:inline-flex;">Refund deposit</div></span></div>` : ''}
             ${b.deposit_status==='paid' && b.deposit_paid_out ? `<div class="info-row" style="border-bottom:none;"><span class="info-label"></span><span class="info-value" style="font-size:12.5px;font-weight:400;color:var(--text-faint);">Already paid out to you - contact Blooma support to refund this deposit.</span></div>` : ''}
@@ -1127,7 +1199,7 @@
   var FEE_PCT = 0.0179, FEE_FLAT = 0.20;
   function receiptModalHtml(b){
     const c = colorFor(b.customer_name);
-    const shortCode = 'B-' + String(b.public_token||b.id).replace(/-/g,'').slice(0,5).toUpperCase();
+    const shortCode = BloomaBooking.ref(b.booking_number);
     const addonsSum = (b.addons||[]).reduce((s,a)=>s+Number(a.price||0),0);
     const method = b.payment_method || 'card';
     const tip = Number(b.tip_amount||0);
@@ -1335,6 +1407,7 @@
 <script src="/modal-scroll-lock.js"></script>
 <script src="/scroll-fade.js"></script>
 <script src="/form-validation.js"></script>
+<script src="/booking-phase.js"></script>
 <script src="/sidebar-badges.js"></script>
 <script src="/admin-logo-link.js"></script>
 

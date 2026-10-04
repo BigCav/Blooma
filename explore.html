@@ -1946,7 +1946,7 @@ async function submitCloudReview(booking,rating,note){
 function customerBookingFromRow(r,index,reviewsByBooking){
   const dt=new Date(r.starts_at);
   const review=reviewsByBooking.get(String(r.id))||null;
-  return {id:index+1,dbId:r.id,publicToken:r.public_token,salonId:r.salon_id,salonName:r.salon_name||"Venue",salonIcon:"sparkles",serviceId:r.service_id,serviceName:r.service_name||"Service",stylistId:r.stylist_id,stylistName:r.stylist_name||"Venue team",date:r.starts_at,dateLabel:dayLabel(dt),time:dt.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}),duration:Number(r.duration_minutes||30),price:Number(r.total||0),subtotal:Number(r.subtotal||0),promoCode:r.promo_code||null,discount:Number(r.discount||0),addons:Array.isArray(r.addons)?r.addons:[],name:r.customer_name||"",phone:r.customer_phone||"",notes:r.notes||"",preferences:Array.isArray(r.preferences)?r.preferences:[],status:r.status||"upcoming",depositStatus:r.deposit_status||"none",depositAmount:Number(r.deposit_amount||0),createdAt:r.created_at||null,review};
+  return {id:index+1,dbId:r.id,bookingNumber:r.booking_number||null,publicToken:r.public_token,salonId:r.salon_id,salonName:r.salon_name||"Venue",salonIcon:"sparkles",serviceId:r.service_id,serviceName:r.service_name||"Service",stylistId:r.stylist_id,stylistName:r.stylist_name||"Venue team",date:r.starts_at,dateLabel:dayLabel(dt),time:dt.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}),duration:Number(r.duration_minutes||30),price:Number(r.total||0),subtotal:Number(r.subtotal||0),promoCode:r.promo_code||null,discount:Number(r.discount||0),addons:Array.isArray(r.addons)?r.addons:[],name:r.customer_name||"",phone:r.customer_phone||"",notes:r.notes||"",preferences:Array.isArray(r.preferences)?r.preferences:[],status:r.status||"upcoming",depositStatus:r.deposit_status||"none",depositAmount:Number(r.deposit_amount||0),createdAt:r.created_at||null,review};
 }
 function customerWaitlistFromRow(r,index){
   const dd=r.desired_date?dateFromNzKey(String(r.desired_date)):null;
@@ -1960,11 +1960,11 @@ function customerWaitlistFromRow(r,index){
 async function loadCancelledBookingRows(){
   try{
     const {data,error} = await customerSupabaseClient.from("bookings")
-      .select("id,public_token,salon_id,service_name_snapshot,stylist_name_snapshot,stylist_id,service_id,starts_at,duration_minutes,total,subtotal,promo_code,discount,addons,customer_name,customer_phone,notes,preferences,status")
+      .select("id,booking_number,public_token,salon_id,service_name_snapshot,stylist_name_snapshot,stylist_id,service_id,starts_at,duration_minutes,total,subtotal,promo_code,discount,addons,customer_name,customer_phone,notes,preferences,status")
       .eq("status","cancelled");
     if(error) throw error;
     return (data||[]).map(r=>({
-      id:r.id, public_token:r.public_token, salon_id:r.salon_id,
+      id:r.id, booking_number:r.booking_number, public_token:r.public_token, salon_id:r.salon_id,
       salon_name:SALONS.find(s=>s.id===r.salon_id)?.name||"Venue",
       service_id:r.service_id, service_name:r.service_name_snapshot||"Service",
       stylist_id:r.stylist_id, stylist_name:r.stylist_name_snapshot||"Venue team",
@@ -2304,8 +2304,7 @@ function dayShort(d){ return d.toLocaleDateString(undefined,{weekday:"short",tim
 function dayLabel(d){ return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",timeZone:NZ_TIME_ZONE}); }
 function bookingStatusLabel(status){ return status==="completed"?"Completed":status==="cancelled"?"Cancelled":status==="no_show"?"No-show":"Upcoming"; }
 function bookingRefFor(booking){
-  const source = booking.publicToken || String(booking.dbId||booking.id||"");
-  return 'B-' + source.replace(/-/g,"").slice(0,5).toUpperCase();
+  return booking.bookingNumber ? 'B-' + booking.bookingNumber : "";
 }
 function dateKeyDayDiff(aKey,bKey){ const [ay,am,ad]=aKey.split("-").map(Number),[by,bm,bd]=bKey.split("-").map(Number); return Math.round((Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000); }
 function countdownLabel(iso){

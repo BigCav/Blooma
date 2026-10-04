@@ -901,19 +901,19 @@
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
-  // get_venue_messages() returns raw message rows (no public_token — that lives on
+  // get_venue_messages() returns raw message rows (no booking number — that lives on
   // bookings), so refs shown here are looked up separately and cached by booking id.
-  var publicTokenByBookingId = {};
+  var bookingNumberByBookingId = {};
   async function ensurePublicTokens(bookingIds){
-    var missing = bookingIds.filter(function(id){ return id && !(id in publicTokenByBookingId); });
+    var missing = bookingIds.filter(function(id){ return id && !(id in bookingNumberByBookingId); });
     if(!missing.length) return;
-    var {data} = await supabaseClient.from('bookings').select('id,public_token').in('id', missing);
-    (data||[]).forEach(function(r){ publicTokenByBookingId[r.id] = r.public_token; });
-    missing.forEach(function(id){ if(!(id in publicTokenByBookingId)) publicTokenByBookingId[id] = null; });
+    var {data} = await supabaseClient.from('bookings').select('id,booking_number').in('id', missing);
+    (data||[]).forEach(function(r){ bookingNumberByBookingId[r.id] = r.booking_number; });
+    missing.forEach(function(id){ if(!(id in bookingNumberByBookingId)) bookingNumberByBookingId[id] = null; });
   }
   function bookingRefFor(id){
-    var token = publicTokenByBookingId[id];
-    return 'B-' + String(token||id||'').replace(/-/g,'').slice(0,5).toUpperCase();
+    var n = bookingNumberByBookingId[id];
+    return n ? 'B-' + n : '';
   }
 
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }

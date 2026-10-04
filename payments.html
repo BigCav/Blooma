@@ -744,7 +744,7 @@
     var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
     return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
   }
-  function bookingRefFor(publicToken,id){ return 'B-' + String(publicToken||id||'').replace(/-/g,'').slice(0,5).toUpperCase(); }
+  function bookingRefFor(bookingNumber){ return 'B-' + bookingNumber; }
   function fmtMoney(n){ return '$' + Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
@@ -815,7 +815,7 @@
         // Online deposits are real money already collected via Windcave — often weeks before
         // the booking itself is ever marked completed (or it's cancelled and never is), so
         // without a separate query for these, that income is invisible here forever.
-        supabaseClient.from("bookings").select("id,public_token,customer_name,customer_email,customer_phone,service_name_snapshot,stylist_name_snapshot,deposit_amount,deposit_paid_at,deposit_paid_out").eq("salon_id",currentSalonId).eq("deposit_status","paid").order("deposit_paid_at",{ascending:false})
+        supabaseClient.from("bookings").select("id,booking_number,public_token,customer_name,customer_email,customer_phone,service_name_snapshot,stylist_name_snapshot,deposit_amount,deposit_paid_at,deposit_paid_out").eq("salon_id",currentSalonId).eq("deposit_status","paid").order("deposit_paid_at",{ascending:false})
       ]);
       if(salonRow){
         document.querySelector('.sb-venue-name').textContent = salonRow.name || "Your venue";
@@ -834,7 +834,7 @@
         var depositPaid = b.deposit_status==='paid' && Number(b.deposit_amount||0)>0 ? Number(b.deposit_amount) : 0;
         return {
           key: 'chk-'+b.id, type: 'checkout',
-          id: b.id, publicToken: b.public_token, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
+          id: b.id, bookingNumber: b.booking_number, publicToken: b.public_token, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
           service: b.service_name_snapshot||'Service', stylist: b.stylist_name_snapshot||'Venue team',
           subtotal: Number(b.subtotal||0), discount: Number(b.discount||0), addons: Array.isArray(b.addons)?b.addons:[],
           tip: Number(b.tip_amount||0), total: Number(b.total||0), gross: gross, method: method, depositPaid: depositPaid,
@@ -847,7 +847,7 @@
       var depositTx = (deposits||[]).map(function(b){
         return {
           key: 'dep-'+b.id, type: 'deposit',
-          id: b.id, publicToken: b.public_token, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
+          id: b.id, bookingNumber: b.booking_number, publicToken: b.public_token, name: b.customer_name||'Customer', email: b.customer_email||'', phone: b.customer_phone||'',
           service: b.service_name_snapshot||'Service', stylist: b.stylist_name_snapshot||'Venue team',
           subtotal: Number(b.deposit_amount||0), discount: 0, addons: [],
           tip: 0, total: Number(b.deposit_amount||0), gross: Number(b.deposit_amount||0), method: 'deposit',
@@ -982,7 +982,7 @@
         '<div class="modal-head"><h2>Deposit details</h2><div class="modal-close" onclick="closeTxModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
         '<div class="tx-client-row"><div class="tx-client-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
           '<div><div class="tx-client-name">' + escapeHtml(t.name) + '</div><div class="tx-client-sub">' + escapeHtml(t.service) + '</div></div></div>' +
-        '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.publicToken,t.id) + '</a></span></div>' +
+        '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.bookingNumber) + '</a></span></div>' +
         '<div class="schedule-row"><span class="sr-sub">Paid online</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
         '<div class="schedule-row"><span class="sr-sub">Payout status</span><span class="sr-amt">' + (t.paidOut ? 'Paid out' : 'Held by Blooma, awaiting payout') + '</span></div>' +
         '<div class="schedule-row total"><span class="sr-sub" style="color:var(--text);font-weight:700;">Deposit collected</span><span class="sr-amt">' + fmtMoney(t.gross) + '</span></div>';
@@ -999,7 +999,7 @@
       '<div class="modal-head"><h2>Transaction details</h2><div class="modal-close" onclick="closeTxModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>' +
       '<div class="tx-client-row"><div class="tx-client-avatar" style="background:' + col.color + ';color:' + col.text + ';">' + initialsFor(t.name) + '</div>' +
         '<div><div class="tx-client-name">' + escapeHtml(t.name) + '</div><div class="tx-client-sub">' + escapeHtml(t.service) + ' · ' + escapeHtml(t.stylist) + '</div></div></div>' +
-      '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.publicToken,t.id) + '</a></span></div>' +
+      '<div class="schedule-row"><span class="sr-sub">Booking</span><span class="sr-amt"><a href="/venue/admin/booking?id=' + encodeURIComponent(t.id) + '" class="tx-ref-link">' + bookingRefFor(t.bookingNumber) + '</a></span></div>' +
       '<div class="schedule-row"><span class="sr-sub">Paid</span><span class="sr-amt">' + fullDateLabel(t.startsAt) + '</span></div>' +
       '<div class="schedule-row"><span class="sr-sub">Payment method</span><span class="sr-amt">' + (t.method==='cash'?'Cash':'Card') + '</span></div>' +
       '<div class="schedule-row"><span class="sr-sub">' + escapeHtml(t.service) + '</span><span class="sr-amt">' + fmtMoney(t.subtotal - t.addons.reduce(function(s,a){return s+Number(a.price||0);},0)) + '</span></div>' +
@@ -1014,7 +1014,7 @@
     if(!filtered.length){ showToast('No transactions to export'); return; }
     var lines = [['Paid','Client','Email','Service','Method','Gross','Tip','Booking'].map(csvEscape).join(',')];
     filtered.forEach(function(t){
-      lines.push([fullDateLabel(t.startsAt), t.name, t.email, t.service, t.method, t.gross.toFixed(2), t.tip.toFixed(2), bookingRefFor(t.publicToken,t.id)].map(csvEscape).join(','));
+      lines.push([fullDateLabel(t.startsAt), t.name, t.email, t.service, t.method, t.gross.toFixed(2), t.tip.toFixed(2), bookingRefFor(t.bookingNumber)].map(csvEscape).join(','));
     });
     var blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
     var url = URL.createObjectURL(blob);

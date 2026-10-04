@@ -459,7 +459,7 @@
 
   /* ---------- TABLE ---------- */
   .table-wrap{overflow-x:auto; overflow-y:hidden;}
-  table.data{width:100%; border-collapse:collapse; min-width:760px;}
+  table.data{width:100%; border-collapse:collapse; min-width:860px;}
   table.data th{
     text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em;
     color:var(--text-faint); font-weight:700; padding:0 14px 10px;
@@ -498,6 +498,7 @@
   .row-overdue td:first-child{box-shadow:inset 3px 0 0 var(--warning);}
   .row-stale td{background:rgba(255,107,129,0.07);}
   .row-stale td:first-child{box-shadow:inset 3px 0 0 var(--danger);}
+  .bk-ref{font-family:'SFMono-Regular',Consolas,monospace; font-size:12px; font-weight:700; color:var(--violet-text); white-space:nowrap;}
   .when-sub{font-size:11.5px; font-weight:600; margin-top:2px;}
   .when-sub.live{color:var(--violet-text);}
   .when-sub.overdue{color:var(--warning);}
@@ -839,6 +840,7 @@
       <table class="data">
         <thead>
           <tr id="bookingsTheadRow">
+            <th>Booking</th>
             <th>Client</th>
             <th>Service</th>
             <th>Staff</th>
@@ -975,6 +977,7 @@
       const st = salon.stylists.find(function(s){return s.id===r.stylist_id;});
       return {
         dbId: r.id,
+        bookingNumber: r.booking_number,
         publicToken: r.public_token,
         name: r.customer_name || 'Customer',
         email: r.customer_phone || '',
@@ -1137,29 +1140,10 @@
   var currentStaff = null;
   var currentPage = 1;
 
-  // An "upcoming" booking is only truly upcoming until it starts. After that it's in progress
-  // until its duration elapses, and after that it's overdue — nobody has checked it out,
-  // no-showed it or cancelled it. "stale" = overdue by a day or more.
-  function phaseOf(b){
-    if(b.status !== 'upcoming') return null;
-    var s = Date.parse(b.startsAt), e = s + (b.durationMinutes || 60) * 60000, n = Date.now();
-    if(n < s) return 'future';
-    if(n < e) return 'live';
-    return (n - e) >= 86400000 ? 'stale' : 'overdue';
-  }
-  function endMs(b){ return Date.parse(b.startsAt) + (b.durationMinutes || 60) * 60000; }
-  function agoLabel(ms){
-    var m = Math.floor(ms / 60000);
-    if(m < 1) return 'just now';
-    if(m < 60) return m + ' min ago';
-    var h = Math.floor(m / 60);
-    if(h < 24) return h + (h === 1 ? ' hour' : ' hours') + ' ago';
-    var d = Math.floor(h / 24);
-    if(d < 14) return d + (d === 1 ? ' day' : ' days') + ' ago';
-    if(d < 60) return Math.floor(d / 7) + ' weeks ago';
-    var mo = Math.floor(d / 30);
-    return mo + (mo === 1 ? ' month' : ' months') + ' ago';
-  }
+  // Time-phase logic is shared with the booking detail page (see booking-phase.js).
+  function phaseOf(b){ return BloomaBooking.phase(b.status, b.startsAt, b.durationMinutes); }
+  function endMs(b){ return BloomaBooking.endMs(b.startsAt, b.durationMinutes); }
+  function agoLabel(ms){ return BloomaBooking.ago(ms); }
   function isToday(b){ return nzDateKeyForIso(b.startsAt) === nzTodayKey(); }
   function isAttention(b){ var p = phaseOf(b); return p === 'overdue' || p === 'stale'; }
 
@@ -1216,7 +1200,7 @@
     var b = bookingsData.find(function(x){ return x.dbId===dbId; });
     if(!b) return;
     var c = colorFor(b.name);
-    var shortCode = 'B-' + String(b.publicToken||b.dbId).replace(/-/g,'').slice(0,5).toUpperCase();
+    var shortCode = BloomaBooking.ref(b.bookingNumber);
     var addonsSum = (b.addons||[]).reduce(function(s,a){ return s+Number(a.price||0); },0);
     var method = b.paymentMethod||'card';
     var tip = Number(b.tipAmount||0);
@@ -1270,7 +1254,7 @@
       if(currentStaff && b.staff !== currentStaff) return false;
       if(currentSearch){
         var q = currentSearch.toLowerCase();
-        if(b.name.toLowerCase().indexOf(q) === -1 && b.email.toLowerCase().indexOf(q) === -1 && b.service.toLowerCase().indexOf(q) === -1) return false;
+        if(b.name.toLowerCase().indexOf(q) === -1 && b.email.toLowerCase().indexOf(q) === -1 && b.service.toLowerCase().indexOf(q) === -1 && BloomaBooking.ref(b.bookingNumber).toLowerCase().indexOf(q.replace(/^#/,'')) === -1) return false;
       }
       return true;
     });
@@ -1388,7 +1372,7 @@
     renderAttention();
     if(currentFilter === 'waitlist'){ renderWaitlistTable(); return; }
     document.getElementById('bookingsTheadRow').innerHTML =
-      '<th>Client</th><th>Service</th><th>Staff</th><th>Date &amp; time</th><th>Price</th><th>Status</th><th></th>';
+      '<th>Booking</th><th>Client</th><th>Service</th><th>Staff</th><th>Date &amp; time</th><th>Price</th><th>Status</th><th></th>';
     var filtered = getFiltered();
     var totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     if(currentPage > totalPages) currentPage = totalPages;
@@ -1397,7 +1381,7 @@
 
     var tbody = document.getElementById('bookingsTbody');
     if(pageItems.length === 0){
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">' + (currentSearch || currentStaff ? 'No bookings match this filter.' : (EMPTY_MESSAGES[currentFilter] || 'No bookings match this filter.')) + '</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">' + (currentSearch || currentStaff ? 'No bookings match this filter.' : (EMPTY_MESSAGES[currentFilter] || 'No bookings match this filter.')) + '</td></tr>';
     } else {
       tbody.innerHTML = pageItems.map(function(b){
         var c = colorFor(b.name);
@@ -1416,6 +1400,7 @@
             '</div>'
           : '<div class="row-status-actions">' + (b.status==='completed' ? receiptBtn : '') + viewLink + '</div>';
         return '<tr class="' + rowClass + '" onclick="location.href=\'/venue/admin/booking?id=' + b.dbId + '\'">' +
+          '<td><span class="bk-ref">' + escapeHtml(BloomaBooking.ref(b.bookingNumber)) + '</span></td>' +
           '<td><div class="cell-person"><div class="cell-avatar" style="background:' + c.color + ';color:' + c.text + ';">' + escapeHtml(initialsFor(b.name)) + '</div>' +
           '<div><div class="cell-name">' + escapeHtml(b.name) + '</div><div class="cell-sub">' + escapeHtml(b.email||'') + '</div></div></div></td>' +
           '<td>' + escapeHtml(b.service) + '</td>' +
@@ -1623,6 +1608,7 @@
 <script src="/modal-scroll-lock.js"></script>
 <script src="/scroll-fade.js"></script>
 <script src="/form-validation.js"></script>
+<script src="/booking-phase.js"></script>
 <script src="/sidebar-badges.js"></script>
 <script src="/admin-logo-link.js"></script>
 
