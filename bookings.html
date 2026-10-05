@@ -511,11 +511,11 @@
   .filter-tab.attn.has-items .tab-count{background:var(--warning-fill,#F4C93A); color:var(--on-warning-fill,#131218);}
   .attn-banner{
     display:none; align-items:center; gap:12px; flex-wrap:wrap;
-    background:rgba(244,201,58,0.09); border:1px solid rgba(244,201,58,0.32);
+    background:linear-gradient(0deg,rgba(244,201,58,0.09),rgba(244,201,58,0.09)),var(--surface); border:1px solid rgba(244,201,58,0.32);
     border-radius:12px; padding:12px 16px; margin-bottom:16px;
   }
   .attn-banner.show{display:flex;}
-  .attn-banner.stale{background:rgba(255,107,129,0.08); border-color:rgba(255,107,129,0.34);}
+  .attn-banner.stale{background:linear-gradient(0deg,rgba(255,107,129,0.07),rgba(255,107,129,0.07)),var(--surface); border-color:rgba(255,107,129,0.45);}
   .attn-banner svg{flex:none; color:var(--warning);}
   .attn-banner.stale svg{color:var(--danger);}
   .attn-banner .attn-text{flex:1; min-width:200px; font-size:13px; color:var(--text-soft); line-height:1.45;}
@@ -524,7 +524,7 @@
     font-size:12px; font-weight:700; padding:7px 13px; border-radius:8px; cursor:pointer; white-space:nowrap;
     background:var(--warning-fill,#F4C93A); color:var(--on-warning-fill,#131218);
   }
-  .attn-banner.stale .attn-btn{background:var(--danger);}
+  .attn-banner.stale .attn-btn{background:var(--danger); color:#fff;}
   .row-action{
     width:30px; height:30px; border-radius:8px; background:var(--surface-2);
     border:1px solid var(--border);
