@@ -394,6 +394,45 @@
   .pay-pill.wait{background:rgba(244,201,58,0.16); color:var(--warning);}
   .pay-pill.void{background:rgba(255,107,129,0.14); color:var(--danger);}
 
+
+  .bk-cl-short{display:none;}
+  .bk-cl-head > div:nth-child(2){min-width:0;}
+  .attn-short{display:none;}
+  .bk-meta-sep{display:inline;}
+
+  @media (max-width:699px){
+    .bk-hero{padding:16px; border-radius:16px;}
+    .bk-hero .bk-head{padding-right:0; flex-wrap:nowrap; gap:10px;}
+    .bk-hero .bk-ref-label{display:none;}
+    .bk-hero .bk-ref-num{font-size:19px; padding:5px 10px;}
+    .bk-hero.has-banner #bkStatusBadge{display:none;}
+    .bk-hero .bk-actions-wrap{position:relative; top:auto; right:auto; margin-left:auto; display:block; flex:none;}
+    .bk-hero .bk-actions-trigger{width:38px; height:38px; padding:0; justify-content:center;}
+    .bk-hero-main{margin-top:14px; gap:12px;}
+    .bk-hero-main h1{font-size:22px;}
+    .bk-hero .bk-avatar{width:46px; height:46px; font-size:16px;}
+    .bk-meta-part{display:block;}
+    .bk-meta-sep{display:none;}
+    .bk-facts{margin-top:16px; gap:8px;}
+    .bk-fact{padding:10px 12px; gap:10px;}
+    .bk-fact-ico{width:30px; height:30px;}
+    .bk-fact-value{font-size:13.5px;}
+
+    .bk-cl-head{flex-wrap:nowrap; gap:12px;}
+    .bk-cl-long{display:none;}
+    .bk-cl-short{display:inline;}
+    .bk-cl-head .btn{padding:8px 12px;}
+    .bk-cl-name{display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+    .attn-banner{display:grid; grid-template-columns:34px 1fr; column-gap:12px; row-gap:12px; align-items:center; padding:14px;}
+    .attn-banner .attn-copy{min-width:0;}
+    .attn-ended, .attn-long{display:none;}
+    .attn-short{display:inline;}
+    .attn-banner .attn-actions{grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+    .attn-banner .attn-actions .btn{justify-content:center; width:100%;}
+    .attn-banner .attn-actions .btn:first-child{grid-column:1 / -1;}
+  }
+
   /* ---------- BREADCRUMB ---------- */
   .crumb{
     display:inline-flex; align-items:center; gap:6px;
@@ -885,8 +924,8 @@
       <div class="attn-banner ${phase === 'stale' ? 'stale' : ''}">
         <div class="attn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
         <div class="attn-copy">
-          <div class="attn-title">Needs attention · ended ${endedAgo}</div>
-          <div class="attn-sub">This appointment is past its end time but still marked upcoming. Check it out to take payment, or mark it as a no-show or cancel it so your records stay accurate.</div>
+          <div class="attn-title">Needs attention<span class="attn-ended"> · ended ${endedAgo}</span></div>
+          <div class="attn-sub"><span class="attn-long">This appointment is past its end time but still marked upcoming. Check it out to take payment, or mark it as a no-show or cancel it so your records stay accurate.</span><span class="attn-short">Ended ${endedAgo} and still marked upcoming.</span></div>
         </div>
         <div class="attn-actions">
           <a href="/venue/admin/checkout?id=${b.id}" class="btn btn-violet">Checkout</a>
@@ -981,7 +1020,7 @@
 
       ${attentionBanner}
 
-      <div class="panel bk-head-panel bk-hero${phase ? ' phase-' + phase : ''}">
+      <div class="panel bk-head-panel bk-hero${phase ? ' phase-' + phase : ''}${(phase === 'live' || phase === 'overdue' || phase === 'stale') ? ' has-banner' : ''}">
         <div class="bk-head bk-hero-top">
           <div class="bk-ref-block">
             <span class="bk-ref-label">Booking</span>
@@ -1019,7 +1058,7 @@
           <div class="bk-avatar" style="background:${c.color};color:${c.text};">${initialsFor(b.customer_name)}</div>
           <div style="min-width:0;">
             <h1>${escapeHtml(b.service_name_snapshot||'Service')}</h1>
-            <div class="bk-meta">for <a class="bk-link" href="${clientHref}">${escapeHtml(b.customer_name)}</a> · with ${stylistLink}</div>
+            <div class="bk-meta"><span class="bk-meta-part">for <a class="bk-link" href="${clientHref}">${escapeHtml(b.customer_name)}</a></span><span class="bk-meta-sep"> · </span><span class="bk-meta-part">with ${stylistLink}</span></div>
           </div>
         </div>
 
@@ -1049,7 +1088,7 @@
                 <a class="bk-cl-name" href="${clientHref}">${escapeHtml(b.customer_name)}</a>
                 <div class="bk-cl-since">${clientSinceLabel ? 'Client since ' + clientSinceLabel : 'New client'}</div>
               </div>
-              <a class="btn btn-ghost" href="${clientHref}">View profile</a>
+              <a class="btn btn-ghost" href="${clientHref}"><span class="bk-cl-long">View profile</span><span class="bk-cl-short">Profile</span></a>
             </div>
             <div class="bk-contact">
               ${b.customer_phone ? `<a class="bk-chip" href="tel:${escapeHtml(b.customer_phone.replace(/\s+/g,''))}">${ICON.phone}<span>${escapeHtml(b.customer_phone)}</span></a>` : `<div class="bk-chip empty">${ICON.phone}<span>No phone number</span></div>`}
