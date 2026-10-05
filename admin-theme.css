@@ -49,7 +49,7 @@
 
   --sb-a:#FFFFFF;
   --sb-b:#F7F6FC;
-  --sb-label:#9693AB;
+  --sb-label:#807D96;
   --sb-link:#5B586E;
   --sb-icon:#8A87A0;
   --border-strong:#CBC7DE;
@@ -78,3 +78,10 @@
 @media (max-width:1079px){
   .sidebar:not(.open){box-shadow:none;}
 }
+
+/* No coloured accent line across the top of stat cards. */
+.stat-card::before{display:none;}
+
+/* Light mode: soft neutral card shadows instead of a tinted glow. */
+:root[data-theme="light"] .stat-card{box-shadow:0 1px 2px rgba(20,18,40,.05), 0 6px 16px -10px rgba(20,18,40,.12);}
+:root[data-theme="light"] .stat-card:hover{box-shadow:0 2px 4px rgba(20,18,40,.06), 0 12px 24px -12px rgba(20,18,40,.18);}

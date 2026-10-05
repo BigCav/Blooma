@@ -2,13 +2,13 @@
    Blooma — venue-admin light/dark toggle.
    Loaded synchronously in <head> on every /venue/admin/* page so the saved theme is applied
    before first paint (no flash). The choice is remembered per browser and kept in sync across
-   open tabs. Dark is the default.
+   open tabs. Light is the default.
 --------------------------------------------------- */
 (function(){
   var KEY = 'blooma-admin-theme';
 
   function read(){
-    try{ return localStorage.getItem(KEY) === 'light' ? 'light' : 'dark'; }catch(e){ return 'dark'; }
+    try{ return localStorage.getItem(KEY) === 'dark' ? 'dark' : 'light'; }catch(e){ return 'light'; }
   }
   function write(t){
     try{ localStorage.setItem(KEY, t); }catch(e){}
