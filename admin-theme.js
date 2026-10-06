@@ -61,5 +61,20 @@
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
   else mount();
 
+  // Keep the selected pill/tab visible inside its scrolling row (e.g. after tapping one that was half off-screen).
+  var PILL_ROWS = '.panel-tabs, .ao-tabs, .st-tabs, .tabs, .cal-view-toggle, .rp-range, .filter-tabs, .staff-filter-row, .date-row';
+  function revealActivePills(){
+    document.querySelectorAll(PILL_ROWS).forEach(function(row){
+      if(row.scrollWidth <= row.clientWidth) return;
+      var active = row.querySelector('.active');
+      if(!active) return;
+      var target = active.offsetLeft - (row.clientWidth - active.offsetWidth) / 2;
+      row.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+    });
+  }
+  document.addEventListener('click', function(e){
+    if(e.target.closest && e.target.closest(PILL_ROWS)) setTimeout(revealActivePills, 60);
+  }, true);
+
   window.BloomaTheme = { toggle: toggle, get: function(){ return document.documentElement.getAttribute('data-theme'); } };
 })();

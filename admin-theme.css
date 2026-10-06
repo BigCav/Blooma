@@ -85,3 +85,18 @@
 /* Light mode: soft neutral card shadows instead of a tinted glow. */
 :root[data-theme="light"] .stat-card{box-shadow:0 1px 2px rgba(20,18,40,.05), 0 6px 16px -10px rgba(20,18,40,.12);}
 :root[data-theme="light"] .stat-card:hover{box-shadow:0 2px 4px rgba(20,18,40,.06), 0 12px 24px -12px rgba(20,18,40,.18);}
+
+/* ---------- Unified pill / tab rows ----------
+   Every row of pills or tabs stays on a single line and scrolls sideways when it doesn't fit,
+   instead of wrapping onto a second line. The scrollbar is hidden; the active pill is scrolled
+   into view by admin-theme.js. */
+.panel-tabs, .ao-tabs, .st-tabs, .tabs, .cal-view-toggle, .rp-range, .filter-tabs, .staff-filter-row, .date-row{
+  flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain;
+}
+.panel-tabs::-webkit-scrollbar, .ao-tabs::-webkit-scrollbar, .st-tabs::-webkit-scrollbar, .tabs::-webkit-scrollbar,
+.cal-view-toggle::-webkit-scrollbar, .rp-range::-webkit-scrollbar, .filter-tabs::-webkit-scrollbar,
+.staff-filter-row::-webkit-scrollbar, .date-row::-webkit-scrollbar{display:none;}
+.panel-tabs > *, .ao-tabs > *, .st-tabs > *, .tabs > *, .cal-view-toggle > *, .rp-range > *,
+.filter-tabs > *, .staff-filter-row > *, .date-row > *{flex:none; white-space:nowrap;}
+.tabs{padding-bottom:1px;}
