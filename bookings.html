@@ -1120,15 +1120,15 @@
     var todayKey = nzTodayKey();
     var todayCount = 0, todayDone = 0, upcoming = 0, completed = 0, cancelled = 0;
     var now = Date.now(), weekMs = 7*24*60*60*1000;
-    var thisMonth = new Date().toISOString().slice(0,7);
+    var thisMonth = nzTodayKey().slice(0,7);
     bookingsData.forEach(function(b){
       var isToday = nzDateKeyForIso(b.startsAt) === todayKey;
       if(isToday && (b.status==='upcoming'||b.status==='completed')) todayCount++;
       if(isToday && b.status==='completed') todayDone++;
       var t = new Date(b.startsAt).getTime();
       if(b.status==='upcoming' && t>=now && t<=now+weekMs) upcoming++;
-      if(b.status==='completed' && String(b.startsAt).slice(0,7)===thisMonth) completed++;
-      if(b.status==='cancelled' && String(b.startsAt).slice(0,7)===thisMonth) cancelled++;
+      if(b.status==='completed' && nzDateKeyForIso(b.startsAt).slice(0,7)===thisMonth) completed++;
+      if(b.status==='cancelled' && nzDateKeyForIso(b.startsAt).slice(0,7)===thisMonth) cancelled++;
     });
     document.getElementById('statToday').textContent = todayCount;
     document.getElementById('statTodaySub').textContent = todayDone + ' completed so far';

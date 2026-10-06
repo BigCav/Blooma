@@ -860,7 +860,7 @@
       groups[key].bookings.push(b);
     });
     var now = Date.now();
-    var monthKey = new Date().toISOString().slice(0,7);
+    var monthKey = nzMonthKey();
     return Object.values(groups).map(function(g){
       g.bookings.sort(function(a,b){ return new Date(b.starts_at) - new Date(a.starts_at); });
       var completed = g.bookings.filter(function(b){ return b.status==='completed'; });
@@ -871,7 +871,7 @@
       var firstCreated = g.bookings.reduce(function(min,b){ return (!min || new Date(b.created_at)<new Date(min)) ? b.created_at : min; }, null);
       var hasUpcoming = g.bookings.some(function(b){ return b.status==='upcoming'; });
       var daysSinceLast = lastCompletedVisit ? (now - new Date(lastCompletedVisit).getTime())/86400000 : Infinity;
-      var isNewThisMonth = firstCreated && String(firstCreated).slice(0,7)===monthKey;
+      var isNewThisMonth = firstCreated && nzMonthKey(firstCreated)===monthKey;
       var tag = null;
       if(visits>=10 || spent>=1000) tag = 'vip';
       else if(visits<=1 && !hasUpcoming) tag = 'new';
@@ -895,6 +895,7 @@
     var color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
     return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
   }
+  function nzMonthKey(iso){ const o={}; new Intl.DateTimeFormat('en-CA',{timeZone:'Pacific/Auckland',year:'numeric',month:'2-digit'}).formatToParts(iso?new Date(iso):new Date()).forEach(p=>{if(p.type!=='literal')o[p.type]=p.value;}); return o.year+'-'+o.month; }
   function escapeHtml(s){
     return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
@@ -977,7 +978,7 @@
         derived.push({
           key:key, name:r.name, email:r.email||'', phone:r.phone||'',
           visits:0, spent:0, lastVisit:null, lastActivity:r.created_at,
-          tag:'new', isNewThisMonth:new Date(r.created_at).toISOString().slice(0,7)===new Date().toISOString().slice(0,7),
+          tag:'new', isNewThisMonth:nzMonthKey(r.created_at)===nzMonthKey(),
           allBookings:[]
         });
       }
