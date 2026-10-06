@@ -427,6 +427,21 @@
   }
   .pg-btn.active{background:var(--violet); color:#fff; border-color:var(--violet);}
 
+  /* Card payments taken on the terminal that could not complete their booking */
+  .review-banner{display:none; margin-bottom:16px; border-radius:14px; padding:14px 16px;
+    border:1px solid rgba(255,107,129,0.55);
+    background:linear-gradient(0deg,rgba(255,107,129,0.07),rgba(255,107,129,0.07)),var(--surface);}
+  .review-banner.show{display:block;}
+  .review-banner h3{font-size:14px; font-weight:800; color:var(--danger); margin-bottom:4px;}
+  .review-banner .rv-sub{font-size:12.5px; color:var(--text-soft); margin-bottom:10px; line-height:1.45;}
+  .rv-item{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 0; border-top:1px solid var(--border); font-size:13px;}
+  .rv-main{flex:1; min-width:220px;}
+  .rv-main b{font-weight:700;}
+  .rv-main .rv-note{display:block; font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .rv-btn{font-size:12px; font-weight:700; padding:7px 12px; border-radius:8px; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text);}
+  .rv-btn:hover{background:var(--surface-hover);}
+  .rv-link{font-size:12px; font-weight:700; color:var(--violet-text);}
+
   /* ---------- TOAST ---------- */
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -604,6 +619,8 @@
     <div class="sub" id="pmSub">Transactions for your venue</div>
   </div>
 
+  <div class="review-banner" id="reviewBanner"></div>
+
   <div class="panel payout-panel">
     <div class="payout-info">
       <div class="eyebrow">Owed to you</div>
@@ -747,6 +764,26 @@
     return {color:color, text: color==='#5FE8A0' ? '#131218' : '#fff'};
   }
   function bookingRefFor(bookingNumber){ return 'B-' + bookingNumber; }
+  function loadReviewItems(){
+    supabaseClient.rpc("get_hit_review_items").then(function(res){
+      var items = (res && res.data) || [];
+      var el = document.getElementById('reviewBanner');
+      if(!items.length){ el.classList.remove('show'); el.innerHTML = ''; return; }
+      el.innerHTML = '<h3>' + items.length + ' card payment' + (items.length===1?'':'s') + ' need' + (items.length===1?'s':'') + ' your attention</h3>' +
+        '<div class="rv-sub">The card was charged on the terminal, but the booking could not be marked as paid (for example it was cancelled while the customer was paying). Check each one and refund via Windcave if needed.</div>' +
+        items.map(function(it){
+          return '<div class="rv-item"><div class="rv-main"><b>B-' + escapeHtml(it.booking_number) + ' · ' + escapeHtml(it.customer_name||'Customer') + '</b> - ' + fmtMoney(it.amount) + ' charged' +
+            (it.auth_code ? ' · auth ' + escapeHtml(it.auth_code) : '') + '<span class="rv-note">' + escapeHtml(it.note||'') + '</span></div>' +
+            '<a class="rv-link" href="/venue/admin/booking?id=' + encodeURIComponent(it.booking_id) + '">View booking</a>' +
+            '<div class="rv-btn" data-id="' + escapeHtml(it.id) + '" onclick="dismissReview(this.dataset.id)">Mark as handled</div></div>';
+        }).join('');
+      el.classList.add('show');
+    }, function(){});
+  }
+  function dismissReview(id){
+    supabaseClient.rpc("dismiss_hit_review",{p_id:id}).then(function(){ loadReviewItems(); showToast('Marked as handled'); });
+  }
+
   function fmtMoney(n){ return '$' + Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function nzTodayKey(){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
   function nzDateKeyForIso(iso){ const o={}; new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(iso)).forEach(p=>{if(p.type!=="literal")o[p.type]=p.value;}); return `${o.year}-${o.month}-${o.day}`; }
@@ -798,6 +835,7 @@
     document.getElementById('sbAvatar').textContent = initialsFor(displayName);
     document.getElementById('sbUserName').textContent = displayName;
     document.getElementById('sbUserRole').textContent = owner.role==='owner' ? 'Owner' : (owner.role||'Team');
+    loadReviewItems();
     supabaseClient.rpc("get_venue_deposit_summary").then(function(res){
       var d = res && res.data ? res.data : {};
       var owedCents = Number(d.owed_cents||0);

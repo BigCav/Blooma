@@ -139,7 +139,7 @@ async function loadSalonHit(svc, salonId) {
 // start/resume to avoid double-charging a booking whose earlier attempt actually went through.
 async function resolveTransaction(svc, salonId, salon, txn) {
   if (txn.resolved_at) {
-    return { complete: true, approved: txn.status === 'approved', responseText: txn.response_text, authCode: txn.auth_code, dpsTxnRef: txn.dps_txn_ref, fresh: false };
+    return { complete: true, approved: txn.status === 'approved', responseText: txn.response_text, authCode: txn.auth_code, dpsTxnRef: txn.dps_txn_ref, needsReview: !!txn.needs_review, reviewNote: txn.review_note || null, fresh: false };
   }
 
   const xml = `<Scr action="doScrHIT" user="${escapeXml(salon.windcave_hit_user)}" key="${escapeXml(salon.windcave_hit_key)}">
@@ -164,16 +164,32 @@ async function resolveTransaction(svc, salonId, salon, txn) {
     resolved_at: new Date().toISOString(),
   }).eq('id', txn.id).is('resolved_at', null).select('id');
 
-  if (approved) {
-    // Atomic guarded update, not read-then-write — if some other path already completed this
-    // booking (e.g. staff also hit Accept on the cash flow), this just no-ops harmlessly.
-    await svc.from('bookings').update({
+  const fresh = !!(won && won.length);
+  let needsReview = false, reviewNote = null;
+  if (approved && fresh) {
+    // Atomic guarded update, not read-then-write. Only the caller that resolved the transaction
+    // gets here. If the booking could not be completed (cancelled, rescheduled away or already
+    // paid another way while the customer was tapping their card) the card has still been billed,
+    // so flag it for a manual refund/review instead of letting it pass silently.
+    const { data: completed } = await svc.from('bookings').update({
       status: 'completed', payment_method: 'card', tip_amount: Number(txn.tip_amount || 0), windcave_transaction_id: dpsTxnRef,
       completed_at: new Date().toISOString(),
-    }).eq('id', txn.booking_id).eq('salon_id', salonId).eq('status', 'upcoming');
+    }).eq('id', txn.booking_id).eq('salon_id', salonId).eq('status', 'upcoming').select('id');
+
+    if (completed && completed.length) {
+      // Loyalty is normally awarded by the checkout page itself; this covers the tab having been
+      // closed. Both are idempotent per booking.
+      await svc.rpc('award_booking_loyalty', { p_booking_id: txn.booking_id }).then(() => {}, err => console.error('award_booking_loyalty failed', err));
+    } else {
+      const { data: b } = await svc.from('bookings').select('status').eq('id', txn.booking_id).maybeSingle();
+      needsReview = true;
+      reviewNote = `Card charged $${Number(txn.amount).toFixed(2)} but the booking is ${b?.status || 'no longer available'}, so it was not marked paid. Check and refund via Windcave if needed.`;
+      await svc.from('windcave_hit_transactions').update({ needs_review: true, review_note: reviewNote }).eq('id', txn.id);
+      console.error('[windcave-hit] APPROVED CHARGE COULD NOT COMPLETE BOOKING — needs manual review:', { txnRef: txn.txn_ref, bookingId: txn.booking_id });
+    }
   }
 
-  return { complete: true, approved, responseText, authCode, dpsTxnRef, fresh: !!(won && won.length) };
+  return { complete: true, approved, responseText, authCode, dpsTxnRef, needsReview, reviewNote, fresh };
 }
 
 async function status(req, res) {
@@ -189,7 +205,7 @@ async function status(req, res) {
   const salon = txn.resolved_at ? null : await loadSalonHit(svc, salonId);
   const out = await resolveTransaction(svc, salonId, salon, txn);
   if (!out.complete) { res.status(200).json({ complete: false }); return; }
-  res.status(200).json({ complete: true, approved: out.approved, responseText: out.responseText, authCode: out.authCode, dpsTxnRef: out.dpsTxnRef });
+  res.status(200).json({ complete: true, approved: out.approved, responseText: out.responseText, authCode: out.authCode, dpsTxnRef: out.dpsTxnRef, needsReview: !!out.needsReview, reviewNote: out.reviewNote || null });
 }
 
 /* ---------------------------------------------------
@@ -253,7 +269,7 @@ async function resume(req, res) {
   let inFlight = null;
   for (const txn of pending) {
     const out = await resolveTransaction(svc, salonId, salon, txn).catch(() => null);
-    if (out && out.complete && out.approved) { res.status(200).json({ txn_ref: null, amount: null, paid: true }); return; }
+    if (out && out.complete && out.approved) { res.status(200).json({ txn_ref: null, amount: null, paid: true, needsReview: !!out.needsReview, reviewNote: out.reviewNote || null }); return; }
     if (out && !out.complete && !inFlight && new Date(txn.created_at).getTime() >= reuseSince) inFlight = txn;
   }
   res.status(200).json({ txn_ref: inFlight?.txn_ref || null, amount: inFlight ? Number(inFlight.amount) : null, paid: false });
@@ -272,3 +288,4 @@ module.exports = async (req, res) => {
     res.status(err.statusCode || 500).json({ error: err.message || 'Request failed' });
   }
 };
+module.exports._resolveTransaction = resolveTransaction;

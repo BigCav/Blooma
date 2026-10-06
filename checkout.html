@@ -1197,6 +1197,7 @@
           // has now completed the booking, so show that instead of offering a second charge.
           const {data:paidRow} = await supabaseClient.from("bookings").select("*").eq("id",bookingId).eq("salon_id",currentSalonId).maybeSingle();
           if(paidRow){ booking = paidRow; }
+          if(out.needsReview){ renderHitReview(out.reviewNote); return; }
           try{ await awardLoyaltyPoints(); await checkAndAwardMilestone(); }catch(e){ console.warn(e); }
           renderAlreadyDone();
           return;
@@ -1277,6 +1278,22 @@
     `;
   }
 
+  function renderHitReview(note){
+    document.getElementById('coWrap').innerHTML = `
+      <div class="panel" id="ckResultReview">
+        <div class="result-banner">
+          <div class="result-icon declined"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg></div>
+          <div class="result-title">Card was charged - check this booking</div>
+          <div class="result-sub">${escapeHtml(note || 'The card payment went through but this booking could not be marked paid. Check it and refund via Windcave if needed.')}</div>
+          <div class="result-actions">
+            <a class="btn btn-violet" href="/venue/admin/payments">Open Payments</a>
+            <a class="btn btn-ghost" href="/venue/admin/bookings">Back to bookings</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function hitTimeout(){
     document.getElementById('coWrap').innerHTML = `
       <div class="panel" id="ckResultTimeout">
@@ -1324,6 +1341,7 @@
       const out = await res.json().catch(()=>null);
       if(!res.ok){ showToast(out?.error || 'Could not confirm the transaction'); txDecline(); return; }
       if(!out.complete){ setTimeout(function(){ pollHitTransaction(txnRef, attempt+1); }, 2000); return; }
+      if(out.approved && out.needsReview){ renderHitReview(out.reviewNote); return; }
       if(out.approved){
         booking.status = 'completed';
         booking.payment_method = 'card';

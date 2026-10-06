@@ -891,12 +891,20 @@ async function notification(req, res) {
         const { data: booking } = await svc.from('bookings').select('id,status').eq('id', bookingId).maybeSingle();
         if (booking && booking.status === 'upcoming') {
           const tipAmount = Math.max(0, Number(tipCentsStr || 0)) / 100;
-          await svc.from('bookings').update({
+          const { data: completed } = await svc.from('bookings').update({
             status: 'completed',
             payment_method: 'card',
             tip_amount: tipAmount,
             completed_at: new Date().toISOString(),
-          }).eq('id', bookingId);
+          }).eq('id', bookingId).eq('status', 'upcoming').select('id');
+          if (completed && completed.length) {
+            // The staff browser normally awards loyalty on the return page, but never does if the
+            // tab was closed after paying. Idempotent per booking, so doing it here too is safe.
+            try { await svc.rpc('award_booking_loyalty', { p_booking_id: bookingId }); }
+            catch (loyaltyErr) { console.error('award_booking_loyalty failed', loyaltyErr); }
+          }
+        } else if (booking) {
+          console.error('[windcave notification] CARD CHARGE AUTHORISED BUT BOOKING IS', booking.status, '— needs manual review/refund:', { bookingId, sessionId });
         }
       }
     } else if (ref.startsWith('gc:') || ref.startsWith('pkg:') || ref.startsWith('sub:')) {
